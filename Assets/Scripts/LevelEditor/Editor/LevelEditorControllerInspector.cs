@@ -21,7 +21,9 @@ namespace PixelShoot.LevelEditor.EditorTools
 
         private static readonly Regex HexColorRegex = new Regex("#([0-9A-Fa-f]{6})");
         private const string ColorsDir = "Assets/_Game/Colors";
-        private const string MaterialsDir = "Assets/_Game/Materials";
+        private const string MatBoxesDir = "Assets/_Game/Materials/Boxes";
+        private const string MatShootersDir = "Assets/_Game/Materials/Shooters";
+        private const string MatBulletsDir = "Assets/_Game/Materials/Bullets";
 
         public override void OnInspectorGUI()
         {
@@ -62,18 +64,6 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
 
             DrawPaletteSwatches(c);
-
-            EditorGUILayout.Space(4);
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                EditorGUI.BeginDisabledGroup(c.palette == null || c.currentPaletteIdx >= c.palette.Count || c.palette.Count == 0 || c.palette[c.currentPaletteIdx] == null);
-                if (GUILayout.Button("Generate 2 tones (darker + lighter) for selected color"))
-                {
-                    GenerateToneVariants(c, c.currentPaletteIdx);
-                }
-                EditorGUI.EndDisabledGroup();
-            }
-            EditorGUILayout.HelpBox("Adds darker and lighter ColorData variants linked to the selected color. Shooter of the main color will still destroy them; each tone has its own visual material.", MessageType.None);
 
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("Grid", EditorStyles.boldLabel);
@@ -217,8 +207,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 return;
             }
 
-            EnsureDir(ColorsDir);
-            EnsureDir(MaterialsDir);
+            // Per-color subfolders are created inside the helpers below.
 
             var newPalette = new List<ColorData>(matches.Count);
             foreach (Match m in matches)
@@ -240,66 +229,20 @@ namespace PixelShoot.LevelEditor.EditorTools
             Debug.Log($"Palette import: created/reused {newPalette.Count} ColorData entries.");
         }
 
-        private void GenerateToneVariants(LevelEditorController c, int sourceIdx)
-        {
-            if (sourceIdx < 0 || sourceIdx >= c.palette.Count) return;
-            var main = c.palette[sourceIdx];
-            if (main == null) return;
-
-            Color baseColor = main.DisplayColor;
-            Color.RGBToHSV(baseColor, out float h, out float s, out float v);
-            // Darker: keep hue/sat, drop value. Lighter: keep hue, lower sat, raise value.
-            Color darker = Color.HSVToRGB(h, s, Mathf.Clamp01(v * 0.65f));
-            Color lighter = Color.HSVToRGB(h, s * 0.7f, Mathf.Clamp01(Mathf.Lerp(v, 1f, 0.45f) + 0.05f));
-
-            EnsureDir(ColorsDir);
-            EnsureDir(MaterialsDir);
-
-            var newTones = new[] { darker, lighter };
-            foreach (var toneColor in newTones)
-            {
-                string hex = ColorUtility.ToHtmlStringRGB(toneColor);
-                // Reuse existing asset (e.g., if the same tone hex was imported before).
-                string path = $"{ColorsDir}/Color_{hex}.asset";
-                var tone = AssetDatabase.LoadAssetAtPath<ColorData>(path);
-                if (tone == null)
-                {
-                    tone = ScriptableObject.CreateInstance<ColorData>();
-                    SetField(tone, "colorId", hex);
-                    SetField(tone, "displayColor", toneColor);
-                    SetField(tone, "boxUnhitMaterial", CreateMaterial($"Box_{hex}_Unhit", toneColor));
-                    SetField(tone, "boxHitMaterial", CreateMaterial($"Box_{hex}_Hit", FadedVariant(toneColor)));
-                    SetField(tone, "shooterMaterial", CreateMaterial($"Shooter_{hex}", toneColor));
-                    SetField(tone, "bulletMaterial", CreateMaterial($"Bullet_{hex}", toneColor));
-                    AssetDatabase.CreateAsset(tone, path);
-                }
-                // Always (re)link this tone to the source main, even if the asset was pre-existing.
-                SetField(tone, "mainColor", main);
-                EditorUtility.SetDirty(tone);
-
-                if (!c.palette.Contains(tone)) c.palette.Add(tone);
-            }
-
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-
-            Undo.RecordObject(c, "Generate tone variants");
-            c.Rebuild();
-            EditorUtility.SetDirty(c);
-            Debug.Log($"Added 2 tone variants for {main.name}. Paint with them like any other color; shooter of {main.name} will destroy all tones.");
-        }
-
         private static ColorData GetOrCreateColorData(string hex, Color baseColor)
         {
-            string path = $"{ColorsDir}/Color_{hex}.asset";
+            // Per-color subfolder for the ScriptableObject too.
+            string colorDir = $"{ColorsDir}/{hex}";
+            EnsureDir(colorDir);
+            string path = $"{colorDir}/Color_{hex}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<ColorData>(path);
             if (existing != null) return existing;
 
             // Unhit (Frontier) = vivid base color. Hit = faded — destroyed boxes fade out.
-            var unhit = CreateMaterial($"Box_{hex}_Unhit", baseColor);
-            var hit = CreateMaterial($"Box_{hex}_Hit", FadedVariant(baseColor));
-            var shooterMat = CreateMaterial($"Shooter_{hex}", baseColor);
-            var bulletMat = CreateMaterial($"Bullet_{hex}", baseColor);
+            var unhit      = CreateMaterial(MatBoxesDir,    hex, "Unhit",   baseColor);
+            var hit        = CreateMaterial(MatBoxesDir,    hex, "Hit",     FadedVariant(baseColor));
+            var shooterMat = CreateMaterial(MatShootersDir, hex, "Shooter", baseColor);
+            var bulletMat  = CreateMaterial(MatBulletsDir,  hex, "Bullet",  baseColor);
 
             var cd = ScriptableObject.CreateInstance<ColorData>();
             SetField(cd, "colorId", hex);
@@ -324,9 +267,12 @@ namespace PixelShoot.LevelEditor.EditorTools
             return faded;
         }
 
-        private static Material CreateMaterial(string name, Color color)
+        /// <summary>baseDir/hex/name.mat — categorised first by usage (boxes/shooters/bullets), then by colour code.</summary>
+        private static Material CreateMaterial(string baseDir, string hex, string name, Color color)
         {
-            string path = $"{MaterialsDir}/{name}.mat";
+            string dir = $"{baseDir}/{hex}";
+            EnsureDir(dir);
+            string path = $"{dir}/{name}.mat";
             var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (existing != null) return existing;
             var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");

@@ -18,6 +18,35 @@ namespace PixelShoot.Data
     public static class RLECodec
     {
         /// <summary>
+        /// Tries to infer the grid size from the RLE text. Looks for a "Grid: NxM"
+        /// comment first, then falls back to the row count / first-row sum.
+        /// </summary>
+        public static bool TryDetectGridSize(string text, out int size)
+        {
+            size = 0;
+            if (string.IsNullOrWhiteSpace(text)) return false;
+
+            // 1) Grid: NxM comment hint (also handles N×M with the unicode multiplier)
+            var m = System.Text.RegularExpressions.Regex.Match(
+                text, @"Grid\s*:\s*(\d+)\s*[xX×]\s*(\d+)");
+            if (m.Success && int.TryParse(m.Groups[1].Value, out int hinted) && hinted > 0)
+            {
+                size = hinted;
+                return true;
+            }
+
+            // 2) Parse rows and infer
+            var rows = ParseRows(text);
+            if (rows == null || rows.Count == 0) return false;
+
+            int rowSum = 0;
+            for (int i = 1; i < rows[0].Count; i += 2) rowSum += rows[0][i];
+            // Take the larger of (row count, first-row sum) for safety.
+            size = Mathf.Max(rows.Count, rowSum);
+            return size > 0;
+        }
+
+        /// <summary>
         /// Decode RLE text into a flat int[] indexed by z*gridSize + x.
         /// Image row 0 (first inner array) is mapped to z = gridSize-1 (top of grid)
         /// so the level visually matches the encoder preview when looked at from -Z.

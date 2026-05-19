@@ -17,18 +17,19 @@ namespace PixelShoot.LevelEditor.EditorTools
     public class LevelEditorWizardWindow : EditorWindow
     {
         private const string ColorsDir = "Assets/_Game/Colors";
-        private const string MaterialsDir = "Assets/_Game/Materials";
+        private const string MatBoxesDir = "Assets/_Game/Materials/Boxes";
+        private const string MatShootersDir = "Assets/_Game/Materials/Shooters";
+        private const string MatBulletsDir = "Assets/_Game/Materials/Bullets";
         private const string LevelsDir = "Assets/_Game/Levels";
         private static readonly Regex HexColorRegex = new Regex("#([0-9A-Fa-f]{6})");
 
         private LevelEditorController controller;
         private string levelName = "Level_01";
-        private string paletteBuffer = "";
-        private string rleBuffer = "";
+        private string importBuffer = "";
         private int gridSize = 30;
         private int shotsPerShooter = 5;
-        private int selectedPaletteIdx = 0;
         private Vector2 scroll;
+        private string lastImportStatus = "";
         private static GUIStyle swatchStyle;
 
         [MenuItem("PixelShoot/Level Editor Wizard")]
@@ -67,15 +68,11 @@ namespace PixelShoot.LevelEditor.EditorTools
 
             DrawStep1_Level();
             DrawSectionBreak();
-            DrawStep2_Palette();
+            DrawStep2_Import();
             DrawSectionBreak();
-            DrawStep3_Rle();
+            DrawStep3_Columns();
             DrawSectionBreak();
-            DrawStep4_Tones();
-            DrawSectionBreak();
-            DrawStep5_Columns();
-            DrawSectionBreak();
-            DrawSaveLoad();
+            DrawSaveLoadClear();
 
             EditorGUILayout.EndScrollView();
         }
@@ -155,116 +152,88 @@ namespace PixelShoot.LevelEditor.EditorTools
         }
 
         // ─── STEP 2 ───────────────────────────────────────────────────────
-        private void DrawStep2_Palette()
+        private void DrawStep2_Import()
         {
             bool gated = controller == null || controller.targetAsset == null;
-            EditorGUILayout.LabelField("Step 2 — Palette", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Step 2 — Import (palette + RLE in one paste)", EditorStyles.boldLabel);
             using (new EditorGUI.DisabledScope(gated))
             {
-                EditorGUILayout.LabelField("Paste the PALETTE block (hex list):", EditorStyles.miniLabel);
-                paletteBuffer = EditorGUILayout.TextArea(paletteBuffer, GUILayout.MinHeight(60));
-                if (GUILayout.Button("Import palette → ColorData")) ImportPalette();
+                EditorGUILayout.LabelField("Paste the full encoder export (PALETTE and/or RLE_ROWS):", EditorStyles.miniLabel);
+                importBuffer = EditorGUILayout.TextArea(importBuffer, GUILayout.MinHeight(160));
+                if (GUILayout.Button("Import all (auto-detect)", GUILayout.Height(28))) ImportAll();
             }
+
+            if (!string.IsNullOrEmpty(lastImportStatus))
+                EditorGUILayout.HelpBox(lastImportStatus, MessageType.Info);
+
             if (controller != null && controller.palette != null && controller.palette.Count > 0)
             {
-                EditorGUILayout.HelpBox($"Palette: {controller.palette.Count} colors loaded.", MessageType.None);
+                EditorGUILayout.LabelField("Palette:", EditorStyles.miniLabel);
                 DrawSwatchRow(false);
             }
         }
 
-        private void ImportPalette()
+        private void ImportAll()
         {
-            var matches = HexColorRegex.Matches(paletteBuffer ?? "");
-            if (matches.Count == 0)
-            {
-                EditorUtility.DisplayDialog("Palette", "No hex colors found (#RRGGBB).", "OK");
-                return;
-            }
-            EnsureDir(ColorsDir);
-            EnsureDir(MaterialsDir);
+            string text = importBuffer ?? "";
+            int paletteCount = 0;
+            int filledCells = 0;
+            int detectedGrid = 0;
 
-            var newPalette = new List<ColorData>(matches.Count);
-            foreach (Match m in matches)
+            // 1) Palette: collect every hex code present (any order; comments tolerated).
+            var matches = HexColorRegex.Matches(text);
+            if (matches.Count > 0)
             {
-                string hex = m.Groups[1].Value.ToUpperInvariant();
-                Color col = ColorUtility.TryParseHtmlString("#" + hex, out var parsed) ? parsed : Color.magenta;
-                newPalette.Add(GetOrCreateColorData(hex, col));
+                // Per-color subfolders are created inside the helpers below.
+                var newPalette = new List<ColorData>(matches.Count);
+                foreach (Match m in matches)
+                {
+                    string hex = m.Groups[1].Value.ToUpperInvariant();
+                    Color col = ColorUtility.TryParseHtmlString("#" + hex, out var parsed) ? parsed : Color.magenta;
+                    newPalette.Add(GetOrCreateColorData(hex, col));
+                }
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+                Undo.RecordObject(controller, "Import palette");
+                controller.palette = newPalette;
+                controller.currentPaletteIdx = 0;
+                paletteCount = newPalette.Count;
             }
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
 
-            Undo.RecordObject(controller, "Import palette");
-            controller.palette = newPalette;
-            controller.currentPaletteIdx = 0;
-            selectedPaletteIdx = 0;
+            // 2) Grid size: try to auto-detect from RLE text.
+            if (RLECodec.TryDetectGridSize(text, out int detected))
+            {
+                detectedGrid = detected;
+                gridSize = detected;
+                controller.gridSize = detected;
+            }
+
+            // 3) RLE: decode if any rows are present.
+            if (controller.gridSize > 0 && RLECodec.TryDecode(text, controller.gridSize, out var decoded))
+            {
+                Undo.RecordObject(controller, "Import RLE");
+                controller.cells = decoded;
+                foreach (var v in decoded) if (v >= 0) filledCells++;
+            }
+
             controller.Rebuild();
             EditorUtility.SetDirty(controller);
+
+            // Status summary
+            var parts = new List<string>();
+            if (paletteCount > 0) parts.Add($"{paletteCount} colors");
+            if (detectedGrid > 0) parts.Add($"{detectedGrid}×{detectedGrid} grid");
+            if (filledCells > 0) parts.Add($"{filledCells} filled cells");
+            lastImportStatus = parts.Count == 0
+                ? "Nothing detected in the pasted text — make sure it contains hex colors and/or an RLE_ROWS array."
+                : "Imported: " + string.Join(", ", parts) + ".";
         }
 
         // ─── STEP 3 ───────────────────────────────────────────────────────
-        private void DrawStep3_Rle()
-        {
-            bool gated = controller == null || controller.palette == null || controller.palette.Count == 0;
-            EditorGUILayout.LabelField("Step 3 — RLE", EditorStyles.boldLabel);
-            using (new EditorGUI.DisabledScope(gated))
-            {
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    EditorGUILayout.LabelField("Grid size", GUILayout.Width(70));
-                    gridSize = Mathf.Max(1, EditorGUILayout.IntField(gridSize, GUILayout.Width(60)));
-                }
-                EditorGUILayout.LabelField("Paste the RLE_ROWS block:", EditorStyles.miniLabel);
-                rleBuffer = EditorGUILayout.TextArea(rleBuffer, GUILayout.MinHeight(80));
-                if (GUILayout.Button("Import RLE → grid")) ImportRle();
-            }
-            if (controller != null && controller.HasCells)
-            {
-                int filled = 0;
-                foreach (var v in controller.cells) if (v >= 0) filled++;
-                EditorGUILayout.HelpBox($"Grid filled: {filled} / {controller.CellCount}", MessageType.None);
-            }
-        }
-
-        private void ImportRle()
-        {
-            if (!RLECodec.TryDecode(rleBuffer, gridSize, out var decoded))
-            {
-                EditorUtility.DisplayDialog("RLE", "Failed to parse RLE text.", "OK");
-                return;
-            }
-            Undo.RecordObject(controller, "Import RLE");
-            controller.gridSize = gridSize;
-            controller.cells = decoded;
-            controller.Rebuild();
-            EditorUtility.SetDirty(controller);
-        }
-
-        // ─── STEP 4 ───────────────────────────────────────────────────────
-        private void DrawStep4_Tones()
-        {
-            bool gated = controller == null || controller.palette == null || controller.palette.Count == 0;
-            EditorGUILayout.LabelField("Step 4 — Tones (optional)", EditorStyles.boldLabel);
-            using (new EditorGUI.DisabledScope(gated))
-            {
-                EditorGUILayout.LabelField("Pick a main color:", EditorStyles.miniLabel);
-                DrawSwatchRow(true);
-                bool selValid = controller != null && controller.palette != null
-                                && selectedPaletteIdx >= 0 && selectedPaletteIdx < controller.palette.Count
-                                && controller.palette[selectedPaletteIdx] != null;
-                using (new EditorGUI.DisabledScope(!selValid))
-                {
-                    if (GUILayout.Button("Generate 2 tones (darker + lighter) for selected"))
-                        GenerateToneVariants(selectedPaletteIdx);
-                }
-            }
-            EditorGUILayout.HelpBox("Tone variants are linked to their main color via the Main Color field. A shooter of the main color will destroy every tone in that group.", MessageType.None);
-        }
-
-        // ─── STEP 5 ───────────────────────────────────────────────────────
-        private void DrawStep5_Columns()
+        private void DrawStep3_Columns()
         {
             bool gated = controller == null || !controller.HasCells;
-            EditorGUILayout.LabelField("Step 5 — Columns", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Step 3 — Columns", EditorStyles.boldLabel);
             using (new EditorGUI.DisabledScope(gated))
             {
                 using (new EditorGUILayout.HorizontalScope())
@@ -288,14 +257,15 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
         }
 
-        // ─── Save / Load ──────────────────────────────────────────────────
-        private void DrawSaveLoad()
+        // ─── Save / Load / Clear ──────────────────────────────────────────
+        private void DrawSaveLoadClear()
         {
-            EditorGUILayout.LabelField("Save / Load", EditorStyles.boldLabel);
-            bool gated = controller == null || controller.targetAsset == null;
-            using (new EditorGUI.DisabledScope(gated))
+            EditorGUILayout.LabelField("Save / Load / Clear", EditorStyles.boldLabel);
+            bool noAsset = controller == null || controller.targetAsset == null;
+            bool noController = controller == null;
+            using (new EditorGUILayout.HorizontalScope())
             {
-                using (new EditorGUILayout.HorizontalScope())
+                using (new EditorGUI.DisabledScope(noAsset))
                 {
                     if (GUILayout.Button("Save to asset", GUILayout.Height(28)))
                     {
@@ -311,11 +281,28 @@ namespace PixelShoot.LevelEditor.EditorTools
                         EditorUtility.SetDirty(controller);
                     }
                 }
+                using (new EditorGUI.DisabledScope(noController))
+                {
+                    if (GUILayout.Button("Clear scene", GUILayout.Height(28)))
+                    {
+                        if (EditorUtility.DisplayDialog("Clear scene",
+                            "This empties the grid (and visuals) in the scene. The asset on disk is not touched until you Save. Continue?",
+                            "Yes", "No"))
+                        {
+                            Undo.RecordObject(controller, "Clear scene");
+                            controller.NewGrid();
+                            controller.columns?.Clear();
+                            importBuffer = "";
+                            lastImportStatus = "";
+                            EditorUtility.SetDirty(controller);
+                        }
+                    }
+                }
             }
         }
 
         // ─── Helpers ──────────────────────────────────────────────────────
-        private void DrawSwatchRow(bool selectable)
+        private void DrawSwatchRow(bool _unused = false)
         {
             if (controller == null || controller.palette == null) return;
             const int PerRow = 10;
@@ -326,77 +313,27 @@ namespace PixelShoot.LevelEditor.EditorTools
                 var col = cd != null ? cd.DisplayColor : Color.magenta;
                 var prev = GUI.backgroundColor;
                 GUI.backgroundColor = col;
-                bool isSelected = selectable && i == selectedPaletteIdx;
-                string label = isSelected ? $"[{i}]" : i.ToString();
-                if (GUILayout.Button(label, swatchStyle))
-                {
-                    if (selectable)
-                    {
-                        selectedPaletteIdx = i;
-                    }
-                    else
-                    {
-                        Undo.RecordObject(controller, "Select palette");
-                        controller.currentPaletteIdx = i;
-                        controller.eraseMode = false;
-                        EditorUtility.SetDirty(controller);
-                    }
-                }
+                // Read-only display: clicking a swatch is a no-op, the level is built from RLE only.
+                GUILayout.Button(i.ToString(), swatchStyle);
                 GUI.backgroundColor = prev;
                 if (i % PerRow == PerRow - 1 || i == controller.palette.Count - 1) EditorGUILayout.EndHorizontal();
             }
         }
 
-        private void GenerateToneVariants(int sourceIdx)
-        {
-            if (sourceIdx < 0 || sourceIdx >= controller.palette.Count) return;
-            var main = controller.palette[sourceIdx];
-            if (main == null) return;
-
-            Color baseColor = main.DisplayColor;
-            Color.RGBToHSV(baseColor, out float h, out float s, out float v);
-            Color darker = Color.HSVToRGB(h, s, Mathf.Clamp01(v * 0.65f));
-            Color lighter = Color.HSVToRGB(h, s * 0.7f, Mathf.Clamp01(Mathf.Lerp(v, 1f, 0.45f) + 0.05f));
-
-            EnsureDir(ColorsDir);
-            EnsureDir(MaterialsDir);
-
-            foreach (var toneColor in new[] { darker, lighter })
-            {
-                string hex = ColorUtility.ToHtmlStringRGB(toneColor);
-                string path = $"{ColorsDir}/Color_{hex}.asset";
-                var tone = AssetDatabase.LoadAssetAtPath<ColorData>(path);
-                if (tone == null)
-                {
-                    tone = ScriptableObject.CreateInstance<ColorData>();
-                    SetField(tone, "colorId", hex);
-                    SetField(tone, "displayColor", toneColor);
-                    SetField(tone, "boxUnhitMaterial", CreateMaterial($"Box_{hex}_Unhit", toneColor));
-                    SetField(tone, "boxHitMaterial", CreateMaterial($"Box_{hex}_Hit", FadedVariant(toneColor)));
-                    SetField(tone, "shooterMaterial", CreateMaterial($"Shooter_{hex}", toneColor));
-                    SetField(tone, "bulletMaterial", CreateMaterial($"Bullet_{hex}", toneColor));
-                    AssetDatabase.CreateAsset(tone, path);
-                }
-                SetField(tone, "mainColor", main);
-                EditorUtility.SetDirty(tone);
-                if (!controller.palette.Contains(tone)) controller.palette.Add(tone);
-            }
-            AssetDatabase.SaveAssets();
-
-            Undo.RecordObject(controller, "Generate tones");
-            controller.Rebuild();
-            EditorUtility.SetDirty(controller);
-        }
-
         private static ColorData GetOrCreateColorData(string hex, Color baseColor)
         {
-            string path = $"{ColorsDir}/Color_{hex}.asset";
+            // Per-color subfolder for the ScriptableObject too.
+            string colorDir = $"{ColorsDir}/{hex}";
+            EnsureDir(colorDir);
+            string path = $"{colorDir}/Color_{hex}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<ColorData>(path);
             if (existing != null) return existing;
-            var unhit = CreateMaterial($"Box_{hex}_Unhit", baseColor);
-            var hit = CreateMaterial($"Box_{hex}_Hit", FadedVariant(baseColor));
-            var shooterMat = CreateMaterial($"Shooter_{hex}", baseColor);
-            var bulletMat = CreateMaterial($"Bullet_{hex}", baseColor);
+
+            var unhit      = CreateMaterial(MatBoxesDir,    hex, "Unhit",   baseColor);
+            var hit        = CreateMaterial(MatBoxesDir,    hex, "Hit",     FadedVariant(baseColor));
+            var shooterMat = CreateMaterial(MatShootersDir, hex, "Shooter", baseColor);
+            var bulletMat  = CreateMaterial(MatBulletsDir,  hex, "Bullet",  baseColor);
+
             var cd = ScriptableObject.CreateInstance<ColorData>();
             SetField(cd, "colorId", hex);
             SetField(cd, "displayColor", baseColor);
@@ -408,9 +345,12 @@ namespace PixelShoot.LevelEditor.EditorTools
             return cd;
         }
 
-        private static Material CreateMaterial(string name, Color color)
+        /// <summary>baseDir/hex/name.mat — categorised first by usage (boxes/shooters/bullets), then by colour code.</summary>
+        private static Material CreateMaterial(string baseDir, string hex, string name, Color color)
         {
-            string path = $"{MaterialsDir}/{name}.mat";
+            string dir = $"{baseDir}/{hex}";
+            EnsureDir(dir);
+            string path = $"{dir}/{name}.mat";
             var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (existing != null) return existing;
             var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");

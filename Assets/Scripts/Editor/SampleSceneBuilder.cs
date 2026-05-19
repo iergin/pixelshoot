@@ -157,10 +157,11 @@ namespace PixelShoot.EditorTools
 
         private static Material GetOrCreateLockedMaterial()
         {
-            const string path = "Assets/_Game/Materials/Box_Locked.mat";
+            const string dir = "Assets/_Game/Materials/Shared";
+            const string path = dir + "/Box_Locked.mat";
             var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (existing != null) return existing;
-            EnsureDir("Assets/_Game/Materials");
+            EnsureDir(dir);
             var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
             var color = new Color(0.42f, 0.42f, 0.46f);
             var mat = new Material(shader) { color = color };

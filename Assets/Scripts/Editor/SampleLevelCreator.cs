@@ -11,15 +11,15 @@ namespace PixelShoot.EditorTools
     {
         private const string BaseDir = "Assets/_Game";
         private const string ColorsDir = BaseDir + "/Colors";
-        private const string MaterialsDir = BaseDir + "/Materials";
+        private const string MatBoxesDir = BaseDir + "/Materials/Boxes";
+        private const string MatShootersDir = BaseDir + "/Materials/Shooters";
+        private const string MatBulletsDir = BaseDir + "/Materials/Bullets";
         private const string LevelsDir = BaseDir + "/Levels";
 
         [MenuItem("PixelShoot/Create Sample Level Data")]
         public static void CreateSampleLevel()
         {
             EnsureDir(BaseDir);
-            EnsureDir(ColorsDir);
-            EnsureDir(MaterialsDir);
             EnsureDir(LevelsDir);
 
             var red = CreateColor("Red", new Color(0.95f, 0.25f, 0.25f));
@@ -41,15 +41,17 @@ namespace PixelShoot.EditorTools
 
         private static ColorData CreateColor(string name, Color baseColor)
         {
-            var existingPath = $"{ColorsDir}/{name}.asset";
+            string colorDir = $"{ColorsDir}/{name}";
+            EnsureDir(colorDir);
+            string existingPath = $"{colorDir}/Color_{name}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<ColorData>(existingPath);
             if (existing != null) return existing;
 
             // Unhit (Frontier) = vivid base color. Hit = faded — destroyed boxes fade out.
-            var unhit = CreateMaterial($"Box_{name}_Unhit", baseColor);
-            var hit = CreateMaterial($"Box_{name}_Hit", FadedVariant(baseColor));
-            var shooterMat = CreateMaterial($"Shooter_{name}", baseColor);
-            var bulletMat = CreateMaterial($"Bullet_{name}", baseColor);
+            var unhit      = CreateMaterial(MatBoxesDir,    name, "Unhit",   baseColor);
+            var hit        = CreateMaterial(MatBoxesDir,    name, "Hit",     FadedVariant(baseColor));
+            var shooterMat = CreateMaterial(MatShootersDir, name, "Shooter", baseColor);
+            var bulletMat  = CreateMaterial(MatBulletsDir,  name, "Bullet",  baseColor);
 
             var color = ScriptableObject.CreateInstance<ColorData>();
             SetField(color, "colorId", name.ToLowerInvariant());
@@ -63,13 +65,15 @@ namespace PixelShoot.EditorTools
             return color;
         }
 
-        private static Material CreateMaterial(string name, Color color)
+        /// <summary>baseDir/groupName/name.mat — categorised first by usage (boxes/shooters/bullets), then by color/group.</summary>
+        private static Material CreateMaterial(string baseDir, string groupName, string name, Color color)
         {
-            var path = $"{MaterialsDir}/{name}.mat";
+            string dir = $"{baseDir}/{groupName}";
+            EnsureDir(dir);
+            string path = $"{dir}/{name}.mat";
             var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (existing != null) return existing;
 
-            // Try URP/Lit first, fall back to Standard
             var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
             var mat = new Material(shader) { color = color };
             if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
