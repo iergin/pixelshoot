@@ -186,7 +186,9 @@ namespace PixelShoot.Grid
             if (b == null) return false;
             // Only frontier boxes that haven't already been promised to another bullet are valid targets.
             if (!b.IsShootable) return false;
-            if (requiredColor != null && b.Color != requiredColor) return false;
+            // Match through the main color so any tone variant of the same color group is valid.
+            if (requiredColor != null && b.Color != null
+                && b.Color.GameplayColor != requiredColor.GameplayColor) return false;
             return true;
         }
 

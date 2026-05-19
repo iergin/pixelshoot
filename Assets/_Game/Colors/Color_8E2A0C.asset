@@ -18,3 +18,4 @@ MonoBehaviour:
   boxHitMaterial: {fileID: 2100000, guid: a6357b5fc091145c889595f0239e2392, type: 2}
   shooterMaterial: {fileID: 2100000, guid: 39fc15ceb534b4821b7c459cd644a7b2, type: 2}
   bulletMaterial: {fileID: 2100000, guid: 763dc554864434530bebb9aa7b30ac89, type: 2}
+  mainColor: {fileID: 11400000}

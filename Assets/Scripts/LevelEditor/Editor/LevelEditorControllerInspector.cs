@@ -30,6 +30,22 @@ namespace PixelShoot.LevelEditor.EditorTools
             DrawDefaultInspector();
 
             EditorGUILayout.Space(8);
+            EditorGUILayout.LabelField("Preview", EditorStyles.boldLabel);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                DrawPreviewModeButton(c, LevelPreviewMode.Editing,   "Edit");
+                DrawPreviewModeButton(c, LevelPreviewMode.Initial,   "Initial (game start)");
+                DrawPreviewModeButton(c, LevelPreviewMode.Completed, "Completed");
+            }
+            string previewHelp = c.previewMode switch
+            {
+                LevelPreviewMode.Initial   => "Frontier cells vivid, interior (locked) cells gray. Simulates what the player sees at game start.",
+                LevelPreviewMode.Completed => "Every cell shown faded (Hit material). Simulates a fully cleared grid.",
+                _                          => "Paint mode — click in the scene view to add/remove cells."
+            };
+            EditorGUILayout.HelpBox(previewHelp, MessageType.None);
+
+            EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("Painting", EditorStyles.boldLabel);
 
             using (new EditorGUILayout.HorizontalScope())
@@ -46,6 +62,18 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
 
             DrawPaletteSwatches(c);
+
+            EditorGUILayout.Space(4);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUI.BeginDisabledGroup(c.palette == null || c.currentPaletteIdx >= c.palette.Count || c.palette.Count == 0 || c.palette[c.currentPaletteIdx] == null);
+                if (GUILayout.Button("Generate 2 tones (darker + lighter) for selected color"))
+                {
+                    GenerateToneVariants(c, c.currentPaletteIdx);
+                }
+                EditorGUI.EndDisabledGroup();
+            }
+            EditorGUILayout.HelpBox("Adds darker and lighter ColorData variants linked to the selected color. Shooter of the main color will still destroy them; each tone has its own visual material.", MessageType.None);
 
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("Grid", EditorStyles.boldLabel);
@@ -212,6 +240,55 @@ namespace PixelShoot.LevelEditor.EditorTools
             Debug.Log($"Palette import: created/reused {newPalette.Count} ColorData entries.");
         }
 
+        private void GenerateToneVariants(LevelEditorController c, int sourceIdx)
+        {
+            if (sourceIdx < 0 || sourceIdx >= c.palette.Count) return;
+            var main = c.palette[sourceIdx];
+            if (main == null) return;
+
+            Color baseColor = main.DisplayColor;
+            Color.RGBToHSV(baseColor, out float h, out float s, out float v);
+            // Darker: keep hue/sat, drop value. Lighter: keep hue, lower sat, raise value.
+            Color darker = Color.HSVToRGB(h, s, Mathf.Clamp01(v * 0.65f));
+            Color lighter = Color.HSVToRGB(h, s * 0.7f, Mathf.Clamp01(Mathf.Lerp(v, 1f, 0.45f) + 0.05f));
+
+            EnsureDir(ColorsDir);
+            EnsureDir(MaterialsDir);
+
+            var newTones = new[] { darker, lighter };
+            foreach (var toneColor in newTones)
+            {
+                string hex = ColorUtility.ToHtmlStringRGB(toneColor);
+                // Reuse existing asset (e.g., if the same tone hex was imported before).
+                string path = $"{ColorsDir}/Color_{hex}.asset";
+                var tone = AssetDatabase.LoadAssetAtPath<ColorData>(path);
+                if (tone == null)
+                {
+                    tone = ScriptableObject.CreateInstance<ColorData>();
+                    SetField(tone, "colorId", hex);
+                    SetField(tone, "displayColor", toneColor);
+                    SetField(tone, "boxUnhitMaterial", CreateMaterial($"Box_{hex}_Unhit", toneColor));
+                    SetField(tone, "boxHitMaterial", CreateMaterial($"Box_{hex}_Hit", FadedVariant(toneColor)));
+                    SetField(tone, "shooterMaterial", CreateMaterial($"Shooter_{hex}", toneColor));
+                    SetField(tone, "bulletMaterial", CreateMaterial($"Bullet_{hex}", toneColor));
+                    AssetDatabase.CreateAsset(tone, path);
+                }
+                // Always (re)link this tone to the source main, even if the asset was pre-existing.
+                SetField(tone, "mainColor", main);
+                EditorUtility.SetDirty(tone);
+
+                if (!c.palette.Contains(tone)) c.palette.Add(tone);
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            Undo.RecordObject(c, "Generate tone variants");
+            c.Rebuild();
+            EditorUtility.SetDirty(c);
+            Debug.Log($"Added 2 tone variants for {main.name}. Paint with them like any other color; shooter of {main.name} will destroy all tones.");
+        }
+
         private static ColorData GetOrCreateColorData(string hex, Color baseColor)
         {
             string path = $"{ColorsDir}/Color_{hex}.asset";
@@ -279,6 +356,19 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
         }
 
+        private void DrawPreviewModeButton(LevelEditorController c, LevelPreviewMode mode, string label)
+        {
+            bool selected = c.previewMode == mode;
+            bool clicked = GUILayout.Toggle(selected, label, "Button");
+            if (clicked && !selected)
+            {
+                Undo.RecordObject(c, "Set preview mode");
+                c.previewMode = mode;
+                c.Rebuild();
+                EditorUtility.SetDirty(c);
+            }
+        }
+
         private void DrawPaletteSwatches(LevelEditorController c)
         {
             if (SwatchStyle == null)
@@ -326,6 +416,9 @@ namespace PixelShoot.LevelEditor.EditorTools
             int controlId = GUIUtility.GetControlID(FocusType.Passive);
 
             if (e.type == EventType.Layout) HandleUtility.AddDefaultControl(controlId);
+
+            // Paint only works in Editing preview; other modes are read-only previews.
+            if (c.previewMode != LevelPreviewMode.Editing) return;
 
             bool isPaintEvent = (e.type == EventType.MouseDown || e.type == EventType.MouseDrag)
                                 && e.button == 0 && !e.alt && !e.shift && !e.control && !e.command;

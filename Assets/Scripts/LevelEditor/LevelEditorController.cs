@@ -5,6 +5,13 @@ using PixelShoot.Data;
 
 namespace PixelShoot.LevelEditor
 {
+    public enum LevelPreviewMode
+    {
+        Editing,    // paint mode — every cell shows its vivid unhit material
+        Initial,    // game-start simulation — Frontier cells vivid, Locked cells gray
+        Completed   // post-game simulation — every cell faded (Hit material)
+    }
+
     /// <summary>
     /// Lives in the LevelEditor scene. Holds the in-progress grid (cells[]) and a
     /// reference to the LevelData asset being authored. Visual cubes are spawned
@@ -31,10 +38,19 @@ namespace PixelShoot.LevelEditor
         [Min(1)] public int conveyorSlotCapacity = 5;
         [Min(1)] public int reserveSlotCapacity = 5;
 
+        [Header("Preview")]
+        [Tooltip("Editing = paint mode (all painted cells show their vivid unhit material).\n" +
+                 "Initial = simulate the game start: silhouette cells show vivid (Frontier), interior cells show gray (Locked).\n" +
+                 "Completed = simulate every cell having been shot (all faded Hit materials).")]
+        public LevelPreviewMode previewMode = LevelPreviewMode.Editing;
+        [Tooltip("Material used for Locked-state cubes in Initial preview. If null, a gray fallback is created at runtime.")]
+        public Material lockedPreviewMaterial;
+
         // Authoring state. Public so the inspector can read/write under Undo.
         [HideInInspector] public int[] cells;
         [HideInInspector] public int currentPaletteIdx = 0;
         [HideInInspector] public bool eraseMode = false;
+        private Material lockedFallback;
 
         public bool HasCells => cells != null && cells.Length == gridSize * gridSize;
         public int CellCount => gridSize * gridSize;
@@ -130,11 +146,56 @@ namespace PixelShoot.LevelEditor
                 go = existing.gameObject;
             }
 
-            if (colorIdx < palette.Count && palette[colorIdx] != null)
+            var mr = go.GetComponent<MeshRenderer>();
+            if (mr != null) mr.sharedMaterial = GetMaterialForCell(x, z, colorIdx);
+        }
+
+        private Material GetMaterialForCell(int x, int z, int colorIdx)
+        {
+            if (colorIdx < 0 || colorIdx >= palette.Count) return null;
+            var cd = palette[colorIdx];
+            if (cd == null) return null;
+
+            switch (previewMode)
             {
-                var mr = go.GetComponent<MeshRenderer>();
-                if (mr != null) mr.sharedMaterial = palette[colorIdx].BoxUnhitMaterial;
+                case LevelPreviewMode.Completed:
+                    return cd.BoxHitMaterial != null ? cd.BoxHitMaterial : cd.BoxUnhitMaterial;
+                case LevelPreviewMode.Initial:
+                    return IsCellOnSilhouette(x, z)
+                        ? cd.BoxUnhitMaterial
+                        : GetLockedPreviewMaterial();
+                default: // Editing
+                    return cd.BoxUnhitMaterial;
             }
+        }
+
+        // 4-connected silhouette test that mirrors GridController.IsOnSilhouette but operates
+        // on the editor's flat cells[] array. A cell is on the silhouette if any neighbor is
+        // off-grid or empty (-1).
+        private bool IsCellOnSilhouette(int x, int z)
+        {
+            if (!HasCells) return true;
+            (int dx, int dz)[] n4 = { (1, 0), (-1, 0), (0, 1), (0, -1) };
+            foreach (var n in n4)
+            {
+                int nx = x + n.dx, nz = z + n.dz;
+                if (nx < 0 || nx >= gridSize || nz < 0 || nz >= gridSize) return true;
+                if (cells[nz * gridSize + nx] < 0) return true;
+            }
+            return false;
+        }
+
+        private Material GetLockedPreviewMaterial()
+        {
+            if (lockedPreviewMaterial != null) return lockedPreviewMaterial;
+            if (lockedFallback == null)
+            {
+                var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+                var col = new Color(0.42f, 0.42f, 0.46f);
+                lockedFallback = new Material(shader) { color = col };
+                if (lockedFallback.HasProperty("_BaseColor")) lockedFallback.SetColor("_BaseColor", col);
+            }
+            return lockedFallback;
         }
 
         public Vector3 LocalPositionFor(int x, int z)
@@ -216,35 +277,36 @@ namespace PixelShoot.LevelEditor
         }
 
         /// <summary>
-        /// Rebuilds the columns list from the painted grid. One column per palette color
-        /// in use, with enough shooters of that color to destroy every cell of that color
-        /// (each shooter has at most maxShotsPerShooter shots).
+        /// Rebuilds the columns list from the painted grid. Cells are grouped by their
+        /// gameplay color (a tone's main color), so a single shooter destroys every
+        /// tone variant of that color group. One column per gameplay group, with enough
+        /// shooters to cover every cell in that group.
         /// </summary>
         public void GenerateColumnsFromGrid(int maxShotsPerShooter)
         {
             EnsureCellsArray();
             maxShotsPerShooter = Mathf.Max(1, maxShotsPerShooter);
 
-            // Count by palette index in the order they first appear in the grid (z then x),
-            // so the column ordering is deterministic.
-            var order = new List<int>();
-            var counts = new Dictionary<int, int>();
+            // Group counts by GameplayColor (so tone variants merge into one column).
+            // Preserve first-appearance order for deterministic output.
+            var order = new List<ColorData>();
+            var counts = new Dictionary<ColorData, int>();
             for (int z = 0; z < gridSize; z++)
             {
                 for (int x = 0; x < gridSize; x++)
                 {
                     int c = cells[z * gridSize + x];
-                    if (c < 0) continue;
-                    if (!counts.ContainsKey(c)) { counts[c] = 0; order.Add(c); }
-                    counts[c]++;
+                    if (c < 0 || c >= palette.Count || palette[c] == null) continue;
+                    var key = palette[c].GameplayColor;
+                    if (!counts.ContainsKey(key)) { counts[key] = 0; order.Add(key); }
+                    counts[key]++;
                 }
             }
 
             var newColumns = new List<ColumnData>();
-            foreach (int colorIdx in order)
+            foreach (var gameplayColor in order)
             {
-                if (colorIdx >= palette.Count || palette[colorIdx] == null) continue;
-                int total = counts[colorIdx];
+                int total = counts[gameplayColor];
                 int shooterCount = Mathf.CeilToInt(total / (float)maxShotsPerShooter);
                 int remaining = total;
                 var shooterList = new List<ShooterData>();
@@ -253,7 +315,7 @@ namespace PixelShoot.LevelEditor
                     int shots = Mathf.Min(maxShotsPerShooter, remaining);
                     remaining -= shots;
                     var sd = new ShooterData();
-                    SetPrivateField(sd, "color", palette[colorIdx]);
+                    SetPrivateField(sd, "color", gameplayColor);
                     SetPrivateField(sd, "shotCount", shots);
                     shooterList.Add(sd);
                 }
