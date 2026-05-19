@@ -9,10 +9,15 @@ namespace PixelShoot.Grid
         [SerializeField] private Box boxPrefab;
         [SerializeField] private Transform gridRoot;
         [SerializeField] private float cellSize = 1f;
+        [Tooltip("Material applied to locked (inside-the-silhouette) boxes. If null, a default gray material is created at runtime.")]
+        [SerializeField] private Material lockedBoxMaterial;
 
         private Box[,] boxes;
         private int size;
         private int aliveCount;
+        private Material lockedFallback;
+
+        private static readonly (int dx, int dz)[] Neighbors4 = { (1, 0), (-1, 0), (0, 1), (0, -1) };
 
         public event Action OnGridCleared;
         public int Size => size;
@@ -28,6 +33,7 @@ namespace PixelShoot.Grid
             if (gridRoot != null) gridRoot.localScale = data.RootScale;
             boxes = new Box[size, size];
 
+            var locked = GetLockedMaterial();
             foreach (var cell in data.Cells)
             {
                 if (cell.IsEmpty) continue;
@@ -36,10 +42,52 @@ namespace PixelShoot.Grid
                 var pos = GetCellLocalPosition(cell.GridX, cell.GridZ);
                 var box = Instantiate(boxPrefab, gridRoot != null ? gridRoot : transform);
                 box.transform.localPosition = pos;
-                box.Initialize(cell.GridX, cell.GridZ, cell.Color);
+                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked);
                 boxes[cell.GridX, cell.GridZ] = box;
                 aliveCount++;
             }
+
+            ComputeInitialFrontier();
+        }
+
+        // Any box adjacent to a grid edge OR to an empty cell starts on the frontier.
+        // Boxes fully surrounded by other boxes start locked.
+        private void ComputeInitialFrontier()
+        {
+            if (boxes == null) return;
+            for (int x = 0; x < size; x++)
+            {
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b == null) continue;
+                    if (IsOnSilhouette(x, z)) b.SetState(BoxState.Frontier);
+                }
+            }
+        }
+
+        private bool IsOnSilhouette(int x, int z)
+        {
+            foreach (var n in Neighbors4)
+            {
+                int nx = x + n.dx, nz = z + n.dz;
+                if (nx < 0 || nx >= size || nz < 0 || nz >= size) return true; // grid edge
+                if (boxes[nx, nz] == null) return true;                        // empty cell neighbor
+            }
+            return false;
+        }
+
+        private Material GetLockedMaterial()
+        {
+            if (lockedBoxMaterial != null) return lockedBoxMaterial;
+            if (lockedFallback == null)
+            {
+                var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+                lockedFallback = new Material(shader) { color = new Color(0.42f, 0.42f, 0.46f) };
+                if (lockedFallback.HasProperty("_BaseColor"))
+                    lockedFallback.SetColor("_BaseColor", new Color(0.42f, 0.42f, 0.46f));
+            }
+            return lockedFallback;
         }
 
         public void Clear()
@@ -136,7 +184,8 @@ namespace PixelShoot.Grid
         private bool IsValidTarget(Box b, ColorData requiredColor)
         {
             if (b == null) return false;
-            if (!b.IsTargetable) return false;
+            // Only frontier boxes that haven't already been promised to another bullet are valid targets.
+            if (!b.IsShootable) return false;
             if (requiredColor != null && b.Color != requiredColor) return false;
             return true;
         }
@@ -146,6 +195,16 @@ namespace PixelShoot.Grid
             if (b == null || !b.IsAlive) return;
             b.TakeHit();
             aliveCount--;
+
+            // Promote any locked 4-neighbors to frontier — wave-front expansion.
+            foreach (var n in Neighbors4)
+            {
+                int nx = b.GridX + n.dx, nz = b.GridZ + n.dz;
+                if (nx < 0 || nx >= size || nz < 0 || nz >= size) continue;
+                var nb = boxes[nx, nz];
+                if (nb != null && nb.State == BoxState.Locked) nb.SetState(BoxState.Frontier);
+            }
+
             if (aliveCount <= 0) OnGridCleared?.Invoke();
         }
 

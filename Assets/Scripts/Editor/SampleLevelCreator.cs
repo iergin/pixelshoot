@@ -45,8 +45,9 @@ namespace PixelShoot.EditorTools
             var existing = AssetDatabase.LoadAssetAtPath<ColorData>(existingPath);
             if (existing != null) return existing;
 
+            // Unhit (Frontier) = vivid base color. Hit = faded — destroyed boxes fade out.
             var unhit = CreateMaterial($"Box_{name}_Unhit", baseColor);
-            var hit = CreateMaterial($"Box_{name}_Hit", Color.Lerp(baseColor, Color.gray, 0.7f));
+            var hit = CreateMaterial($"Box_{name}_Hit", FadedVariant(baseColor));
             var shooterMat = CreateMaterial($"Shooter_{name}", baseColor);
             var bulletMat = CreateMaterial($"Bullet_{name}", baseColor);
 
@@ -74,6 +75,17 @@ namespace PixelShoot.EditorTools
             if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
             AssetDatabase.CreateAsset(mat, path);
             return mat;
+        }
+
+        // Desaturated + pulled toward light gray, so the unhit state reads as "ghost" of the real color.
+        private static Color FadedVariant(Color c)
+        {
+            Color.RGBToHSV(c, out float h, out float s, out float v);
+            s *= 0.25f;
+            v = Mathf.Lerp(v, 0.85f, 0.5f);
+            var faded = Color.HSVToRGB(h, s, v);
+            faded.a = c.a;
+            return faded;
         }
 
         private static void ConfigureLevel(LevelData level, ColorData red, ColorData blue, ColorData green)

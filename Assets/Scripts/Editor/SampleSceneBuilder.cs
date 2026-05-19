@@ -51,6 +51,7 @@ namespace PixelShoot.EditorTools
             SetField(gridController, "boxPrefab", boxPrefab);
             SetField(gridController, "gridRoot", gridRoot.transform);
             SetField(gridController, "cellSize", 1f);
+            SetField(gridController, "lockedBoxMaterial", GetOrCreateLockedMaterial());
 
             // Conveyor
             var conveyorGo = new GameObject("Conveyor");
@@ -154,6 +155,20 @@ namespace PixelShoot.EditorTools
             Debug.Log("Sample scene built. Press Play to test.");
         }
 
+        private static Material GetOrCreateLockedMaterial()
+        {
+            const string path = "Assets/_Game/Materials/Box_Locked.mat";
+            var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (existing != null) return existing;
+            EnsureDir("Assets/_Game/Materials");
+            var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            var color = new Color(0.42f, 0.42f, 0.46f);
+            var mat = new Material(shader) { color = color };
+            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+            AssetDatabase.CreateAsset(mat, path);
+            return mat;
+        }
+
         private static GameObject CreateBulletPrefab()
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -175,6 +190,16 @@ namespace PixelShoot.EditorTools
             go.transform.localScale = Vector3.one * 0.9f;
             var box = go.AddComponent<Box>();
             SetField(box, "meshRenderer", go.GetComponent<MeshRenderer>());
+
+            // Color hint dot — small sphere centered on top of the cube. Visible only while Locked.
+            var dot = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            dot.name = "ColorDot";
+            Object.DestroyImmediate(dot.GetComponent<Collider>());
+            dot.transform.SetParent(go.transform);
+            dot.transform.localPosition = new Vector3(0f, 0.55f, 0f);
+            dot.transform.localScale = Vector3.one * 0.28f;
+            SetField(box, "colorDot", dot.GetComponent<MeshRenderer>());
+
             var path = $"{PrefabDir}/Box.prefab";
             var prefab = PrefabUtility.SaveAsPrefabAsset(go, path);
             Object.DestroyImmediate(go);
