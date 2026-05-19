@@ -129,8 +129,6 @@ MonoBehaviour:
   meshRenderer: {fileID: 6040722444609605903}
   bulletPrefab: {fileID: 8106460571289103217, guid: 97b64e36c3e474df5aecf62157aa4bc0, type: 3}
   muzzle: {fileID: 8685696756161629359}
-  fireCooldown: 0.18
-  alignmentTolerance: 0.35
   jumpPower: 1.5
 --- !u!1 &5879858088154851282
 GameObject:

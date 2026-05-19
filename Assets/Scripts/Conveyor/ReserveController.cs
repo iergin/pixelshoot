@@ -66,5 +66,26 @@ namespace PixelShoot.Conveyor
             foreach (var s in occupants) if (s != null) return true;
             return false;
         }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            if (slotTransforms == null) return;
+            for (int i = 0; i < slotTransforms.Length; i++)
+            {
+                var t = slotTransforms[i];
+                if (t == null) continue;
+                // Slot pad
+                Gizmos.color = new Color(0.3f, 0.6f, 1f, 0.85f);
+                Gizmos.DrawWireCube(t.position, new Vector3(0.8f, 0.05f, 0.8f));
+                // Connector to next slot
+                if (i + 1 < slotTransforms.Length && slotTransforms[i + 1] != null)
+                {
+                    Gizmos.color = new Color(0.3f, 0.6f, 1f, 0.35f);
+                    Gizmos.DrawLine(t.position, slotTransforms[i + 1].position);
+                }
+            }
+        }
+#endif
     }
 }

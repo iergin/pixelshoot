@@ -20,8 +20,33 @@ namespace PixelShoot.Conveyor
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
-            Gizmos.color = isCanShoot ? Color.green : Color.gray;
-            Gizmos.DrawWireSphere(transform.position, 0.15f);
+            Gizmos.color = isCanShoot ? Color.green : new Color(0.6f, 0.6f, 0.6f, 1f);
+            Gizmos.DrawSphere(transform.position, 0.18f);
+
+            // Arrow showing which side this node aims at, only when canShoot.
+            if (isCanShoot)
+            {
+                Vector3 dir = SideToDirection(targetSide);
+                Gizmos.color = new Color(1f, 0.85f, 0.2f, 1f);
+                Vector3 tip = transform.position + dir * 0.9f;
+                Gizmos.DrawLine(transform.position, tip);
+                // Arrowhead
+                Vector3 right = Vector3.Cross(Vector3.up, dir).normalized * 0.15f;
+                Gizmos.DrawLine(tip, tip - dir * 0.25f + right);
+                Gizmos.DrawLine(tip, tip - dir * 0.25f - right);
+            }
+        }
+
+        private static Vector3 SideToDirection(GridSide side)
+        {
+            switch (side)
+            {
+                case GridSide.Bottom: return Vector3.forward;  // node at z<grid, aims +Z toward grid
+                case GridSide.Top:    return Vector3.back;
+                case GridSide.Left:   return Vector3.right;
+                case GridSide.Right:  return Vector3.left;
+                default:              return Vector3.forward;
+            }
         }
 #endif
     }

@@ -149,6 +149,44 @@ namespace PixelShoot.Grid
             if (aliveCount <= 0) OnGridCleared?.Invoke();
         }
 
+#if UNITY_EDITOR
+        [SerializeField] private int gizmoPreviewSize = 7;
+
+        private void OnDrawGizmos()
+        {
+            // At runtime, draw the actual built grid; at edit time, draw a preview
+            // using gizmoPreviewSize so we can place the conveyor around it.
+            int s = (boxes != null) ? size : gizmoPreviewSize;
+            if (s <= 0) return;
+            var root = gridRoot != null ? gridRoot : transform;
+
+            float off = (s - 1) * 0.5f * cellSize;
+            // Outer bounds
+            Gizmos.color = new Color(0.9f, 0.6f, 0.2f, 0.8f);
+            Vector3 c00 = root.TransformPoint(new Vector3(-off - cellSize * 0.5f, 0f, -off - cellSize * 0.5f));
+            Vector3 cN0 = root.TransformPoint(new Vector3( off + cellSize * 0.5f, 0f, -off - cellSize * 0.5f));
+            Vector3 cNN = root.TransformPoint(new Vector3( off + cellSize * 0.5f, 0f,  off + cellSize * 0.5f));
+            Vector3 c0N = root.TransformPoint(new Vector3(-off - cellSize * 0.5f, 0f,  off + cellSize * 0.5f));
+            Gizmos.DrawLine(c00, cN0);
+            Gizmos.DrawLine(cN0, cNN);
+            Gizmos.DrawLine(cNN, c0N);
+            Gizmos.DrawLine(c0N, c00);
+
+            // Cell grid
+            Gizmos.color = new Color(0.9f, 0.6f, 0.2f, 0.25f);
+            for (int i = 0; i <= s; i++)
+            {
+                float v = -off - cellSize * 0.5f + i * cellSize;
+                Gizmos.DrawLine(
+                    root.TransformPoint(new Vector3(v, 0f, -off - cellSize * 0.5f)),
+                    root.TransformPoint(new Vector3(v, 0f,  off + cellSize * 0.5f)));
+                Gizmos.DrawLine(
+                    root.TransformPoint(new Vector3(-off - cellSize * 0.5f, 0f, v)),
+                    root.TransformPoint(new Vector3( off + cellSize * 0.5f, 0f, v)));
+            }
+        }
+#endif
+
         /// <summary>Check if a shooter at given world pos is roughly aligned (within tolerance) with target box's perpendicular axis.</summary>
         public bool IsAlignedWith(Box target, GridSide side, Vector3 shooterWorldPos, float tolerance)
         {

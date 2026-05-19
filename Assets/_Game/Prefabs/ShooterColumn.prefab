@@ -46,3 +46,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Shooters.ShooterColumn
   stackSpacing: 1.1
   restackDuration: 0.25
+  gizmoPreviewCount: 3

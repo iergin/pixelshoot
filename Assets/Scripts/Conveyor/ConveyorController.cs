@@ -17,7 +17,7 @@ namespace PixelShoot.Conveyor
 
         // Progress is expressed in world distance along the polyline.
         private readonly List<ConveyorPathNode> nodes = new List<ConveyorPathNode>();
-        private readonly List<float> cumulativeDistances = new List<float>(); // cumulativeDistances[i] = distance from node 0 to node i
+        private readonly List<float> cumulativeDistances = new List<float>();
         private readonly List<Shooter> ridingShooters = new List<Shooter>();
         private int capacity;
         private int reservedCount;
@@ -53,11 +53,6 @@ namespace PixelShoot.Conveyor
             lastReservationLandTime = float.NegativeInfinity;
         }
 
-        /// <summary>
-        /// Reserves a slot atomically. All shooters land at path progress 0 (entry);
-        /// boarding duration is stretched so the new shooter lands at least safeSpacing
-        /// world units behind the previous one.
-        /// </summary>
         public bool TryReserveSlot(out float boardingDuration, out float landingProgress)
         {
             boardingDuration = baseBoardingDuration;
@@ -103,7 +98,7 @@ namespace PixelShoot.Conveyor
             reservedCount = Mathf.Max(0, reservedCount - 1);
         }
 
-        /// <summary>Sample the path at a distance from start in world units. Beyond max → returns end.</summary>
+        /// <summary>Sample the path at a distance from start in world units. Linear between nodes.</summary>
         public void EvaluatePath(float distance, out Vector3 worldPos, out bool canShoot, out GridSide side)
         {
             worldPos = transform.position;
@@ -120,7 +115,6 @@ namespace PixelShoot.Conveyor
 
             distance = Mathf.Clamp(distance, 0f, MaxPathProgress);
 
-            // Binary/linear search for the segment containing this distance
             int i = 0;
             for (int k = 1; k < cumulativeDistances.Count; k++)
             {
@@ -137,10 +131,41 @@ namespace PixelShoot.Conveyor
 
             float segLen = cumulativeDistances[i + 1] - cumulativeDistances[i];
             float t = segLen > 0.0001f ? (distance - cumulativeDistances[i]) / segLen : 0f;
-            worldPos = Vector3.Lerp(nodes[i].Position, nodes[i + 1].Position, t);
 
-            canShoot = nodes[i].IsCanShoot;
-            side = nodes[i].TargetSide;
+            var a = nodes[i];
+            var b = nodes[i + 1];
+            // Segment is "shoot" only if BOTH endpoints are canShoot with the same side.
+            canShoot = a.IsCanShoot && b.IsCanShoot && a.TargetSide == b.TargetSide;
+            side = a.TargetSide;
+            worldPos = Vector3.Lerp(a.Position, b.Position, t);
         }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            if (pathRoot == null) return;
+            ConveyorPathNode prev = null;
+            for (int i = 0; i < pathRoot.childCount; i++)
+            {
+                var node = pathRoot.GetChild(i).GetComponent<ConveyorPathNode>();
+                if (node == null) continue;
+                if (prev != null)
+                {
+                    bool segShoot = prev.IsCanShoot && node.IsCanShoot && prev.TargetSide == node.TargetSide;
+                    Gizmos.color = segShoot
+                        ? new Color(0.2f, 0.9f, 0.3f, 1f)
+                        : new Color(0.55f, 0.55f, 0.55f, 1f);
+                    Gizmos.DrawLine(prev.Position, node.Position);
+
+                    Vector3 mid = Vector3.Lerp(prev.Position, node.Position, 0.5f);
+                    Vector3 dir = (node.Position - prev.Position).normalized;
+                    Vector3 right = Vector3.Cross(Vector3.up, dir).normalized * 0.12f;
+                    Gizmos.DrawLine(mid, mid - dir * 0.25f + right);
+                    Gizmos.DrawLine(mid, mid - dir * 0.25f - right);
+                }
+                prev = node;
+            }
+        }
+#endif
     }
 }

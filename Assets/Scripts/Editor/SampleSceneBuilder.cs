@@ -58,12 +58,25 @@ namespace PixelShoot.EditorTools
             var conveyor = conveyorGo.AddComponent<ConveyorController>();
             var pathRoot = new GameObject("PathRoot");
             pathRoot.transform.SetParent(conveyorGo.transform);
-            // 4-corner loop around the grid. Each corner's segment shoots its side.
-            CreatePathNode(pathRoot.transform, "Corner_BL", new Vector3(-4f, 0f, -4f), true, GridSide.Bottom); // BL -> BR shoots bottom
-            CreatePathNode(pathRoot.transform, "Corner_BR", new Vector3( 4f, 0f, -4f), true, GridSide.Right);  // BR -> TR shoots right
-            CreatePathNode(pathRoot.transform, "Corner_TR", new Vector3( 4f, 0f,  4f), true, GridSide.Top);    // TR -> TL shoots top
-            CreatePathNode(pathRoot.transform, "Corner_TL", new Vector3(-4f, 0f,  4f), true, GridSide.Left);   // TL -> BL shoots left
-            CreatePathNode(pathRoot.transform, "End",       new Vector3(-4f, 0f, -4f), false, GridSide.Bottom); // closes loop, no shoot
+            // Loop around the grid. Path is interpolated linearly between nodes.
+            // Per side: shoot-start and shoot-end (both canShoot+same side).
+            // Per corner: a single no-shoot pivot. Add more pivots manually to round corners.
+            const float S = 5f; // path distance from origin along each side
+            CreatePathNode(pathRoot.transform, "Bottom_Start", new Vector3(-3f, 0f, -S), true,  GridSide.Bottom);
+            CreatePathNode(pathRoot.transform, "Bottom_End",   new Vector3( 3f, 0f, -S), true,  GridSide.Bottom);
+            CreatePathNode(pathRoot.transform, "Corner_BR",    new Vector3( S,  0f, -S), false, GridSide.Right);
+
+            CreatePathNode(pathRoot.transform, "Right_Start",  new Vector3( S, 0f, -3f), true,  GridSide.Right);
+            CreatePathNode(pathRoot.transform, "Right_End",    new Vector3( S, 0f,  3f), true,  GridSide.Right);
+            CreatePathNode(pathRoot.transform, "Corner_TR",    new Vector3( S, 0f,  S),  false, GridSide.Top);
+
+            CreatePathNode(pathRoot.transform, "Top_Start",    new Vector3( 3f, 0f,  S), true,  GridSide.Top);
+            CreatePathNode(pathRoot.transform, "Top_End",      new Vector3(-3f, 0f,  S), true,  GridSide.Top);
+            CreatePathNode(pathRoot.transform, "Corner_TL",    new Vector3(-S,  0f,  S), false, GridSide.Left);
+
+            CreatePathNode(pathRoot.transform, "Left_Start",   new Vector3(-S, 0f,  3f), true,  GridSide.Left);
+            CreatePathNode(pathRoot.transform, "Left_End",     new Vector3(-S, 0f, -3f), true,  GridSide.Left);
+            CreatePathNode(pathRoot.transform, "Corner_BL",    new Vector3(-S, 0f, -S),  false, GridSide.Bottom); // closes loop, no shoot
             SetField(conveyor, "pathRoot", pathRoot.transform);
             SetField(conveyor, "pathSpeed", 3.0f);
             SetField(conveyor, "safeSpacing", 1.2f);

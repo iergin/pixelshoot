@@ -79,5 +79,27 @@ namespace PixelShoot.Shooters
             float z = -(count - 1 - index) * stackSpacing;
             return new Vector3(0f, 0f, z);
         }
+
+#if UNITY_EDITOR
+        [SerializeField] private int gizmoPreviewCount = 3;
+
+        private void OnDrawGizmos()
+        {
+            // Preview the stack direction even before runtime spawning.
+            int count = shooters != null && shooters.Count > 0 ? shooters.Count : gizmoPreviewCount;
+            // Top marker (z=0): clickable
+            Gizmos.color = new Color(1f, 0.4f, 0.2f, 1f);
+            Gizmos.DrawWireSphere(transform.position, 0.25f);
+            // Trail
+            Gizmos.color = new Color(1f, 0.4f, 0.2f, 0.4f);
+            for (int i = 1; i < count; i++)
+            {
+                Vector3 p = transform.TransformPoint(new Vector3(0f, 0f, -i * stackSpacing));
+                Gizmos.DrawWireSphere(p, 0.18f);
+                Vector3 prev = transform.TransformPoint(new Vector3(0f, 0f, -(i - 1) * stackSpacing));
+                Gizmos.DrawLine(prev, p);
+            }
+        }
+#endif
     }
 }
