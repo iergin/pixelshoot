@@ -600,7 +600,7 @@ MonoBehaviour:
   shooterPrefab: {fileID: 7749044057658203902, guid: 10b95fb2691024f15a22346905fe680e, type: 3}
   columnPrefab: {fileID: 2657055777082917559, guid: 6634c4b9b89754e0480d56d38e2b021d, type: 3}
   columnsRoot: {fileID: 1070926439}
-  columnSpacing: 1.4
+  columnSpacing: 2.5
 --- !u!114 &448307441
 MonoBehaviour:
   m_ObjectHideFlags: 0
