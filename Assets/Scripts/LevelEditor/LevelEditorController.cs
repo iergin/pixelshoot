@@ -26,6 +26,9 @@ namespace PixelShoot.LevelEditor
         [Header("Grid")]
         [Min(1)] public int gridSize = 30;
         [Min(0.01f)] public float cellSize = 0.3f;
+        [Tooltip("Local position applied to the GridRoot transform — saved on the LevelData asset and re-applied on load.")]
+        public Vector3 gridRootPosition = Vector3.zero;
+        [Tooltip("Local scale applied to the GridRoot transform — saved on the LevelData asset and re-applied on load.")]
         public Vector3 gridRootScale = Vector3.one;
         public Transform gridRoot;
         public GameObject cellPrefab;
@@ -91,11 +94,20 @@ namespace PixelShoot.LevelEditor
 
         public void Rebuild()
         {
+            ApplyGridRootTransform();
             ClearVisuals();
             if (!HasCells) return;
             for (int z = 0; z < gridSize; z++)
                 for (int x = 0; x < gridSize; x++)
                     if (cells[z * gridSize + x] >= 0) UpdateVisual(x, z);
+        }
+
+        /// <summary>Pushes the controller's gridRootPosition / gridRootScale onto the actual gridRoot transform.</summary>
+        public void ApplyGridRootTransform()
+        {
+            if (gridRoot == null) return;
+            gridRoot.localPosition = gridRootPosition;
+            gridRoot.localScale = gridRootScale == Vector3.zero ? Vector3.one : gridRootScale;
         }
 
         public void ClearVisuals()
@@ -219,6 +231,7 @@ namespace PixelShoot.LevelEditor
         {
             if (targetAsset == null) return;
             gridSize = Mathf.Max(1, targetAsset.Grid.Size);
+            gridRootPosition = targetAsset.Grid.RootPosition;
             gridRootScale = targetAsset.Grid.RootScale;
 
             // Build cells[] from BoxCellData list. Extend the existing palette with any
@@ -251,6 +264,7 @@ namespace PixelShoot.LevelEditor
             // GridData fields are private — set via reflection.
             var grid = targetAsset.Grid;
             SetPrivateField(grid, "size", gridSize);
+            SetPrivateField(grid, "rootPosition", gridRootPosition);
             SetPrivateField(grid, "rootScale", gridRootScale);
 
             var boxCells = new List<BoxCellData>();

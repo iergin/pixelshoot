@@ -218,7 +218,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7268dae1a0176446f9eeb6004bcbac68, type: 2}
+  - {fileID: 2100000, guid: 999845c5d6016494c91e4135774738ec, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1624,6 +1624,7 @@ MonoBehaviour:
   boxPrefab: {fileID: 4354557738883949754, guid: 17d53db052de74c7f9d824ab714802d4, type: 3}
   gridRoot: {fileID: 952713677}
   cellSize: 1
+  lockedBoxMaterial: {fileID: 0}
   gizmoPreviewSize: 12
 --- !u!4 &1908823582
 Transform:

@@ -30,7 +30,11 @@ namespace PixelShoot.Grid
             Clear();
 
             size = data.Size;
-            if (gridRoot != null) gridRoot.localScale = data.RootScale;
+            if (gridRoot != null)
+            {
+                gridRoot.localPosition = data.RootPosition;
+                gridRoot.localScale = data.RootScale;
+            }
             boxes = new Box[size, size];
 
             var locked = GetLockedMaterial();

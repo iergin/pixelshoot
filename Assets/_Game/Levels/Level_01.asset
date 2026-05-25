@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Data.LevelData
   grid:
     size: 64
-    rootScale: {x: 1, y: 1, z: 1}
+    rootPosition: {x: -0.16, y: 0.11142, z: 0.3883}
+    rootScale: {x: 0.2233377, y: 0.2233377, z: 0.2233377}
     cells:
     - gridX: 6
       gridZ: 2

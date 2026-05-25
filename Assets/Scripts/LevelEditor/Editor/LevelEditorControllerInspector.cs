@@ -29,7 +29,13 @@ namespace PixelShoot.LevelEditor.EditorTools
         {
             var c = (LevelEditorController)target;
 
+            EditorGUI.BeginChangeCheck();
             DrawDefaultInspector();
+            // Push grid-root position/scale onto the actual transform as the user edits them.
+            if (EditorGUI.EndChangeCheck())
+            {
+                c.ApplyGridRootTransform();
+            }
 
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("Preview", EditorStyles.boldLabel);
