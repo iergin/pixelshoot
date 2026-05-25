@@ -39,6 +39,9 @@ namespace PixelShoot.Shooters
         // Reset when the shooter changes side or moves off the grid (parallel = -1).
         private GridSide lastSide;
         private int lastEngagedParallelIndex = int.MinValue;
+        // Guard so OnPathEnded fires exactly once per lap (avoids re-firing every frame
+        // when the conveyor is paused at fail with the shooter still at pathProgress == max).
+        private bool pathEndFired;
 
         public event Action<Shooter> OnExpired;
         public event Action<Shooter> OnPathEnded;
@@ -86,6 +89,7 @@ namespace PixelShoot.Shooters
             // Reset engagement so the shooter can fire again at every column on this fresh lap.
             lastEngagedParallelIndex = int.MinValue;
             lastSide = default;
+            pathEndFired = false;
         }
 
         public void SetPathProgress(float progress) => pathProgress = progress;
@@ -94,15 +98,20 @@ namespace PixelShoot.Shooters
         private void Update()
         {
             if (state != ShooterState.OnConveyor || conveyor == null) return;
+            // Conveyor paused (e.g., level failed) → freeze in place.
+            if (conveyor.IsPaused) return;
 
             pathProgress += pathSpeed * Time.deltaTime;
             float maxProgress = conveyor.MaxPathProgress;
             if (pathProgress >= maxProgress)
             {
+                pathProgress = maxProgress;
+                if (pathEndFired) return; // already notified for this lap
+                pathEndFired = true;
                 OnPathEnded?.Invoke(this);
-                // Subscriber must transition state (e.g. to Boarding for reserve, or Expired).
-                // If nobody handled it, default to Expire to avoid an infinite loop.
-                if (state == ShooterState.OnConveyor) Expire();
+                // Subscriber must transition state OR keep us on the conveyor (e.g. fail).
+                // If nobody handled it AND we weren't deliberately kept, default to Expire.
+                if (state == ShooterState.OnConveyor && !conveyor.IsPaused) Expire();
                 return;
             }
 

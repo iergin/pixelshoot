@@ -92,17 +92,22 @@ namespace PixelShoot.Game
         private void HandleRiderPathEnded(Shooter shooter)
         {
             shooter.OnPathEnded -= HandleRiderPathEnded;
-            conveyor.RemoveRider(shooter);
 
             if (shooter.ShotsRemaining <= 0)
             {
+                conveyor.RemoveRider(shooter);
                 shooter.Expire();
                 return;
             }
 
+            // Has shots — try to park in reserve.
+            conveyor.RemoveRider(shooter);
             if (SendToReserve(shooter)) return;
 
-            shooter.Expire();
+            // Reserve full + shots remain: KEEP the shooter on the conveyor at its current
+            // end-of-path position. Fail() will pause the conveyor so it just sits there
+            // (visible, idle) until the player presses Restart or Play On.
+            conveyor.RegisterRider(shooter, conveyor.MaxPathProgress);
             Fail();
         }
 
@@ -131,6 +136,8 @@ namespace PixelShoot.Game
             var fromReserve = reserve != null ? reserve.TryPopFirst() : null;
             if (fromReserve != null) playOnReserve.Append(fromReserve);
 
+            // Resume normal play: unfreeze the conveyor so future boarders advance again.
+            if (conveyor != null) conveyor.IsPaused = false;
             state = GameState.Playing;
         }
 
@@ -152,6 +159,7 @@ namespace PixelShoot.Game
         {
             if (state != GameState.Playing) return;
             state = GameState.Failed;
+            if (conveyor != null) conveyor.IsPaused = true;
             Debug.Log("LEVEL FAILED: a returning shooter still had shots but reserve was full.");
             OnLevelFailed?.Invoke();
         }

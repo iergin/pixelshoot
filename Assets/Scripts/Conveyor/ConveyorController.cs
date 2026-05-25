@@ -28,6 +28,9 @@ namespace PixelShoot.Conveyor
         public float MaxPathProgress => cumulativeDistances.Count > 0 ? cumulativeDistances[cumulativeDistances.Count - 1] : 0f;
         public Vector3 EntryWorldPosition => nodes.Count > 0 ? nodes[0].Position : transform.position;
 
+        /// <summary>When true, every Shooter on the belt freezes in place (used after a level fail).</summary>
+        public bool IsPaused { get; set; }
+
         public void Initialize(int slotCapacity)
         {
             capacity = slotCapacity;
@@ -51,6 +54,7 @@ namespace PixelShoot.Conveyor
             ridingShooters.Clear();
             reservedCount = 0;
             lastReservationLandTime = float.NegativeInfinity;
+            IsPaused = false;
         }
 
         public bool TryReserveSlot(out float boardingDuration, out float landingProgress)
