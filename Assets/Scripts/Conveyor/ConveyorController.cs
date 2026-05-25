@@ -25,6 +25,7 @@ namespace PixelShoot.Conveyor
 
         public int Capacity => capacity;
         public int FreeCount => capacity - (ridingShooters.Count + reservedCount);
+        public int OccupiedCount => ridingShooters.Count + reservedCount;
         public float MaxPathProgress => cumulativeDistances.Count > 0 ? cumulativeDistances[cumulativeDistances.Count - 1] : 0f;
         public Vector3 EntryWorldPosition => nodes.Count > 0 ? nodes[0].Position : transform.position;
 

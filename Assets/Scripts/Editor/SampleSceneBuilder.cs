@@ -167,13 +167,13 @@ namespace PixelShoot.EditorTools
             }
 
             // Level end UI
-            BuildLevelEndUI(root.transform, gameController);
+            BuildLevelEndUI(root.transform, gameController, conveyor);
 
             UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
             Debug.Log("Sample scene built. Press Play to test.");
         }
 
-        private static void BuildLevelEndUI(Transform rootParent, GameController game)
+        private static void BuildLevelEndUI(Transform rootParent, GameController game, ConveyorController conveyor)
         {
             // Canvas + EventSystem
             var canvasGo = new GameObject("LevelEndCanvas");
@@ -191,6 +191,25 @@ namespace PixelShoot.EditorTools
                 es.AddComponent<UnityEngine.EventSystems.EventSystem>();
                 es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
             }
+
+            // Conveyor capacity HUD (top-center)
+            var hudGo = new GameObject("ConveyorCapacityText", typeof(RectTransform));
+            hudGo.transform.SetParent(canvasGo.transform, false);
+            var hudRt = (RectTransform)hudGo.transform;
+            hudRt.anchorMin = new Vector2(0.5f, 1f);
+            hudRt.anchorMax = new Vector2(0.5f, 1f);
+            hudRt.pivot = new Vector2(0.5f, 1f);
+            hudRt.sizeDelta = new Vector2(420, 70);
+            hudRt.anchoredPosition = new Vector2(0, -30);
+            var hudText = hudGo.AddComponent<Text>();
+            hudText.alignment = TextAnchor.MiddleCenter;
+            hudText.fontSize = 32;
+            hudText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            hudText.color = Color.white;
+            hudText.text = "Conveyor: 0 / 0";
+            var hud = hudGo.AddComponent<ConveyorCapacityHUD>();
+            SetField(hud, "conveyor", conveyor);
+            SetField(hud, "label", hudText);
 
             // Success panel
             var successPanel = BuildPanel(canvasGo.transform, "SuccessPanel", "LEVEL COMPLETE", new Color(0.1f, 0.3f, 0.15f, 0.92f));

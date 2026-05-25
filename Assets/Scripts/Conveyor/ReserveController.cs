@@ -130,11 +130,29 @@ namespace PixelShoot.Conveyor
             return false;
         }
 
-        /// <summary>Removes the leftmost occupant. Used by Play-On to harvest one reserve shooter.</summary>
+        /// <summary>Removes the leftmost occupant.</summary>
         public Shooter TryPopFirst()
         {
             if (occupants == null) return null;
             for (int i = 0; i < occupants.Length; i++)
+            {
+                if (occupants[i] != null)
+                {
+                    var s = occupants[i];
+                    occupants[i] = null;
+                    compactPending = true;
+                    TryCompact();
+                    return s;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>Removes the rightmost occupant. Used by Play-On to harvest one reserve shooter from the back.</summary>
+        public Shooter TryPopLast()
+        {
+            if (occupants == null) return null;
+            for (int i = occupants.Length - 1; i >= 0; i--)
             {
                 if (occupants[i] != null)
                 {

@@ -133,7 +133,8 @@ namespace PixelShoot.Game
                 playOnReserve.Append(s);
             }
 
-            var fromReserve = reserve != null ? reserve.TryPopFirst() : null;
+            // Pull the LAST (rightmost) reserve shooter — least-recently used, keeps the front of the queue intact.
+            var fromReserve = reserve != null ? reserve.TryPopLast() : null;
             if (fromReserve != null) playOnReserve.Append(fromReserve);
 
             // Resume normal play: unfreeze the conveyor so future boarders advance again.
