@@ -27,24 +27,22 @@ namespace PixelShoot.Game
 
         /// <summary>
         /// Called by ShooterColumn when the top shooter is clicked.
-        /// Returns true if the shooter was accepted (column should remove it).
+        /// Returns true if the shooter was accepted (column should remove it). If
+        /// the conveyor is full, this is a silent no-op — the shooter stays in the
+        /// column. Reserve slots are NOT used for column overflow; they are only
+        /// filled by shooters that finish a conveyor lap with shots remaining.
         /// </summary>
         public bool RequestLaunch(Shooter shooter)
         {
             if (state != GameState.Playing) return false;
 
-            // 1) Try conveyor directly
             if (conveyor.TryReserveSlot(out float boardingDuration, out float landingProgress))
             {
                 BoardConveyor(shooter, boardingDuration, landingProgress);
                 return true;
             }
 
-            // 2) Conveyor full — park in reserve if there's room
-            if (SendToReserve(shooter)) return true;
-
-            // 3) Both full → fail
-            Fail();
+            // Conveyor full → ignore the click. User must wait for a slot to free up.
             return false;
         }
 
@@ -86,17 +84,26 @@ namespace PixelShoot.Game
         }
 
         /// <summary>
-        /// Shooter completed a full conveyor lap. If it still has shots and a reserve
-        /// slot is free, send it back to reserve. Otherwise expire.
+        /// Shooter completed a full conveyor lap. If it has no shots left, expire.
+        /// Otherwise try to park in reserve — if reserve is full while shots remain,
+        /// the level fails because those bullets are needed to clear the grid.
         /// </summary>
         private void HandleRiderPathEnded(Shooter shooter)
         {
             shooter.OnPathEnded -= HandleRiderPathEnded;
             conveyor.RemoveRider(shooter);
 
-            if (shooter.ShotsRemaining > 0 && SendToReserve(shooter)) return;
+            if (shooter.ShotsRemaining <= 0)
+            {
+                shooter.Expire();
+                return;
+            }
 
+            if (SendToReserve(shooter)) return;
+
+            // Has shots but nowhere to wait → unwinnable.
             shooter.Expire();
+            Fail();
         }
 
         private void HandleGridCleared()
@@ -110,7 +117,7 @@ namespace PixelShoot.Game
         {
             if (state != GameState.Playing) return;
             state = GameState.Failed;
-            Debug.Log("LEVEL FAILED: reserve full.");
+            Debug.Log("LEVEL FAILED: a returning shooter still had shots but reserve was full.");
         }
 
         private void OnDestroy()
