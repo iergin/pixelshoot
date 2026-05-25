@@ -93,6 +93,12 @@ namespace PixelShoot.Conveyor
             ridingShooters.Remove(s);
         }
 
+        /// <summary>Copy of every shooter currently riding the conveyor (state OnConveyor or Boarding-to-conveyor).</summary>
+        public List<Shooter> GetRidersSnapshot()
+        {
+            return new List<Shooter>(ridingShooters);
+        }
+
         public void CancelReservation()
         {
             reservedCount = Mathf.Max(0, reservedCount - 1);

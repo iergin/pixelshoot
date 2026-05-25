@@ -123,6 +123,31 @@ namespace PixelShoot.Conveyor
             return false;
         }
 
+        public bool Contains(Shooter shooter)
+        {
+            if (occupants == null || shooter == null) return false;
+            foreach (var s in occupants) if (s == shooter) return true;
+            return false;
+        }
+
+        /// <summary>Removes the leftmost occupant. Used by Play-On to harvest one reserve shooter.</summary>
+        public Shooter TryPopFirst()
+        {
+            if (occupants == null) return null;
+            for (int i = 0; i < occupants.Length; i++)
+            {
+                if (occupants[i] != null)
+                {
+                    var s = occupants[i];
+                    occupants[i] = null;
+                    compactPending = true;
+                    TryCompact();
+                    return s;
+                }
+            }
+            return null;
+        }
+
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {

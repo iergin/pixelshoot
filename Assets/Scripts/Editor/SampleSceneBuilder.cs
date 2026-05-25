@@ -3,12 +3,14 @@ using System.IO;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using PixelShoot.Bullets;
 using PixelShoot.Conveyor;
 using PixelShoot.Data;
 using PixelShoot.Game;
 using PixelShoot.Grid;
 using PixelShoot.Shooters;
+using PixelShoot.UI;
 
 namespace PixelShoot.EditorTools
 {
@@ -96,6 +98,17 @@ namespace PixelShoot.EditorTools
             }
             SetField(reserve, "slotTransforms", slotTransforms);
 
+            // PlayOnReserve (unlimited row, used after Play On)
+            var playOnGo = new GameObject("PlayOnReserve");
+            playOnGo.transform.SetParent(root.transform);
+            var playOn = playOnGo.AddComponent<PlayOnReserveController>();
+            var playOnSlotsRoot = new GameObject("SlotsRoot");
+            playOnSlotsRoot.transform.SetParent(playOnGo.transform);
+            playOnSlotsRoot.transform.localPosition = new Vector3(-6f, 0f, -10f);
+            // slotsRoot.right points in world +X by default — slots will extend rightward.
+            SetField(playOn, "slotsRoot", playOnSlotsRoot.transform);
+            SetField(playOn, "slotSpacing", 1.1f);
+
             // Columns root
             var columnsRoot = new GameObject("ColumnsRoot");
             columnsRoot.transform.SetParent(root.transform);
@@ -108,12 +121,14 @@ namespace PixelShoot.EditorTools
             SetField(gameController, "grid", gridController);
             SetField(gameController, "conveyor", conveyor);
             SetField(gameController, "reserve", reserve);
+            SetField(gameController, "playOnReserve", playOn);
 
             var loader = gameGo.AddComponent<LevelLoader>();
             SetField(loader, "levelData", level);
             SetField(loader, "grid", gridController);
             SetField(loader, "conveyor", conveyor);
             SetField(loader, "reserve", reserve);
+            SetField(loader, "playOnReserve", playOn);
             SetField(loader, "gameController", gameController);
             SetField(loader, "shooterPrefab", shooterPrefab);
             SetField(loader, "columnPrefab", columnPrefab);
@@ -151,8 +166,115 @@ namespace PixelShoot.EditorTools
                 ground.transform.localPosition = new Vector3(0f, -0.5f, 0f);
             }
 
+            // Level end UI
+            BuildLevelEndUI(root.transform, gameController);
+
             UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
             Debug.Log("Sample scene built. Press Play to test.");
+        }
+
+        private static void BuildLevelEndUI(Transform rootParent, GameController game)
+        {
+            // Canvas + EventSystem
+            var canvasGo = new GameObject("LevelEndCanvas");
+            canvasGo.transform.SetParent(rootParent);
+            var canvas = canvasGo.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 100;
+            canvasGo.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            canvasGo.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1080, 1920);
+            canvasGo.AddComponent<GraphicRaycaster>();
+
+            if (Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
+            {
+                var es = new GameObject("EventSystem");
+                es.AddComponent<UnityEngine.EventSystems.EventSystem>();
+                es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+            }
+
+            // Success panel
+            var successPanel = BuildPanel(canvasGo.transform, "SuccessPanel", "LEVEL COMPLETE", new Color(0.1f, 0.3f, 0.15f, 0.92f));
+            var nextBtn = BuildButton(successPanel.transform, "NextLevelButton", "Next Level", new Vector2(0, -60));
+            successPanel.SetActive(false);
+
+            // Fail panel
+            var failPanel = BuildPanel(canvasGo.transform, "FailPanel", "LEVEL FAILED", new Color(0.35f, 0.1f, 0.1f, 0.92f));
+            var restartBtn = BuildButton(failPanel.transform, "RestartButton", "Restart", new Vector2(-120, -60));
+            var playOnBtn = BuildButton(failPanel.transform, "PlayOnButton", "Play On", new Vector2(120, -60));
+            failPanel.SetActive(false);
+
+            // Controller
+            var ui = canvasGo.AddComponent<LevelEndUIController>();
+            SetField(ui, "gameController", game);
+            SetField(ui, "successPanel", successPanel);
+            SetField(ui, "nextLevelButton", nextBtn);
+            SetField(ui, "failPanel", failPanel);
+            SetField(ui, "restartButton", restartBtn);
+            SetField(ui, "playOnButton", playOnBtn);
+        }
+
+        private static GameObject BuildPanel(Transform parent, string name, string title, Color bg)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            var rt = (RectTransform)go.transform;
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(520, 280);
+            rt.anchoredPosition = Vector2.zero;
+
+            var img = go.AddComponent<Image>();
+            img.color = bg;
+
+            // Title text
+            var titleGo = new GameObject("Title", typeof(RectTransform));
+            titleGo.transform.SetParent(go.transform, false);
+            var titleRt = (RectTransform)titleGo.transform;
+            titleRt.anchorMin = new Vector2(0.5f, 1f);
+            titleRt.anchorMax = new Vector2(0.5f, 1f);
+            titleRt.pivot = new Vector2(0.5f, 1f);
+            titleRt.sizeDelta = new Vector2(480, 80);
+            titleRt.anchoredPosition = new Vector2(0, -20);
+            var txt = titleGo.AddComponent<Text>();
+            txt.text = title;
+            txt.alignment = TextAnchor.MiddleCenter;
+            txt.fontSize = 36;
+            txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            txt.color = Color.white;
+            return go;
+        }
+
+        private static Button BuildButton(Transform panel, string name, string label, Vector2 anchoredPos)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(panel, false);
+            var rt = (RectTransform)go.transform;
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(200, 64);
+            rt.anchoredPosition = anchoredPos;
+
+            var img = go.AddComponent<Image>();
+            img.color = new Color(1f, 1f, 1f, 0.18f);
+            var btn = go.AddComponent<Button>();
+            btn.targetGraphic = img;
+
+            var textGo = new GameObject("Text", typeof(RectTransform));
+            textGo.transform.SetParent(go.transform, false);
+            var textRt = (RectTransform)textGo.transform;
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.offsetMin = Vector2.zero;
+            textRt.offsetMax = Vector2.zero;
+            var t = textGo.AddComponent<Text>();
+            t.text = label;
+            t.alignment = TextAnchor.MiddleCenter;
+            t.fontSize = 22;
+            t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            t.color = Color.white;
+            return btn;
         }
 
         private static Material GetOrCreateLockedMaterial()

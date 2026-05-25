@@ -15,6 +15,7 @@ namespace PixelShoot.Game
         [SerializeField] private GridController grid;
         [SerializeField] private ConveyorController conveyor;
         [SerializeField] private ReserveController reserve;
+        [SerializeField] private PlayOnReserveController playOnReserve;
         [SerializeField] private GameController gameController;
 
         [Header("Shooter spawning")]
@@ -38,7 +39,7 @@ namespace PixelShoot.Game
             grid.Build(levelData.Grid);
             conveyor.Initialize(levelData.ConveyorSlotCapacity);
             reserve.Initialize(levelData.ReserveSlotCapacity);
-            gameController.Bind(grid, conveyor, reserve);
+            gameController.Bind(grid, conveyor, reserve, playOnReserve);
 
             SpawnColumns();
             ValidateBulletBudget();
