@@ -38,6 +38,7 @@ namespace PixelShoot.LevelEditor.EditorTools
         [SerializeField] private int[] cells; // -1 = empty; else palette index
         [SerializeField] private int currentPaletteIdx = 0;
         [SerializeField] private bool eraseMode = false;
+        [SerializeField] private bool paintMode = false;
         [SerializeField] private bool initialPreview = false;
 
         // ─── Transient UI state ───────────────────────────────────────
@@ -123,9 +124,11 @@ namespace PixelShoot.LevelEditor.EditorTools
             pendingPreviewRefresh = false;
             lastAutoRefreshTime = now;
             if (targetAsset == null) return;
-            // Persist on each debounced refresh — otherwise import / paint work lives only in
-            // the in-memory asset and is lost when Unity is closed without an explicit Save.
-            RefreshScenePreview(persistToDisk: true);
+            // Do NOT persist on auto-refresh. Disk writes happen only when the user
+            // explicitly presses Save — that's the contract the wizard advertises.
+            // The asset's in-memory state still gets the latest data (so the scene
+            // build matches the wizard), and SetDirty makes Unity flag it for save.
+            RefreshScenePreview(persistToDisk: false);
         }
 
         private void EnsureStyles()
@@ -387,16 +390,9 @@ namespace PixelShoot.LevelEditor.EditorTools
             if (filledCells > 0) parts.Add($"{filledCells} filled cells");
             lastImportStatus = parts.Count == 0
                 ? "Nothing detected in the pasted text — make sure it contains hex colors and/or an RLE_ROWS array."
-                : "Imported: " + string.Join(", ", parts) + ".";
-            // Push imported data straight to disk so it survives an editor close
-            // even if the user never presses Save explicitly.
-            if (targetAsset != null && parts.Count > 0)
-            {
-                SaveToAsset();
-                EditorUtility.SetDirty(targetAsset);
-                AssetDatabase.SaveAssets();
-                Debug.Log($"[LevelWizard] ImportAll persisted to disk: {string.Join(", ", parts)}");
-            }
+                : "Imported: " + string.Join(", ", parts) + ". (Press Save to persist to disk.)";
+            // No disk write here — the user has to press Save explicitly. Auto-refresh
+            // will rebuild the scene from the in-memory asset state.
             pendingPreviewRefresh = true;
             Repaint();
         }
@@ -428,13 +424,27 @@ namespace PixelShoot.LevelEditor.EditorTools
 
             using (new EditorGUILayout.HorizontalScope())
             {
+                // Paint and Erase are mutually exclusive — toggling one off-by-default
+                // disables clicks entirely, so accidental drags over the grid do nothing.
+                bool newPaint = GUILayout.Toggle(paintMode, "Paint", "Button", GUILayout.Width(70));
+                if (newPaint != paintMode)
+                {
+                    paintMode = newPaint;
+                    if (paintMode) eraseMode = false;
+                }
                 bool newErase = GUILayout.Toggle(eraseMode, "Erase", "Button", GUILayout.Width(70));
-                if (newErase != eraseMode) eraseMode = newErase;
+                if (newErase != eraseMode)
+                {
+                    eraseMode = newErase;
+                    if (eraseMode) paintMode = false;
+                }
                 bool newPrev = GUILayout.Toggle(initialPreview, "Initial preview", "Button", GUILayout.Width(140));
                 if (newPrev != initialPreview) initialPreview = newPrev;
-                EditorGUILayout.LabelField(eraseMode
-                    ? "Click cells to clear them."
-                    : $"Painting palette idx {currentPaletteIdx}.");
+                string statusLabel;
+                if (eraseMode) statusLabel = "Click cells to clear them.";
+                else if (paintMode) statusLabel = $"Painting palette idx {currentPaletteIdx}.";
+                else statusLabel = "Neither Paint nor Erase active — clicks do nothing.";
+                EditorGUILayout.LabelField(statusLabel);
             }
 
             if (palette != null && palette.Count > 0)
@@ -488,11 +498,14 @@ namespace PixelShoot.LevelEditor.EditorTools
                 EditorGUI.DrawRect(new Rect(gridRect.x, gridRect.y + v, totalSize, 1), lineCol);
             }
 
-            // Painting (LMB down/drag, only in Edit mode).
+            // Painting (LMB down/drag). Requires Paint OR Erase to be active and
+            // not be in Initial preview mode (which is read-only).
             var e = Event.current;
+            bool toolActive = paintMode || eraseMode;
             bool isPaintEvent = e.isMouse
                                 && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag)
                                 && e.button == 0
+                                && toolActive
                                 && !initialPreview
                                 && gridRect.Contains(e.mousePosition);
             if (isPaintEvent)
@@ -768,8 +781,9 @@ namespace PixelShoot.LevelEditor.EditorTools
         }
 
         /// <summary>
-        /// Rebuild the preview and then flip every Box to its Hit state — useful for
-        /// quickly checking what the cleared-grid silhouette looks like.
+        /// Rebuild the preview and then flip every Box to its Hit state so each cell
+        /// shows the color it was assigned. Falls back to tinting with DisplayColor
+        /// (via a MaterialPropertyBlock) if a ColorData has no BoxHitMaterial assigned.
         /// </summary>
         private void ShowFinalStatePreview()
         {
@@ -784,9 +798,59 @@ namespace PixelShoot.LevelEditor.EditorTools
 #else
             var grid = Object.FindObjectOfType<GridController>();
 #endif
-            if (grid == null) return;
-            var boxes = grid.GetComponentsInChildren<Box>(includeInactive: false);
-            foreach (var b in boxes) b.TakeHit();
+            if (grid == null)
+            {
+                Debug.LogWarning("[LevelWizard] ShowFinalState: no GridController in scene.");
+                return;
+            }
+
+            // includeInactive=true catches boxes whose state changes have disabled child
+            // helpers, and means we report a true total even if the user has hidden things.
+            var boxes = grid.GetComponentsInChildren<Box>(includeInactive: true);
+
+            int total = boxes.Length;
+            int hadHitMat = 0;
+            int usedFallback = 0;
+            int noColor = 0;
+
+            var props = new MaterialPropertyBlock();
+            foreach (var b in boxes)
+            {
+                if (b == null) continue;
+                b.TakeHit();   // sets state=Hit and applies BoxHitMaterial when present.
+
+                var cd = b.Color;
+                if (cd == null) { noColor++; continue; }
+
+                if (cd.BoxHitMaterial != null)
+                {
+                    hadHitMat++;
+                    continue;
+                }
+
+                // Fallback: tint the active mesh renderers with DisplayColor via a
+                // property block — no leaked material instances, works in edit mode.
+                Color tint = cd.DisplayColor;
+                var rends = b.GetComponentsInChildren<MeshRenderer>(includeInactive: false);
+                foreach (var r in rends)
+                {
+                    if (r == null) continue;
+                    r.GetPropertyBlock(props);
+                    props.SetColor("_BaseColor", tint);
+                    props.SetColor("_Color", tint);
+                    r.SetPropertyBlock(props);
+                }
+                usedFallback++;
+            }
+
+            SetStatus(
+                $"Final state: {total} boxes — {hadHitMat} used BoxHitMaterial, " +
+                $"{usedFallback} fell back to DisplayColor tint" +
+                (noColor > 0 ? $", {noColor} had no ColorData assigned" : ""),
+                MessageType.Info);
+
+            Debug.Log($"[LevelWizard] ShowFinalState: total={total}, hadHitMat={hadHitMat}, " +
+                      $"usedFallback={usedFallback}, noColor={noColor}");
             SceneView.RepaintAll();
         }
 
@@ -915,11 +979,14 @@ namespace PixelShoot.LevelEditor.EditorTools
                 var col = cd != null ? cd.DisplayColor : Color.magenta;
                 var prev = GUI.backgroundColor;
                 GUI.backgroundColor = col;
-                bool selected = (i == currentPaletteIdx && !eraseMode);
+                bool selected = (i == currentPaletteIdx && paintMode && !eraseMode);
                 string label = selected ? $"[{i}]" : i.ToString();
                 if (GUILayout.Button(label, swatchStyle))
                 {
+                    // Picking a swatch implies you want to paint — switch into Paint
+                    // mode automatically so the next click actually adds a box.
                     currentPaletteIdx = i;
+                    paintMode = true;
                     eraseMode = false;
                 }
                 GUI.backgroundColor = prev;

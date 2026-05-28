@@ -204,7 +204,7 @@ MonoBehaviour:
     - gridX: 16
       gridZ: 5
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 17
       gridZ: 5
       isEmpty: 0
@@ -256,11 +256,11 @@ MonoBehaviour:
     - gridX: 16
       gridZ: 6
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 17
       gridZ: 6
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 18
       gridZ: 6
       isEmpty: 0
@@ -308,11 +308,11 @@ MonoBehaviour:
     - gridX: 16
       gridZ: 7
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 17
       gridZ: 7
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 18
       gridZ: 7
       isEmpty: 0
@@ -356,15 +356,15 @@ MonoBehaviour:
     - gridX: 15
       gridZ: 8
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 16
       gridZ: 8
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 17
       gridZ: 8
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 18
       gridZ: 8
       isEmpty: 0
@@ -408,15 +408,15 @@ MonoBehaviour:
     - gridX: 15
       gridZ: 9
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 16
       gridZ: 9
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 17
       gridZ: 9
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 18
       gridZ: 9
       isEmpty: 0
@@ -464,15 +464,15 @@ MonoBehaviour:
     - gridX: 15
       gridZ: 10
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 16
       gridZ: 10
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 17
       gridZ: 10
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 18
       gridZ: 10
       isEmpty: 0
@@ -516,7 +516,7 @@ MonoBehaviour:
     - gridX: 15
       gridZ: 11
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 16
       gridZ: 11
       isEmpty: 0
@@ -564,7 +564,7 @@ MonoBehaviour:
     - gridX: 15
       gridZ: 12
       isEmpty: 0
-      color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
     - gridX: 16
       gridZ: 12
       isEmpty: 0
