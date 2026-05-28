@@ -59,9 +59,12 @@ namespace PixelShoot.Shooters
 
             if (meshRenderer != null && c != null && c.ShooterMaterial != null)
             {
-                Material[] mats = meshRenderer.materials;
+                // Use sharedMaterials (not materials) so we don't clone-and-leak the
+                // material instance every time Initialize runs — especially important
+                // when the level editor rebuilds the scene preview in edit mode.
+                Material[] mats = meshRenderer.sharedMaterials;
                 mats[0] = c.ShooterMaterial;
-                meshRenderer.materials = mats;
+                meshRenderer.sharedMaterials = mats;
             }
         }
 

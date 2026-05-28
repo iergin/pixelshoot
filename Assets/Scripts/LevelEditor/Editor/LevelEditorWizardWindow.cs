@@ -6,52 +6,130 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using PixelShoot.Data;
+using PixelShoot.Game;
+using PixelShoot.Grid;
 
 namespace PixelShoot.LevelEditor.EditorTools
 {
     /// <summary>
-    /// Step-by-step level authoring window. Each step unlocks the next once
-    /// its prerequisite is satisfied: level asset → palette → RLE → tones → columns.
-    /// Save / Load are always available once an asset is bound.
+    /// Self-contained level authoring tool. All editing state, painting and
+    /// asset I/O happens inside this EditorWindow — no scene, no MonoBehaviour,
+    /// no inspector required. Open via PixelShoot ▶ Open Level Editor Wizard.
     /// </summary>
     public class LevelEditorWizardWindow : EditorWindow
     {
-        private const string ColorsDir = "Assets/_Game/Colors";
-        private const string MatBoxesDir = "Assets/_Game/Materials/Boxes";
+        // ─── Paths / regex ────────────────────────────────────────────
+        private const string ColorsDir     = "Assets/_Game/Colors";
+        private const string MatBoxesDir   = "Assets/_Game/Materials/Boxes";
         private const string MatShootersDir = "Assets/_Game/Materials/Shooters";
         private const string MatBulletsDir = "Assets/_Game/Materials/Bullets";
-        private const string LevelsDir = "Assets/_Game/Levels";
+        private const string LevelsDir     = "Assets/_Game/Levels";
         private static readonly Regex HexColorRegex = new Regex("#([0-9A-Fa-f]{6})");
 
-        private LevelEditorController controller;
+        // ─── Persisted editing state ──────────────────────────────────
+        [SerializeField] private LevelData targetAsset;
+        [SerializeField] private int gridSize = 30;
+        [SerializeField] private Vector3 gridRootPosition = Vector3.zero;
+        [SerializeField] private Vector3 gridRootScale = Vector3.one;
+        [SerializeField] private int conveyorSlotCapacity = 5;
+        [SerializeField] private int reserveSlotCapacity = 5;
+        [SerializeField] private List<ColorData> palette = new List<ColorData>();
+        [SerializeField] private List<ColumnData> columns = new List<ColumnData>();
+        [SerializeField] private int[] cells; // -1 = empty; else palette index
+        [SerializeField] private int currentPaletteIdx = 0;
+        [SerializeField] private bool eraseMode = false;
+        [SerializeField] private bool initialPreview = false;
+
+        // ─── Transient UI state ───────────────────────────────────────
         private string levelName = "Level_01";
         private string importBuffer = "";
-        private int gridSize = 30;
         private int shotsPerShooter = 5;
         private Vector2 scroll;
         private string lastImportStatus = "";
         private static GUIStyle swatchStyle;
 
-        [MenuItem("PixelShoot/Level Editor Wizard")]
+        // ─── Auto-refresh debounce ────────────────────────────────────
+        private bool pendingPreviewRefresh = false;
+        // Min interval between auto-refreshes (sec). Prevents lag while typing into fields.
+        private const double AutoRefreshIntervalSec = 0.15;
+        private double lastAutoRefreshTime = -1;
+        // Last refresh outcome — shown in the Scene preview section so problems are visible.
+        private string lastRefreshStatus = "";
+        private MessageType lastRefreshStatusType = MessageType.None;
+
+        [MenuItem("PixelShoot/Open Level Editor Wizard")]
         public static void Open()
         {
             var w = GetWindow<LevelEditorWizardWindow>("Level Wizard");
-            w.minSize = new Vector2(440, 720);
+            w.minSize = new Vector2(520, 800);
         }
 
-        private void OnEnable()
+        // ─── Helpers (state) ──────────────────────────────────────────
+        private bool HasCells => cells != null && cells.Length == gridSize * gridSize;
+        private int CellCount => gridSize * gridSize;
+
+        private void EnsureCellsArray()
         {
-            EditorApplication.hierarchyChanged += Repaint;
+            if (HasCells) return;
+            var old = cells;
+            int oldSize = (old != null && old.Length > 0) ? Mathf.RoundToInt(Mathf.Sqrt(old.Length)) : 0;
+            cells = new int[CellCount];
+            for (int i = 0; i < cells.Length; i++) cells[i] = -1;
+            if (old != null && oldSize > 0)
+            {
+                int copy = Mathf.Min(oldSize, gridSize);
+                for (int z = 0; z < copy; z++)
+                    for (int x = 0; x < copy; x++)
+                        cells[z * gridSize + x] = old[z * oldSize + x];
+            }
         }
 
-        private void OnDisable()
-        {
-            EditorApplication.hierarchyChanged -= Repaint;
-        }
-
+        // ─── OnGUI ────────────────────────────────────────────────────
         private void OnGUI()
         {
-            EnsureController();
+            EnsureStyles();
+
+            EditorGUI.BeginChangeCheck();
+            scroll = EditorGUILayout.BeginScrollView(scroll);
+
+            EditorGUILayout.Space(4);
+            EditorGUILayout.LabelField("PixelShoot — Level Authoring Wizard",
+                new GUIStyle(EditorStyles.boldLabel) { fontSize = 13 });
+            EditorGUILayout.Space(4);
+
+            DrawTopAssetBar();
+            DrawSectionBreak();
+            DrawScenePreviewSection();
+            DrawSectionBreak();
+            DrawStep_Import();
+            DrawSectionBreak();
+            DrawStep_Grid();
+            DrawSectionBreak();
+            DrawStep_Columns();
+
+            EditorGUILayout.EndScrollView();
+            // Any value change in a widget above flips the auto-refresh flag.
+            // The paint event in DrawClickableGrid also flips it directly.
+            if (EditorGUI.EndChangeCheck()) pendingPreviewRefresh = true;
+        }
+
+        // Called several times per second by Unity for any visible EditorWindow.
+        // Use it to debounce auto-refresh so we don't rebuild the scene on every keystroke.
+        private void Update()
+        {
+            if (!pendingPreviewRefresh) return;
+            double now = EditorApplication.timeSinceStartup;
+            if (now - lastAutoRefreshTime < AutoRefreshIntervalSec) return;
+            pendingPreviewRefresh = false;
+            lastAutoRefreshTime = now;
+            if (targetAsset == null) return;
+            // Persist on each debounced refresh — otherwise import / paint work lives only in
+            // the in-memory asset and is lost when Unity is closed without an explicit Save.
+            RefreshScenePreview(persistToDisk: true);
+        }
+
+        private void EnsureStyles()
+        {
             if (swatchStyle == null)
             {
                 swatchStyle = new GUIStyle(GUI.skin.button)
@@ -60,27 +138,6 @@ namespace PixelShoot.LevelEditor.EditorTools
                     alignment = TextAnchor.MiddleCenter
                 };
             }
-
-            scroll = EditorGUILayout.BeginScrollView(scroll);
-            EditorGUILayout.Space(4);
-            EditorGUILayout.LabelField("PixelShoot — Level Authoring Wizard", new GUIStyle(EditorStyles.boldLabel) { fontSize = 13 });
-            EditorGUILayout.Space(4);
-
-            DrawStep1_Level();
-            DrawSectionBreak();
-            DrawStep2_Import();
-            DrawSectionBreak();
-            DrawStep3_Columns();
-            DrawSectionBreak();
-            DrawSaveLoadClear();
-
-            EditorGUILayout.EndScrollView();
-        }
-
-        private void EnsureController()
-        {
-            if (controller == null)
-                controller = FindObjectOfType<LevelEditorController>();
         }
 
         private static void DrawSectionBreak()
@@ -91,86 +148,200 @@ namespace PixelShoot.LevelEditor.EditorTools
             EditorGUILayout.Space(6);
         }
 
-        // ─── STEP 1 ───────────────────────────────────────────────────────
-        private void DrawStep1_Level()
+        // ─── Top bar — asset + Save/Load/Clear ────────────────────────
+        private void DrawTopAssetBar()
         {
-            EditorGUILayout.LabelField("Step 1 — Level", EditorStyles.boldLabel);
-            if (controller == null)
-            {
-                EditorGUILayout.HelpBox("Level Editor scene is not open. Open it to begin.", MessageType.Warning);
-                if (GUILayout.Button("Open Level Editor Scene"))
-                {
-                    LevelEditorSceneSetup.OpenScene();
-                    controller = FindObjectOfType<LevelEditorController>();
-                }
-                return;
-            }
-
+            EditorGUILayout.LabelField("Asset", EditorStyles.boldLabel);
             levelName = EditorGUILayout.TextField("Level name", levelName);
+
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("Create new asset")) CreateLevelAsset();
-                if (GUILayout.Button("Load existing…")) LoadLevelAssetPicker();
+                if (GUILayout.Button("Save", GUILayout.Height(28))) SmartSave();
+                if (GUILayout.Button("Load", GUILayout.Height(28))) SmartLoad();
+                if (GUILayout.Button("Clear window", GUILayout.Height(28))) ClearWindow();
             }
 
-            if (controller.targetAsset != null)
-                EditorGUILayout.HelpBox($"Editing: {controller.targetAsset.name}", MessageType.Info);
-            else
-                EditorGUILayout.HelpBox("No asset bound yet — create one or load existing.", MessageType.None);
+            targetAsset = (LevelData)EditorGUILayout.ObjectField("Bound asset", targetAsset, typeof(LevelData), false);
+            EditorGUILayout.HelpBox(
+                targetAsset != null
+                    ? $"Editing: {targetAsset.name}"
+                    : $"No asset bound. Press Save to create / overwrite '{levelName}.asset' under {LevelsDir}.",
+                targetAsset != null ? MessageType.Info : MessageType.None);
         }
 
-        private void CreateLevelAsset()
+        /// <summary>
+        /// Save behavior:
+        ///   - If an asset already exists at LevelsDir/{levelName}.asset → load it (if not
+        ///     already bound) and overwrite its contents with the wizard state.
+        ///   - Otherwise → create a new asset with that name and save into it.
+        /// </summary>
+        private void SmartSave()
         {
-            if (string.IsNullOrWhiteSpace(levelName)) return;
-            EnsureDir(LevelsDir);
-            var path = AssetDatabase.GenerateUniqueAssetPath($"{LevelsDir}/{levelName}.asset");
-            var asset = ScriptableObject.CreateInstance<LevelData>();
-            AssetDatabase.CreateAsset(asset, path);
-            AssetDatabase.SaveAssets();
-            Undo.RecordObject(controller, "Set asset");
-            controller.targetAsset = asset;
-            EditorUtility.SetDirty(controller);
-        }
-
-        private void LoadLevelAssetPicker()
-        {
-            string absolute = EditorUtility.OpenFilePanel("Load LevelData", LevelsDir, "asset");
-            if (string.IsNullOrEmpty(absolute)) return;
-            string relative = absolute.StartsWith(Application.dataPath)
-                ? "Assets" + absolute.Substring(Application.dataPath.Length)
-                : absolute;
-            var asset = AssetDatabase.LoadAssetAtPath<LevelData>(relative);
-            if (asset == null)
+            if (string.IsNullOrWhiteSpace(levelName))
             {
-                EditorUtility.DisplayDialog("Load", "Could not load a LevelData at that path.", "OK");
+                EditorUtility.DisplayDialog("Save", "Please enter a level name first.", "OK");
                 return;
             }
-            Undo.RecordObject(controller, "Load asset");
-            controller.targetAsset = asset;
-            controller.LoadFromAsset();
-            EditorUtility.SetDirty(controller);
+            EnsureDir(LevelsDir);
+            string path = $"{LevelsDir}/{levelName}.asset";
+            var onDisk = AssetDatabase.LoadAssetAtPath<LevelData>(path);
+
+            if (onDisk != null)
+            {
+                // Asset with this name exists → overwrite.
+                targetAsset = onDisk;
+            }
+            else
+            {
+                // Create new asset with the requested name (no GenerateUniqueAssetPath —
+                // we *want* the exact filename, and we already proved nothing's there).
+                var asset = ScriptableObject.CreateInstance<LevelData>();
+                AssetDatabase.CreateAsset(asset, path);
+                targetAsset = asset;
+            }
+
+            SaveToAsset();
+            EditorUtility.SetDirty(targetAsset);
+            AssetDatabase.SaveAssets();
+            // Refresh the in-scene preview so the saved data shows up immediately.
+            if (HasLoaderInScene()) RefreshScenePreview(persistToDisk: false);
         }
 
-        // ─── STEP 2 ───────────────────────────────────────────────────────
-        private void DrawStep2_Import()
+        private void ClearWindow()
         {
-            bool gated = controller == null || controller.targetAsset == null;
-            EditorGUILayout.LabelField("Step 2 — Import (palette + RLE in one paste)", EditorStyles.boldLabel);
+            if (!EditorUtility.DisplayDialog("Clear",
+                "Empties the wizard, removes spawned boxes / columns from the open scene, " +
+                "and unbinds the asset so it CANNOT be auto-overwritten with the empty state.\n\n" +
+                "The asset on disk stays intact. Use Load again if you want to keep working on it.\n\n" +
+                "Continue?", "Yes", "No"))
+                return;
+
+            // 1) Cancel any pending auto-refresh — otherwise a previously-tracked widget
+            //    change would fire Update() *after* the clear and save empty data to the
+            //    asset, wiping its cells / columns / palette.
+            pendingPreviewRefresh = false;
+
+            // 2) Unbind the asset so neither the explicit Save button nor any future
+            //    auto-refresh can mutate it. The user must Load again to resume editing.
+            string previouslyBound = targetAsset != null ? targetAsset.name : null;
+            targetAsset = null;
+
+            // 3) Wizard state.
+            cells = new int[CellCount];
+            for (int i = 0; i < cells.Length; i++) cells[i] = -1;
+            columns?.Clear();
+            palette?.Clear();
+            currentPaletteIdx = 0;
+            importBuffer = "";
+            lastImportStatus = "";
+
+            // 4) Scene preview: nuke whatever is currently parented under gridRoot /
+            //    columnsRoot so the visuals match the cleared wizard state.
+            ClearSceneVisuals();
+
+            SetStatus(
+                previouslyBound != null
+                    ? $"Wizard and scene cleared. '{previouslyBound}' on disk is untouched — Load again to keep editing."
+                    : "Wizard and scene cleared.",
+                MessageType.Info);
+            SceneView.RepaintAll();
+            Debug.Log($"[LevelWizard] ClearWindow done. Previously bound asset='{previouslyBound ?? "<none>"}' — left on disk, unbound from wizard.");
+        }
+
+        /// <summary>Destroys all children of GridController.gridRoot and LevelLoader.columnsRoot.</summary>
+        private static void ClearSceneVisuals()
+        {
+#if UNITY_2023_1_OR_NEWER
+            var gridCtrl = Object.FindFirstObjectByType<GridController>(FindObjectsInactive.Include);
+            var loader = Object.FindFirstObjectByType<LevelLoader>(FindObjectsInactive.Include);
+#else
+            var gridCtrl = Object.FindObjectOfType<GridController>();
+            var loader = Object.FindObjectOfType<LevelLoader>();
+#endif
+            if (gridCtrl != null)
+            {
+                // Easiest path: GridController already has a public Clear() that destroys
+                // every spawned Box under gridRoot.
+                gridCtrl.Clear();
+                // gridCtrl.Clear() destroys boxes via runtime Destroy. In edit mode we also
+                // catch anything left as a child of gridRoot just in case.
+                var gridRootField = gridCtrl.GetType().GetField("gridRoot",
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                if (gridRootField != null && gridRootField.GetValue(gridCtrl) is Transform gr && gr != null)
+                {
+                    for (int i = gr.childCount - 1; i >= 0; i--)
+                        DestroyImmediate(gr.GetChild(i).gameObject);
+                }
+            }
+            if (loader != null)
+            {
+                var colsRootField = loader.GetType().GetField("columnsRoot",
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                if (colsRootField != null && colsRootField.GetValue(loader) is Transform cr && cr != null)
+                {
+                    for (int i = cr.childCount - 1; i >= 0; i--)
+                        DestroyImmediate(cr.GetChild(i).gameObject);
+                }
+            }
+            Debug.Log("[LevelWizard] ClearSceneVisuals: emptied gridRoot and columnsRoot.");
+        }
+
+        private bool HasLoaderInScene()
+        {
+#if UNITY_2023_1_OR_NEWER
+            return Object.FindFirstObjectByType<LevelLoader>(FindObjectsInactive.Include) != null;
+#else
+            return Object.FindObjectOfType<LevelLoader>() != null;
+#endif
+        }
+
+        /// <summary>
+        /// Load behavior:
+        ///   - Look for a LevelData asset named '{levelName}.asset' under LevelsDir.
+        ///   - If found → bind it and pull its state into the wizard.
+        ///   - If not found → tell the user (no file picker fallback by design — the
+        ///     workflow is "type name → press button").
+        /// </summary>
+        private void SmartLoad()
+        {
+            Debug.Log($"[LevelWizard] SmartLoad() invoked. levelName='{levelName}'");
+            if (string.IsNullOrWhiteSpace(levelName))
+            {
+                Debug.LogWarning("[LevelWizard] SmartLoad aborted: levelName is empty.");
+                EditorUtility.DisplayDialog("Load", "Please enter a level name first.", "OK");
+                return;
+            }
+            string path = $"{LevelsDir}/{levelName}.asset";
+            Debug.Log($"[LevelWizard] SmartLoad looking up '{path}'");
+            var onDisk = AssetDatabase.LoadAssetAtPath<LevelData>(path);
+            if (onDisk == null)
+            {
+                Debug.LogWarning($"[LevelWizard] SmartLoad: no LevelData at '{path}'.");
+                EditorUtility.DisplayDialog("Load",
+                    $"No LevelData asset named '{levelName}.asset' under {LevelsDir}.", "OK");
+                return;
+            }
+            Debug.Log($"[LevelWizard] SmartLoad found asset '{onDisk.name}', binding…");
+            targetAsset = onDisk;
+            LoadFromAsset();
+            Debug.Log($"[LevelWizard] SmartLoad: HasLoaderInScene()={HasLoaderInScene()}");
+            if (HasLoaderInScene()) RefreshScenePreview(persistToDisk: false);
+            Debug.Log("[LevelWizard] SmartLoad finished.");
+        }
+
+        // ─── Import (palette + RLE) ──────────────────────────────────
+        private void DrawStep_Import()
+        {
+            bool gated = targetAsset == null;
+            EditorGUILayout.LabelField("Import (palette + RLE in one paste)", EditorStyles.boldLabel);
             using (new EditorGUI.DisabledScope(gated))
             {
                 EditorGUILayout.LabelField("Paste the full encoder export (PALETTE and/or RLE_ROWS):", EditorStyles.miniLabel);
-                importBuffer = EditorGUILayout.TextArea(importBuffer, GUILayout.MinHeight(160));
+                importBuffer = EditorGUILayout.TextArea(importBuffer, GUILayout.MinHeight(140));
                 if (GUILayout.Button("Import all (auto-detect)", GUILayout.Height(28))) ImportAll();
             }
-
             if (!string.IsNullOrEmpty(lastImportStatus))
                 EditorGUILayout.HelpBox(lastImportStatus, MessageType.Info);
-
-            if (controller != null && controller.palette != null && controller.palette.Count > 0)
-            {
-                EditorGUILayout.LabelField("Palette:", EditorStyles.miniLabel);
-                DrawSwatchRow(false);
-            }
         }
 
         private void ImportAll()
@@ -180,11 +351,9 @@ namespace PixelShoot.LevelEditor.EditorTools
             int filledCells = 0;
             int detectedGrid = 0;
 
-            // 1) Palette: collect every hex code present (any order; comments tolerated).
             var matches = HexColorRegex.Matches(text);
             if (matches.Count > 0)
             {
-                // Per-color subfolders are created inside the helpers below.
                 var newPalette = new List<ColorData>(matches.Count);
                 foreach (Match m in matches)
                 {
@@ -194,32 +363,24 @@ namespace PixelShoot.LevelEditor.EditorTools
                 }
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                Undo.RecordObject(controller, "Import palette");
-                controller.palette = newPalette;
-                controller.currentPaletteIdx = 0;
+                palette = newPalette;
+                currentPaletteIdx = 0;
                 paletteCount = newPalette.Count;
             }
 
-            // 2) Grid size: try to auto-detect from RLE text.
             if (RLECodec.TryDetectGridSize(text, out int detected))
             {
                 detectedGrid = detected;
                 gridSize = detected;
-                controller.gridSize = detected;
             }
+            EnsureCellsArray();
 
-            // 3) RLE: decode if any rows are present.
-            if (controller.gridSize > 0 && RLECodec.TryDecode(text, controller.gridSize, out var decoded))
+            if (gridSize > 0 && RLECodec.TryDecode(text, gridSize, out var decoded))
             {
-                Undo.RecordObject(controller, "Import RLE");
-                controller.cells = decoded;
+                cells = decoded;
                 foreach (var v in decoded) if (v >= 0) filledCells++;
             }
 
-            controller.Rebuild();
-            EditorUtility.SetDirty(controller);
-
-            // Status summary
             var parts = new List<string>();
             if (paletteCount > 0) parts.Add($"{paletteCount} colors");
             if (detectedGrid > 0) parts.Add($"{detectedGrid}×{detectedGrid} grid");
@@ -227,102 +388,548 @@ namespace PixelShoot.LevelEditor.EditorTools
             lastImportStatus = parts.Count == 0
                 ? "Nothing detected in the pasted text — make sure it contains hex colors and/or an RLE_ROWS array."
                 : "Imported: " + string.Join(", ", parts) + ".";
+            // Push imported data straight to disk so it survives an editor close
+            // even if the user never presses Save explicitly.
+            if (targetAsset != null && parts.Count > 0)
+            {
+                SaveToAsset();
+                EditorUtility.SetDirty(targetAsset);
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[LevelWizard] ImportAll persisted to disk: {string.Join(", ", parts)}");
+            }
+            pendingPreviewRefresh = true;
+            Repaint();
         }
 
-        // ─── STEP 3 ───────────────────────────────────────────────────────
-        private void DrawStep3_Columns()
+        // ─── Grid & painting ─────────────────────────────────────────
+        private void DrawStep_Grid()
         {
-            bool gated = controller == null || !controller.HasCells;
-            EditorGUILayout.LabelField("Step 3 — Columns", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Grid", EditorStyles.boldLabel);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                int newSize = Mathf.Max(1, EditorGUILayout.IntField("Grid size", gridSize, GUILayout.Width(180)));
+                if (newSize != gridSize) { gridSize = newSize; EnsureCellsArray(); }
+                if (GUILayout.Button("New (clear)", GUILayout.Width(90)))
+                {
+                    if (EditorUtility.DisplayDialog("Clear grid", "Clear the current grid?", "Yes", "No"))
+                    {
+                        cells = new int[CellCount];
+                        for (int i = 0; i < cells.Length; i++) cells[i] = -1;
+                        pendingPreviewRefresh = true;
+                    }
+                }
+            }
+            gridRootPosition = EditorGUILayout.Vector3Field("Grid root position", gridRootPosition);
+            // Uniform scale slider — every axis tracks the same value so the grid scales evenly.
+            float currentUniform = gridRootScale.x > 0.0001f ? gridRootScale.x : 1f;
+            float newUniform = EditorGUILayout.Slider("Grid root scale", currentUniform, 0.05f, 5f);
+            if (!Mathf.Approximately(newUniform, currentUniform))
+                gridRootScale = Vector3.one * newUniform;
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                bool newErase = GUILayout.Toggle(eraseMode, "Erase", "Button", GUILayout.Width(70));
+                if (newErase != eraseMode) eraseMode = newErase;
+                bool newPrev = GUILayout.Toggle(initialPreview, "Initial preview", "Button", GUILayout.Width(140));
+                if (newPrev != initialPreview) initialPreview = newPrev;
+                EditorGUILayout.LabelField(eraseMode
+                    ? "Click cells to clear them."
+                    : $"Painting palette idx {currentPaletteIdx}.");
+            }
+
+            if (palette != null && palette.Count > 0)
+            {
+                EditorGUILayout.LabelField("Palette:", EditorStyles.miniLabel);
+                DrawPaletteSelectableSwatches();
+            }
+
+            EnsureCellsArray();
+            DrawClickableGrid();
+
+            if (HasCells)
+            {
+                int filled = 0;
+                foreach (var v in cells) if (v >= 0) filled++;
+                EditorGUILayout.HelpBox($"Cells filled: {filled} / {CellCount}", MessageType.None);
+            }
+        }
+
+        private void DrawClickableGrid()
+        {
+            float availableWidth = position.width - 40f;
+            float cellPx = Mathf.Clamp(Mathf.Floor(availableWidth / gridSize), 6f, 24f);
+            float totalSize = cellPx * gridSize;
+
+            Rect gridRect = GUILayoutUtility.GetRect(totalSize, totalSize);
+            EditorGUI.DrawRect(gridRect, new Color(0.08f, 0.08f, 0.1f));
+
+            // Cells.
+            for (int z = 0; z < gridSize; z++)
+            {
+                for (int x = 0; x < gridSize; x++)
+                {
+                    int colorIdx = cells[z * gridSize + x];
+                    if (colorIdx < 0) continue;
+                    Color c = (colorIdx < palette.Count && palette[colorIdx] != null)
+                        ? palette[colorIdx].DisplayColor
+                        : Color.magenta;
+                    if (initialPreview && !IsCellOnSilhouette(x, z))
+                        c = new Color(0.42f, 0.42f, 0.46f);
+                    EditorGUI.DrawRect(CellRect(gridRect, x, z, cellPx), c);
+                }
+            }
+
+            // Grid lines (subtle).
+            Color lineCol = new Color(1f, 1f, 1f, 0.06f);
+            for (int i = 1; i < gridSize; i++)
+            {
+                float v = i * cellPx;
+                EditorGUI.DrawRect(new Rect(gridRect.x + v, gridRect.y, 1, totalSize), lineCol);
+                EditorGUI.DrawRect(new Rect(gridRect.x, gridRect.y + v, totalSize, 1), lineCol);
+            }
+
+            // Painting (LMB down/drag, only in Edit mode).
+            var e = Event.current;
+            bool isPaintEvent = e.isMouse
+                                && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag)
+                                && e.button == 0
+                                && !initialPreview
+                                && gridRect.Contains(e.mousePosition);
+            if (isPaintEvent)
+            {
+                int xx = Mathf.FloorToInt((e.mousePosition.x - gridRect.x) / cellPx);
+                int zz = gridSize - 1 - Mathf.FloorToInt((e.mousePosition.y - gridRect.y) / cellPx);
+                if (xx >= 0 && xx < gridSize && zz >= 0 && zz < gridSize)
+                {
+                    int idx = zz * gridSize + xx;
+                    int newColor = eraseMode ? -1 : currentPaletteIdx;
+                    if (cells[idx] != newColor)
+                    {
+                        cells[idx] = newColor;
+                        pendingPreviewRefresh = true;
+                        e.Use();
+                        Repaint();
+                    }
+                }
+            }
+        }
+
+        private Rect CellRect(Rect gridRect, int x, int z, float cellPx)
+        {
+            // Flip Y so z=0 is at the BOTTOM of the drawn grid (matches gameplay).
+            float px = gridRect.x + x * cellPx;
+            float py = gridRect.y + (gridSize - 1 - z) * cellPx;
+            return new Rect(px, py, cellPx, cellPx);
+        }
+
+        private bool IsCellOnSilhouette(int x, int z)
+        {
+            (int dx, int dz)[] n4 = { (1, 0), (-1, 0), (0, 1), (0, -1) };
+            foreach (var n in n4)
+            {
+                int nx = x + n.dx, nz = z + n.dz;
+                if (nx < 0 || nx >= gridSize || nz < 0 || nz >= gridSize) return true;
+                if (cells[nz * gridSize + nx] < 0) return true;
+            }
+            return false;
+        }
+
+        // ─── Columns & capacities ─────────────────────────────────────
+        private void DrawStep_Columns()
+        {
+            bool gated = !HasCells;
+            EditorGUILayout.LabelField("Columns & capacities", EditorStyles.boldLabel);
             using (new EditorGUI.DisabledScope(gated))
             {
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    EditorGUILayout.LabelField("Max shots per shooter", GUILayout.Width(160));
+                    EditorGUILayout.LabelField("Max shots / shooter", GUILayout.Width(140));
                     shotsPerShooter = Mathf.Max(1, EditorGUILayout.IntField(shotsPerShooter, GUILayout.Width(60)));
                 }
                 if (GUILayout.Button("Auto-generate columns from grid"))
                 {
-                    Undo.RecordObject(controller, "Auto generate columns");
-                    controller.GenerateColumnsFromGrid(shotsPerShooter);
-                    EditorUtility.SetDirty(controller);
+                    GenerateColumnsFromGrid(shotsPerShooter);
+                    pendingPreviewRefresh = true;
                 }
             }
-            if (controller != null && controller.columns != null && controller.columns.Count > 0)
+            conveyorSlotCapacity = Mathf.Max(1, EditorGUILayout.IntField("Conveyor capacity", conveyorSlotCapacity));
+            reserveSlotCapacity = Mathf.Max(1, EditorGUILayout.IntField("Reserve capacity", reserveSlotCapacity));
+            if (columns != null && columns.Count > 0)
             {
                 int sh = 0, shots = 0;
-                foreach (var col in controller.columns)
+                foreach (var col in columns)
                     foreach (var s in col.Shooters) { sh++; shots += s.ShotCount; }
-                EditorGUILayout.HelpBox($"Columns: {controller.columns.Count}, shooters: {sh}, total shots: {shots}", MessageType.None);
+                EditorGUILayout.HelpBox($"Columns: {columns.Count}, shooters: {sh}, total shots: {shots}", MessageType.None);
             }
         }
 
-        // ─── Save / Load / Clear ──────────────────────────────────────────
-        private void DrawSaveLoadClear()
+        // ─── Scene preview (uses runtime gameplay scripts) ────────────
+        private void DrawScenePreviewSection()
         {
-            EditorGUILayout.LabelField("Save / Load / Clear", EditorStyles.boldLabel);
-            bool noAsset = controller == null || controller.targetAsset == null;
-            bool noController = controller == null;
-            using (new EditorGUILayout.HorizontalScope())
+            EditorGUILayout.LabelField("Scene preview", EditorStyles.boldLabel);
+            DrawSceneSetupDiagnostics();
+            using (new EditorGUI.DisabledScope(targetAsset == null))
             {
-                using (new EditorGUI.DisabledScope(noAsset))
+                using (new EditorGUILayout.HorizontalScope())
                 {
-                    if (GUILayout.Button("Save to asset", GUILayout.Height(28)))
-                    {
-                        Undo.RecordObject(controller.targetAsset, "Save level");
-                        controller.SaveToAsset();
-                        EditorUtility.SetDirty(controller.targetAsset);
-                        AssetDatabase.SaveAssets();
-                    }
-                    if (GUILayout.Button("Load from asset", GUILayout.Height(28)))
-                    {
-                        Undo.RecordObject(controller, "Load level");
-                        controller.LoadFromAsset();
-                        EditorUtility.SetDirty(controller);
-                    }
+                    if (GUILayout.Button("Refresh preview in scene", GUILayout.Height(28)))
+                        RefreshScenePreview(persistToDisk: false);
+                    if (GUILayout.Button("Show final state", GUILayout.Height(28)))
+                        ShowFinalStatePreview();
                 }
-                using (new EditorGUI.DisabledScope(noController))
+            }
+            EditorGUILayout.HelpBox(
+                "The preview auto-refreshes in the open scene whenever you change a value above. " +
+                "Use 'Refresh' to force a rebuild, or 'Show final state' to see every box already in its Hit appearance — the level's cleared-out look.",
+                MessageType.None);
+            if (!string.IsNullOrEmpty(lastRefreshStatus))
+                EditorGUILayout.HelpBox(lastRefreshStatus, lastRefreshStatusType);
+        }
+
+        /// <summary>
+        /// Walks the open scene and reports anything that would make Build() fail —
+        /// missing LevelLoader, missing prefab refs on LevelLoader / GridController, etc.
+        /// </summary>
+        private void DrawSceneSetupDiagnostics()
+        {
+#if UNITY_2023_1_OR_NEWER
+            var loader = Object.FindFirstObjectByType<LevelLoader>(FindObjectsInactive.Include);
+            var grid = Object.FindFirstObjectByType<GridController>(FindObjectsInactive.Include);
+#else
+            var loader = Object.FindObjectOfType<LevelLoader>();
+            var grid = Object.FindObjectOfType<GridController>();
+#endif
+
+            if (loader == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "No LevelLoader found in the open scene. Open the LevelEditor scene that has " +
+                    "LevelLoader + GridController + ConveyorController + ReserveController + " +
+                    "GameController set up.",
+                    MessageType.Warning);
+                return;
+            }
+
+            var problems = new List<string>();
+
+            // LevelLoader refs.
+            CheckRef(loader, "grid",          "LevelLoader.grid (GridController)",       problems);
+            CheckRef(loader, "conveyor",      "LevelLoader.conveyor (ConveyorController)", problems);
+            CheckRef(loader, "reserve",       "LevelLoader.reserve (ReserveController)",   problems);
+            CheckRef(loader, "gameController","LevelLoader.gameController (GameController)", problems);
+            CheckRef(loader, "shooterPrefab", "LevelLoader.shooterPrefab",                problems);
+            CheckRef(loader, "columnPrefab",  "LevelLoader.columnPrefab",                 problems);
+            CheckRef(loader, "columnsRoot",   "LevelLoader.columnsRoot (Transform)",      problems);
+
+            // GridController refs.
+            if (grid != null)
+            {
+                CheckRef(grid, "boxPrefab", "GridController.boxPrefab", problems);
+                CheckRef(grid, "gridRoot",  "GridController.gridRoot",  problems);
+            }
+
+            if (problems.Count == 0)
+            {
+                EditorGUILayout.HelpBox(
+                    $"Scene OK — LevelLoader '{loader.name}' is ready to build.",
+                    MessageType.Info);
+            }
+            else
+            {
+                EditorGUILayout.HelpBox(
+                    "Missing references on the scene — the preview will NullReference until you " +
+                    "fix these in the inspector:\n  • " + string.Join("\n  • ", problems),
+                    MessageType.Error);
+                if (GUILayout.Button("Select offending GameObject"))
                 {
-                    if (GUILayout.Button("Clear scene", GUILayout.Height(28)))
-                    {
-                        if (EditorUtility.DisplayDialog("Clear scene",
-                            "This empties the grid (and visuals) in the scene. The asset on disk is not touched until you Save. Continue?",
-                            "Yes", "No"))
-                        {
-                            Undo.RecordObject(controller, "Clear scene");
-                            controller.NewGrid();
-                            controller.columns?.Clear();
-                            importBuffer = "";
-                            lastImportStatus = "";
-                            EditorUtility.SetDirty(controller);
-                        }
-                    }
+                    Selection.activeObject = loader.gameObject;
+                    EditorGUIUtility.PingObject(loader.gameObject);
                 }
             }
         }
 
-        // ─── Helpers ──────────────────────────────────────────────────────
-        private void DrawSwatchRow(bool _unused = false)
+        private static void CheckRef(object target, string fieldName, string displayName, List<string> problems)
         {
-            if (controller == null || controller.palette == null) return;
+            var t = target.GetType();
+            while (t != null)
+            {
+                var f = t.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                if (f != null)
+                {
+                    // Cast to UnityEngine.Object so we catch both real null AND
+                    // Unity's "fake null" (destroyed/missing) for SerializeField refs.
+                    var uo = f.GetValue(target) as UnityEngine.Object;
+                    if (uo == null) problems.Add(displayName);
+                    return;
+                }
+                t = t.BaseType;
+            }
+            problems.Add($"{displayName} — field not found on {target.GetType().Name}");
+        }
+
+        /// <summary>
+        /// Find LevelLoader in the open scene, push wizard state into the bound LevelData,
+        /// clear the columns root (to avoid duplicates), then call loader.Build().
+        /// Returns true if a loader was found and Build ran without throwing.
+        /// </summary>
+        private bool RefreshScenePreview(bool persistToDisk)
+        {
+            Debug.Log($"[LevelWizard] RefreshScenePreview(persistToDisk={persistToDisk}) targetAsset={(targetAsset != null ? targetAsset.name : "<null>")}");
+            if (targetAsset == null) { Debug.LogWarning("[LevelWizard] RefreshScenePreview aborted: no targetAsset."); return false; }
+
+            // Flush wizard state into the bound asset before rebuilding from it.
+            Debug.Log("[LevelWizard] RefreshScenePreview → SaveToAsset()");
+            SaveToAsset();
+            EditorUtility.SetDirty(targetAsset);
+            if (persistToDisk) AssetDatabase.SaveAssets();
+
+#if UNITY_2023_1_OR_NEWER
+            var loader = Object.FindFirstObjectByType<LevelLoader>(FindObjectsInactive.Include);
+            var gridCtrl = Object.FindFirstObjectByType<GridController>(FindObjectsInactive.Include);
+#else
+            var loader = Object.FindObjectOfType<LevelLoader>();
+            var gridCtrl = Object.FindObjectOfType<GridController>();
+#endif
+            Debug.Log($"[LevelWizard] RefreshScenePreview: loader={(loader != null ? loader.name : "<null>")}, gridCtrl={(gridCtrl != null ? gridCtrl.name : "<null>")}");
+            if (loader == null)
+            {
+                SetStatus("No LevelLoader in open scene.", MessageType.Warning);
+                return false;
+            }
+
+            // Bind the asset on the loader (private field).
+            SetField(loader, "levelData", targetAsset);
+            Debug.Log("[LevelWizard] RefreshScenePreview: bound levelData on loader.");
+
+            // SpawnColumns appends children to columnsRoot; calling Build twice would
+            // duplicate them. Clear it ourselves before letting Build run.
+            var columnsRootField = loader.GetType().GetField("columnsRoot",
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            if (columnsRootField != null && columnsRootField.GetValue(loader) is Transform columnsRoot && columnsRoot != null)
+            {
+                Debug.Log($"[LevelWizard] RefreshScenePreview: clearing {columnsRoot.childCount} column children.");
+                for (int i = columnsRoot.childCount - 1; i >= 0; i--)
+                    DestroyImmediate(columnsRoot.GetChild(i).gameObject);
+            }
+
+            try
+            {
+                Debug.Log("[LevelWizard] RefreshScenePreview → loader.Build()");
+                loader.Build();
+                Debug.Log("[LevelWizard] RefreshScenePreview: Build() returned without throwing.");
+            }
+            catch (System.Exception ex)
+            {
+                SetStatus($"Build threw: {ex.GetType().Name} — {ex.Message}\nSee console for stack.",
+                          MessageType.Error);
+                Debug.LogException(ex);
+                return false;
+            }
+
+            // Post-build report: how many boxes / columns actually got into the scene.
+            int boxesSpawned = 0;
+            if (gridCtrl != null)
+            {
+                var boxes = gridCtrl.GetComponentsInChildren<Box>(includeInactive: true);
+                boxesSpawned = boxes.Length;
+            }
+            int dataCells = 0;
+            foreach (var c in targetAsset.Grid.Cells) if (!c.IsEmpty) dataCells++;
+            int colsSpawned = 0;
+            if (columnsRootField != null && columnsRootField.GetValue(loader) is Transform colsRoot && colsRoot != null)
+                colsSpawned = colsRoot.childCount;
+
+            Debug.Log($"[LevelWizard] RefreshScenePreview: boxesSpawned={boxesSpawned}, dataCells={dataCells}, colsSpawned={colsSpawned}");
+            if (boxesSpawned == 0 && dataCells > 0)
+            {
+                SetStatus(
+                    $"Build ran but no boxes appeared. Data has {dataCells} cells. " +
+                    "Likely causes:\n" +
+                    "  • GridController.boxPrefab missing a MeshRenderer / mesh\n" +
+                    "  • gridRoot has zero scale or is outside the camera view\n" +
+                    "  • cells reference colors with no ColorData → check console",
+                    MessageType.Warning);
+            }
+            else
+            {
+                SetStatus(
+                    $"Built {boxesSpawned} boxes, {colsSpawned} columns from {targetAsset.name}.",
+                    MessageType.Info);
+            }
+
+            SceneView.RepaintAll();
+            return true;
+        }
+
+        private void SetStatus(string msg, MessageType type)
+        {
+            lastRefreshStatus = msg;
+            lastRefreshStatusType = type;
+        }
+
+        /// <summary>
+        /// Rebuild the preview and then flip every Box to its Hit state — useful for
+        /// quickly checking what the cleared-grid silhouette looks like.
+        /// </summary>
+        private void ShowFinalStatePreview()
+        {
+            if (!RefreshScenePreview(persistToDisk: false))
+            {
+                EditorUtility.DisplayDialog("Show final state",
+                    "No LevelLoader found in the open scene. Open the LevelEditor scene first.", "OK");
+                return;
+            }
+#if UNITY_2023_1_OR_NEWER
+            var grid = Object.FindFirstObjectByType<GridController>(FindObjectsInactive.Include);
+#else
+            var grid = Object.FindObjectOfType<GridController>();
+#endif
+            if (grid == null) return;
+            var boxes = grid.GetComponentsInChildren<Box>(includeInactive: false);
+            foreach (var b in boxes) b.TakeHit();
+            SceneView.RepaintAll();
+        }
+
+        // ─── Asset I/O ────────────────────────────────────────────────
+        private void LoadFromAsset()
+        {
+            Debug.Log($"[LevelWizard] LoadFromAsset() targetAsset={(targetAsset != null ? targetAsset.name : "<null>")}");
+            if (targetAsset == null) return;
+            gridSize = Mathf.Max(1, targetAsset.Grid.Size);
+            gridRootPosition = targetAsset.Grid.RootPosition;
+            gridRootScale = targetAsset.Grid.RootScale;
+            Debug.Log($"[LevelWizard] LoadFromAsset: gridSize={gridSize}, gridRootPosition={gridRootPosition}, gridRootScale={gridRootScale}");
+            // Defensive: an asset created elsewhere may have a zero-scale GridData,
+            // which would render the runtime grid invisible. Snap to identity scale.
+            if (gridRootScale.sqrMagnitude < 0.0001f)
+            {
+                Debug.LogWarning("[LevelWizard] LoadFromAsset: gridRootScale was ~zero, snapping to Vector3.one.");
+                gridRootScale = Vector3.one;
+            }
+            EnsureCellsArray();
+            for (int i = 0; i < cells.Length; i++) cells[i] = -1;
+            foreach (var bc in targetAsset.Grid.Cells)
+            {
+                if (bc.IsEmpty) continue;
+                int idx = palette.IndexOf(bc.Color);
+                if (idx < 0) { palette.Add(bc.Color); idx = palette.Count - 1; }
+                if (bc.GridX < 0 || bc.GridX >= gridSize || bc.GridZ < 0 || bc.GridZ >= gridSize) continue;
+                cells[bc.GridZ * gridSize + bc.GridX] = idx;
+            }
+            columns = new List<ColumnData>(targetAsset.Columns);
+            conveyorSlotCapacity = targetAsset.ConveyorSlotCapacity;
+            reserveSlotCapacity = targetAsset.ReserveSlotCapacity;
+            int filled = 0;
+            if (cells != null) foreach (var v in cells) if (v >= 0) filled++;
+            Debug.Log($"[LevelWizard] LoadFromAsset done. palette={palette.Count}, columns={columns.Count}, " +
+                      $"conveyorCap={conveyorSlotCapacity}, reserveCap={reserveSlotCapacity}, filledCells={filled}");
+            pendingPreviewRefresh = true;
+            Repaint();
+        }
+
+        private void SaveToAsset()
+        {
+            if (targetAsset == null) return;
+            EnsureCellsArray();
+            // Never write a zero scale — that would make the runtime grid invisible.
+            if (gridRootScale.sqrMagnitude < 0.0001f) gridRootScale = Vector3.one;
+
+            var grid = targetAsset.Grid;
+            SetField(grid, "size", gridSize);
+            SetField(grid, "rootPosition", gridRootPosition);
+            SetField(grid, "rootScale", gridRootScale);
+
+            var boxCells = new List<BoxCellData>();
+            for (int z = 0; z < gridSize; z++)
+            {
+                for (int x = 0; x < gridSize; x++)
+                {
+                    int colorIdx = cells[z * gridSize + x];
+                    if (colorIdx < 0) continue;
+                    if (colorIdx >= palette.Count || palette[colorIdx] == null) continue;
+                    var bc = new BoxCellData();
+                    SetField(bc, "gridX", x);
+                    SetField(bc, "gridZ", z);
+                    SetField(bc, "isEmpty", false);
+                    SetField(bc, "color", palette[colorIdx]);
+                    boxCells.Add(bc);
+                }
+            }
+            SetField(grid, "cells", boxCells);
+
+            SetField(targetAsset, "columns", new List<ColumnData>(columns));
+            SetField(targetAsset, "conveyorSlotCapacity", conveyorSlotCapacity);
+            SetField(targetAsset, "reserveSlotCapacity", reserveSlotCapacity);
+        }
+
+        private void GenerateColumnsFromGrid(int maxShotsPerShooter)
+        {
+            EnsureCellsArray();
+            maxShotsPerShooter = Mathf.Max(1, maxShotsPerShooter);
+
+            var order = new List<ColorData>();
+            var counts = new Dictionary<ColorData, int>();
+            for (int z = 0; z < gridSize; z++)
+            {
+                for (int x = 0; x < gridSize; x++)
+                {
+                    int c = cells[z * gridSize + x];
+                    if (c < 0 || c >= palette.Count || palette[c] == null) continue;
+                    var key = palette[c].GameplayColor;
+                    if (!counts.ContainsKey(key)) { counts[key] = 0; order.Add(key); }
+                    counts[key]++;
+                }
+            }
+
+            var newColumns = new List<ColumnData>();
+            foreach (var gameplayColor in order)
+            {
+                int total = counts[gameplayColor];
+                int shooterCount = Mathf.CeilToInt(total / (float)maxShotsPerShooter);
+                int remaining = total;
+                var shooterList = new List<ShooterData>();
+                for (int s = 0; s < shooterCount; s++)
+                {
+                    int shots = Mathf.Min(maxShotsPerShooter, remaining);
+                    remaining -= shots;
+                    var sd = new ShooterData();
+                    SetField(sd, "color", gameplayColor);
+                    SetField(sd, "shotCount", shots);
+                    shooterList.Add(sd);
+                }
+                var col = new ColumnData();
+                SetField(col, "shooters", shooterList);
+                newColumns.Add(col);
+            }
+            columns = newColumns;
+        }
+
+        // ─── Palette swatches ─────────────────────────────────────────
+        private void DrawPaletteSelectableSwatches()
+        {
             const int PerRow = 10;
-            for (int i = 0; i < controller.palette.Count; i++)
+            for (int i = 0; i < palette.Count; i++)
             {
                 if (i % PerRow == 0) EditorGUILayout.BeginHorizontal();
-                var cd = controller.palette[i];
+                var cd = palette[i];
                 var col = cd != null ? cd.DisplayColor : Color.magenta;
                 var prev = GUI.backgroundColor;
                 GUI.backgroundColor = col;
-                // Read-only display: clicking a swatch is a no-op, the level is built from RLE only.
-                GUILayout.Button(i.ToString(), swatchStyle);
+                bool selected = (i == currentPaletteIdx && !eraseMode);
+                string label = selected ? $"[{i}]" : i.ToString();
+                if (GUILayout.Button(label, swatchStyle))
+                {
+                    currentPaletteIdx = i;
+                    eraseMode = false;
+                }
                 GUI.backgroundColor = prev;
-                if (i % PerRow == PerRow - 1 || i == controller.palette.Count - 1) EditorGUILayout.EndHorizontal();
+                if (i % PerRow == PerRow - 1 || i == palette.Count - 1) EditorGUILayout.EndHorizontal();
             }
         }
 
+        // ─── ColorData / Material factories ───────────────────────────
         private static ColorData GetOrCreateColorData(string hex, Color baseColor)
         {
-            // Per-color subfolder for the ScriptableObject too.
             string colorDir = $"{ColorsDir}/{hex}";
             EnsureDir(colorDir);
             string path = $"{colorDir}/Color_{hex}.asset";
@@ -345,7 +952,6 @@ namespace PixelShoot.LevelEditor.EditorTools
             return cd;
         }
 
-        /// <summary>baseDir/hex/name.mat — categorised first by usage (boxes/shooters/bullets), then by colour code.</summary>
         private static Material CreateMaterial(string baseDir, string hex, string name, Color color)
         {
             string dir = $"{baseDir}/{hex}";
@@ -360,16 +966,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             return mat;
         }
 
-        private static Color FadedVariant(Color c)
-        {
-            Color.RGBToHSV(c, out float h, out float s, out float v);
-            s *= 0.25f;
-            v = Mathf.Lerp(v, 0.85f, 0.5f);
-            var faded = Color.HSVToRGB(h, s, v);
-            faded.a = c.a;
-            return faded;
-        }
-
+        // ─── Generic helpers ──────────────────────────────────────────
         private static void EnsureDir(string dir)
         {
             if (AssetDatabase.IsValidFolder(dir)) return;
@@ -388,6 +985,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 if (f != null) { f.SetValue(target, value); return; }
                 t = t.BaseType;
             }
+            Debug.LogError($"Field '{fieldName}' not found on {target.GetType().Name}");
         }
     }
 }
