@@ -19,7 +19,7 @@ namespace PixelShoot.Shooters
 
     public class Shooter : MonoBehaviour
     {
-        [SerializeField] private MeshRenderer meshRenderer;
+        [SerializeField] private SkinnedMeshRenderer meshRenderer;
         [SerializeField] private Bullet bulletPrefab;
         [SerializeField] private Transform muzzle;
         [SerializeField] private float jumpPower = 1.5f;
@@ -56,8 +56,13 @@ namespace PixelShoot.Shooters
             color = c;
             shotsRemaining = shotCount;
             state = ShooterState.InColumn;
+
             if (meshRenderer != null && c != null && c.ShooterMaterial != null)
-                meshRenderer.sharedMaterial = c.ShooterMaterial;
+            {
+                Material[] mats = meshRenderer.materials;
+                mats[0] = c.ShooterMaterial;
+                meshRenderer.materials = mats;
+            }
         }
 
         public void SetGridAndConveyor(GridController g, ConveyorController cv)
