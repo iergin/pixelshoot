@@ -117,10 +117,19 @@ namespace PixelShoot.Grid
             if (boxes != null)
             {
                 foreach (var b in boxes)
-                    if (b != null) Destroy(b.gameObject);
+                    if (b != null) SafeDestroy(b.gameObject);
             }
             boxes = null;
             aliveCount = 0;
+        }
+
+        /// <summary>Destroy that works in both play mode (Destroy) and edit mode
+        /// (DestroyImmediate) — the level editor preview drives Clear() at edit time.</summary>
+        private static void SafeDestroy(GameObject go)
+        {
+            if (go == null) return;
+            if (Application.isPlaying) Destroy(go);
+            else DestroyImmediate(go);
         }
 
         public Vector3 GetCellLocalPosition(int x, int z)
