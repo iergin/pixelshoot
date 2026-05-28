@@ -40,6 +40,9 @@ namespace PixelShoot.LevelEditor.EditorTools
         [SerializeField] private bool eraseMode = false;
         [SerializeField] private bool paintMode = false;
         [SerializeField] private bool initialPreview = false;
+        // True while "Show Final state" is active. Persists across auto-refreshes so the
+        // visual doesn't snap back to Locked/Frontier the moment something else triggers a Build.
+        [SerializeField] private bool inFinalStateView = false;
 
         // ─── Transient UI state ───────────────────────────────────────
         private string levelName = "Level_01";
@@ -586,9 +589,16 @@ namespace PixelShoot.LevelEditor.EditorTools
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     if (GUILayout.Button("Refresh preview in scene", GUILayout.Height(28)))
+                    {
+                        inFinalStateView = false; // explicit refresh leaves final-state view.
                         RefreshScenePreview(persistToDisk: false);
-                    if (GUILayout.Button("Show final state", GUILayout.Height(28)))
-                        ShowFinalStatePreview();
+                    }
+                    string finalLabel = inFinalStateView ? "Exit final state" : "Show final state";
+                    if (GUILayout.Button(finalLabel, GUILayout.Height(28)))
+                    {
+                        inFinalStateView = !inFinalStateView;
+                        RefreshScenePreview(persistToDisk: false);
+                    }
                 }
             }
             EditorGUILayout.HelpBox(
@@ -763,6 +773,18 @@ namespace PixelShoot.LevelEditor.EditorTools
                     "  • cells reference colors with no ColorData → check console",
                     MessageType.Warning);
             }
+            else if (inFinalStateView && gridCtrl != null)
+            {
+                // Build just put every box back into Locked/Frontier; re-apply the final
+                // state visual so the auto-refresh doesn't visibly clobber it.
+                int hadHit, fallback, noColor;
+                ApplyFinalStateVisuals(gridCtrl, out hadHit, out fallback, out noColor);
+                SetStatus(
+                    $"Final state active: {boxesSpawned} boxes — {hadHit} via BoxHitMaterial, " +
+                    $"{fallback} via DisplayColor tint" + (noColor > 0 ? $", {noColor} no ColorData" : "") +
+                    ".  (Press 'Exit final state' to return to edit view.)",
+                    MessageType.Info);
+            }
             else
             {
                 SetStatus(
@@ -774,62 +796,25 @@ namespace PixelShoot.LevelEditor.EditorTools
             return true;
         }
 
-        private void SetStatus(string msg, MessageType type)
-        {
-            lastRefreshStatus = msg;
-            lastRefreshStatusType = type;
-        }
-
         /// <summary>
-        /// Rebuild the preview and then flip every Box to its Hit state so each cell
-        /// shows the color it was assigned. Falls back to tinting with DisplayColor
-        /// (via a MaterialPropertyBlock) if a ColorData has no BoxHitMaterial assigned.
+        /// Flips every Box under the GridController to its Hit state and, when the
+        /// per-color BoxHitMaterial is missing, falls back to tinting the box's renderers
+        /// with DisplayColor via a MaterialPropertyBlock (no material leaks).
         /// </summary>
-        private void ShowFinalStatePreview()
+        private static void ApplyFinalStateVisuals(GridController gridCtrl,
+            out int hadHitMat, out int usedFallback, out int noColor)
         {
-            if (!RefreshScenePreview(persistToDisk: false))
-            {
-                EditorUtility.DisplayDialog("Show final state",
-                    "No LevelLoader found in the open scene. Open the LevelEditor scene first.", "OK");
-                return;
-            }
-#if UNITY_2023_1_OR_NEWER
-            var grid = Object.FindFirstObjectByType<GridController>(FindObjectsInactive.Include);
-#else
-            var grid = Object.FindObjectOfType<GridController>();
-#endif
-            if (grid == null)
-            {
-                Debug.LogWarning("[LevelWizard] ShowFinalState: no GridController in scene.");
-                return;
-            }
-
-            // includeInactive=true catches boxes whose state changes have disabled child
-            // helpers, and means we report a true total even if the user has hidden things.
-            var boxes = grid.GetComponentsInChildren<Box>(includeInactive: true);
-
-            int total = boxes.Length;
-            int hadHitMat = 0;
-            int usedFallback = 0;
-            int noColor = 0;
-
+            hadHitMat = usedFallback = noColor = 0;
+            var boxes = gridCtrl.GetComponentsInChildren<Box>(includeInactive: true);
             var props = new MaterialPropertyBlock();
             foreach (var b in boxes)
             {
                 if (b == null) continue;
-                b.TakeHit();   // sets state=Hit and applies BoxHitMaterial when present.
-
+                b.TakeHit();
                 var cd = b.Color;
                 if (cd == null) { noColor++; continue; }
+                if (cd.BoxHitMaterial != null) { hadHitMat++; continue; }
 
-                if (cd.BoxHitMaterial != null)
-                {
-                    hadHitMat++;
-                    continue;
-                }
-
-                // Fallback: tint the active mesh renderers with DisplayColor via a
-                // property block — no leaked material instances, works in edit mode.
                 Color tint = cd.DisplayColor;
                 var rends = b.GetComponentsInChildren<MeshRenderer>(includeInactive: false);
                 foreach (var r in rends)
@@ -842,16 +827,12 @@ namespace PixelShoot.LevelEditor.EditorTools
                 }
                 usedFallback++;
             }
+        }
 
-            SetStatus(
-                $"Final state: {total} boxes — {hadHitMat} used BoxHitMaterial, " +
-                $"{usedFallback} fell back to DisplayColor tint" +
-                (noColor > 0 ? $", {noColor} had no ColorData assigned" : ""),
-                MessageType.Info);
-
-            Debug.Log($"[LevelWizard] ShowFinalState: total={total}, hadHitMat={hadHitMat}, " +
-                      $"usedFallback={usedFallback}, noColor={noColor}");
-            SceneView.RepaintAll();
+        private void SetStatus(string msg, MessageType type)
+        {
+            lastRefreshStatus = msg;
+            lastRefreshStatusType = type;
         }
 
         // ─── Asset I/O ────────────────────────────────────────────────
