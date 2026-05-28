@@ -15,6 +15,8 @@ namespace PixelShoot.Grid
         [SerializeField] private MeshRenderer meshRenderer;
         [Tooltip("Optional small renderer (e.g., a sphere child) that shows a hint of the box's color while it is Locked.")]
         [SerializeField] private MeshRenderer colorDot;
+        [Tooltip("Optional outline/stroke renderer that is enabled ONLY while the box is on the Frontier (shootable). Its material is set to the color's BoxHitMaterial at init.")]
+        [SerializeField] private MeshRenderer stroke;
 
         private ColorData color;
         private BoxState state;
@@ -42,6 +44,10 @@ namespace PixelShoot.Grid
             // (the only remaining color-tinted material on ColorData).
             if (colorDot != null && c != null && c.BoxHitMaterial != null)
                 colorDot.sharedMaterial = c.BoxHitMaterial;
+            // Stroke paints the per-color hit material; it only shows while the box is
+            // on the frontier (shootable), giving the player a clear color cue.
+            if (stroke != null && c != null && c.BoxHitMaterial != null)
+                stroke.sharedMaterial = c.BoxHitMaterial;
             SetState(BoxState.Locked);
         }
 
@@ -53,6 +59,9 @@ namespace PixelShoot.Grid
             // Dot is the color hint for locked boxes only — hide once the box can be shot or has been shot.
             if (colorDot != null && colorDot.gameObject.activeSelf != (newState == BoxState.Locked))
                 colorDot.gameObject.SetActive(newState == BoxState.Locked);
+            // Stroke is the shootable-state cue — only on while Frontier.
+            if (stroke != null && stroke.gameObject.activeSelf != (newState == BoxState.Frontier))
+                stroke.gameObject.SetActive(newState == BoxState.Frontier);
         }
 
         public void ReserveHit() => reservedForHit = true;
