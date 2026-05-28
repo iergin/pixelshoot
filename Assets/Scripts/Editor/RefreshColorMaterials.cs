@@ -7,12 +7,13 @@ using PixelShoot.Data;
 namespace PixelShoot.EditorTools
 {
     /// <summary>
-    /// One-shot utility to repaint all ColorData materials to match the current
-    /// unhit-vivid / hit-faded convention. Run after changing the faded recipe.
+    /// One-shot utility to repaint all per-color ColorData materials back to the
+    /// vivid display color. (Frontier/unhit boxes now use a single shared material
+    /// on GridController, so they are not touched here.)
     /// </summary>
     public static class RefreshColorMaterials
     {
-        [MenuItem("PixelShoot/Refresh Color Materials (unhit=vivid, hit=faded)")]
+        [MenuItem("PixelShoot/Refresh Color Materials")]
         public static void Refresh()
         {
             var guids = AssetDatabase.FindAssets("t:" + nameof(ColorData));
@@ -24,16 +25,14 @@ namespace PixelShoot.EditorTools
                 if (cd == null) continue;
 
                 Color baseColor = cd.DisplayColor;
-                Color faded = FadedVariant(baseColor);
 
-                if (cd.BoxUnhitMaterial != null) SetMaterialColor(cd.BoxUnhitMaterial, baseColor);
-                if (cd.BoxHitMaterial != null) SetMaterialColor(cd.BoxHitMaterial, faded);
+                if (cd.BoxHitMaterial != null) SetMaterialColor(cd.BoxHitMaterial, baseColor);
                 if (cd.ShooterMaterial != null) SetMaterialColor(cd.ShooterMaterial, baseColor);
                 if (cd.BulletMaterial != null) SetMaterialColor(cd.BulletMaterial, baseColor);
                 updated++;
             }
             AssetDatabase.SaveAssets();
-            Debug.Log($"Refreshed {updated} ColorData entries: unhit material → vivid base color, hit material → faded.");
+            Debug.Log($"Refreshed {updated} ColorData entries: per-color materials → vivid base color.");
         }
 
         private static void SetMaterialColor(Material mat, Color color)
@@ -41,16 +40,6 @@ namespace PixelShoot.EditorTools
             mat.color = color;
             if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
             EditorUtility.SetDirty(mat);
-        }
-
-        private static Color FadedVariant(Color c)
-        {
-            Color.RGBToHSV(c, out float h, out float s, out float v);
-            s *= 0.25f;
-            v = Mathf.Lerp(v, 0.85f, 0.5f);
-            var faded = Color.HSVToRGB(h, s, v);
-            faded.a = c.a;
-            return faded;
         }
     }
 }

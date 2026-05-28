@@ -33,7 +33,7 @@ namespace PixelShoot.Shooters
 
         private float pathProgress;
         private float pathSpeed;
-        private Sequence boardingSeq;
+        private Tween boardingTween;
 
         // Engagement tracking: each column/row gets at most one shot per pass.
         // Reset when the shooter changes side or moves off the grid (parallel = -1).
@@ -76,14 +76,15 @@ namespace PixelShoot.Shooters
         {
             state = ShooterState.Boarding;
             transform.SetParent(null, true);
-            boardingSeq?.Kill();
-            boardingSeq = DOTween.Sequence();
-            boardingSeq.Append(transform.DOJump(worldTarget, jumpPower, 1, Mathf.Max(0.05f, duration)));
-            boardingSeq.OnComplete(() =>
-            {
-                state = endState;
-                onDone?.Invoke();
-            });
+            boardingTween?.Kill();
+            // DOJump itself is a sequence of tweens internally — wrapping it in another
+            // Sequence just to attach OnComplete doubled the tween count for every jump.
+            boardingTween = transform.DOJump(worldTarget, jumpPower, 1, Mathf.Max(0.05f, duration))
+                .OnComplete(() =>
+                {
+                    state = endState;
+                    onDone?.Invoke();
+                });
         }
 
         public void StartFollowingPath(float speed)
@@ -181,7 +182,7 @@ namespace PixelShoot.Shooters
 
         private void OnDestroy()
         {
-            boardingSeq?.Kill();
+            boardingTween?.Kill();
         }
     }
 }

@@ -7,7 +7,8 @@ namespace PixelShoot.Data
     {
         [SerializeField] private string colorId;
         [SerializeField] private Color displayColor = Color.white;
-        [SerializeField] private Material boxUnhitMaterial;
+        // Frontier (unhit) boxes now use a single shared material set on GridController,
+        // so ColorData no longer carries a per-color unhit material.
         [SerializeField] private Material boxHitMaterial;
         [SerializeField] private Material shooterMaterial;
         [SerializeField] private Material bulletMaterial;
@@ -16,7 +17,6 @@ namespace PixelShoot.Data
 
         public string ColorId => colorId;
         public Color DisplayColor => displayColor;
-        public Material BoxUnhitMaterial => boxUnhitMaterial;
         public Material BoxHitMaterial => boxHitMaterial;
         public Material ShooterMaterial => shooterMaterial;
         public Material BulletMaterial => bulletMaterial;

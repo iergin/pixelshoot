@@ -47,16 +47,15 @@ namespace PixelShoot.EditorTools
             var existing = AssetDatabase.LoadAssetAtPath<ColorData>(existingPath);
             if (existing != null) return existing;
 
-            // Unhit (Frontier) = vivid base color. Hit = faded — destroyed boxes fade out.
-            var unhit      = CreateMaterial(MatBoxesDir,    name, "Unhit",   baseColor);
-            var hit        = CreateMaterial(MatBoxesDir,    name, "Hit",     FadedVariant(baseColor));
+            // Hit material is the only per-color box material now; the shared "unhit"
+            // material lives on GridController and is the same for every color.
+            var hit        = CreateMaterial(MatBoxesDir,    name, "Hit",     baseColor);
             var shooterMat = CreateMaterial(MatShootersDir, name, "Shooter", baseColor);
             var bulletMat  = CreateMaterial(MatBulletsDir,  name, "Bullet",  baseColor);
 
             var color = ScriptableObject.CreateInstance<ColorData>();
             SetField(color, "colorId", name.ToLowerInvariant());
             SetField(color, "displayColor", baseColor);
-            SetField(color, "boxUnhitMaterial", unhit);
             SetField(color, "boxHitMaterial", hit);
             SetField(color, "shooterMaterial", shooterMat);
             SetField(color, "bulletMaterial", bulletMat);

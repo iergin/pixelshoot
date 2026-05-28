@@ -68,8 +68,14 @@ namespace PixelShoot.Shooters
             int count = shooters.Count;
             for (int i = 0; i < count; i++)
             {
+                var tr = shooters[i].transform;
                 var target = LocalPositionFor(i, count);
-                shooters[i].transform.DOLocalMove(target, restackDuration).SetEase(Ease.OutCubic);
+                // Already in place — no tween needed.
+                if ((tr.localPosition - target).sqrMagnitude < 0.0001f) continue;
+                // Kill any previous restack tween on THIS transform so rapid clicks
+                // don't stack multiple parallel DOLocalMoves on the same shooter.
+                tr.DOKill();
+                tr.DOLocalMove(target, restackDuration).SetEase(Ease.OutCubic);
             }
         }
 

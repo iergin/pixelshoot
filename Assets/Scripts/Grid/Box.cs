@@ -6,8 +6,8 @@ namespace PixelShoot.Grid
     public enum BoxState
     {
         Locked,    // Inside the silhouette. Not shootable. Shown in the shared gray "locked" material.
-        Frontier,  // On the silhouette edge. Shootable. Shown in the color's faded BoxUnhitMaterial.
-        Hit        // Already destroyed. Stays visible in the color's vivid BoxHitMaterial.
+        Frontier,  // On the silhouette edge. Shootable. Shown in the shared "unhit" material (no color tint).
+        Hit        // Already destroyed. Stays visible in the color's BoxHitMaterial.
     }
 
     public class Box : MonoBehaviour
@@ -20,6 +20,7 @@ namespace PixelShoot.Grid
         private BoxState state;
         private bool reservedForHit;
         private Material lockedMat;
+        private Material unhitMat;
 
         public int GridX { get; private set; }
         public int GridZ { get; private set; }
@@ -29,16 +30,18 @@ namespace PixelShoot.Grid
         // Targetable only while on the frontier and not already promised to an incoming bullet.
         public bool IsShootable => state == BoxState.Frontier && !reservedForHit;
 
-        public void Initialize(int x, int z, ColorData c, Material lockedMaterial)
+        public void Initialize(int x, int z, ColorData c, Material lockedMaterial, Material unhitMaterial)
         {
             GridX = x;
             GridZ = z;
             color = c;
             reservedForHit = false;
             lockedMat = lockedMaterial;
-            // The dot reveals the real color of a locked box — uses the vivid unhit material.
-            if (colorDot != null && c != null && c.BoxUnhitMaterial != null)
-                colorDot.sharedMaterial = c.BoxUnhitMaterial;
+            unhitMat = unhitMaterial;
+            // The dot reveals the real color of a locked box — use the per-color Hit material
+            // (the only remaining color-tinted material on ColorData).
+            if (colorDot != null && c != null && c.BoxHitMaterial != null)
+                colorDot.sharedMaterial = c.BoxHitMaterial;
             SetState(BoxState.Locked);
         }
 
@@ -69,7 +72,7 @@ namespace PixelShoot.Grid
             switch (state)
             {
                 case BoxState.Locked: m = lockedMat; break;
-                case BoxState.Frontier: m = color != null ? color.BoxUnhitMaterial : null; break;
+                case BoxState.Frontier: m = unhitMat; break;
                 case BoxState.Hit: m = color != null ? color.BoxHitMaterial : null; break;
             }
             if (m != null) meshRenderer.sharedMaterial = m;

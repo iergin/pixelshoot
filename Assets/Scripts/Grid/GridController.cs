@@ -11,11 +11,14 @@ namespace PixelShoot.Grid
         [SerializeField] private float cellSize = 1f;
         [Tooltip("Material applied to locked (inside-the-silhouette) boxes. If null, a default gray material is created at runtime.")]
         [SerializeField] private Material lockedBoxMaterial;
+        [Tooltip("Single shared material applied to ALL unhit (frontier) boxes regardless of color. If null, a default light gray material is created at runtime.")]
+        [SerializeField] private Material unhitBoxMaterial;
 
         private Box[,] boxes;
         private int size;
         private int aliveCount;
         private Material lockedFallback;
+        private Material unhitFallback;
 
         private static readonly (int dx, int dz)[] Neighbors4 = { (1, 0), (-1, 0), (0, 1), (0, -1) };
 
@@ -38,6 +41,7 @@ namespace PixelShoot.Grid
             boxes = new Box[size, size];
 
             var locked = GetLockedMaterial();
+            var unhit = GetUnhitMaterial();
             foreach (var cell in data.Cells)
             {
                 if (cell.IsEmpty) continue;
@@ -46,7 +50,7 @@ namespace PixelShoot.Grid
                 var pos = GetCellLocalPosition(cell.GridX, cell.GridZ);
                 var box = Instantiate(boxPrefab, gridRoot != null ? gridRoot : transform);
                 box.transform.localPosition = pos;
-                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked);
+                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked, unhit);
                 boxes[cell.GridX, cell.GridZ] = box;
                 aliveCount++;
             }
@@ -92,6 +96,20 @@ namespace PixelShoot.Grid
                     lockedFallback.SetColor("_BaseColor", new Color(0.42f, 0.42f, 0.46f));
             }
             return lockedFallback;
+        }
+
+        private Material GetUnhitMaterial()
+        {
+            if (unhitBoxMaterial != null) return unhitBoxMaterial;
+            if (unhitFallback == null)
+            {
+                var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+                var c = new Color(0.82f, 0.82f, 0.84f);
+                unhitFallback = new Material(shader) { color = c };
+                if (unhitFallback.HasProperty("_BaseColor"))
+                    unhitFallback.SetColor("_BaseColor", c);
+            }
+            return unhitFallback;
         }
 
         public void Clear()

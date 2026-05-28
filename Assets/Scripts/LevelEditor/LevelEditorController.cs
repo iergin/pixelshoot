@@ -171,13 +171,16 @@ namespace PixelShoot.LevelEditor
             switch (previewMode)
             {
                 case LevelPreviewMode.Completed:
-                    return cd.BoxHitMaterial != null ? cd.BoxHitMaterial : cd.BoxUnhitMaterial;
+                    return cd.BoxHitMaterial;
                 case LevelPreviewMode.Initial:
+                    // Frontier cells show the shared unhit material in-game; in the editor
+                    // we use the per-color Hit material as a stand-in so the silhouette
+                    // shape still reads in color while authoring.
                     return IsCellOnSilhouette(x, z)
-                        ? cd.BoxUnhitMaterial
+                        ? cd.BoxHitMaterial
                         : GetLockedPreviewMaterial();
                 default: // Editing
-                    return cd.BoxUnhitMaterial;
+                    return cd.BoxHitMaterial;
             }
         }
 
