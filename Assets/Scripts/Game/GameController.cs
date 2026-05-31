@@ -186,6 +186,12 @@ namespace PixelShoot.Game
             OnLevelFailed?.Invoke();
         }
 
+        // ── Debug helpers (used by SRDebugger options) ───────────────────────
+        /// <summary>Force the level into the Won state regardless of grid contents.</summary>
+        public void DebugForceWin() => HandleGridCleared();
+        /// <summary>Force the level into the Failed state regardless of conveyor contents.</summary>
+        public void DebugForceFail() => Fail();
+
         private void OnDestroy()
         {
             if (grid != null) grid.OnGridCleared -= HandleGridCleared;

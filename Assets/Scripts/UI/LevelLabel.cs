@@ -19,13 +19,6 @@ namespace PixelShoot.UI
 
         private void OnEnable() => Refresh();
 
-        private void Update()
-        {
-            // Cheap poll — re-render only when the underlying number changes (e.g.
-            // after a win has bumped PlayerProgress between scenes).
-            if (PlayerProgress.DisplayLevel != lastShown) Refresh();
-        }
-
         public void Refresh()
         {
             int display = PlayerProgress.DisplayLevel;
