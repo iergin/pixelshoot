@@ -829,6 +829,80 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &386235631
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 386235635}
+  - component: {fileID: 386235634}
+  - component: {fileID: 386235633}
+  - component: {fileID: 386235632}
+  m_Layer: 0
+  m_Name: '[PixelShoot Bootstrap]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &386235632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386235631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e0d043cc01541b4a4514dc864db1cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Ads.InterstitialController
+  config: {fileID: 11400000, guid: 0bbb2d86739fc4f8e93bef1dba3fa8f0, type: 2}
+--- !u!114 &386235633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386235631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62bafb5f222aa488a9050a18764e835d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Shop.ShopManager
+  offers:
+  - {fileID: 11400000, guid: beb18f1751ae04ebe9348a484b362734, type: 2}
+  - {fileID: 11400000, guid: 6e0b6507b9e52440493660fc7b613ced, type: 2}
+--- !u!114 &386235634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386235631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cdde36d1edf646eabe0044d6c82a322, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Ads.AdsManager
+--- !u!4 &386235635
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386235631}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -1063,6 +1137,11 @@ MonoBehaviour:
   gameController: {fileID: 448307441}
   successPanel: {fileID: 916064243}
   nextLevelButton: {fileID: 1332150013}
+  doubleCoinsButton: {fileID: 0}
+  doubleCoinsLabel: {fileID: 0}
+  doubleCoinsFormat: Get {0}
+  interstitial: {fileID: 386235632}
+  coinsConfig: {fileID: 11400000, guid: 577c3c529cf76468086cddd026d1b29d, type: 2}
   failPanel: {fileID: 640823642}
   restartButton: {fileID: 1723839738}
   playOnButton: {fileID: 1610656111}
@@ -4293,6 +4372,7 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 302971509}
   - {fileID: 2776611608380556687}
+  - {fileID: 386235635}
   - {fileID: 1923130748}
   - {fileID: 1366056750}
   - {fileID: 1321245215}
