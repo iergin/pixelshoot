@@ -10,6 +10,7 @@ namespace PixelShoot.Game
     public static class PlayerWallet
     {
         private const string BalanceKey = "PixelShoot.Coins";
+        private const string PurchasePrefix = "PixelShoot.Purchase.";
 
         /// <summary>Fired AFTER the new balance is persisted. Payload = new balance.</summary>
         public static event Action<int> OnBalanceChanged;
@@ -51,6 +52,24 @@ namespace PixelShoot.Game
         }
 
         public static void Reset(int initial = 0) => SetBalance(Mathf.Max(0, initial));
+
+        // ── Purchase ledger (for one-time IAP offers) ─────────────────────
+        public static bool HasPurchased(string offerId)
+            => !string.IsNullOrEmpty(offerId) && PlayerPrefs.GetInt(PurchasePrefix + offerId, 0) == 1;
+
+        public static void MarkPurchased(string offerId)
+        {
+            if (string.IsNullOrEmpty(offerId)) return;
+            PlayerPrefs.SetInt(PurchasePrefix + offerId, 1);
+            PlayerPrefs.Save();
+        }
+
+        public static void ClearPurchase(string offerId)
+        {
+            if (string.IsNullOrEmpty(offerId)) return;
+            PlayerPrefs.DeleteKey(PurchasePrefix + offerId);
+            PlayerPrefs.Save();
+        }
 
         private static void SetBalance(int value)
         {

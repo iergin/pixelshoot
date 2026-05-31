@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using PixelShoot.Ads;
+using PixelShoot.Data;
 using PixelShoot.Game;
 
 namespace PixelShoot.UI
@@ -16,6 +18,15 @@ namespace PixelShoot.UI
         [Header("Success panel")]
         [SerializeField] private GameObject successPanel;
         [SerializeField] private Button nextLevelButton;
+        [Tooltip("Optional 'Watch ad for 2× coins' button on the success panel.")]
+        [SerializeField] private Button doubleCoinsButton;
+        [Tooltip("Optional. Shows the would-be reward, e.g. 'Get 40 coins'. {0} = doubled reward.")]
+        [SerializeField] private TMP_Text doubleCoinsLabel;
+        [SerializeField] private string doubleCoinsFormat = "Get {0}";
+
+        [Header("Ads")]
+        [SerializeField] private InterstitialController interstitial;
+        [SerializeField] private CoinsConfig coinsConfig;
         [Header("Fail panel")]
         [SerializeField] private GameObject failPanel;
         [SerializeField] private Button restartButton;
@@ -101,12 +112,30 @@ namespace PixelShoot.UI
                 playOnButton.onClick.RemoveAllListeners();
                 playOnButton.onClick.AddListener(OnPlayOn);
             }
+            if (doubleCoinsButton != null)
+            {
+                doubleCoinsButton.onClick.RemoveAllListeners();
+                doubleCoinsButton.onClick.AddListener(OnDoubleCoins);
+            }
         }
+
+        private bool doubleCoinsClaimed;
 
         private void HandleWon()
         {
             if (failPanel != null) failPanel.SetActive(false);
             if (successPanel != null) successPanel.SetActive(true);
+
+            // Set up the 2× button. Re-enabled each win in case the previous win consumed it.
+            doubleCoinsClaimed = false;
+            if (doubleCoinsButton != null) doubleCoinsButton.interactable = true;
+            if (doubleCoinsLabel != null && coinsConfig != null)
+                doubleCoinsLabel.text = string.Format(doubleCoinsFormat, coinsConfig.LevelWinReward * 2);
+
+            // Fire the interstitial gate. The InterstitialController decides whether to
+            // actually show one based on level / cadence; it counts this call as one
+            // completed level whether or not an ad pops.
+            if (interstitial != null) interstitial.NotifyLevelEnded();
         }
 
         private void HandleFailed()
@@ -114,6 +143,8 @@ namespace PixelShoot.UI
             if (successPanel != null) successPanel.SetActive(false);
             if (failPanel != null) failPanel.SetActive(true);
             UpdatePlayOnButton();
+            // Interstitial counter ticks for losses too — the player saw a level result.
+            if (interstitial != null) interstitial.NotifyLevelEnded();
         }
 
         public void HideAll()
@@ -138,6 +169,32 @@ namespace PixelShoot.UI
             // PlayOn now spends coins and returns false if the player can't afford it.
             // Only hide the fail panel when it actually succeeded.
             if (gameController.PlayOn() && failPanel != null) failPanel.SetActive(false);
+        }
+
+        /// <summary>
+        /// "Watch ad for 2× coins" handler. On rewarded success, grants ONE additional
+        /// reward on top of the one LevelLoader already paid out, so total = 2×.
+        /// Disables the button afterwards so it can't be re-claimed for the same win.
+        /// Also tells the interstitial controller to reset its cooldown.
+        /// </summary>
+        private void OnDoubleCoins()
+        {
+            if (doubleCoinsClaimed || coinsConfig == null) return;
+            if (AdsManager.Service == null || !AdsManager.Service.IsRewardedReady)
+            {
+                Debug.Log("[LevelEndUI] Rewarded ad not ready.");
+                return;
+            }
+            AdsManager.Service.ShowRewarded(
+                onRewarded: () =>
+                {
+                    doubleCoinsClaimed = true;
+                    if (doubleCoinsButton != null) doubleCoinsButton.interactable = false;
+                    PlayerWallet.Add(coinsConfig.LevelWinReward); // first reward already paid by LevelLoader
+                    if (interstitial != null) interstitial.NotifyRewardedWatched();
+                    Debug.Log($"[LevelEndUI] 2× reward claimed (+{coinsConfig.LevelWinReward}).");
+                },
+                onClosed: null);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using UnityEngine;
+using PixelShoot.Ads;
 using PixelShoot.Game;
 
 /// <summary>
@@ -65,6 +66,25 @@ public partial class SROptions
         PlayerWallet.Reset(1000);
         Debug.Log("[SRDebug] Wallet reset to 1000.");
         OnPropertyChanged(nameof(CoinBalance));
+    }
+
+    // ── Ads ─────────────────────────────────────────────────────────────
+    [Category("PixelShoot — Ads")]
+    [DisplayName("Show interstitial")]
+    public void DebugShowInterstitial()
+    {
+        if (AdsManager.Service == null) { Debug.LogWarning("[SRDebug] AdsManager not ready."); return; }
+        AdsManager.Service.ShowInterstitial(null);
+    }
+
+    [Category("PixelShoot — Ads")]
+    [DisplayName("Show rewarded")]
+    public void DebugShowRewarded()
+    {
+        if (AdsManager.Service == null) { Debug.LogWarning("[SRDebug] AdsManager not ready."); return; }
+        AdsManager.Service.ShowRewarded(
+            onRewarded: () => Debug.Log("[SRDebug] Rewarded callback fired."),
+            onClosed: null);
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────
