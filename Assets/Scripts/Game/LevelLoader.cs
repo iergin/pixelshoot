@@ -9,7 +9,13 @@ namespace PixelShoot.Game
     public class LevelLoader : MonoBehaviour
     {
         [Header("Data")]
+        [Tooltip("Optional explicit override. If set, this level is used and AllLevels is ignored.\n" +
+                 "Left null in normal play; the level editor wizard sets this for previews.")]
         [SerializeField] private LevelData levelData;
+        [Tooltip("Ordered playlist consulted when no explicit LevelData override is assigned. " +
+                 "Picks levels by PlayerProgress.LevelIndex; falls back to a random pick once " +
+                 "the index runs past the last entry.")]
+        [SerializeField] private AllLevelsData allLevels;
 
         [Header("Scene refs")]
         [SerializeField] private GridController grid;
@@ -24,14 +30,43 @@ namespace PixelShoot.Game
         [SerializeField] private Transform columnsRoot;
         [SerializeField] private float columnSpacing = 1.4f;
 
+        private bool subscribedToWin;
+
         private void Start()
         {
+            // Resolve the level we'll actually play: explicit override beats the playlist.
+            if (levelData == null) levelData = PickFromPlaylist();
+
             if (levelData == null)
             {
-                Debug.LogError("LevelLoader: no LevelData assigned.");
+                Debug.LogError("LevelLoader: no LevelData and no AllLevelsData entries to fall back on.");
                 return;
             }
             Build();
+
+            // Subscribe AFTER Build so the GameController is bound.
+            if (gameController != null && !subscribedToWin)
+            {
+                gameController.OnLevelWon += HandleLevelWon;
+                subscribedToWin = true;
+            }
+        }
+
+        /// <summary>
+        /// Picks a level out of the playlist using PlayerProgress.LevelIndex.
+        /// If the player has exhausted the playlist, returns a random entry instead.
+        /// </summary>
+        private LevelData PickFromPlaylist()
+        {
+            if (allLevels == null || allLevels.Count == 0) return null;
+            int idx = PlayerProgress.LevelIndex;
+            if (idx < allLevels.Count)
+            {
+                var chosen = allLevels.Get(idx);
+                if (chosen != null) return chosen;
+                Debug.LogWarning($"LevelLoader: AllLevels[{idx}] is null; falling back to a random pick.");
+            }
+            return allLevels.GetRandom();
         }
 
         public void Build()
@@ -78,6 +113,25 @@ namespace PixelShoot.Game
 
             if (bullets != boxes)
                 Debug.LogWarning($"LevelLoader: bullet budget mismatch — boxes={boxes}, bullets={bullets}");
+        }
+
+        private void HandleLevelWon()
+        {
+            // Bump only when we're actually following the playlist; explicit-override
+            // sessions (e.g. the level editor preview) shouldn't advance the player.
+            if (allLevels == null || allLevels.Count == 0) return;
+            PlayerProgress.Advance();
+            Debug.Log($"LevelLoader: PlayerProgress advanced to LevelIndex={PlayerProgress.LevelIndex} " +
+                      $"(displayed as Level {PlayerProgress.DisplayLevel}).");
+        }
+
+        private void OnDestroy()
+        {
+            if (gameController != null && subscribedToWin)
+            {
+                gameController.OnLevelWon -= HandleLevelWon;
+                subscribedToWin = false;
+            }
         }
     }
 }
