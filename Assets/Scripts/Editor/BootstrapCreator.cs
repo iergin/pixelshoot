@@ -22,7 +22,7 @@ namespace PixelShoot.EditorTools
         private const string ConfigsDir = "Assets/_Game/Configs";
         private const string OffersDir  = "Assets/_Game/Offers";
 
-        [MenuItem("PixelShoot/Create Scene Bootstrap")]
+        // Menu removed — call this manually from other editor tools if you ever need it again.
         public static void CreateBootstrap()
         {
             EnsureDir(ConfigsDir);
