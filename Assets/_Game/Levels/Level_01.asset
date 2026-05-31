@@ -1376,153 +1376,47 @@ MonoBehaviour:
   columns:
   - shooters:
     - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
+      shotCount: 25
     - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
+      shotCount: 25
     - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
+      shotCount: 25
     - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
+      shotCount: 25
     - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
+      shotCount: 25
     - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
+      shotCount: 25
     - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
+      shotCount: 25
     - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
+      shotCount: 25
     - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
+      shotCount: 25
     - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 82cb15501ae2441df8411af6ffe75d52, type: 2}
-      shotCount: 1
-  - shooters:
-    - color: {fileID: 11400000, guid: 3c60d39faa4914a89b7fd4894c982abb, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 3c60d39faa4914a89b7fd4894c982abb, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 3c60d39faa4914a89b7fd4894c982abb, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 3c60d39faa4914a89b7fd4894c982abb, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 3c60d39faa4914a89b7fd4894c982abb, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 3c60d39faa4914a89b7fd4894c982abb, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 3c60d39faa4914a89b7fd4894c982abb, type: 2}
-      shotCount: 1
-  - shooters:
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
       shotCount: 2
   - shooters:
+    - color: {fileID: 11400000, guid: 3c60d39faa4914a89b7fd4894c982abb, type: 2}
+      shotCount: 25
+    - color: {fileID: 11400000, guid: 3c60d39faa4914a89b7fd4894c982abb, type: 2}
+      shotCount: 6
+  - shooters:
+    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      shotCount: 25
+    - color: {fileID: 11400000, guid: 4a7393c96c11f4882b9606be2912e727, type: 2}
+      shotCount: 11
+  - shooters:
     - color: {fileID: 11400000, guid: 0d4f0806ff99a4c11ad0bb86029051e6, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 0d4f0806ff99a4c11ad0bb86029051e6, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 0d4f0806ff99a4c11ad0bb86029051e6, type: 2}
-      shotCount: 5
+      shotCount: 15
   - shooters:
     - color: {fileID: 11400000, guid: 1ad1bd560b2a64d14846bba971496434, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 1ad1bd560b2a64d14846bba971496434, type: 2}
-      shotCount: 2
+      shotCount: 7
   - shooters:
     - color: {fileID: 11400000, guid: c177f993728e44d98ac35a0f0d7dac9e, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: c177f993728e44d98ac35a0f0d7dac9e, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: c177f993728e44d98ac35a0f0d7dac9e, type: 2}
-      shotCount: 2
+      shotCount: 12
   - shooters:
     - color: {fileID: 11400000, guid: 1ed3925c222f341f0b0c6fd16d8c0bbc, type: 2}
-      shotCount: 5
-    - color: {fileID: 11400000, guid: 1ed3925c222f341f0b0c6fd16d8c0bbc, type: 2}
-      shotCount: 5
+      shotCount: 10
   - shooters:
     - color: {fileID: 11400000, guid: 618e9aa7000854e53957fa19b2431a6c, type: 2}
       shotCount: 1
