@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using PixelShoot.Game;
 
 namespace PixelShoot.UI
@@ -19,6 +20,10 @@ namespace PixelShoot.UI
         [SerializeField] private GameObject failPanel;
         [SerializeField] private Button restartButton;
         [SerializeField] private Button playOnButton;
+        [Tooltip("Optional. If set, shows the revive cost as 'Play On (N)' so the player knows the price.")]
+        [SerializeField] private TMP_Text playOnCostLabel;
+        [Tooltip("Format for the revive-cost label. {0} = cost in coins.")]
+        [SerializeField] private string playOnCostFormat = "Play On ({0})";
 
         public void Bind(GameController gc)
         {
@@ -33,14 +38,23 @@ namespace PixelShoot.UI
             HookButtons();
         }
 
-        private void OnEnable() => SubscribeGame();
-        private void OnDisable() => UnsubscribeGame();
+        private void OnEnable()
+        {
+            SubscribeGame();
+            PlayerWallet.OnBalanceChanged += HandleBalanceChanged;
+        }
+        private void OnDisable()
+        {
+            UnsubscribeGame();
+            PlayerWallet.OnBalanceChanged -= HandleBalanceChanged;
+        }
 
         private void SubscribeGame()
         {
             if (gameController == null) return;
             gameController.OnLevelWon += HandleWon;
             gameController.OnLevelFailed += HandleFailed;
+            gameController.OnPlayOnDenied += HandlePlayOnDenied;
         }
 
         private void UnsubscribeGame()
@@ -48,6 +62,26 @@ namespace PixelShoot.UI
             if (gameController == null) return;
             gameController.OnLevelWon -= HandleWon;
             gameController.OnLevelFailed -= HandleFailed;
+            gameController.OnPlayOnDenied -= HandlePlayOnDenied;
+        }
+
+        private void HandleBalanceChanged(int _) => UpdatePlayOnButton();
+
+        private void HandlePlayOnDenied()
+        {
+            // Wallet shake / SFX hook could go here. For now we just refresh the button
+            // so the disabled state reflects the (unchanged) balance.
+            UpdatePlayOnButton();
+        }
+
+        private void UpdatePlayOnButton()
+        {
+            if (gameController == null) return;
+            int cost = gameController.ReviveCost;
+            bool canAfford = gameController.CanAffordRevive;
+
+            if (playOnButton != null) playOnButton.interactable = canAfford;
+            if (playOnCostLabel != null) playOnCostLabel.text = string.Format(playOnCostFormat, cost);
         }
 
         private void HookButtons()
@@ -79,6 +113,7 @@ namespace PixelShoot.UI
         {
             if (successPanel != null) successPanel.SetActive(false);
             if (failPanel != null) failPanel.SetActive(true);
+            UpdatePlayOnButton();
         }
 
         public void HideAll()
@@ -100,8 +135,9 @@ namespace PixelShoot.UI
         private void OnPlayOn()
         {
             if (gameController == null) return;
-            gameController.PlayOn();
-            if (failPanel != null) failPanel.SetActive(false);
+            // PlayOn now spends coins and returns false if the player can't afford it.
+            // Only hide the fail panel when it actually succeeded.
+            if (gameController.PlayOn() && failPanel != null) failPanel.SetActive(false);
         }
     }
 }

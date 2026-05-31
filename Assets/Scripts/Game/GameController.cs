@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using PixelShoot.Conveyor;
+using PixelShoot.Data;
 using PixelShoot.Grid;
 using PixelShoot.Shooters;
 
@@ -17,10 +18,18 @@ namespace PixelShoot.Game
         [SerializeField] private PlayOnReserveController playOnReserve;
 
         private GameState state = GameState.Playing;
+        private CoinsConfig coinsConfig;
 
         public GameState State => state;
         public event Action OnLevelWon;
         public event Action OnLevelFailed;
+        /// <summary>Fired when the player tries to Play-On but cannot afford the revive cost.</summary>
+        public event Action OnPlayOnDenied;
+
+        public int ReviveCost => coinsConfig != null ? coinsConfig.ReviveCost : 0;
+        public bool CanAffordRevive => PlayerWallet.CanAfford(ReviveCost);
+
+        public void SetCoinsConfig(CoinsConfig cfg) => coinsConfig = cfg;
 
         public void Bind(GridController g, ConveyorController c, ReserveController r, PlayOnReserveController p = null)
         {
@@ -112,16 +121,26 @@ namespace PixelShoot.Game
         }
 
         /// <summary>
-        /// Player chose "Play On" after a fail. Take every conveyor rider plus one
-        /// shooter out of reserve and stuff them into the play-on reservoir, then
-        /// resume play. Other reserve shooters keep their original slots.
+        /// Player chose "Play On" after a fail. Charges ReviveCost up-front; if the
+        /// player can't afford it, no state changes and OnPlayOnDenied fires so the
+        /// UI can give feedback. On success, takes every conveyor rider plus one
+        /// shooter out of reserve and stuffs them into the play-on reservoir, then
+        /// resumes play. Other reserve shooters keep their original slots.
         /// </summary>
-        public void PlayOn()
+        public bool PlayOn()
         {
             if (playOnReserve == null)
             {
                 Debug.LogWarning("PlayOn: no PlayOnReserveController bound.");
-                return;
+                return false;
+            }
+
+            int cost = ReviveCost;
+            if (cost > 0 && !PlayerWallet.TrySpend(cost))
+            {
+                Debug.Log($"PlayOn denied — need {cost} coins, have {PlayerWallet.Balance}.");
+                OnPlayOnDenied?.Invoke();
+                return false;
             }
 
             var riders = conveyor.GetRidersSnapshot();
@@ -140,6 +159,8 @@ namespace PixelShoot.Game
             // Resume normal play: unfreeze the conveyor so future boarders advance again.
             if (conveyor != null) conveyor.IsPaused = false;
             state = GameState.Playing;
+            Debug.Log($"PlayOn paid {cost} coins. Balance now {PlayerWallet.Balance}.");
+            return true;
         }
 
         public void ReloadScene()

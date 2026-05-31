@@ -16,6 +16,9 @@ namespace PixelShoot.Game
                  "Picks levels by PlayerProgress.LevelIndex; falls back to a random pick once " +
                  "the index runs past the last entry.")]
         [SerializeField] private AllLevelsData allLevels;
+        [Tooltip("Coin tunables (initial balance, win reward, revive cost). " +
+                 "GameController also reads ReviveCost from this to gate Play-On.")]
+        [SerializeField] private CoinsConfig coinsConfig;
 
         [Header("Scene refs")]
         [SerializeField] private GridController grid;
@@ -34,6 +37,9 @@ namespace PixelShoot.Game
 
         private void Start()
         {
+            // First-run wallet seeding — does nothing if the player already has a saved balance.
+            if (coinsConfig != null) PlayerWallet.EnsureInitialized(coinsConfig.InitialBalance);
+
             // Resolve the level we'll actually play: explicit override beats the playlist.
             if (levelData == null) levelData = PickFromPlaylist();
 
@@ -50,6 +56,9 @@ namespace PixelShoot.Game
                 gameController.OnLevelWon += HandleLevelWon;
                 subscribedToWin = true;
             }
+
+            // Let the GameController know about the coins config so it can gate Play-On.
+            if (gameController != null) gameController.SetCoinsConfig(coinsConfig);
         }
 
         /// <summary>
@@ -117,8 +126,18 @@ namespace PixelShoot.Game
 
         private void HandleLevelWon()
         {
-            // Bump only when we're actually following the playlist; explicit-override
-            // sessions (e.g. the level editor preview) shouldn't advance the player.
+            // Coin reward fires for any real play session (whether using the playlist
+            // or a single override level), so designers can test reward economy without
+            // hooking up the full playlist asset.
+            if (coinsConfig != null && coinsConfig.LevelWinReward > 0)
+            {
+                PlayerWallet.Add(coinsConfig.LevelWinReward);
+                Debug.Log($"LevelLoader: paid +{coinsConfig.LevelWinReward} coins on level win. " +
+                          $"Balance now {PlayerWallet.Balance}.");
+            }
+
+            // Bump player progress only when we're actually following the playlist;
+            // explicit-override sessions (e.g. the level editor preview) shouldn't advance.
             if (allLevels == null || allLevels.Count == 0) return;
             PlayerProgress.Advance();
             Debug.Log($"LevelLoader: PlayerProgress advanced to LevelIndex={PlayerProgress.LevelIndex} " +

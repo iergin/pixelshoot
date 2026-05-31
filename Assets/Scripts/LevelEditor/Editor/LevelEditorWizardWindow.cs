@@ -550,6 +550,51 @@ namespace PixelShoot.LevelEditor.EditorTools
             return false;
         }
 
+        /// <summary>
+        /// Compares the painted-pixel count against the sum of all shooter shot counts.
+        /// A level is only solvable when these match — every shot has a target and every
+        /// box has a bullet. Shown as a colored banner so the level designer can't miss it.
+        /// </summary>
+        private void DrawBulletBudgetValidation()
+        {
+            int filledPixels = 0;
+            if (cells != null) foreach (var v in cells) if (v >= 0) filledPixels++;
+
+            int totalShots = 0;
+            if (columns != null)
+                foreach (var col in columns)
+                    if (col != null && col.Shooters != null)
+                        foreach (var s in col.Shooters) totalShots += s.ShotCount;
+
+            if (filledPixels == 0 && totalShots == 0)
+            {
+                EditorGUILayout.HelpBox("No pixels painted yet — paint cells and auto-generate columns to populate.",
+                    MessageType.None);
+                return;
+            }
+
+            if (filledPixels == totalShots)
+            {
+                EditorGUILayout.HelpBox(
+                    $"✓ Bullet budget OK — {totalShots} shots = {filledPixels} painted pixels. Level is solvable.",
+                    MessageType.Info);
+            }
+            else
+            {
+                int diff = totalShots - filledPixels;
+                string explain = diff > 0
+                    ? $"{diff} extra shot(s) with no box to hit — leftover shooters will sit idle."
+                    : $"{-diff} missing shot(s) — not enough bullets to clear every box, level UNSOLVABLE.";
+                EditorGUILayout.HelpBox(
+                    $"⚠ Bullet budget mismatch.\n" +
+                    $"   Painted pixels:  {filledPixels}\n" +
+                    $"   Total shots:     {totalShots}\n" +
+                    $"   {explain}\n" +
+                    "Re-run 'Auto-generate columns from grid' or hand-edit columns until they match.",
+                    MessageType.Error);
+            }
+        }
+
         // ─── Columns & capacities ─────────────────────────────────────
         private void DrawStep_Columns()
         {
@@ -570,6 +615,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
             conveyorSlotCapacity = Mathf.Max(1, EditorGUILayout.IntField("Conveyor capacity", conveyorSlotCapacity));
             reserveSlotCapacity = Mathf.Max(1, EditorGUILayout.IntField("Reserve capacity", reserveSlotCapacity));
+            DrawBulletBudgetValidation();
             if (columns != null && columns.Count > 0)
             {
                 int sh = 0, shots = 0;
