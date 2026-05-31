@@ -827,7 +827,7 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Android: DOTWEEN
+    Android: DOTWEEN;PIXELSHOOT_ADMOB
     EmbeddedLinux: DOTWEEN
     GameCoreScarlett: DOTWEEN
     GameCoreXboxOne: DOTWEEN
@@ -838,12 +838,12 @@ PlayerSettings:
     PS4: DOTWEEN
     PS5: DOTWEEN
     QNX: DOTWEEN
-    Standalone: DOTWEEN
+    Standalone: DOTWEEN;PIXELSHOOT_ADMOB
     VisionOS: DOTWEEN
     WebGL: DOTWEEN
     Windows Store Apps: DOTWEEN
     XboxOne: DOTWEEN
-    iPhone: DOTWEEN
+    iPhone: DOTWEEN;PIXELSHOOT_ADMOB
     tvOS: DOTWEEN
   additionalCompilerArguments: {}
   platformArchitecture: {}
