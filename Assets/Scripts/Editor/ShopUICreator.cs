@@ -20,7 +20,7 @@ namespace PixelShoot.EditorTools
     /// </summary>
     public static class ShopUICreator
     {
-        private const string OffersDir = "Assets/_Game/Offers";
+        private const string OffersDir = "Assets/_Game/SO/Shop";
         private const string CanvasName = "[PixelShoot Shop Canvas]";
         private const string PanelName  = "ShopPanel";
 
@@ -290,6 +290,15 @@ namespace PixelShoot.EditorTools
                 var offer = AssetDatabase.LoadAssetAtPath<ShopOffer>(path);
                 if (offer != null) list.Add(offer);
             }
+            // StarterOffer (and any other promo SO) goes to the top so the player sees
+            // the special deal first; the rest follow by GrantedCoins ascending.
+            list.Sort((a, b) =>
+            {
+                int sa = a is StarterOffer ? 0 : 1;
+                int sb = b is StarterOffer ? 0 : 1;
+                if (sa != sb) return sa.CompareTo(sb);
+                return a.GrantedCoins.CompareTo(b.GrantedCoins);
+            });
             return list;
         }
 

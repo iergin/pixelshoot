@@ -39,6 +39,8 @@ namespace PixelShoot.Game
         {
             // First-run wallet seeding — does nothing if the player already has a saved balance.
             if (coinsConfig != null) PlayerWallet.EnsureInitialized(coinsConfig.InitialBalance);
+            // Stamp the first-launch timestamp for time-limited offers (e.g. StarterOffer).
+            PlayerWallet.StampFirstLaunchIfMissing();
 
             // Resolve the level we'll actually play: explicit override beats the playlist.
             if (levelData == null) levelData = PickFromPlaylist();

@@ -15,6 +15,7 @@ namespace PixelShoot.Data
         public override void OnPurchased()
         {
             PlayerWallet.MarkPurchased(OfferId);
+            PlayerWallet.MarkAnyPurchaseMade();
             if (GrantedCoins > 0) PlayerWallet.Add(GrantedCoins);
             Debug.Log($"[Shop] Basic offer '{OfferId}' purchased. +{GrantedCoins} coins.");
         }

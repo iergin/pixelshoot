@@ -11,6 +11,8 @@ namespace PixelShoot.Game
     {
         private const string BalanceKey = "PixelShoot.Coins";
         private const string PurchasePrefix = "PixelShoot.Purchase.";
+        private const string FirstLaunchKey = "PixelShoot.FirstLaunchUtc"; // ISO-8601 UTC string
+        private const string AnyPurchaseKey = "PixelShoot.AnyPurchaseMade"; // 0/1
 
         /// <summary>Fired AFTER the new balance is persisted. Payload = new balance.</summary>
         public static event Action<int> OnBalanceChanged;
@@ -68,6 +70,42 @@ namespace PixelShoot.Game
         {
             if (string.IsNullOrEmpty(offerId)) return;
             PlayerPrefs.DeleteKey(PurchasePrefix + offerId);
+            PlayerPrefs.Save();
+        }
+
+        // ── First-launch + global "any purchase" flag (drives starter offers) ─
+        public static System.DateTime FirstLaunchUtc
+        {
+            get
+            {
+                string s = PlayerPrefs.GetString(FirstLaunchKey, "");
+                if (string.IsNullOrEmpty(s)) return System.DateTime.MinValue;
+                if (System.DateTime.TryParse(s, null, System.Globalization.DateTimeStyles.RoundtripKind, out var dt))
+                    return dt;
+                return System.DateTime.MinValue;
+            }
+        }
+
+        /// <summary>Stamp first-launch on first call; later calls are no-ops.</summary>
+        public static void StampFirstLaunchIfMissing()
+        {
+            if (PlayerPrefs.HasKey(FirstLaunchKey)) return;
+            PlayerPrefs.SetString(FirstLaunchKey, System.DateTime.UtcNow.ToString("o"));
+            PlayerPrefs.Save();
+        }
+
+        public static bool IsWithinFirstDays(int days)
+        {
+            var first = FirstLaunchUtc;
+            if (first == System.DateTime.MinValue) return true; // not stamped yet → treat as fresh
+            return (System.DateTime.UtcNow - first).TotalDays < Mathf.Max(0, days);
+        }
+
+        public static bool HasMadeAnyPurchase => PlayerPrefs.GetInt(AnyPurchaseKey, 0) == 1;
+
+        public static void MarkAnyPurchaseMade()
+        {
+            PlayerPrefs.SetInt(AnyPurchaseKey, 1);
             PlayerPrefs.Save();
         }
 
