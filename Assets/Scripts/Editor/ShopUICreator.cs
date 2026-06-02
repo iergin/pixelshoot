@@ -24,7 +24,8 @@ namespace PixelShoot.EditorTools
         private const string CanvasName = "[PixelShoot Shop Canvas]";
         private const string PanelName  = "ShopPanel";
 
-        [MenuItem("PixelShoot/Create Shop UI in Scene")]
+        // Menu attribute removed — shop UI building has nothing to do with the level editor.
+        // Call this method from your own editor tooling if you need to re-create the UI.
         public static void CreateShopUI()
         {
             // 1) Get (or create) an overlay canvas.
@@ -81,7 +82,9 @@ namespace PixelShoot.EditorTools
             closeRT.pivot     = new Vector2(1, 0.5f);
             closeRT.sizeDelta = new Vector2(56f, 56f);
             closeRT.anchoredPosition = new Vector2(-8f, 0f);
-            closeBtnGo.GetComponent<Button>().onClick.AddListener(() => panel.SetActive(false));
+            var closeBtn = closeBtnGo.GetComponent<Button>();
+            // Local fallback if no ShopManager is in the scene yet.
+            closeBtn.onClick.AddListener(() => panel.SetActive(false));
 
             // Coin HUD bar (top of card).
             var hud = CreateUI("CoinHUD", card.transform);
@@ -117,13 +120,38 @@ namespace PixelShoot.EditorTools
                 CreateOfferItem(listRoot.transform, offer);
 
             // 6) Floating button outside the panel to re-open it after closing.
-            EnsureToggleButton(canvasGo, panel);
+            var openBtnGo = EnsureToggleButton(canvasGo, panel);
+            var openBtn = openBtnGo.GetComponent<Button>();
+
+            // 7) If a ShopManager exists in the scene, wire panel + buttons onto it
+            //    so its public OpenShop / CloseShop methods take over the flow.
+            WireToShopManagerIfPresent(panel, openBtn, closeBtn);
 
             Selection.activeObject = canvasGo;
             EditorGUIUtility.PingObject(canvasGo);
             EditorUtility.SetDirty(canvasGo);
 
             Debug.Log($"[ShopUICreator] Built shop UI with {offers.Count} offer item(s) under '{CanvasName}'.");
+        }
+
+        private static void WireToShopManagerIfPresent(GameObject panel, Button openBtn, Button closeBtn)
+        {
+#if UNITY_2023_1_OR_NEWER
+            var shop = UnityEngine.Object.FindFirstObjectByType<ShopManager>(FindObjectsInactive.Include);
+#else
+            var shop = UnityEngine.Object.FindObjectOfType<ShopManager>();
+#endif
+            if (shop == null) return;
+            var so = new SerializedObject(shop);
+            var panelProp = so.FindProperty("shopPanel");
+            var openProp  = so.FindProperty("openShopButton");
+            var closeProp = so.FindProperty("closeShopButton");
+            if (panelProp != null) panelProp.objectReferenceValue = panel;
+            if (openProp  != null) openProp.objectReferenceValue  = openBtn;
+            if (closeProp != null) closeProp.objectReferenceValue = closeBtn;
+            so.ApplyModifiedProperties();
+            EditorUtility.SetDirty(shop);
+            Debug.Log($"[ShopUICreator] Wired panel + buttons onto ShopManager '{shop.name}'.");
         }
 
         // ───────────────────────────────────────────────────────────────
@@ -219,11 +247,11 @@ namespace PixelShoot.EditorTools
             SetSerializedRef(ctl, "ownedOverlay", owned);
         }
 
-        private static void EnsureToggleButton(GameObject canvas, GameObject panel)
+        private static GameObject EnsureToggleButton(GameObject canvas, GameObject panel)
         {
             const string ToggleName = "OpenShopButton";
             var existing = canvas.transform.Find(ToggleName);
-            if (existing != null) return;
+            if (existing != null) return existing.gameObject;
 
             var btn = CreateButton(ToggleName, canvas.transform, "🛒 Shop", 18);
             var rt = btn.GetComponent<RectTransform>();
@@ -232,7 +260,9 @@ namespace PixelShoot.EditorTools
             rt.pivot     = new Vector2(1, 0);
             rt.sizeDelta = new Vector2(160f, 64f);
             rt.anchoredPosition = new Vector2(-20f, 20f);
+            // Local fallback if no ShopManager is in the scene yet.
             btn.GetComponent<Button>().onClick.AddListener(() => panel.SetActive(true));
+            return btn;
         }
 
         // ── Primitive UI builders ───────────────────────────────────────
