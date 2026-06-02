@@ -10,8 +10,11 @@ namespace PixelShoot.Ads
     /// </summary>
     public class NullAdsService : IAdsService
     {
+        private bool bannerVisible;
+
         public bool IsInterstitialReady => true;
         public bool IsRewardedReady => true;
+        public bool IsBannerVisible => bannerVisible;
 
         public void Initialize() => Debug.Log("[Ads/Null] Initialized — no real SDK, all ads will fake-succeed.");
 
@@ -26,6 +29,18 @@ namespace PixelShoot.Ads
             Debug.Log("[Ads/Null] Rewarded 'shown' — granting reward.");
             onRewarded?.Invoke();
             onClosed?.Invoke();
+        }
+
+        public void ShowBanner(BannerPosition position)
+        {
+            bannerVisible = true;
+            Debug.Log($"[Ads/Null] Banner 'shown' at {position}.");
+        }
+
+        public void HideBanner()
+        {
+            bannerVisible = false;
+            Debug.Log("[Ads/Null] Banner 'hidden'.");
         }
     }
 }

@@ -4,13 +4,17 @@ namespace PixelShoot.Ads
 {
     /// <summary>
     /// Single MonoBehaviour entry point for ads. Survives scene loads, exposes
-    /// the active <see cref="IAdsService"/> as a static <see cref="Instance"/>.
+    /// the active <see cref="IAdsService"/> as a static <see cref="Service"/>.
     /// </summary>
     [DefaultExecutionOrder(-1000)]
     public class AdsManager : MonoBehaviour
     {
         private static AdsManager instance;
         public static IAdsService Service { get; private set; }
+
+        [Tooltip("If true, the banner is shown automatically once the SDK initialises.")]
+        [SerializeField] private bool autoShowBanner = true;
+        [SerializeField] private BannerPosition bannerPosition = BannerPosition.Bottom;
 
         private void Awake()
         {
@@ -24,6 +28,8 @@ namespace PixelShoot.Ads
             Service = new NullAdsService();
 #endif
             Service.Initialize();
+
+            if (autoShowBanner) Service.ShowBanner(bannerPosition);
         }
 
         /// <summary>Static auto-bootstrap so AdsManager exists even if no GameObject in the scene has it.</summary>

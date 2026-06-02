@@ -22,23 +22,30 @@ namespace PixelShoot.Ads
 #if UNITY_ANDROID
         private const string InterstitialUnitId = "ca-app-pub-1162079788089996/5004201231";
         private const string RewardedUnitId     = "ca-app-pub-1162079788089996/8053566633";
+        private const string BannerUnitId       = "ca-app-pub-1162079788089996/5748482866";
 #elif UNITY_IPHONE
         private const string InterstitialUnitId = "ca-app-pub-1162079788089996/5004201231";
         private const string RewardedUnitId     = "ca-app-pub-1162079788089996/8053566633";
+        private const string BannerUnitId       = "ca-app-pub-1162079788089996/5748482866";
 #else
-        // Editor / Standalone uses the Android test id so the placeholder UI fires.
+        // Editor / Standalone uses the Android ids so the placeholder UI fires.
         private const string InterstitialUnitId = "ca-app-pub-1162079788089996/5004201231";
         private const string RewardedUnitId     = "ca-app-pub-1162079788089996/8053566633";
+        private const string BannerUnitId       = "ca-app-pub-1162079788089996/5748482866";
 #endif
 
         private InterstitialAd interstitial;
         private RewardedAd rewarded;
+        private BannerView banner;
+        private bool bannerVisible;
+        private BannerPosition bannerPosition = BannerPosition.Bottom;
         private Action pendingInterstitialClosed;
         private Action pendingRewardedClosed;
         private Action pendingRewardedReward;
 
         public bool IsInterstitialReady => interstitial != null && interstitial.CanShowAd();
         public bool IsRewardedReady     => rewarded != null && rewarded.CanShowAd();
+        public bool IsBannerVisible     => bannerVisible;
 
         public void Initialize()
         {
@@ -155,6 +162,40 @@ namespace PixelShoot.Ads
                 pendingRewardedReward?.Invoke();
                 pendingRewardedReward = null;
             });
+        }
+
+        // ── Banner ──────────────────────────────────────────────────────
+        public void ShowBanner(BannerPosition position)
+        {
+            // Recreate if position changed or banner doesn't exist yet.
+            if (banner == null || position != bannerPosition)
+            {
+                if (banner != null) { banner.Destroy(); banner = null; }
+                bannerPosition = position;
+                banner = new BannerView(BannerUnitId, AdSize.Banner, MapPosition(position));
+                HookBannerEvents(banner);
+                banner.LoadAd(new AdRequest());
+                Debug.Log($"[Ads/AdMob] Banner created at {position}.");
+            }
+            banner.Show();
+            bannerVisible = true;
+        }
+
+        public void HideBanner()
+        {
+            if (banner == null) return;
+            banner.Hide();
+            bannerVisible = false;
+            Debug.Log("[Ads/AdMob] Banner hidden.");
+        }
+
+        private static AdPosition MapPosition(BannerPosition pos)
+            => pos == BannerPosition.Top ? AdPosition.Top : AdPosition.Bottom;
+
+        private void HookBannerEvents(BannerView b)
+        {
+            b.OnBannerAdLoaded += () => Debug.Log("[Ads/AdMob] Banner loaded.");
+            b.OnBannerAdLoadFailed += err => Debug.LogWarning($"[Ads/AdMob] Banner load failed: {err}");
         }
     }
 }

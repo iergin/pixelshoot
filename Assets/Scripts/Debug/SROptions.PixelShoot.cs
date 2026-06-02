@@ -87,6 +87,30 @@ public partial class SROptions
             onClosed: null);
     }
 
+    [Category("PixelShoot — Ads")]
+    [DisplayName("Show banner (bottom)")]
+    public void DebugShowBannerBottom()
+    {
+        if (AdsManager.Service == null) { Debug.LogWarning("[SRDebug] AdsManager not ready."); return; }
+        AdsManager.Service.ShowBanner(BannerPosition.Bottom);
+    }
+
+    [Category("PixelShoot — Ads")]
+    [DisplayName("Show banner (top)")]
+    public void DebugShowBannerTop()
+    {
+        if (AdsManager.Service == null) { Debug.LogWarning("[SRDebug] AdsManager not ready."); return; }
+        AdsManager.Service.ShowBanner(BannerPosition.Top);
+    }
+
+    [Category("PixelShoot — Ads")]
+    [DisplayName("Hide banner")]
+    public void DebugHideBanner()
+    {
+        if (AdsManager.Service == null) { Debug.LogWarning("[SRDebug] AdsManager not ready."); return; }
+        AdsManager.Service.HideBanner();
+    }
+
     // ── Helpers ─────────────────────────────────────────────────────────
     private static GameController FindGameController()
     {
