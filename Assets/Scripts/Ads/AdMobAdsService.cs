@@ -20,15 +20,15 @@ namespace PixelShoot.Ads
         // Google's official TEST ad unit IDs. Safe to use during development —
         // they always fill with a test creative and don't risk a policy strike.
 #if UNITY_ANDROID
-        private const string InterstitialUnitId = "ca-app-pub-3940256099942544/1033173712";
-        private const string RewardedUnitId     = "ca-app-pub-3940256099942544/5224354917";
+        private const string InterstitialUnitId = "ca-app-pub-1162079788089996/5004201231";
+        private const string RewardedUnitId     = "ca-app-pub-1162079788089996/8053566633";
 #elif UNITY_IPHONE
-        private const string InterstitialUnitId = "ca-app-pub-3940256099942544/4411468910";
-        private const string RewardedUnitId     = "ca-app-pub-3940256099942544/1712485313";
+        private const string InterstitialUnitId = "ca-app-pub-1162079788089996/5004201231";
+        private const string RewardedUnitId     = "ca-app-pub-1162079788089996/8053566633";
 #else
         // Editor / Standalone uses the Android test id so the placeholder UI fires.
-        private const string InterstitialUnitId = "ca-app-pub-3940256099942544/1033173712";
-        private const string RewardedUnitId     = "ca-app-pub-3940256099942544/5224354917";
+        private const string InterstitialUnitId = "ca-app-pub-1162079788089996/5004201231";
+        private const string RewardedUnitId     = "ca-app-pub-1162079788089996/8053566633";
 #endif
 
         private InterstitialAd interstitial;
