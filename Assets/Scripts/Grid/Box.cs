@@ -12,6 +12,10 @@ namespace PixelShoot.Grid
 
     public class Box : MonoBehaviour
     {
+        // Shader property ids — cached to avoid string lookup every state change.
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int ColorId     = Shader.PropertyToID("_Color");
+
         [SerializeField] private MeshRenderer meshRenderer;
         [Tooltip("Optional small renderer (e.g., a sphere child) that shows a hint of the box's color while it is Locked.")]
         [SerializeField] private MeshRenderer colorDot;
@@ -23,16 +27,22 @@ namespace PixelShoot.Grid
         private bool reservedForHit;
         private Material lockedMat;
         private Material unhitMat;
+        private Tone tone;
+
+        // Reused — avoids allocating per state change.
+        private MaterialPropertyBlock propsCache;
+        private MaterialPropertyBlock Props => propsCache ?? (propsCache = new MaterialPropertyBlock());
 
         public int GridX { get; private set; }
         public int GridZ { get; private set; }
         public ColorData Color => color;
         public BoxState State => state;
+        public Tone Tone => tone;
         public bool IsAlive => state != BoxState.Hit;
         // Targetable only while on the frontier and not already promised to an incoming bullet.
         public bool IsShootable => state == BoxState.Frontier && !reservedForHit;
 
-        public void Initialize(int x, int z, ColorData c, Material lockedMaterial, Material unhitMaterial)
+        public void Initialize(int x, int z, ColorData c, Material lockedMaterial, Material unhitMaterial, Tone cellTone = Tone.Normal)
         {
             GridX = x;
             GridZ = z;
@@ -40,6 +50,7 @@ namespace PixelShoot.Grid
             reservedForHit = false;
             lockedMat = lockedMaterial;
             unhitMat = unhitMaterial;
+            tone = cellTone;
             // The dot reveals the real color of a locked box — use the per-color Hit material
             // (the only remaining color-tinted material on ColorData).
             if (colorDot != null && c != null && c.BoxHitMaterial != null)
@@ -77,14 +88,42 @@ namespace PixelShoot.Grid
             if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
             if (meshRenderer == null) return;
 
-            Material m = null;
+            Material m;
+            Color baseColor;
             switch (state)
             {
-                case BoxState.Locked: m = lockedMat; break;
-                case BoxState.Frontier: m = unhitMat; break;
-                case BoxState.Hit: m = color != null ? color.BoxHitMaterial : null; break;
+                case BoxState.Locked:
+                    m = lockedMat;
+                    baseColor = m != null ? ReadColor(m) : UnityEngine.Color.gray;
+                    break;
+                case BoxState.Frontier:
+                    m = unhitMat;
+                    baseColor = m != null ? ReadColor(m) : UnityEngine.Color.gray;
+                    break;
+                case BoxState.Hit:
+                    m = color != null ? color.BoxHitMaterial : null;
+                    baseColor = m != null ? ReadColor(m) : (color != null ? color.DisplayColor : UnityEngine.Color.white);
+                    break;
+                default:
+                    return;
             }
-            if (m != null) meshRenderer.sharedMaterial = m;
+            if (m == null) return;
+
+            meshRenderer.sharedMaterial = m;
+
+            // Per-cell tone tint via property block — no material instance leak, works in edit mode.
+            Color tinted = ToneShifter.Apply(baseColor, tone);
+            Props.Clear();
+            Props.SetColor(BaseColorId, tinted);
+            Props.SetColor(ColorId, tinted);
+            meshRenderer.SetPropertyBlock(Props);
+        }
+
+        private static Color ReadColor(Material m)
+        {
+            if (m.HasProperty(BaseColorId)) return m.GetColor(BaseColorId);
+            if (m.HasProperty(ColorId)) return m.GetColor(ColorId);
+            return m.color;
         }
     }
 }

@@ -50,7 +50,7 @@ namespace PixelShoot.Grid
                 var pos = GetCellLocalPosition(cell.GridX, cell.GridZ);
                 var box = Instantiate(boxPrefab, gridRoot != null ? gridRoot : transform);
                 box.transform.localPosition = pos;
-                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked, unhit);
+                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked, unhit, cell.Tone);
                 boxes[cell.GridX, cell.GridZ] = box;
                 aliveCount++;
             }

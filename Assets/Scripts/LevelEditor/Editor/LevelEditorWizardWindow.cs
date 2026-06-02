@@ -36,6 +36,7 @@ namespace PixelShoot.LevelEditor.EditorTools
         [SerializeField] private List<ColorData> palette = new List<ColorData>();
         [SerializeField] private List<ColumnData> columns = new List<ColumnData>();
         [SerializeField] private int[] cells; // -1 = empty; else palette index
+        [SerializeField] private byte[] tones; // Tone enum per cell. Parallel to cells[]. 0=Normal,1=Dark,2=Light.
         [SerializeField] private int currentPaletteIdx = 0;
         [SerializeField] private bool eraseMode = false;
         [SerializeField] private bool paintMode = false;
@@ -74,7 +75,11 @@ namespace PixelShoot.LevelEditor.EditorTools
 
         private void EnsureCellsArray()
         {
-            if (HasCells) return;
+            if (HasCells)
+            {
+                EnsureTonesArray();
+                return;
+            }
             var old = cells;
             int oldSize = (old != null && old.Length > 0) ? Mathf.RoundToInt(Mathf.Sqrt(old.Length)) : 0;
             cells = new int[CellCount];
@@ -86,6 +91,29 @@ namespace PixelShoot.LevelEditor.EditorTools
                     for (int x = 0; x < copy; x++)
                         cells[z * gridSize + x] = old[z * oldSize + x];
             }
+            EnsureTonesArray();
+        }
+
+        /// <summary>Keep tones[] parallel to cells[] without losing any prior assignments.</summary>
+        private void EnsureTonesArray()
+        {
+            if (cells == null) return;
+            if (tones != null && tones.Length == cells.Length) return;
+            var old = tones;
+            tones = new byte[cells.Length]; // default 0 = Normal
+            if (old != null)
+            {
+                int min = Mathf.Min(old.Length, tones.Length);
+                for (int i = 0; i < min; i++) tones[i] = old[i];
+            }
+        }
+
+        private Tone GetTone(int idx) => (Tone)(tones != null && idx >= 0 && idx < tones.Length ? tones[idx] : (byte)0);
+        private void SetTone(int idx, Tone t)
+        {
+            EnsureTonesArray();
+            if (tones == null || idx < 0 || idx >= tones.Length) return;
+            tones[idx] = (byte)t;
         }
 
         // ─── OnGUI ────────────────────────────────────────────────────
@@ -110,6 +138,8 @@ namespace PixelShoot.LevelEditor.EditorTools
             DrawStep_Grid();
             DrawSectionBreak();
             DrawStep_Columns();
+            DrawSectionBreak();
+            DrawStep_Tones();
 
             EditorGUILayout.EndScrollView();
             // Any value change in a widget above flips the auto-refresh flag.
@@ -235,6 +265,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             // 3) Wizard state.
             cells = new int[CellCount];
             for (int i = 0; i < cells.Length; i++) cells[i] = -1;
+            tones = new byte[CellCount]; // all Normal
             columns?.Clear();
             palette?.Clear();
             currentPaletteIdx = 0;
@@ -384,6 +415,8 @@ namespace PixelShoot.LevelEditor.EditorTools
             if (gridSize > 0 && RLECodec.TryDecode(text, gridSize, out var decoded))
             {
                 cells = decoded;
+                // New cells → tones must be re-randomized. Default to Normal until the user clicks Recalculate.
+                tones = new byte[cells.Length];
                 foreach (var v in decoded) if (v >= 0) filledCells++;
             }
 
@@ -414,6 +447,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                     {
                         cells = new int[CellCount];
                         for (int i = 0; i < cells.Length; i++) cells[i] = -1;
+                        tones = new byte[CellCount];
                         pendingPreviewRefresh = true;
                     }
                 }
@@ -476,18 +510,20 @@ namespace PixelShoot.LevelEditor.EditorTools
             Rect gridRect = GUILayoutUtility.GetRect(totalSize, totalSize);
             EditorGUI.DrawRect(gridRect, new Color(0.08f, 0.08f, 0.1f));
 
-            // Cells.
+            // Cells — tinted by the cell's tone so the designer can iterate visually.
             for (int z = 0; z < gridSize; z++)
             {
                 for (int x = 0; x < gridSize; x++)
                 {
-                    int colorIdx = cells[z * gridSize + x];
+                    int flat = z * gridSize + x;
+                    int colorIdx = cells[flat];
                     if (colorIdx < 0) continue;
                     Color c = (colorIdx < palette.Count && palette[colorIdx] != null)
                         ? palette[colorIdx].DisplayColor
                         : Color.magenta;
                     if (initialPreview && !IsCellOnSilhouette(x, z))
                         c = new Color(0.42f, 0.42f, 0.46f);
+                    c = ToneShifter.Apply(c, GetTone(flat));
                     EditorGUI.DrawRect(CellRect(gridRect, x, z, cellPx), c);
                 }
             }
@@ -623,6 +659,98 @@ namespace PixelShoot.LevelEditor.EditorTools
                     foreach (var s in col.Shooters) { sh++; shots += s.ShotCount; }
                 EditorGUILayout.HelpBox($"Columns: {columns.Count}, shooters: {sh}, total shots: {shots}", MessageType.None);
             }
+        }
+
+        // ─── Tones (per-cell light / normal / dark variation) ─────────
+        // Default ratios — kept editable in the inspector via two number fields. Light is
+        // implicit (1 - normal - dark) so they always sum to 1.
+        [SerializeField, Range(0f, 1f)] private float toneNormalRatio = ToneDistributor.DefaultNormalRatio;
+        [SerializeField, Range(0f, 1f)] private float toneDarkRatio   = ToneDistributor.DefaultDarkRatio;
+
+        private void DrawStep_Tones()
+        {
+            EditorGUILayout.LabelField("Tones (per-cell variation)", EditorStyles.boldLabel);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                toneNormalRatio = EditorGUILayout.Slider("Normal ratio", toneNormalRatio, 0f, 1f);
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                toneDarkRatio = EditorGUILayout.Slider("Dark ratio", toneDarkRatio, 0f, Mathf.Max(0f, 1f - toneNormalRatio));
+            }
+            float lightRatio = Mathf.Clamp01(1f - toneNormalRatio - toneDarkRatio);
+            EditorGUILayout.LabelField($"Light ratio (residual): {lightRatio:F3}", EditorStyles.miniLabel);
+
+            using (new EditorGUI.DisabledScope(!HasCells))
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Recalculate tones (random)", GUILayout.Height(28)))
+                    {
+                        RecalculateTones(useFixedSeed: false);
+                        pendingPreviewRefresh = true;
+                    }
+                    if (GUILayout.Button("Reset to Normal", GUILayout.Width(140), GUILayout.Height(28)))
+                    {
+                        EnsureCellsArray();
+                        if (tones != null) for (int i = 0; i < tones.Length; i++) tones[i] = 0;
+                        pendingPreviewRefresh = true;
+                    }
+                }
+            }
+
+            if (HasCells) DrawToneSummary();
+        }
+
+        /// <summary>
+        /// Per-color rounding + shuffle (see <see cref="ToneDistributor"/>). Each color
+        /// group gets exactly `round(N*normal)` Normal cells, `round(N*dark)` Dark cells,
+        /// and the rest Light — never over- nor under-shoots.
+        /// </summary>
+        private void RecalculateTones(bool useFixedSeed)
+        {
+            EnsureCellsArray();
+            if (tones == null) return;
+
+            // Group flat indices by palette color index (skip empties = -1).
+            var byColor = new Dictionary<int, List<int>>();
+            for (int i = 0; i < cells.Length; i++)
+            {
+                int c = cells[i];
+                if (c < 0) continue;
+                if (!byColor.TryGetValue(c, out var list)) { list = new List<int>(); byColor[c] = list; }
+                list.Add(i);
+            }
+
+            // Wipe before assigning so unused indices are deterministic.
+            for (int i = 0; i < tones.Length; i++) tones[i] = (byte)Tone.Normal;
+
+            var tonesArr = new Tone[tones.Length];
+            ToneDistributor.Distribute(byColor, tonesArr, toneNormalRatio, toneDarkRatio,
+                useFixedSeed ? 12345 : (int?)null);
+            for (int i = 0; i < tones.Length; i++) tones[i] = (byte)tonesArr[i];
+        }
+
+        private void DrawToneSummary()
+        {
+            int normal = 0, dark = 0, light = 0;
+            for (int i = 0; i < cells.Length; i++)
+            {
+                if (cells[i] < 0) continue;
+                switch ((Tone)tones[i])
+                {
+                    case Tone.Normal: normal++; break;
+                    case Tone.Dark:   dark++;   break;
+                    case Tone.Light:  light++;  break;
+                }
+            }
+            int total = normal + dark + light;
+            if (total == 0) return;
+            EditorGUILayout.HelpBox(
+                $"Tone distribution — Normal: {normal} ({(float)normal/total:P1}), " +
+                $"Dark: {dark} ({(float)dark/total:P1}), " +
+                $"Light: {light} ({(float)light/total:P1}). Total: {total}.",
+                MessageType.None);
         }
 
         // ─── Scene preview (uses runtime gameplay scripts) ────────────
@@ -899,13 +1027,16 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
             EnsureCellsArray();
             for (int i = 0; i < cells.Length; i++) cells[i] = -1;
+            for (int i = 0; i < tones.Length; i++) tones[i] = 0; // reset to Normal
             foreach (var bc in targetAsset.Grid.Cells)
             {
                 if (bc.IsEmpty) continue;
                 int idx = palette.IndexOf(bc.Color);
                 if (idx < 0) { palette.Add(bc.Color); idx = palette.Count - 1; }
                 if (bc.GridX < 0 || bc.GridX >= gridSize || bc.GridZ < 0 || bc.GridZ >= gridSize) continue;
-                cells[bc.GridZ * gridSize + bc.GridX] = idx;
+                int flat = bc.GridZ * gridSize + bc.GridX;
+                cells[flat] = idx;
+                tones[flat] = (byte)bc.Tone;
             }
             columns = new List<ColumnData>(targetAsset.Columns);
             conveyorSlotCapacity = targetAsset.ConveyorSlotCapacity;
@@ -943,6 +1074,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                     SetField(bc, "gridZ", z);
                     SetField(bc, "isEmpty", false);
                     SetField(bc, "color", palette[colorIdx]);
+                    SetField(bc, "tone", (Tone)tones[z * gridSize + x]);
                     boxCells.Add(bc);
                 }
             }
