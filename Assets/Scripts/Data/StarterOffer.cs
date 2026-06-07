@@ -23,7 +23,6 @@ namespace PixelShoot.Data
             get
             {
                 if (PlayerWallet.HasPurchased(OfferId)) return false;             // bought already
-                if (!PlayerWallet.HasNoAds) return false;                          // only after NoAds purchase
                 if (!PlayerWallet.IsWithinFirstDays(visibleForDays)) return false; // window closed
                 return true;
             }

@@ -29,6 +29,10 @@ namespace PixelShoot.Shop
         private const string T2NoAdsShownKey    = "PixelShoot.NoAdsPromo.T2Shown";
         private const string T2StarterShownKey  = "PixelShoot.StarterPromo.T2Shown";
 
+        // Offer ids that the promo gates check against — must match the asset offerId values.
+        private const string NoAdsOfferId    = "no_ads";
+        private const string StarterOfferId  = "coins_5000_starter";
+
         [Header("Panels")]
         [Tooltip("NoAds promo — shown at Trigger 1 always, and at Trigger 2 if NoAds isn't already bought.")]
         [SerializeField] private GameObject promoPanel;
@@ -69,7 +73,8 @@ namespace PixelShoot.Shop
         // ─── Trigger 1: first interstitial closed ───────────────────────────
         private void OnFirstAdSeenMaybe()
         {
-            if (PlayerWallet.HasNoAds) return; // shouldn't happen — NoAds suppresses ads
+            if (PlayerWallet.HasNoAds) return;                       // shouldn't happen — NoAds suppresses ads
+            if (PlayerWallet.HasPurchased(NoAdsOfferId)) return;     // bought from shop already
             if (t1Shown) return;
             ShowNoAdsPanel();
             t1Shown = true;
@@ -86,7 +91,9 @@ namespace PixelShoot.Shop
 
             if (PlayerWallet.HasNoAds)
             {
-                // NoAds bought — show starter promo (once).
+                // NoAds bought — show starter promo (once), but only if the user
+                // didn't already grab the starter from the regular shop.
+                if (PlayerWallet.HasPurchased(StarterOfferId)) return;
                 if (t2StarterShown) return;
                 ShowStarterPanel();
                 t2StarterShown = true;
@@ -96,7 +103,9 @@ namespace PixelShoot.Shop
             }
             else
             {
-                // NoAds not bought — push the NoAds promo.
+                // NoAds not bought — push the NoAds promo. Skip if they already bought
+                // it from the shop (HasNoAds would be true normally, but defend anyway).
+                if (PlayerWallet.HasPurchased(NoAdsOfferId)) return;
                 if (t2NoAdsShown) return;
                 ShowNoAdsPanel();
                 t2NoAdsShown = true;

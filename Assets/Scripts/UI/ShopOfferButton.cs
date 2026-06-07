@@ -11,10 +11,18 @@ namespace PixelShoot.UI
     /// Drag a ShopOffer SO + a Button + (optional) TMP labels for title and price.
     /// Handles availability gating, localized price polling, and the purchase callback.
     ///
-    /// <para><b>Price pulled from the store</b>: until Unity IAP returns a real
-    /// localized price the label shows "?" and the buy button is disabled. The
-    /// component polls once per <see cref="RetryIntervalSec"/> until the store
-    /// is initialised — no extra user action required.</para>
+    /// <para><b>Three visual states</b>:
+    /// <list type="bullet">
+    /// <item><b>For sale</b> — buy button interactable, real localised price.</item>
+    /// <item><b>Owned</b> — overlay shown, button disabled. The offer was purchased.</item>
+    /// <item><b>Locked / not yet available</b> — the whole GameObject is hidden, so a
+    /// "not eligible" offer (e.g. Starter Pack before NoAds is bought) doesn't show
+    /// up as "OWNED" or clutter the shop list.</item>
+    /// </list></para>
+    ///
+    /// <para>Until Unity IAP returns a real localized price the label shows "?" and
+    /// the buy button stays disabled; the component polls once per
+    /// <see cref="RetryIntervalSec"/> until the store is initialised.</para>
     /// </summary>
     public class ShopOfferButton : MonoBehaviour
     {
@@ -25,7 +33,7 @@ namespace PixelShoot.UI
         [SerializeField] private Button buyButton;
         [SerializeField] private TMP_Text titleLabel;
         [SerializeField] private TMP_Text priceLabel;
-        [Tooltip("Shown over the button when the offer has already been purchased (or is otherwise unavailable).")]
+        [Tooltip("Shown over the button when the offer has already been purchased.")]
         [SerializeField] private GameObject ownedOverlay;
 
         private float retryCooldown;
@@ -51,9 +59,7 @@ namespace PixelShoot.UI
 
         private void Update()
         {
-            // Retry pulling the price from the store until we have a real one. As soon
-            // as the IAP catalog comes online the price label flips from "?" to
-            // localised currency and the buy button becomes interactable again.
+            // Retry pulling the price from the store until we have a real one.
             if (lastPriceKnown) return;
             retryCooldown -= Time.unscaledDeltaTime;
             if (retryCooldown > 0f) return;
@@ -66,12 +72,22 @@ namespace PixelShoot.UI
         public void Refresh()
         {
             if (offer == null) return;
+
+            bool isPurchased = PlayerWallet.HasPurchased(offer.OfferId);
+            bool isAvailable = offer.IsAvailable;
+
+            // Locked: not bought AND not currently available (e.g. Starter Pack before
+            // the NoAds prerequisite is met). Hide the whole row so it doesn't show as OWNED.
+            if (!isPurchased && !isAvailable)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+            if (!gameObject.activeSelf) gameObject.SetActive(true);
+
             if (titleLabel != null) titleLabel.text = offer.DisplayName;
 
-            // 1) Visibility: starter / one-time offers can hide themselves entirely.
-            bool available = offer.IsAvailable;
-
-            // 2) Pull price. Empty / "—" means store not ready yet.
+            // Pull price. Empty / "—" means store not ready yet.
             string price = ShopManager.Instance != null
                 ? ShopManager.Instance.GetLocalizedPrice(offer)
                 : null;
@@ -81,9 +97,10 @@ namespace PixelShoot.UI
             if (priceLabel != null)
                 priceLabel.text = priceKnown ? price : UnknownPriceLabel;
 
-            // 3) Button: enabled only when offer is available AND we have a real price.
-            if (buyButton != null) buyButton.interactable = available && priceKnown;
-            if (ownedOverlay != null) ownedOverlay.SetActive(!available);
+            // OWNED overlay shows ONLY for actual purchases. Buy is disabled if
+            // owned OR if the store hasn't returned a price yet.
+            if (ownedOverlay != null) ownedOverlay.SetActive(isPurchased);
+            if (buyButton    != null) buyButton.interactable = !isPurchased && priceKnown;
         }
 
         private void OnBuyClicked()

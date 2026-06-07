@@ -24,8 +24,7 @@ namespace PixelShoot.EditorTools
         private const string CanvasName = "[PixelShoot Shop Canvas]";
         private const string PanelName  = "ShopPanel";
 
-        // Menu attribute removed — shop UI building has nothing to do with the level editor.
-        // Call this method from your own editor tooling if you need to re-create the UI.
+        [MenuItem("Generator/Create Shop UI in Scene")]
         public static void CreateShopUI()
         {
             // 1) Get (or create) an overlay canvas.
