@@ -3,6 +3,18 @@ using UnityEngine;
 namespace PixelShoot.Data
 {
     /// <summary>
+    /// Whether the IAP product can be bought repeatedly (Consumable, e.g. coin packs)
+    /// or only once and restored across devices (NonConsumable, e.g. NoAds / Starter Pack).
+    /// Mirrors the Unity IAP <c>ProductType</c> but lives in our own data layer so
+    /// ShopOffer compiles even without the Purchasing package.
+    /// </summary>
+    public enum ShopProductType
+    {
+        Consumable    = 0,
+        NonConsumable = 1,
+    }
+
+    /// <summary>
     /// Base ScriptableObject for any shop offer. Designers can subclass for
     /// fancier reward bundles; <see cref="BasicOffer"/> covers the standard
     /// "give this many coins, can only be bought once" case.
@@ -17,11 +29,14 @@ namespace PixelShoot.Data
         [SerializeField] private string displayName;
         [Tooltip("Coins paid out on a successful purchase.")]
         [SerializeField, Min(0)] private int grantedCoins;
+        [Tooltip("Consumable = can be bought again (coin packs). NonConsumable = one-time, restorable across devices (NoAds, Starter).")]
+        [SerializeField] private ShopProductType productType = ShopProductType.Consumable;
 
         public string OfferId => offerId;
         public string ProductId => productId;
         public string DisplayName => displayName;
         public int GrantedCoins => grantedCoins;
+        public ShopProductType ProductType => productType;
 
         /// <summary>True if the player can purchase this offer right now. Override for one-time / cooldown rules.</summary>
         public abstract bool IsAvailable { get; }

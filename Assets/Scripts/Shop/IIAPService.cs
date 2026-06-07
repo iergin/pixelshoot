@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using PixelShoot.Data;
 
 namespace PixelShoot.Shop
 {
@@ -11,8 +13,16 @@ namespace PixelShoot.Shop
     public interface IIAPService
     {
         bool IsReady { get; }
-        void Initialize(string[] productIds);
+        void Initialize(IReadOnlyList<ProductRegistration> products);
         void Purchase(string productId, Action<bool> onComplete);
         string GetLocalizedPrice(string productId);
+    }
+
+    /// <summary>Tuple of (Unity IAP product id, consumable/non-consumable type) used at catalog registration time.</summary>
+    public readonly struct ProductRegistration
+    {
+        public readonly string ProductId;
+        public readonly ShopProductType Type;
+        public ProductRegistration(string productId, ShopProductType type) { ProductId = productId; Type = type; }
     }
 }

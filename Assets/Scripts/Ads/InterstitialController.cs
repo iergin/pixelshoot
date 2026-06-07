@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using PixelShoot.Data;
 using PixelShoot.Game;
@@ -5,14 +6,11 @@ using PixelShoot.Game;
 namespace PixelShoot.Ads
 {
     /// <summary>
-    /// Tracks "levels since last interstitial" and decides when to actually show one
-    /// based on the active <see cref="InterstitialConfig"/>. Persists the counter in
-    /// PlayerPrefs so a closed-app player doesn't get hit immediately on relaunch.
-    ///
-    /// Wire-up: hook <see cref="NotifyLevelEnded"/> to BOTH GameController.OnLevelWon
-    /// and OnLevelFailed — every level result counts toward the interval. Call
-    /// <see cref="NotifyRewardedWatched"/> after a successful rewarded ad to reset
-    /// the cooldown counter.
+    /// Decides when to actually show an interstitial. The cadence is "show the
+    /// next ad only after <see cref="InterstitialConfig.LevelsBetweenAds"/> more
+    /// level-end events HAVE PASSED SINCE THE LAST AD CLOSED". The counter resets
+    /// inside the ad-close callback, never at <c>Show()</c> — that way a failed
+    /// or skipped show doesn't burn the cooldown.
     /// </summary>
     public class InterstitialController : MonoBehaviour
     {
@@ -20,15 +18,33 @@ namespace PixelShoot.Ads
 
         [SerializeField] private InterstitialConfig config;
 
+        /// <summary>True while an interstitial we triggered is on-screen and not yet closed.</summary>
+        private bool waitingForCurrentAdToClose;
+
+        public event Action OnInterstitialClosed;
+
         private static int LevelsSince
         {
             get => PlayerPrefs.GetInt(CounterKey, 0);
             set { PlayerPrefs.SetInt(CounterKey, Mathf.Max(0, value)); PlayerPrefs.Save(); }
         }
 
-        /// <summary>Call when ANY level ends (win or lose). Single counter handles both.</summary>
+        /// <summary>Call when ANY level ends (win or lose).</summary>
         public void NotifyLevelEnded()
         {
+            // NoAds purchase suppresses interstitials entirely.
+            if (PlayerWallet.HasNoAds)
+            {
+                Debug.Log("[Interstitial] Skipped — NoAds purchased.");
+                return;
+            }
+            // An ad is still on-screen → don't count this end event toward the next show.
+            if (waitingForCurrentAdToClose)
+            {
+                Debug.Log("[Interstitial] Skipped — previous ad still open.");
+                return;
+            }
+
             if (config == null) return;
 
             int currentLevel = PlayerProgress.DisplayLevel;
@@ -55,8 +71,17 @@ namespace PixelShoot.Ads
             }
 
             Debug.Log($"[Interstitial] Showing — {newCount} levels since last ad, interval={interval} at level {currentLevel}.");
+            waitingForCurrentAdToClose = true;
+            AdsManager.Service.ShowInterstitial(HandleInterstitialClosed);
+        }
+
+        private void HandleInterstitialClosed()
+        {
+            Debug.Log("[Interstitial] Ad closed — cooldown counter reset, next cadence starts now.");
             LevelsSince = 0;
-            AdsManager.Service.ShowInterstitial(null);
+            waitingForCurrentAdToClose = false;
+            PlayerWallet.MarkFirstAdSeen();
+            OnInterstitialClosed?.Invoke();
         }
 
         public void NotifyRewardedWatched()
@@ -64,6 +89,7 @@ namespace PixelShoot.Ads
             // Engaged players get the cooldown reset as a courtesy.
             Debug.Log("[Interstitial] Rewarded watched — resetting cooldown counter.");
             LevelsSince = 0;
+            PlayerWallet.MarkFirstAdSeen();
         }
     }
 }

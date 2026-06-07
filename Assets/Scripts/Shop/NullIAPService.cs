@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PixelShoot.Shop
@@ -7,9 +8,13 @@ namespace PixelShoot.Shop
     {
         public bool IsReady => true;
 
-        public void Initialize(string[] productIds)
+        public void Initialize(IReadOnlyList<ProductRegistration> products)
         {
-            Debug.Log($"[IAP/Null] Initialized for {productIds?.Length ?? 0} products — no real store.");
+            int n = products != null ? products.Count : 0;
+            if (n == 0) { Debug.Log("[IAP/Null] Initialized — no products."); return; }
+            var lines = new List<string>(n);
+            for (int i = 0; i < n; i++) lines.Add($"  • {products[i].ProductId} [{products[i].Type}]");
+            Debug.Log($"[IAP/Null] Initialized for {n} products — no real store.\n" + string.Join("\n", lines));
         }
 
         public void Purchase(string productId, Action<bool> onComplete)

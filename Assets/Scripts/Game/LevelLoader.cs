@@ -41,6 +41,8 @@ namespace PixelShoot.Game
             if (coinsConfig != null) PlayerWallet.EnsureInitialized(coinsConfig.InitialBalance);
             // Stamp the first-launch timestamp for time-limited offers (e.g. StarterOffer).
             PlayerWallet.StampFirstLaunchIfMissing();
+            // Bump session counter once per app start; promo controllers key off this.
+            PlayerWallet.BeginSession();
 
             // Resolve the level we'll actually play: explicit override beats the playlist.
             if (levelData == null) levelData = PickFromPlaylist();
@@ -128,6 +130,10 @@ namespace PixelShoot.Game
 
         private void HandleLevelWon()
         {
+            // Mark "first level of this session done" so the no-ads promo controller
+            // knows when to consider showing the second-session trigger.
+            PlayerWallet.MarkFirstLevelDoneThisSession();
+
             // Coin reward fires for any real play session (whether using the playlist
             // or a single override level), so designers can test reward economy without
             // hooking up the full playlist asset.

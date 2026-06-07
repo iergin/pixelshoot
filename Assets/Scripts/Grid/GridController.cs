@@ -9,11 +9,6 @@ namespace PixelShoot.Grid
         [SerializeField] private Box boxPrefab;
         [SerializeField] private Transform gridRoot;
         [SerializeField] private float cellSize = 1f;
-        [Tooltip("Material applied to locked (inside-the-silhouette) boxes. If null, a default gray material is created at runtime.")]
-        [SerializeField] private Material lockedBoxMaterial;
-        [Tooltip("Single shared material applied to ALL unhit (frontier) boxes regardless of color. If null, a default light gray material is created at runtime.")]
-        [SerializeField] private Material unhitBoxMaterial;
-
         private Box[,] boxes;
         private int size;
         private int aliveCount;
@@ -87,7 +82,6 @@ namespace PixelShoot.Grid
 
         private Material GetLockedMaterial()
         {
-            if (lockedBoxMaterial != null) return lockedBoxMaterial;
             if (lockedFallback == null)
             {
                 var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
@@ -100,7 +94,6 @@ namespace PixelShoot.Grid
 
         private Material GetUnhitMaterial()
         {
-            if (unhitBoxMaterial != null) return unhitBoxMaterial;
             if (unhitFallback == null)
             {
                 var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");

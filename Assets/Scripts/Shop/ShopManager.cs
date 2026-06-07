@@ -53,9 +53,11 @@ namespace PixelShoot.Shop
 #else
             iap = new NullIAPService();
 #endif
-            var pids = new List<string>();
-            foreach (var o in offers) if (o != null && !string.IsNullOrEmpty(o.ProductId)) pids.Add(o.ProductId);
-            iap.Initialize(pids.ToArray());
+            var products = new List<ProductRegistration>();
+            foreach (var o in offers)
+                if (o != null && !string.IsNullOrEmpty(o.ProductId))
+                    products.Add(new ProductRegistration(o.ProductId, o.ProductType));
+            iap.Initialize(products);
 
             // ── Wire UI ──
             Debug.Log($"[ShopManager] Awake on '{name}'. " +

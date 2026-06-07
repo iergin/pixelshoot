@@ -16,3 +16,4 @@ MonoBehaviour:
   productId: coins_50000
   displayName: 50000 Coins
   grantedCoins: 50000
+  productType: 0

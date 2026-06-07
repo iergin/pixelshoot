@@ -109,6 +109,60 @@ namespace PixelShoot.Game
             PlayerPrefs.Save();
         }
 
+        // ── Session counter & "first ad seen" tracker (for promo triggers) ───
+        private const string SessionCountKey = "PixelShoot.SessionCount";
+        private const string FirstAdSeenKey  = "PixelShoot.FirstAdSeen"; // 0/1
+        private const string FirstLevelDoneThisSessionKey = "PixelShoot.FirstLevelDoneThisSession"; // 0/1
+        private const string NoAdsKey = "PixelShoot.NoAds"; // 0/1
+
+        public static int SessionCount => PlayerPrefs.GetInt(SessionCountKey, 0);
+
+        /// <summary>
+        /// Bump the session count by one and reset per-session flags. Call once
+        /// at app start (LevelLoader does this for you).
+        /// </summary>
+        public static void BeginSession()
+        {
+            PlayerPrefs.SetInt(SessionCountKey, SessionCount + 1);
+            PlayerPrefs.SetInt(FirstLevelDoneThisSessionKey, 0);
+            PlayerPrefs.Save();
+        }
+
+        public static bool FirstLevelDoneThisSession => PlayerPrefs.GetInt(FirstLevelDoneThisSessionKey, 0) == 1;
+        public static void MarkFirstLevelDoneThisSession()
+        {
+            PlayerPrefs.SetInt(FirstLevelDoneThisSessionKey, 1);
+            PlayerPrefs.Save();
+        }
+
+        public static bool HasSeenFirstAd => PlayerPrefs.GetInt(FirstAdSeenKey, 0) == 1;
+        public static void MarkFirstAdSeen()
+        {
+            if (HasSeenFirstAd) return;
+            PlayerPrefs.SetInt(FirstAdSeenKey, 1);
+            PlayerPrefs.Save();
+        }
+
+        public static bool HasNoAds => PlayerPrefs.GetInt(NoAdsKey, 0) == 1;
+        public static void MarkNoAdsBought()
+        {
+            PlayerPrefs.SetInt(NoAdsKey, 1);
+            PlayerPrefs.Save();
+        }
+
+        // ── Sound mute (Settings) ────────────────────────────────────────────
+        private const string MutedKey = "PixelShoot.Muted";
+        public static bool SoundMuted
+        {
+            get => PlayerPrefs.GetInt(MutedKey, 0) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(MutedKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                AudioListener.volume = value ? 0f : 1f;
+            }
+        }
+
         private static void SetBalance(int value)
         {
             PlayerPrefs.SetInt(BalanceKey, value);

@@ -3,12 +3,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Purchasing;
+using PixelShoot.Data;
 
 namespace PixelShoot.Shop
 {
     /// <summary>
     /// Real IAP implementation backed by Unity Purchasing (`com.unity.purchasing`).
     /// Compiled only when PIXELSHOOT_IAP is defined AND the package is installed.
+    /// Honours the per-product Consumable / NonConsumable type carried on each ShopOffer.
     /// </summary>
     public class UnityIAPService : IIAPService, IStoreListener
     {
@@ -18,14 +20,24 @@ namespace PixelShoot.Shop
 
         public bool IsReady => controller != null;
 
-        public void Initialize(string[] productIds)
+        public void Initialize(IReadOnlyList<ProductRegistration> products)
         {
             if (controller != null) return;
             var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-            foreach (var pid in productIds)
-                if (!string.IsNullOrEmpty(pid)) builder.AddProduct(pid, ProductType.NonConsumable);
+            if (products != null)
+            {
+                for (int i = 0; i < products.Count; i++)
+                {
+                    var p = products[i];
+                    if (string.IsNullOrEmpty(p.ProductId)) continue;
+                    builder.AddProduct(p.ProductId, MapType(p.Type));
+                }
+            }
             UnityPurchasing.Initialize(this, builder);
         }
+
+        private static ProductType MapType(ShopProductType t)
+            => t == ShopProductType.NonConsumable ? ProductType.NonConsumable : ProductType.Consumable;
 
         public void Purchase(string productId, Action<bool> onComplete)
         {

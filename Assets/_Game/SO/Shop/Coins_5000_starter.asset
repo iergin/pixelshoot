@@ -17,3 +17,4 @@ MonoBehaviour:
   displayName: Starter Pack — 5000 Coins
   grantedCoins: 5000
   visibleForDays: 7
+  productType: 1

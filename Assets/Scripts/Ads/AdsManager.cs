@@ -1,4 +1,5 @@
 using UnityEngine;
+using PixelShoot.Game;
 
 namespace PixelShoot.Ads
 {
@@ -29,7 +30,17 @@ namespace PixelShoot.Ads
 #endif
             Service.Initialize();
 
-            if (autoShowBanner) Service.ShowBanner(bannerPosition);
+            // NoAds purchase hides the banner too.
+            if (autoShowBanner && !PlayerWallet.HasNoAds)
+                Service.ShowBanner(bannerPosition);
+        }
+
+        /// <summary>Hide the banner permanently — called when NoAds is purchased mid-session.</summary>
+        public static void SuppressAdsAfterNoAdsPurchase()
+        {
+            if (Service == null) return;
+            Service.HideBanner();
+            Debug.Log("[AdsManager] NoAds active — banner hidden.");
         }
 
         /// <summary>Static auto-bootstrap so AdsManager exists even if no GameObject in the scene has it.</summary>
