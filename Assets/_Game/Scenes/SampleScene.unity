@@ -2230,7 +2230,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c58f4b72e1dc845dbbff8fc81ec7c2a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Game.LevelLoader
-  levelData: {fileID: 11400000, guid: 005c60c525a9f432aade62901635589c, type: 2}
+  levelData: {fileID: 11400000, guid: cf1bc63a628634ed78727054b97ac76c, type: 2}
   allLevels: {fileID: 11400000, guid: 103646bc4102c4ea789cc4ef354a58c0, type: 2}
   coinsConfig: {fileID: 11400000, guid: d070b99a2d4c94453911822abaafeb04, type: 2}
   grid: {fileID: 1908823581}
@@ -4428,8 +4428,8 @@ Transform:
   m_GameObject: {fileID: 952713676}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.93, y: 0.04218, z: -0.2}
-  m_LocalScale: {x: 0.6255162, y: 0.6255162, z: 0.6255162}
+  m_LocalPosition: {x: -0.81, y: 0, z: 0}
+  m_LocalScale: {x: 0.304, y: 0.304, z: 0.304}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1908823582}
@@ -7587,7 +7587,7 @@ MonoBehaviour:
   soundToggle: {fileID: 1406740821}
   soundLabel: {fileID: 851472344}
   privacyPolicyButton: {fileID: 651234208}
-  privacyPolicyUrl: https://example.com/privacy
+  privacyPolicyUrl: https://doc-hosting.flycricket.io/pixel-painting-privacy-policy/e7e0542d-f625-43e0-8a5c-3d7ed13b3d43/privacy
 --- !u!1 &1546825375
 GameObject:
   m_ObjectHideFlags: 0
