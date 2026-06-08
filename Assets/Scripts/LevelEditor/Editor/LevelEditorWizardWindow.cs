@@ -48,7 +48,7 @@ namespace PixelShoot.LevelEditor.EditorTools
         // ─── Transient UI state ───────────────────────────────────────
         private string levelName = "Level_01";
         private string importBuffer = "";
-        private int shotsPerShooter = 5;
+        // shotsPerShooter field removed — columns now come from JSON import (sortColumns).
         private Vector2 scroll;
         private string lastImportStatus = "";
         private static GUIStyle swatchStyle;
@@ -373,7 +373,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             EditorGUILayout.LabelField("Import (palette + RLE in one paste)", EditorStyles.boldLabel);
             using (new EditorGUI.DisabledScope(gated))
             {
-                EditorGUILayout.LabelField("Paste the full encoder export (PALETTE and/or RLE_ROWS):", EditorStyles.miniLabel);
+                EditorGUILayout.LabelField("Paste the level designer JSON (gridSize / palette / rle / sortColumns):", EditorStyles.miniLabel);
                 importBuffer = EditorGUILayout.TextArea(importBuffer, GUILayout.MinHeight(140));
                 if (GUILayout.Button("Import all (auto-detect)", GUILayout.Height(28))) ImportAll();
             }
@@ -387,15 +387,29 @@ namespace PixelShoot.LevelEditor.EditorTools
             int paletteCount = 0;
             int filledCells = 0;
             int detectedGrid = 0;
+            int columnsCount = 0;
+            int shooterCount = 0;
 
-            var matches = HexColorRegex.Matches(text);
-            if (matches.Count > 0)
+            // ── NEW: structured JSON path (palette + rle + sortColumns in one blob) ──
+            bool isJson = LevelJsonImporter.LooksLikeJson(text);
+            LevelJsonImporter.Result parsed = isJson ? LevelJsonImporter.Parse(text) : null;
+            string rleText = (parsed != null && !string.IsNullOrEmpty(parsed.RleArrayText)) ? parsed.RleArrayText : text;
+            int gridFromJson = parsed != null ? parsed.GridSize : 0;
+
+            // Palette: prefer JSON-ordered list to keep colorIndex stable; fall back to hex regex.
+            var paletteHex = new List<string>();
+            if (parsed != null && parsed.PaletteHex.Count > 0)
+                paletteHex.AddRange(parsed.PaletteHex);
+            else
+                foreach (Match m in HexColorRegex.Matches(text))
+                    paletteHex.Add(m.Groups[1].Value.ToUpperInvariant());
+
+            if (paletteHex.Count > 0)
             {
-                var newPalette = new List<ColorData>(matches.Count);
-                foreach (Match m in matches)
+                var newPalette = new List<ColorData>(paletteHex.Count);
+                foreach (var hex in paletteHex)
                 {
-                    string hex = m.Groups[1].Value.ToUpperInvariant();
-                    Color col = ColorUtility.TryParseHtmlString("#" + hex, out var parsed) ? parsed : Color.magenta;
+                    Color col = ColorUtility.TryParseHtmlString("#" + hex, out var pc) ? pc : Color.magenta;
                     newPalette.Add(GetOrCreateColorData(hex, col));
                 }
                 AssetDatabase.SaveAssets();
@@ -405,14 +419,19 @@ namespace PixelShoot.LevelEditor.EditorTools
                 paletteCount = newPalette.Count;
             }
 
-            if (RLECodec.TryDetectGridSize(text, out int detected))
+            if (gridFromJson > 0)
+            {
+                detectedGrid = gridFromJson;
+                gridSize = gridFromJson;
+            }
+            else if (RLECodec.TryDetectGridSize(text, out int detected))
             {
                 detectedGrid = detected;
                 gridSize = detected;
             }
             EnsureCellsArray();
 
-            if (gridSize > 0 && RLECodec.TryDecode(text, gridSize, out var decoded))
+            if (gridSize > 0 && RLECodec.TryDecode(rleText, gridSize, out var decoded))
             {
                 cells = decoded;
                 // New cells → tones must be re-randomized. Default to Normal until the user clicks Recalculate.
@@ -420,12 +439,37 @@ namespace PixelShoot.LevelEditor.EditorTools
                 foreach (var v in decoded) if (v >= 0) filledCells++;
             }
 
+            // Columns straight from JSON (replaces the old auto-generate path).
+            if (parsed != null && parsed.Columns != null && parsed.Columns.Count > 0)
+            {
+                var newColumns = new List<ColumnData>();
+                foreach (var col in parsed.Columns)
+                {
+                    var shooters = new List<ShooterData>();
+                    foreach (var sh in col)
+                    {
+                        if (sh.ColorIndex < 0 || sh.ColorIndex >= palette.Count) continue;
+                        var sd = new ShooterData();
+                        SetField(sd, "color", palette[sh.ColorIndex]);
+                        SetField(sd, "shotCount", sh.Count);
+                        shooters.Add(sd);
+                        shooterCount++;
+                    }
+                    var cd = new ColumnData();
+                    SetField(cd, "shooters", shooters);
+                    newColumns.Add(cd);
+                }
+                columns = newColumns;
+                columnsCount = newColumns.Count;
+            }
+
             var parts = new List<string>();
             if (paletteCount > 0) parts.Add($"{paletteCount} colors");
             if (detectedGrid > 0) parts.Add($"{detectedGrid}×{detectedGrid} grid");
             if (filledCells > 0) parts.Add($"{filledCells} filled cells");
+            if (columnsCount > 0) parts.Add($"{columnsCount} columns / {shooterCount} shooters");
             lastImportStatus = parts.Count == 0
-                ? "Nothing detected in the pasted text — make sure it contains hex colors and/or an RLE_ROWS array."
+                ? "Nothing detected in the pasted text — paste the JSON export from the level designer tool."
                 : "Imported: " + string.Join(", ", parts) + ". (Press Save to persist to disk.)";
             // No disk write here — the user has to press Save explicitly. Auto-refresh
             // will rebuild the scene from the in-memory asset state.
@@ -626,7 +670,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                     $"   Painted pixels:  {filledPixels}\n" +
                     $"   Total shots:     {totalShots}\n" +
                     $"   {explain}\n" +
-                    "Re-run 'Auto-generate columns from grid' or hand-edit columns until they match.",
+                    "Re-import the JSON with the correct sortColumns or hand-edit them until they match.",
                     MessageType.Error);
             }
         }
@@ -634,21 +678,11 @@ namespace PixelShoot.LevelEditor.EditorTools
         // ─── Columns & capacities ─────────────────────────────────────
         private void DrawStep_Columns()
         {
-            bool gated = !HasCells;
             EditorGUILayout.LabelField("Columns & capacities", EditorStyles.boldLabel);
-            using (new EditorGUI.DisabledScope(gated))
-            {
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    EditorGUILayout.LabelField("Max shots / shooter", GUILayout.Width(140));
-                    shotsPerShooter = Mathf.Max(1, EditorGUILayout.IntField(shotsPerShooter, GUILayout.Width(60)));
-                }
-                if (GUILayout.Button("Auto-generate columns from grid"))
-                {
-                    GenerateColumnsFromGrid(shotsPerShooter);
-                    pendingPreviewRefresh = true;
-                }
-            }
+            EditorGUILayout.HelpBox(
+                "Columns are imported from the level JSON's 'sortColumns' field — there's no auto-generator anymore. " +
+                "Re-import the JSON to update them.",
+                MessageType.None);
             conveyorSlotCapacity = Mathf.Max(1, EditorGUILayout.IntField("Conveyor capacity", conveyorSlotCapacity));
             reserveSlotCapacity = Mathf.Max(1, EditorGUILayout.IntField("Reserve capacity", reserveSlotCapacity));
             DrawBulletBudgetValidation();
@@ -1085,47 +1119,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             SetField(targetAsset, "reserveSlotCapacity", reserveSlotCapacity);
         }
 
-        private void GenerateColumnsFromGrid(int maxShotsPerShooter)
-        {
-            EnsureCellsArray();
-            maxShotsPerShooter = Mathf.Max(1, maxShotsPerShooter);
-
-            var order = new List<ColorData>();
-            var counts = new Dictionary<ColorData, int>();
-            for (int z = 0; z < gridSize; z++)
-            {
-                for (int x = 0; x < gridSize; x++)
-                {
-                    int c = cells[z * gridSize + x];
-                    if (c < 0 || c >= palette.Count || palette[c] == null) continue;
-                    var key = palette[c].GameplayColor;
-                    if (!counts.ContainsKey(key)) { counts[key] = 0; order.Add(key); }
-                    counts[key]++;
-                }
-            }
-
-            var newColumns = new List<ColumnData>();
-            foreach (var gameplayColor in order)
-            {
-                int total = counts[gameplayColor];
-                int shooterCount = Mathf.CeilToInt(total / (float)maxShotsPerShooter);
-                int remaining = total;
-                var shooterList = new List<ShooterData>();
-                for (int s = 0; s < shooterCount; s++)
-                {
-                    int shots = Mathf.Min(maxShotsPerShooter, remaining);
-                    remaining -= shots;
-                    var sd = new ShooterData();
-                    SetField(sd, "color", gameplayColor);
-                    SetField(sd, "shotCount", shots);
-                    shooterList.Add(sd);
-                }
-                var col = new ColumnData();
-                SetField(col, "shooters", shooterList);
-                newColumns.Add(col);
-            }
-            columns = newColumns;
-        }
+        // GenerateColumnsFromGrid removed — columns now come from JSON's sortColumns field.
 
         // ─── Palette swatches ─────────────────────────────────────────
         private void DrawPaletteSelectableSwatches()
