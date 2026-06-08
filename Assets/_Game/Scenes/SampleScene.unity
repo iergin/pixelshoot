@@ -2230,7 +2230,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c58f4b72e1dc845dbbff8fc81ec7c2a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Game.LevelLoader
-  levelData: {fileID: 11400000, guid: cf1bc63a628634ed78727054b97ac76c, type: 2}
+  levelData: {fileID: 11400000, guid: 005c60c525a9f432aade62901635589c, type: 2}
   allLevels: {fileID: 11400000, guid: 103646bc4102c4ea789cc4ef354a58c0, type: 2}
   coinsConfig: {fileID: 11400000, guid: d070b99a2d4c94453911822abaafeb04, type: 2}
   grid: {fileID: 1908823581}
@@ -9840,6 +9840,8 @@ MonoBehaviour:
   boxPrefab: {fileID: 4354557738883949754, guid: 17d53db052de74c7f9d824ab714802d4, type: 3}
   gridRoot: {fileID: 952713677}
   cellSize: 1
+  bombRadius: 2
+  bombOpenDelay: 0.05
   gizmoPreviewSize: 12
 --- !u!4 &1908823582
 Transform:

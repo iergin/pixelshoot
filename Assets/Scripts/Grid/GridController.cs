@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using PixelShoot.Data;
+using PixelShoot.Shooters;
 
 namespace PixelShoot.Grid
 {
@@ -9,6 +12,12 @@ namespace PixelShoot.Grid
         [SerializeField] private Box boxPrefab;
         [SerializeField] private Transform gridRoot;
         [SerializeField] private float cellSize = 1f;
+        [Header("Bombs")]
+        [Tooltip("Half-extent of the bomb explosion in cells. 2 → 5×5 footprint centred on the bomb.")]
+        [SerializeField, Min(1)] private int bombRadius = 2;
+        [Tooltip("Seconds between the bomb being shot and its affected cells actually opening. " +
+                 "The cells are reserved (untargetable) immediately so other shooters can't double-fire.")]
+        [SerializeField, Min(0f)] private float bombOpenDelay = 0.5f;
         private Box[,] boxes;
         private int size;
         private int aliveCount;
@@ -45,7 +54,7 @@ namespace PixelShoot.Grid
                 var pos = GetCellLocalPosition(cell.GridX, cell.GridZ);
                 var box = Instantiate(boxPrefab, gridRoot != null ? gridRoot : transform);
                 box.transform.localPosition = pos;
-                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked, unhit, cell.Tone);
+                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked, unhit, cell.Tone, cell.IsBomb);
                 boxes[cell.GridX, cell.GridZ] = box;
                 aliveCount++;
             }
@@ -219,6 +228,11 @@ namespace PixelShoot.Grid
         public void NotifyBoxHit(Box b)
         {
             if (b == null || !b.IsAlive) return;
+            bool wasBomb = b.IsBomb;
+            int bombX = b.GridX, bombZ = b.GridZ;
+            var bombParticle = b.ExplosionParticlePrefab;
+            Vector3 bombWorldPos = b.transform.position;
+
             b.TakeHit();
             aliveCount--;
 
@@ -231,7 +245,73 @@ namespace PixelShoot.Grid
                 if (nb != null && nb.State == BoxState.Locked) nb.SetState(BoxState.Frontier);
             }
 
+            // Bomb side effect — runs AFTER the bomb cell itself is processed so the
+            // bomb's neighbours are already promoted before we walk the 5x5.
+            if (wasBomb) TriggerBombExplosion(bombX, bombZ, bombParticle, bombWorldPos);
+
             if (aliveCount <= 0) OnGridCleared?.Invoke();
+        }
+
+        /// <summary>
+        /// Reserves every alive cell in the <see cref="bombRadius"/>-half-extent square
+        /// around (cx, cz) so other shooters can't redundantly target them, computes the
+        /// shot debt to repay each colour, spawns the explosion particle, and schedules
+        /// the actual hits to fire after <see cref="bombOpenDelay"/> seconds.
+        /// </summary>
+        private void TriggerBombExplosion(int cx, int cz, GameObject particlePrefab, Vector3 worldPos)
+        {
+            // Particle FX immediately at the bomb's last-known position.
+            if (particlePrefab != null)
+            {
+                var fx = Instantiate(particlePrefab, worldPos, Quaternion.identity);
+                Destroy(fx, 4f);
+            }
+
+            var affected = new List<Box>();
+            var consumeByColor = new Dictionary<ColorData, int>();
+
+            for (int dx = -bombRadius; dx <= bombRadius; dx++)
+            {
+                for (int dz = -bombRadius; dz <= bombRadius; dz++)
+                {
+                    if (dx == 0 && dz == 0) continue;          // bomb cell already processed
+                    int x = cx + dx, z = cz + dz;
+                    if (x < 0 || x >= size || z < 0 || z >= size) continue;
+                    var nb = boxes[x, z];
+                    if (nb == null || !nb.IsAlive) continue;
+                    if (nb.IsReserved) continue;               // someone else already promised this one
+
+                    nb.ReserveHit();                           // lock immediately — guards against double-fire
+                    affected.Add(nb);
+
+                    var key = nb.Color != null ? nb.Color.GameplayColor : null;
+                    if (key != null)
+                    {
+                        if (!consumeByColor.ContainsKey(key)) consumeByColor[key] = 0;
+                        consumeByColor[key]++;
+                    }
+                }
+            }
+
+            // Pay back the shooters NOW so the rest of the world (HUD, validation, etc.)
+            // sees the deduction even before the delayed visual hit.
+            foreach (var kvp in consumeByColor)
+                ShooterColumn.ConsumeShotsForGameplayColor(kvp.Key, kvp.Value);
+
+            StartCoroutine(BombHitSequence(affected));
+        }
+
+        private IEnumerator BombHitSequence(List<Box> affected)
+        {
+            if (bombOpenDelay > 0f) yield return new WaitForSeconds(bombOpenDelay);
+            foreach (var b in affected)
+            {
+                if (b == null || !b.IsAlive) continue;
+                // NotifyBoxHit handles aliveCount, frontier promotion, and any chained
+                // bomb on the affected cells (chain explosion). The reservation already
+                // set on neighbour bombs prevents them from being double-processed.
+                NotifyBoxHit(b);
+            }
         }
 
 #if UNITY_EDITOR

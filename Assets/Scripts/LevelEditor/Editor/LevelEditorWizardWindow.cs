@@ -37,9 +37,11 @@ namespace PixelShoot.LevelEditor.EditorTools
         [SerializeField] private List<ColumnData> columns = new List<ColumnData>();
         [SerializeField] private int[] cells; // -1 = empty; else palette index
         [SerializeField] private byte[] tones; // Tone enum per cell. Parallel to cells[]. 0=Normal,1=Dark,2=Light.
+        [SerializeField] private bool[] bombs;  // True at cells flagged as bombs. Parallel to cells[].
         [SerializeField] private int currentPaletteIdx = 0;
         [SerializeField] private bool eraseMode = false;
         [SerializeField] private bool paintMode = false;
+        [SerializeField] private bool bombMode  = false;
         [SerializeField] private bool initialPreview = false;
         // True while "Show Final state" is active. Persists across auto-refreshes so the
         // visual doesn't snap back to Locked/Frontier the moment something else triggers a Build.
@@ -94,17 +96,29 @@ namespace PixelShoot.LevelEditor.EditorTools
             EnsureTonesArray();
         }
 
-        /// <summary>Keep tones[] parallel to cells[] without losing any prior assignments.</summary>
+        /// <summary>Keep tones[] AND bombs[] parallel to cells[] without losing any prior assignments.</summary>
         private void EnsureTonesArray()
         {
             if (cells == null) return;
-            if (tones != null && tones.Length == cells.Length) return;
-            var old = tones;
-            tones = new byte[cells.Length]; // default 0 = Normal
-            if (old != null)
+            if (tones == null || tones.Length != cells.Length)
             {
-                int min = Mathf.Min(old.Length, tones.Length);
-                for (int i = 0; i < min; i++) tones[i] = old[i];
+                var old = tones;
+                tones = new byte[cells.Length]; // default 0 = Normal
+                if (old != null)
+                {
+                    int min = Mathf.Min(old.Length, tones.Length);
+                    for (int i = 0; i < min; i++) tones[i] = old[i];
+                }
+            }
+            if (bombs == null || bombs.Length != cells.Length)
+            {
+                var old = bombs;
+                bombs = new bool[cells.Length];
+                if (old != null)
+                {
+                    int min = Mathf.Min(old.Length, bombs.Length);
+                    for (int i = 0; i < min; i++) bombs[i] = old[i];
+                }
             }
         }
 
@@ -115,6 +129,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             if (tones == null || idx < 0 || idx >= tones.Length) return;
             tones[idx] = (byte)t;
         }
+        private bool GetBomb(int idx) => bombs != null && idx >= 0 && idx < bombs.Length && bombs[idx];
 
         // ─── OnGUI ────────────────────────────────────────────────────
         private void OnGUI()
@@ -266,6 +281,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             cells = new int[CellCount];
             for (int i = 0; i < cells.Length; i++) cells[i] = -1;
             tones = new byte[CellCount]; // all Normal
+            bombs = new bool[CellCount];
             columns?.Clear();
             palette?.Clear();
             currentPaletteIdx = 0;
@@ -436,6 +452,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 cells = decoded;
                 // New cells → tones must be re-randomized. Default to Normal until the user clicks Recalculate.
                 tones = new byte[cells.Length];
+                bombs = new bool[cells.Length];
                 foreach (var v in decoded) if (v >= 0) filledCells++;
             }
 
@@ -492,6 +509,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                         cells = new int[CellCount];
                         for (int i = 0; i < cells.Length; i++) cells[i] = -1;
                         tones = new byte[CellCount];
+                        bombs = new bool[CellCount];
                         pendingPreviewRefresh = true;
                     }
                 }
@@ -505,26 +523,33 @@ namespace PixelShoot.LevelEditor.EditorTools
 
             using (new EditorGUILayout.HorizontalScope())
             {
-                // Paint and Erase are mutually exclusive — toggling one off-by-default
+                // Paint, Erase and Bomb are mutually exclusive — toggling one off-by-default
                 // disables clicks entirely, so accidental drags over the grid do nothing.
                 bool newPaint = GUILayout.Toggle(paintMode, "Paint", "Button", GUILayout.Width(70));
                 if (newPaint != paintMode)
                 {
                     paintMode = newPaint;
-                    if (paintMode) eraseMode = false;
+                    if (paintMode) { eraseMode = false; bombMode = false; }
                 }
                 bool newErase = GUILayout.Toggle(eraseMode, "Erase", "Button", GUILayout.Width(70));
                 if (newErase != eraseMode)
                 {
                     eraseMode = newErase;
-                    if (eraseMode) paintMode = false;
+                    if (eraseMode) { paintMode = false; bombMode = false; }
+                }
+                bool newBomb = GUILayout.Toggle(bombMode, "Bomb", "Button", GUILayout.Width(70));
+                if (newBomb != bombMode)
+                {
+                    bombMode = newBomb;
+                    if (bombMode) { paintMode = false; eraseMode = false; }
                 }
                 bool newPrev = GUILayout.Toggle(initialPreview, "Initial preview", "Button", GUILayout.Width(140));
                 if (newPrev != initialPreview) initialPreview = newPrev;
                 string statusLabel;
                 if (eraseMode) statusLabel = "Click cells to clear them.";
                 else if (paintMode) statusLabel = $"Painting palette idx {currentPaletteIdx}.";
-                else statusLabel = "Neither Paint nor Erase active — clicks do nothing.";
+                else if (bombMode) statusLabel = "Click cells to toggle bomb flag.";
+                else statusLabel = "No tool active — clicks do nothing.";
                 EditorGUILayout.LabelField(statusLabel);
             }
 
@@ -568,7 +593,16 @@ namespace PixelShoot.LevelEditor.EditorTools
                     if (initialPreview && !IsCellOnSilhouette(x, z))
                         c = new Color(0.42f, 0.42f, 0.46f);
                     c = ToneShifter.Apply(c, GetTone(flat));
-                    EditorGUI.DrawRect(CellRect(gridRect, x, z, cellPx), c);
+                    var rect = CellRect(gridRect, x, z, cellPx);
+                    EditorGUI.DrawRect(rect, c);
+                    // Bomb marker: a black dot in the middle so the designer can spot them at a glance.
+                    if (GetBomb(flat))
+                    {
+                        float dotSize = Mathf.Max(2f, cellPx * 0.5f);
+                        float pad = (cellPx - dotSize) * 0.5f;
+                        EditorGUI.DrawRect(new Rect(rect.x + pad, rect.y + pad, dotSize, dotSize),
+                            new Color(0f, 0f, 0f, 0.85f));
+                    }
                 }
             }
 
@@ -581,10 +615,10 @@ namespace PixelShoot.LevelEditor.EditorTools
                 EditorGUI.DrawRect(new Rect(gridRect.x, gridRect.y + v, totalSize, 1), lineCol);
             }
 
-            // Painting (LMB down/drag). Requires Paint OR Erase to be active and
+            // Painting (LMB down/drag). Requires Paint, Erase or Bomb to be active and
             // not be in Initial preview mode (which is read-only).
             var e = Event.current;
-            bool toolActive = paintMode || eraseMode;
+            bool toolActive = paintMode || eraseMode || bombMode;
             bool isPaintEvent = e.isMouse
                                 && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag)
                                 && e.button == 0
@@ -598,13 +632,34 @@ namespace PixelShoot.LevelEditor.EditorTools
                 if (xx >= 0 && xx < gridSize && zz >= 0 && zz < gridSize)
                 {
                     int idx = zz * gridSize + xx;
-                    int newColor = eraseMode ? -1 : currentPaletteIdx;
-                    if (cells[idx] != newColor)
+                    if (bombMode)
                     {
-                        cells[idx] = newColor;
-                        pendingPreviewRefresh = true;
-                        e.Use();
-                        Repaint();
+                        // Bomb tool: toggle the flag (only on filled cells — empty cells can't bomb).
+                        if (cells[idx] >= 0 && e.type == EventType.MouseDown)
+                        {
+                            EnsureTonesArray();
+                            bombs[idx] = !bombs[idx];
+                            pendingPreviewRefresh = true;
+                            e.Use();
+                            Repaint();
+                        }
+                    }
+                    else
+                    {
+                        int newColor = eraseMode ? -1 : currentPaletteIdx;
+                        if (cells[idx] != newColor)
+                        {
+                            cells[idx] = newColor;
+                            // Erased cells lose their bomb flag too.
+                            if (newColor < 0)
+                            {
+                                EnsureTonesArray();
+                                if (bombs != null) bombs[idx] = false;
+                            }
+                            pendingPreviewRefresh = true;
+                            e.Use();
+                            Repaint();
+                        }
                     }
                 }
             }
@@ -1071,6 +1126,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 int flat = bc.GridZ * gridSize + bc.GridX;
                 cells[flat] = idx;
                 tones[flat] = (byte)bc.Tone;
+                if (bombs != null && flat < bombs.Length) bombs[flat] = bc.IsBomb;
             }
             columns = new List<ColumnData>(targetAsset.Columns);
             conveyorSlotCapacity = targetAsset.ConveyorSlotCapacity;
@@ -1108,7 +1164,9 @@ namespace PixelShoot.LevelEditor.EditorTools
                     SetField(bc, "gridZ", z);
                     SetField(bc, "isEmpty", false);
                     SetField(bc, "color", palette[colorIdx]);
-                    SetField(bc, "tone", (Tone)tones[z * gridSize + x]);
+                    int flat = z * gridSize + x;
+                    SetField(bc, "tone", (Tone)tones[flat]);
+                    SetField(bc, "isBomb", bombs != null && flat < bombs.Length && bombs[flat]);
                     boxCells.Add(bc);
                 }
             }

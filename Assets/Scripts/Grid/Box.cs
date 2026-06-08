@@ -21,6 +21,10 @@ namespace PixelShoot.Grid
         [SerializeField] private MeshRenderer colorDot;
         [Tooltip("Optional outline/stroke renderer that is enabled ONLY while the box is on the Frontier (shootable). Its material is set to the color's BoxHitMaterial at init.")]
         [SerializeField] private MeshRenderer stroke;
+        [Tooltip("Optional visual (e.g. bomb mesh) toggled on for bomb cells.")]
+        [SerializeField] private GameObject bombVisual;
+        [Tooltip("Optional particle that plays when this bomb explodes. Instantiated at the bomb position and auto-destroyed by its own ParticleSystem.")]
+        [SerializeField] private GameObject explosionParticlePrefab;
 
         private ColorData color;
         private BoxState state;
@@ -28,6 +32,8 @@ namespace PixelShoot.Grid
         private Material lockedMat;
         private Material unhitMat;
         private Tone tone;
+        private bool isBomb;
+        public GameObject ExplosionParticlePrefab => explosionParticlePrefab;
 
         // Reused — avoids allocating per state change.
         private MaterialPropertyBlock propsCache;
@@ -38,11 +44,14 @@ namespace PixelShoot.Grid
         public ColorData Color => color;
         public BoxState State => state;
         public Tone Tone => tone;
+        public bool IsBomb => isBomb;
         public bool IsAlive => state != BoxState.Hit;
-        // Targetable only while on the frontier and not already promised to an incoming bullet.
+        // Targetable only while on the frontier and not already promised to an incoming bullet
+        // or to an in-flight bomb explosion.
         public bool IsShootable => state == BoxState.Frontier && !reservedForHit;
+        public bool IsReserved => reservedForHit;
 
-        public void Initialize(int x, int z, ColorData c, Material lockedMaterial, Material unhitMaterial, Tone cellTone = Tone.Normal)
+        public void Initialize(int x, int z, ColorData c, Material lockedMaterial, Material unhitMaterial, Tone cellTone = Tone.Normal, bool bomb = false)
         {
             GridX = x;
             GridZ = z;
@@ -51,6 +60,8 @@ namespace PixelShoot.Grid
             lockedMat = lockedMaterial;
             unhitMat = unhitMaterial;
             tone = cellTone;
+            isBomb = bomb;
+            if (bombVisual != null) bombVisual.SetActive(bomb);
             // The dot reveals the real color of a locked box — use the per-color Hit material
             // (the only remaining color-tinted material on ColorData).
             if (colorDot != null && c != null && c.BoxHitMaterial != null)
@@ -73,6 +84,12 @@ namespace PixelShoot.Grid
             // Stroke is the shootable-state cue — only on while Frontier.
             if (stroke != null && stroke.gameObject.activeSelf != (newState == BoxState.Frontier))
                 stroke.gameObject.SetActive(newState == BoxState.Frontier);
+            // Bomb model: on for bomb cells until they detonate (state == Hit).
+            if (bombVisual != null)
+            {
+                bool shouldShow = isBomb && newState != BoxState.Hit;
+                if (bombVisual.activeSelf != shouldShow) bombVisual.SetActive(shouldShow);
+            }
         }
 
         public void ReserveHit() => reservedForHit = true;

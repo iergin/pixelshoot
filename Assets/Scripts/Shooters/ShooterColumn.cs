@@ -12,6 +12,14 @@ namespace PixelShoot.Shooters
     /// </summary>
     public class ShooterColumn : MonoBehaviour
     {
+        // Active column registry used by bomb payback and other cross-column queries.
+        private static readonly List<ShooterColumn> all = new List<ShooterColumn>();
+        public static IReadOnlyList<ShooterColumn> All => all;
+        private void OnEnable()  { if (!all.Contains(this)) all.Add(this); }
+        private void OnDisable() { all.Remove(this); }
+
+        public IReadOnlyList<Shooter> Shooters => shooters;
+
         [SerializeField] private float stackSpacing = 1.1f;
         [SerializeField] private float restackDuration = 0.25f;
 
@@ -52,6 +60,58 @@ namespace PixelShoot.Shooters
                 return true;
             }
             return false;
+        }
+
+        /// <summary>Drop a shooter from this column (used when a bomb pays back its shots in full).</summary>
+        public void RemoveExpiredShooter(Shooter s)
+        {
+            if (s == null) return;
+            if (shooters.Remove(s)) RestackAnimated();
+        }
+
+        /// <summary>
+        /// Walks all active columns and subtracts <paramref name="amount"/> shots from
+        /// shooters matching the gameplay color, starting with the BOTTOM-MOST shooter
+        /// (lowest index in its column — the one farthest from the player's tap point).
+        /// A shooter whose shots reach 0 is Expired and removed from the column.
+        /// Returns how many shots were actually consumed (could be &lt; amount if no more matches).
+        /// </summary>
+        public static int ConsumeShotsForGameplayColor(PixelShoot.Data.ColorData gameplayColor, int amount)
+        {
+            if (gameplayColor == null || amount <= 0) return 0;
+
+            // Gather candidates across every active column, then sort:
+            //   1) by within-column index ascending (back-of-queue first = "bottom-most")
+            //   2) tiebreak: column instanceID for determinism
+            var pool = new List<(ShooterColumn col, int idx, Shooter s)>();
+            foreach (var col in all)
+            {
+                if (col == null) continue;
+                for (int i = 0; i < col.shooters.Count; i++)
+                {
+                    var s = col.shooters[i];
+                    if (s == null || s.Color == null) continue;
+                    if (s.Color.GameplayColor != gameplayColor) continue;
+                    pool.Add((col, i, s));
+                }
+            }
+            pool.Sort((a, b) =>
+            {
+                int cmp = a.idx.CompareTo(b.idx);
+                if (cmp != 0) return cmp;
+                return a.col.GetInstanceID().CompareTo(b.col.GetInstanceID());
+            });
+
+            int consumed = 0;
+            foreach (var entry in pool)
+            {
+                if (amount <= 0) break;
+                int took = entry.s.ConsumeShots(amount);
+                amount   -= took;
+                consumed += took;
+                if (entry.s.ShotsRemaining <= 0) entry.col.RemoveExpiredShooter(entry.s);
+            }
+            return consumed;
         }
 
         private void LayoutImmediate()

@@ -183,6 +183,21 @@ namespace PixelShoot.Shooters
                 .OnComplete(() => { if (this != null) Destroy(gameObject); });
         }
 
+        /// <summary>
+        /// Bomb-payback hook — subtract <paramref name="amount"/> shots without firing
+        /// bullets. Returns how many shots were actually consumed (clamped to ShotsRemaining).
+        /// Expires the shooter when its shots reach zero. Used by GridController to repay
+        /// the cells opened by a bomb explosion.
+        /// </summary>
+        public int ConsumeShots(int amount)
+        {
+            if (amount <= 0 || shotsRemaining <= 0) return 0;
+            int taken = Mathf.Min(amount, shotsRemaining);
+            shotsRemaining -= taken;
+            if (shotsRemaining <= 0) Expire();
+            return taken;
+        }
+
         private void OnDestroy()
         {
             boardingTween?.Kill();
