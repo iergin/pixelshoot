@@ -1,4 +1,5 @@
 using UnityEngine;
+using DG.Tweening;
 using PixelShoot.Data;
 
 namespace PixelShoot.Grid
@@ -25,6 +26,8 @@ namespace PixelShoot.Grid
         [SerializeField] private GameObject bombVisual;
         [Tooltip("Optional particle that plays when this bomb explodes. Instantiated at the bomb position and auto-destroyed by its own ParticleSystem.")]
         [SerializeField] private GameObject explosionParticlePrefab;
+        [Tooltip("Duration of the colour fade between state transitions. The material swaps instantly; only the tint colour interpolates.")]
+        [SerializeField, Min(0f)] private float transitionDuration = 0.3f;
 
         private ColorData color;
         private BoxState state;
@@ -38,6 +41,13 @@ namespace PixelShoot.Grid
         // Reused — avoids allocating per state change.
         private MaterialPropertyBlock propsCache;
         private MaterialPropertyBlock Props => propsCache ?? (propsCache = new MaterialPropertyBlock());
+
+        // Tint animation state: the current shown colour follows shownColor; transitions
+        // tween from old to new via DOTween. hasInitialTint=false skips the first frame
+        // so the spawn-in moment doesn't visibly flash from white to the locked grey.
+        private UnityEngine.Color shownColor = UnityEngine.Color.white;
+        private bool hasInitialTint;
+        private Tween tintTween;
 
         public int GridX { get; private set; }
         public int GridZ { get; private set; }
@@ -126,14 +136,44 @@ namespace PixelShoot.Grid
             }
             if (m == null) return;
 
+            // Material swap is instant; only the per-cell tint colour interpolates.
             meshRenderer.sharedMaterial = m;
+            Color target = ToneShifter.Apply(baseColor, tone);
 
-            // Per-cell tone tint via property block — no material instance leak, works in edit mode.
-            Color tinted = ToneShifter.Apply(baseColor, tone);
+            // Kill an in-flight tween before starting a new one — picks up from current shownColor.
+            tintTween?.Kill();
+            tintTween = null;
+
+            // First call (initial Locked state at spawn) OR edit mode preview OR duration=0 → snap.
+            bool instant = !hasInitialTint || transitionDuration <= 0f || !Application.isPlaying;
+            if (instant)
+            {
+                shownColor = target;
+                hasInitialTint = true;
+                WriteTint();
+                return;
+            }
+
+            tintTween = DOTween.To(
+                () => shownColor,
+                v => { shownColor = v; WriteTint(); },
+                target,
+                transitionDuration
+            ).SetEase(Ease.OutQuad);
+        }
+
+        private void WriteTint()
+        {
+            if (meshRenderer == null) return;
             Props.Clear();
-            Props.SetColor(BaseColorId, tinted);
-            Props.SetColor(ColorId, tinted);
+            Props.SetColor(BaseColorId, shownColor);
+            Props.SetColor(ColorId, shownColor);
             meshRenderer.SetPropertyBlock(Props);
+        }
+
+        private void OnDestroy()
+        {
+            tintTween?.Kill();
         }
 
         private static Color ReadColor(Material m)
