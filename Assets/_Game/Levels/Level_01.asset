@@ -15,7 +15,7 @@ MonoBehaviour:
   grid:
     size: 64
     rootPosition: {x: -0.81, y: 0, z: 0}
-    rootScale: {x: 0.304, y: 0.304, z: 0.304}
+    rootScale: {x: 0.27, y: 0.27, z: 0.27}
     cells:
     - gridX: 31
       gridZ: 3
