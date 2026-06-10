@@ -256,7 +256,8 @@ namespace PixelShoot.Grid
         /// Reserves every alive cell in the <see cref="bombRadius"/>-half-extent square
         /// around (cx, cz) so other shooters can't redundantly target them, computes the
         /// shot debt to repay each colour, spawns the explosion particle, and schedules
-        /// the actual hits to fire after <see cref="bombOpenDelay"/> seconds.
+        /// the hits to ripple outward ring by ring: ring 1 (the 3×3 shell) opens after
+        /// one <see cref="bombOpenDelay"/>, ring 2 (the 5×5 shell) one delay later, etc.
         /// </summary>
         private void TriggerBombExplosion(int cx, int cz, GameObject particlePrefab, Vector3 worldPos)
         {
@@ -267,7 +268,10 @@ namespace PixelShoot.Grid
                 Destroy(fx, 4f);
             }
 
-            var affected = new List<Box>();
+            // Group affected cells by their ring (Chebyshev distance from the bomb):
+            // ringsAffected[0] = distance 1 shell, ringsAffected[1] = distance 2 shell, ...
+            var ringsAffected = new List<Box>[bombRadius];
+            for (int r = 0; r < bombRadius; r++) ringsAffected[r] = new List<Box>();
             var consumeByColor = new Dictionary<ColorData, int>();
 
             for (int dx = -bombRadius; dx <= bombRadius; dx++)
@@ -282,7 +286,8 @@ namespace PixelShoot.Grid
                     if (nb.IsReserved) continue;               // someone else already promised this one
 
                     nb.ReserveHit();                           // lock immediately — guards against double-fire
-                    affected.Add(nb);
+                    int ring = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dz)); // 1..bombRadius
+                    ringsAffected[ring - 1].Add(nb);
 
                     var key = nb.Color != null ? nb.Color.GameplayColor : null;
                     if (key != null)
@@ -298,19 +303,24 @@ namespace PixelShoot.Grid
             foreach (var kvp in consumeByColor)
                 ShooterColumn.ConsumeShotsForGameplayColor(kvp.Key, kvp.Value);
 
-            StartCoroutine(BombHitSequence(affected));
+            StartCoroutine(BombHitSequence(ringsAffected));
         }
 
-        private IEnumerator BombHitSequence(List<Box> affected)
+        private IEnumerator BombHitSequence(List<Box>[] rings)
         {
-            if (bombOpenDelay > 0f) yield return new WaitForSeconds(bombOpenDelay);
-            foreach (var b in affected)
+            // Each ring waits one bombOpenDelay after the previous: the explosion
+            // ripples outward instead of opening the whole 5×5 at once.
+            foreach (var ring in rings)
             {
-                if (b == null || !b.IsAlive) continue;
-                // NotifyBoxHit handles aliveCount, frontier promotion, and any chained
-                // bomb on the affected cells (chain explosion). The reservation already
-                // set on neighbour bombs prevents them from being double-processed.
-                NotifyBoxHit(b);
+                if (bombOpenDelay > 0f) yield return new WaitForSeconds(bombOpenDelay);
+                foreach (var b in ring)
+                {
+                    if (b == null || !b.IsAlive) continue;
+                    // NotifyBoxHit handles aliveCount, frontier promotion, and any chained
+                    // bomb on the affected cells (chain explosion). The reservation already
+                    // set on neighbour bombs prevents them from being double-processed.
+                    NotifyBoxHit(b);
+                }
             }
         }
 
