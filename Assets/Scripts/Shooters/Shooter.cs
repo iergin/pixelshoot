@@ -39,12 +39,21 @@ namespace PixelShoot.Shooters
         [Tooltip("Minimum seconds between consecutive stickman launches. Targets are reserved instantly; only the visual departure is staggered.")]
         [SerializeField, Min(0f)] private float launchInterval = 0.12f;
 
+        [Header("Engine idle wobble")]
+        [Tooltip("Child visual that pulses like a running engine. MUST be a child, not the bus root — the root's scale is owned by the conveyor/reserve transitions. If null, the mesh renderer's transform is used.")]
+        [SerializeField] private Transform wobbleTarget;
+        [Tooltip("Squash-and-stretch amplitude. 0.04 = Y stretches +4% while XZ squash -2%, looped. 0 disables the wobble.")]
+        [SerializeField, Min(0f)] private float wobbleAmount = 0.04f;
+        [Tooltip("Seconds for one half-cycle of the wobble (up OR down).")]
+        [SerializeField, Min(0.05f)] private float wobbleDuration = 0.18f;
+
         private Vector3 baseScale = Vector3.one;
         private bool baseScaleCaptured;
         private Tween facingTween;
         private Tween scaleTween;
         private readonly System.Collections.Generic.Queue<Box> launchQueue = new System.Collections.Generic.Queue<Box>();
         private float nextLaunchTime;
+        private Tween wobbleTween;
 
         private ColorData color;
         private int shotsRemaining;
@@ -91,6 +100,34 @@ namespace PixelShoot.Shooters
 
             // Populate the bus seats with stickmen (visible 6 + hidden reserve).
             if (seats != null) seats.Initialize(shotCount, c);
+
+            StartEngineWobble();
+        }
+
+        /// <summary>
+        /// Looping squash-and-stretch on a child visual so the bus looks like its
+        /// engine is running. Applied to a CHILD transform — the root's scale belongs
+        /// to the conveyor / reserve / expire transitions and must not be fought over.
+        /// </summary>
+        private void StartEngineWobble()
+        {
+            if (!Application.isPlaying) return;           // edit-mode previews stay still
+            if (wobbleTween != null && wobbleTween.IsActive()) return;
+            if (wobbleAmount <= 0f) return;
+
+            var t = wobbleTarget != null ? wobbleTarget
+                  : (meshRenderer != null ? meshRenderer.transform : null);
+            if (t == null || t == transform) return;      // never wobble the root
+
+            Vector3 baseS = t.localScale;
+            Vector3 stretched = new Vector3(
+                baseS.x * (1f - wobbleAmount * 0.5f),
+                baseS.y * (1f + wobbleAmount),
+                baseS.z * (1f - wobbleAmount * 0.5f));
+
+            wobbleTween = t.DOScale(stretched, wobbleDuration)
+                .SetEase(Ease.InOutSine)
+                .SetLoops(-1, LoopType.Yoyo);
         }
 
         public void SetGridAndConveyor(GridController g, ConveyorController cv)
@@ -337,6 +374,7 @@ namespace PixelShoot.Shooters
             boardingTween?.Kill();
             facingTween?.Kill();
             scaleTween?.Kill();
+            wobbleTween?.Kill();
         }
     }
 }
