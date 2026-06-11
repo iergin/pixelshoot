@@ -44,6 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4864cb6fbe29548cf81b81493dee0c22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Shooters.ShooterColumn
-  stackSpacing: 2.5
+  stackSpacing: 5
   restackDuration: 0.25
   gizmoPreviewCount: 3

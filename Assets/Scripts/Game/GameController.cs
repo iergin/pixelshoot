@@ -94,7 +94,7 @@ namespace PixelShoot.Game
             if (idx < 0) return false;
             reserve.Occupy(idx, shooter);
             var slotWorld = reserve.GetSlotPosition(idx);
-            shooter.JumpTo(slotWorld, reserve.JumpDuration, reserve.NotifyIncomingLanded, ShooterState.InReserve);
+            shooter.JumpTo(slotWorld, reserve.JumpDuration, reserve.NotifyIncomingLanded, ShooterState.InReserve, reserve.SlotScale, reserve.SlotRotation);
             return true;
         }
 
