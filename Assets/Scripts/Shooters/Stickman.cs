@@ -102,6 +102,14 @@ namespace PixelShoot.Shooters
             transform.LookAt(endPos);
             flightTween = transform.DOJump(endPos, jumpPower, 1, duration)
                 .SetEase(Ease.Linear)
+                .OnUpdate(() =>
+                {
+                    // Keep the nose (local +Z) pointed at the box the whole flight —
+                    // rising out of the bus it looks up-and-over, diving in it faces down.
+                    Vector3 toTarget = endPos - transform.position;
+                    if (toTarget.sqrMagnitude > 0.001f)
+                        transform.rotation = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
+                })
                 .OnComplete(() =>
                 {
                     if (grid != null && target != null && target.IsAlive)
