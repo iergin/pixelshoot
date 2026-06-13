@@ -2414,7 +2414,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c58f4b72e1dc845dbbff8fc81ec7c2a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Game.LevelLoader
-  levelData: {fileID: 11400000, guid: 005c60c525a9f432aade62901635589c, type: 2}
+  levelData: {fileID: 11400000, guid: 7e0bc0214437bd24cbf0c0753f102418, type: 2}
   allLevels: {fileID: 11400000, guid: 103646bc4102c4ea789cc4ef354a58c0, type: 2}
   coinsConfig: {fileID: 11400000, guid: d070b99a2d4c94453911822abaafeb04, type: 2}
   grid: {fileID: 1908823581}
@@ -7203,7 +7203,7 @@ Transform:
   m_GameObject: {fileID: 1373890509}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.18, z: 0}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10385,7 +10385,7 @@ Transform:
   m_GameObject: {fileID: 1908823580}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 13.1}
+  m_LocalPosition: {x: 0, y: 1.25, z: 13.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
