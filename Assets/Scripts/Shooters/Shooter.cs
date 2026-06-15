@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using PixelShoot.Data;
@@ -47,6 +48,26 @@ namespace PixelShoot.Shooters
         [Tooltip("Seconds for one half-cycle of the wobble (up OR down).")]
         [SerializeField, Min(0.05f)] private float wobbleDuration = 0.18f;
 
+        [Header("Surprise")]
+        [Tooltip("Parent of all the normal bus visuals (body + seats). Hidden while the bus is a surprise, shown on reveal. If null, falls back to toggling the mesh renderer + seats object.")]
+        [SerializeField] private GameObject busVisualRoot;
+        [Tooltip("The '?' cover shown while the bus is a surprise. Hidden on reveal.")]
+        [SerializeField] private GameObject surpriseVisual;
+        [Tooltip("Punch scale applied to the body on surprise reveal for a little pop.")]
+        [SerializeField] private float revealPunch = 0.25f;
+
+        [Header("Link")]
+        [Tooltip("LineRenderer (on the OWNER bus) drawn through every member of the link group. Optional.")]
+        [SerializeField] private LineRenderer linkLine;
+        [Tooltip("Vertical offset of the link line above each bus position.")]
+        [SerializeField] private float linkLineYOffset = 0.4f;
+        [Tooltip("Optional visual enabled only on linked buses (e.g. a tow hook / chain).")]
+        [SerializeField] private GameObject linkedVisual;
+
+        [Header("Lock")]
+        [Tooltip("Lock overlay shown while this bus is locked. Hidden (with a pop) on unlock.")]
+        [SerializeField] private GameObject lockVisual;
+
         private Vector3 baseScale = Vector3.one;
         private bool baseScaleCaptured;
         private Tween facingTween;
@@ -77,16 +98,32 @@ namespace PixelShoot.Shooters
         public event Action<Shooter> OnExpired;
         public event Action<Shooter> OnPathEnded;
 
+        // ── Surprise / Link / Lock state ─────────────────────────────────────
+        public bool IsSurprise { get; private set; }
+        public int LinkGroupId { get; private set; }
+        /// <summary>Shared list reference across all members of the same link group.</summary>
+        public List<Shooter> LinkGroup { get; private set; }
+        public bool IsLinkOwner { get; private set; }
+        public bool IsLinked => LinkGroup != null && LinkGroup.Count >= 2;
+
+        public int LockKeyId { get; private set; }
+        public bool IsLocked { get; private set; }
+
         public ColorData Color => color;
         public int ShotsRemaining => shotsRemaining;
         public ShooterState State => state;
         public float PathProgress => pathProgress;
 
-        public void Initialize(ColorData c, int shotCount)
+        public void Initialize(ColorData c, int shotCount, bool isSurprise = false, int linkGroupId = 0, int lockKeyId = 0)
         {
             color = c;
             shotsRemaining = shotCount;
             state = ShooterState.InColumn;
+            IsSurprise = isSurprise;
+            LinkGroupId = linkGroupId;
+            LockKeyId = lockKeyId;
+            IsLocked = lockKeyId > 0;
+            if (lockVisual != null) lockVisual.SetActive(IsLocked);
 
             if (meshRenderer != null && c != null && c.ShooterMaterial != null)
             {
@@ -101,7 +138,183 @@ namespace PixelShoot.Shooters
             // Populate the bus seats with stickmen (visible 6 + hidden reserve).
             if (seats != null) seats.Initialize(shotCount, c);
 
+            // Surprise: hide the real bus behind the "?" cover until it surfaces.
+            SetVisualHidden(isSurprise);
+            if (surpriseVisual != null) surpriseVisual.SetActive(isSurprise);
+
             StartEngineWobble();
+        }
+
+        // ── Surprise ─────────────────────────────────────────────────────────
+        private void SetVisualHidden(bool hidden)
+        {
+            if (busVisualRoot != null)
+            {
+                busVisualRoot.SetActive(!hidden);
+            }
+            else
+            {
+                if (meshRenderer != null) meshRenderer.enabled = !hidden;
+                if (seats != null) seats.gameObject.SetActive(!hidden);
+            }
+        }
+
+        /// <summary>
+        /// Reveal a surprise bus: drop the "?" cover, show the real body + count, pop a
+        /// little punch. Idempotent — safe to call again. Called automatically when the
+        /// bus surfaces to the top of its column, and defensively at board time.
+        /// </summary>
+        public void RevealSurprise()
+        {
+            if (!IsSurprise) return;
+            IsSurprise = false;
+            if (surpriseVisual != null) surpriseVisual.SetActive(false);
+            SetVisualHidden(false);
+            if (revealPunch > 0f && Application.isPlaying)
+            {
+                var t = busVisualRoot != null ? busVisualRoot.transform
+                      : (meshRenderer != null ? meshRenderer.transform : null);
+                if (t != null && t != transform)
+                    t.DOPunchScale(t.localScale * revealPunch, 0.3f, 6, 0.6f);
+            }
+        }
+
+        // ── Link ─────────────────────────────────────────────────────────────
+        /// <summary>Assign the shared member list. Exactly one member is the owner (draws the line).</summary>
+        public void SetLinkGroup(List<Shooter> group, bool isOwner)
+        {
+            LinkGroup = group;
+            IsLinkOwner = isOwner;
+            if (linkedVisual != null) linkedVisual.SetActive(IsLinked);
+            RefreshLinkLine();
+        }
+
+        /// <summary>Silently drop this bus's link state (no cascade) — used during dissolve.</summary>
+        public void ClearLinkState()
+        {
+            LinkGroup = null;
+            IsLinkOwner = false;
+            LinkGroupId = 0;
+            if (linkedVisual != null) linkedVisual.SetActive(false);
+            if (linkLine != null) linkLine.positionCount = 0;
+        }
+
+        /// <summary>
+        /// Remove this bus from its group mid-life (e.g. it was consumed alone). If ≤1
+        /// member remains the whole link dissolves; otherwise ownership transfers if needed.
+        /// </summary>
+        public void BreakLink()
+        {
+            var group = LinkGroup;
+            if (group == null) { ClearLinkState(); return; }
+
+            bool wasOwner = IsLinkOwner;
+            group.Remove(this);
+            ClearLinkState();
+
+            if (group.Count <= 1)
+            {
+                foreach (var m in group.ToArray())
+                    if (m != null) m.ClearLinkState();
+                group.Clear();
+                return;
+            }
+            if (wasOwner)
+            {
+                var newOwner = group[0];
+                for (int i = 0; i < group.Count; i++)
+                    if (group[i] != null) group[i].SetLinkGroup(group, isOwner: group[i] == newOwner);
+            }
+        }
+
+        private void RefreshLinkLine()
+        {
+            if (linkLine == null) return;
+            // Only the owner renders the polyline; non-owners keep an empty line.
+            if (!IsLinkOwner || LinkGroup == null) { linkLine.positionCount = 0; return; }
+            linkLine.positionCount = LinkGroup.Count;
+        }
+
+        private void LateUpdate()
+        {
+            if (linkLine == null || !IsLinkOwner || LinkGroup == null) return;
+            if (linkLine.positionCount != LinkGroup.Count) linkLine.positionCount = LinkGroup.Count;
+            for (int i = 0; i < LinkGroup.Count; i++)
+            {
+                var m = LinkGroup[i];
+                Vector3 p = m != null ? m.transform.position : transform.position;
+                p.y += linkLineYOffset;
+                linkLine.SetPosition(i, p);
+            }
+        }
+
+        /// <summary>True when every still-alive member of this link group has 0 shots left.</summary>
+        private bool AllGroupSpent()
+        {
+            if (LinkGroup == null) return shotsRemaining <= 0;
+            foreach (var m in LinkGroup)
+                if (m != null && m.shotsRemaining > 0) return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Called when this bus runs out of shots. Unlinked → expire immediately. Linked →
+        /// stay (it just stops firing) until EVERY member is spent, then the whole group
+        /// dissolves at once. Mirrors HexaSort's "link doesn't break on single exhaustion".
+        /// </summary>
+        private void HandleShotsDepleted()
+        {
+            if (!IsLinked)
+            {
+                Expire();
+                return;
+            }
+            if (AllGroupSpent())
+            {
+                foreach (var m in LinkGroup.ToArray())
+                    if (m != null) m.ExpireForDissolve();
+            }
+            // else: keep riding idle; firing stops naturally via the shotsRemaining<=0 check.
+        }
+
+        /// <summary>Expire as part of a coordinated link-group dissolve (clears link state first).</summary>
+        private void ExpireForDissolve()
+        {
+            ClearLinkState();
+            Expire();
+        }
+
+        // ── Lock ─────────────────────────────────────────────────────────────
+        /// <summary>
+        /// Called when this bus is the top of its column. If it's locked and its key has
+        /// been collected, unlock it (drop the lock visual with a pop). Otherwise stays
+        /// locked. No-op for unlocked buses. Returns true if it is (now) tappable.
+        /// </summary>
+        public bool TryUnlock()
+        {
+            if (!IsLocked) return true;
+            var km = PixelShoot.Game.KeyManager.Instance;
+            if (km == null || !km.IsCollected(LockKeyId)) return false;
+
+            IsLocked = false;
+            if (lockVisual != null)
+            {
+                if (Application.isPlaying)
+                    lockVisual.transform.DOScale(Vector3.zero, 0.25f).SetEase(Ease.InBack)
+                        .OnComplete(() => { if (lockVisual != null) lockVisual.SetActive(false); });
+                else
+                    lockVisual.SetActive(false);
+            }
+            return true;
+        }
+
+        /// <summary>Little shake when a locked bus is tapped but can't board yet.</summary>
+        public void PlayLockedFeedback()
+        {
+            if (!Application.isPlaying) return;
+            var t = busVisualRoot != null ? busVisualRoot.transform
+                  : (meshRenderer != null ? meshRenderer.transform : transform);
+            t.DOShakePosition(0.25f, 0.12f, 12, 90f, false, true);
         }
 
         /// <summary>
@@ -307,7 +520,7 @@ namespace PixelShoot.Shooters
             {
                 // No seat system → apply the hit instantly.
                 grid.NotifyBoxHit(target);
-                if (shotsRemaining <= 0) Expire();
+                if (shotsRemaining <= 0) HandleShotsDepleted();
             }
         }
 
@@ -325,7 +538,7 @@ namespace PixelShoot.Shooters
             nextLaunchTime = Time.time + launchInterval;
 
             // The last queued passenger just left and there's nothing left to shoot.
-            if (launchQueue.Count == 0 && shotsRemaining <= 0) Expire();
+            if (launchQueue.Count == 0 && shotsRemaining <= 0) HandleShotsDepleted();
         }
 
         private void LaunchOne(Box target)
@@ -338,6 +551,9 @@ namespace PixelShoot.Shooters
         public void Expire()
         {
             if (state == ShooterState.Expired) return;
+            // Still linked when expiring outside a coordinated dissolve (e.g. path-end)?
+            // Detach cleanly so siblings don't hold a destroyed reference.
+            if (IsLinked) BreakLink();
             // Flush any launches still waiting on the interval — their targets are
             // already reserved and counted, the hits MUST happen.
             while (launchQueue.Count > 0) LaunchOne(launchQueue.Dequeue());
@@ -365,7 +581,7 @@ namespace PixelShoot.Shooters
             // Mirror the deduction on the bus: stickmen leave from the back
             // (hidden reserve drains first, then back seats despawn).
             if (seats != null) seats.ConsumeFromBack(taken);
-            if (shotsRemaining <= 0) Expire();
+            if (shotsRemaining <= 0) HandleShotsDepleted();
             return taken;
         }
 

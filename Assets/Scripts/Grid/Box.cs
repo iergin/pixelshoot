@@ -55,13 +55,14 @@ namespace PixelShoot.Grid
         public BoxState State => state;
         public Tone Tone => tone;
         public bool IsBomb => isBomb;
+        public int KeyId { get; private set; }
         public bool IsAlive => state != BoxState.Hit;
         // Targetable only while on the frontier and not already promised to an incoming bullet
         // or to an in-flight bomb explosion.
         public bool IsShootable => state == BoxState.Frontier && !reservedForHit;
         public bool IsReserved => reservedForHit;
 
-        public void Initialize(int x, int z, ColorData c, Material lockedMaterial, Material unhitMaterial, Tone cellTone = Tone.Normal, bool bomb = false)
+        public void Initialize(int x, int z, ColorData c, Material lockedMaterial, Material unhitMaterial, Tone cellTone = Tone.Normal, bool bomb = false, int keyId = 0)
         {
             GridX = x;
             GridZ = z;
@@ -71,6 +72,7 @@ namespace PixelShoot.Grid
             unhitMat = unhitMaterial;
             tone = cellTone;
             isBomb = bomb;
+            KeyId = keyId;
             if (bombVisual != null) bombVisual.SetActive(bomb);
             // The dot reveals the real color of a locked box — use the per-color Hit material
             // (the only remaining color-tinted material on ColorData).

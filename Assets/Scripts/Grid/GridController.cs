@@ -18,11 +18,17 @@ namespace PixelShoot.Grid
         [Tooltip("Seconds between the bomb being shot and its affected cells actually opening. " +
                  "The cells are reserved (untargetable) immediately so other shooters can't double-fire.")]
         [SerializeField, Min(0f)] private float bombOpenDelay = 0.5f;
+        [Header("Keys")]
+        [Tooltip("Prefab (with a KeyVisual component) spawned at the centroid of each key-group's cells.")]
+        [SerializeField] private PixelShoot.Game.KeyVisual keyVisualPrefab;
+        [Tooltip("Extra height above the grid plane for the floating key visual.")]
+        [SerializeField] private float keyVisualHeight = 0.6f;
         private Box[,] boxes;
         private int size;
         private int aliveCount;
         private Material lockedFallback;
         private Material unhitFallback;
+        private readonly List<GameObject> keyVisuals = new List<GameObject>();
 
         private static readonly (int dx, int dz)[] Neighbors4 = { (1, 0), (-1, 0), (0, 1), (0, -1) };
 
@@ -54,12 +60,49 @@ namespace PixelShoot.Grid
                 var pos = GetCellLocalPosition(cell.GridX, cell.GridZ);
                 var box = Instantiate(boxPrefab, gridRoot != null ? gridRoot : transform);
                 box.transform.localPosition = pos;
-                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked, unhit, cell.Tone, cell.IsBomb);
+                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked, unhit, cell.Tone, cell.IsBomb, cell.KeyId);
                 boxes[cell.GridX, cell.GridZ] = box;
                 aliveCount++;
             }
 
+            // Keys must exist BEFORE the initial frontier is computed — a key cell that
+            // starts on the silhouette collects its key right away.
+            SpawnKeyVisuals(data);
             ComputeInitialFrontier();
+        }
+
+        /// <summary>Spawns one floating key per key-group at the centroid of its cells.</summary>
+        private void SpawnKeyVisuals(GridData data)
+        {
+            if (keyVisualPrefab == null) return;
+
+            // centroid accumulation per key id
+            var sum = new Dictionary<int, Vector3>();
+            var count = new Dictionary<int, int>();
+            foreach (var cell in data.Cells)
+            {
+                if (cell.IsEmpty || cell.KeyId <= 0) continue;
+                Vector3 p = GetCellWorldPosition(cell.GridX, cell.GridZ);
+                if (sum.ContainsKey(cell.KeyId)) { sum[cell.KeyId] += p; count[cell.KeyId]++; }
+                else { sum[cell.KeyId] = p; count[cell.KeyId] = 1; }
+            }
+
+            foreach (var kv in sum)
+            {
+                Vector3 centroid = kv.Value / count[kv.Key];
+                centroid.y += keyVisualHeight;
+                var vis = Instantiate(keyVisualPrefab, centroid, Quaternion.identity, gridRoot != null ? gridRoot : transform);
+                vis.Init(kv.Key);
+                keyVisuals.Add(vis.gameObject);
+            }
+        }
+
+        /// <summary>Set a box to Frontier and, if it carries a key, bank that key.</summary>
+        private void PromoteToFrontier(Box b)
+        {
+            if (b == null) return;
+            b.SetState(BoxState.Frontier);
+            if (b.KeyId > 0) PixelShoot.Game.KeyManager.Instance?.Collect(b.KeyId);
         }
 
         // Any box adjacent to a grid edge OR to an empty cell starts on the frontier.
@@ -73,7 +116,7 @@ namespace PixelShoot.Grid
                 {
                     var b = boxes[x, z];
                     if (b == null) continue;
-                    if (IsOnSilhouette(x, z)) b.SetState(BoxState.Frontier);
+                    if (IsOnSilhouette(x, z)) PromoteToFrontier(b);
                 }
             }
         }
@@ -123,6 +166,9 @@ namespace PixelShoot.Grid
             }
             boxes = null;
             aliveCount = 0;
+            foreach (var kv in keyVisuals)
+                if (kv != null) SafeDestroy(kv);
+            keyVisuals.Clear();
         }
 
         /// <summary>Destroy that works in both play mode (Destroy) and edit mode
@@ -242,7 +288,7 @@ namespace PixelShoot.Grid
                 int nx = b.GridX + n.dx, nz = b.GridZ + n.dz;
                 if (nx < 0 || nx >= size || nz < 0 || nz >= size) continue;
                 var nb = boxes[nx, nz];
-                if (nb != null && nb.State == BoxState.Locked) nb.SetState(BoxState.Frontier);
+                if (nb != null && nb.State == BoxState.Locked) PromoteToFrontier(nb);
             }
 
             // Bomb side effect — runs AFTER the bomb cell itself is processed so the

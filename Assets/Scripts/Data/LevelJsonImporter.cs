@@ -27,6 +27,9 @@ namespace PixelShoot.Data
         {
             public int ColorIndex;
             public int Count;
+            public bool IsSurprise;   // optional JSON key "isSurprise"
+            public int LinkGroupId;   // optional JSON key "linkGroupId" (0 = unlinked)
+            public int LockKeyId;     // optional JSON key "lockKeyId" (0 = unlocked)
         }
 
         public class Result
@@ -177,6 +180,9 @@ namespace PixelShoot.Data
 
         private static readonly Regex RxColorIndex = new Regex("\"colorIndex\"\\s*:\\s*(\\d+)");
         private static readonly Regex RxCount      = new Regex("\"count\"\\s*:\\s*(\\d+)");
+        private static readonly Regex RxSurprise   = new Regex("\"isSurprise\"\\s*:\\s*(true|false)");
+        private static readonly Regex RxLinkGroup  = new Regex("\"linkGroupId\"\\s*:\\s*(-?\\d+)");
+        private static readonly Regex RxLockKey    = new Regex("\"lockKeyId\"\\s*:\\s*(-?\\d+)");
 
         private static List<ColumnShooter> ParseShootersInColumn(string colText)
         {
@@ -202,10 +208,16 @@ namespace PixelShoot.Data
                         var mc = RxCount.Match(obj);
                         if (mi.Success && mc.Success)
                         {
+                            var ms = RxSurprise.Match(obj);
+                            var ml = RxLinkGroup.Match(obj);
+                            var mk = RxLockKey.Match(obj);
                             list.Add(new ColumnShooter
                             {
-                                ColorIndex = int.Parse(mi.Groups[1].Value),
-                                Count      = int.Parse(mc.Groups[1].Value),
+                                ColorIndex   = int.Parse(mi.Groups[1].Value),
+                                Count        = int.Parse(mc.Groups[1].Value),
+                                IsSurprise   = ms.Success && ms.Groups[1].Value == "true",
+                                LinkGroupId  = ml.Success ? int.Parse(ml.Groups[1].Value) : 0,
+                                LockKeyId    = mk.Success ? int.Parse(mk.Groups[1].Value) : 0,
                             });
                         }
                         objStart = -1;

@@ -38,10 +38,13 @@ namespace PixelShoot.LevelEditor.EditorTools
         [SerializeField] private int[] cells; // -1 = empty; else palette index
         [SerializeField] private byte[] tones; // Tone enum per cell. Parallel to cells[]. 0=Normal,1=Dark,2=Light.
         [SerializeField] private bool[] bombs;  // True at cells flagged as bombs. Parallel to cells[].
+        [SerializeField] private int[] keys;    // Key group id per cell (0 = none). Parallel to cells[].
         [SerializeField] private int currentPaletteIdx = 0;
+        [SerializeField] private int currentKeyId = 1;
         [SerializeField] private bool eraseMode = false;
         [SerializeField] private bool paintMode = false;
         [SerializeField] private bool bombMode  = false;
+        [SerializeField] private bool keyMode   = false;
         [SerializeField] private bool initialPreview = false;
         // True while "Show Final state" is active. Persists across auto-refreshes so the
         // visual doesn't snap back to Locked/Frontier the moment something else triggers a Build.
@@ -120,6 +123,16 @@ namespace PixelShoot.LevelEditor.EditorTools
                     for (int i = 0; i < min; i++) bombs[i] = old[i];
                 }
             }
+            if (keys == null || keys.Length != cells.Length)
+            {
+                var old = keys;
+                keys = new int[cells.Length];
+                if (old != null)
+                {
+                    int min = Mathf.Min(old.Length, keys.Length);
+                    for (int i = 0; i < min; i++) keys[i] = old[i];
+                }
+            }
         }
 
         private Tone GetTone(int idx) => (Tone)(tones != null && idx >= 0 && idx < tones.Length ? tones[idx] : (byte)0);
@@ -130,6 +143,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             tones[idx] = (byte)t;
         }
         private bool GetBomb(int idx) => bombs != null && idx >= 0 && idx < bombs.Length && bombs[idx];
+        private int GetKey(int idx) => keys != null && idx >= 0 && idx < keys.Length ? keys[idx] : 0;
 
         // ─── OnGUI ────────────────────────────────────────────────────
         private void OnGUI()
@@ -282,6 +296,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             for (int i = 0; i < cells.Length; i++) cells[i] = -1;
             tones = new byte[CellCount]; // all Normal
             bombs = new bool[CellCount];
+            keys = new int[CellCount];
             columns?.Clear();
             palette?.Clear();
             currentPaletteIdx = 0;
@@ -453,6 +468,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 // New cells → tones must be re-randomized. Default to Normal until the user clicks Recalculate.
                 tones = new byte[cells.Length];
                 bombs = new bool[cells.Length];
+                keys = new int[cells.Length];
                 foreach (var v in decoded) if (v >= 0) filledCells++;
             }
 
@@ -469,6 +485,9 @@ namespace PixelShoot.LevelEditor.EditorTools
                         var sd = new ShooterData();
                         SetField(sd, "color", palette[sh.ColorIndex]);
                         SetField(sd, "shotCount", sh.Count);
+                        SetField(sd, "isSurprise", sh.IsSurprise);
+                        SetField(sd, "linkGroupId", sh.LinkGroupId);
+                        SetField(sd, "lockKeyId", sh.LockKeyId);
                         shooters.Add(sd);
                         shooterCount++;
                     }
@@ -510,6 +529,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                         for (int i = 0; i < cells.Length; i++) cells[i] = -1;
                         tones = new byte[CellCount];
                         bombs = new bool[CellCount];
+                        keys = new int[CellCount];
                         pendingPreviewRefresh = true;
                     }
                 }
@@ -523,34 +543,50 @@ namespace PixelShoot.LevelEditor.EditorTools
 
             using (new EditorGUILayout.HorizontalScope())
             {
-                // Paint, Erase and Bomb are mutually exclusive — toggling one off-by-default
+                // Paint, Erase, Bomb and Key are mutually exclusive — toggling one off-by-default
                 // disables clicks entirely, so accidental drags over the grid do nothing.
-                bool newPaint = GUILayout.Toggle(paintMode, "Paint", "Button", GUILayout.Width(70));
+                bool newPaint = GUILayout.Toggle(paintMode, "Paint", "Button", GUILayout.Width(64));
                 if (newPaint != paintMode)
                 {
                     paintMode = newPaint;
-                    if (paintMode) { eraseMode = false; bombMode = false; }
+                    if (paintMode) { eraseMode = false; bombMode = false; keyMode = false; }
                 }
-                bool newErase = GUILayout.Toggle(eraseMode, "Erase", "Button", GUILayout.Width(70));
+                bool newErase = GUILayout.Toggle(eraseMode, "Erase", "Button", GUILayout.Width(64));
                 if (newErase != eraseMode)
                 {
                     eraseMode = newErase;
-                    if (eraseMode) { paintMode = false; bombMode = false; }
+                    if (eraseMode) { paintMode = false; bombMode = false; keyMode = false; }
                 }
-                bool newBomb = GUILayout.Toggle(bombMode, "Bomb", "Button", GUILayout.Width(70));
+                bool newBomb = GUILayout.Toggle(bombMode, "Bomb", "Button", GUILayout.Width(64));
                 if (newBomb != bombMode)
                 {
                     bombMode = newBomb;
-                    if (bombMode) { paintMode = false; eraseMode = false; }
+                    if (bombMode) { paintMode = false; eraseMode = false; keyMode = false; }
                 }
-                bool newPrev = GUILayout.Toggle(initialPreview, "Initial preview", "Button", GUILayout.Width(140));
+                bool newKey = GUILayout.Toggle(keyMode, "Key", "Button", GUILayout.Width(50));
+                if (newKey != keyMode)
+                {
+                    keyMode = newKey;
+                    if (keyMode) { paintMode = false; eraseMode = false; bombMode = false; }
+                }
+                bool newPrev = GUILayout.Toggle(initialPreview, "Init", "Button", GUILayout.Width(50));
                 if (newPrev != initialPreview) initialPreview = newPrev;
                 string statusLabel;
                 if (eraseMode) statusLabel = "Click cells to clear them.";
                 else if (paintMode) statusLabel = $"Painting palette idx {currentPaletteIdx}.";
                 else if (bombMode) statusLabel = "Click cells to toggle bomb flag.";
+                else if (keyMode) statusLabel = $"Click filled cells to assign key id {currentKeyId} (click again to clear).";
                 else statusLabel = "No tool active — clicks do nothing.";
                 EditorGUILayout.LabelField(statusLabel);
+            }
+            if (keyMode)
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField("Key id to paint", GUILayout.Width(100));
+                    currentKeyId = Mathf.Max(1, EditorGUILayout.IntField(currentKeyId, GUILayout.Width(50)));
+                    EditorGUILayout.LabelField("(matches a bus's lockKeyId)", EditorStyles.miniLabel);
+                }
             }
 
             if (palette != null && palette.Count > 0)
@@ -603,6 +639,16 @@ namespace PixelShoot.LevelEditor.EditorTools
                         EditorGUI.DrawRect(new Rect(rect.x + pad, rect.y + pad, dotSize, dotSize),
                             new Color(0f, 0f, 0f, 0.85f));
                     }
+                    // Key marker: a yellow border so key cells stand out (key id shown on hover via the count summary).
+                    if (GetKey(flat) > 0)
+                    {
+                        Color keyCol = new Color(1f, 0.85f, 0.1f, 1f);
+                        float th = Mathf.Max(1f, cellPx * 0.18f);
+                        EditorGUI.DrawRect(new Rect(rect.x, rect.y, rect.width, th), keyCol);
+                        EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - th, rect.width, th), keyCol);
+                        EditorGUI.DrawRect(new Rect(rect.x, rect.y, th, rect.height), keyCol);
+                        EditorGUI.DrawRect(new Rect(rect.xMax - th, rect.y, th, rect.height), keyCol);
+                    }
                 }
             }
 
@@ -615,10 +661,10 @@ namespace PixelShoot.LevelEditor.EditorTools
                 EditorGUI.DrawRect(new Rect(gridRect.x, gridRect.y + v, totalSize, 1), lineCol);
             }
 
-            // Painting (LMB down/drag). Requires Paint, Erase or Bomb to be active and
+            // Painting (LMB down/drag). Requires Paint, Erase, Bomb or Key to be active and
             // not be in Initial preview mode (which is read-only).
             var e = Event.current;
-            bool toolActive = paintMode || eraseMode || bombMode;
+            bool toolActive = paintMode || eraseMode || bombMode || keyMode;
             bool isPaintEvent = e.isMouse
                                 && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag)
                                 && e.button == 0
@@ -644,17 +690,30 @@ namespace PixelShoot.LevelEditor.EditorTools
                             Repaint();
                         }
                     }
+                    else if (keyMode)
+                    {
+                        // Key tool: assign currentKeyId; clicking a cell that already has it clears it.
+                        if (cells[idx] >= 0 && e.type == EventType.MouseDown)
+                        {
+                            EnsureTonesArray();
+                            keys[idx] = keys[idx] == currentKeyId ? 0 : currentKeyId;
+                            pendingPreviewRefresh = true;
+                            e.Use();
+                            Repaint();
+                        }
+                    }
                     else
                     {
                         int newColor = eraseMode ? -1 : currentPaletteIdx;
                         if (cells[idx] != newColor)
                         {
                             cells[idx] = newColor;
-                            // Erased cells lose their bomb flag too.
+                            // Erased cells lose their bomb + key flags too.
                             if (newColor < 0)
                             {
                                 EnsureTonesArray();
                                 if (bombs != null) bombs[idx] = false;
+                                if (keys != null) keys[idx] = 0;
                             }
                             pendingPreviewRefresh = true;
                             e.Use();
@@ -747,6 +806,103 @@ namespace PixelShoot.LevelEditor.EditorTools
                 foreach (var col in columns)
                     foreach (var s in col.Shooters) { sh++; shots += s.ShotCount; }
                 EditorGUILayout.HelpBox($"Columns: {columns.Count}, shooters: {sh}, total shots: {shots}", MessageType.None);
+            }
+
+            DrawShooterDetailEditor();
+        }
+
+        [SerializeField] private bool showShooterEditor;
+
+        /// <summary>
+        /// Per-shooter editor for the imported columns: tweak count, flip the surprise
+        /// flag, and set link group ids by hand — without re-exporting JSON. Edits write
+        /// straight onto the ShooterData objects via reflection (same path as import).
+        /// </summary>
+        private void DrawShooterDetailEditor()
+        {
+            if (columns == null || columns.Count == 0) return;
+
+            showShooterEditor = EditorGUILayout.Foldout(showShooterEditor, "Per-shooter editor (surprise / link / count)", true);
+            if (!showShooterEditor) return;
+
+            EditorGUILayout.HelpBox(
+                "Column order is bottom-to-top — the LAST row in each column is the TOP (clickable) bus. " +
+                "Surprise = spawns hidden until it surfaces. Link group id > 0 ties buses together (≥2 per id); 0 = unlinked.",
+                MessageType.None);
+
+            // Link-group integrity summary.
+            var linkCounts = new Dictionary<int, int>();
+            foreach (var col in columns)
+                foreach (var s in col.Shooters)
+                    if (s.LinkGroupId > 0)
+                        linkCounts[s.LinkGroupId] = linkCounts.TryGetValue(s.LinkGroupId, out var n) ? n + 1 : 1;
+            if (linkCounts.Count > 0)
+            {
+                var bad = new List<int>();
+                foreach (var kv in linkCounts) if (kv.Value < 2) bad.Add(kv.Key);
+                if (bad.Count > 0)
+                    EditorGUILayout.HelpBox($"Link group(s) with a single member (need ≥2): {string.Join(", ", bad)}.", MessageType.Warning);
+            }
+
+            // Key/lock integrity: a locked bus needs a key painted somewhere with the same id.
+            var lockIds = new HashSet<int>();
+            foreach (var col in columns)
+                foreach (var s in col.Shooters)
+                    if (s.LockKeyId > 0) lockIds.Add(s.LockKeyId);
+            if (lockIds.Count > 0)
+            {
+                var keyIds = new HashSet<int>();
+                if (keys != null) foreach (var k in keys) if (k > 0) keyIds.Add(k);
+                var orphanLocks = new List<int>();
+                foreach (var id in lockIds) if (!keyIds.Contains(id)) orphanLocks.Add(id);
+                if (orphanLocks.Count > 0)
+                    EditorGUILayout.HelpBox(
+                        $"Locked bus(es) reference key id(s) with NO key cells painted: {string.Join(", ", orphanLocks)}. " +
+                        "Paint key cells (Key tool) with those ids or the buses can never unlock.",
+                        MessageType.Error);
+            }
+
+            for (int ci = 0; ci < columns.Count; ci++)
+            {
+                var col = columns[ci];
+                if (col == null || col.Shooters == null) continue;
+                EditorGUILayout.Space(4);
+                EditorGUILayout.LabelField($"Column {ci}  ({col.Shooters.Count} buses, bottom→top)", EditorStyles.miniBoldLabel);
+
+                for (int si = 0; si < col.Shooters.Count; si++)
+                {
+                    var sd = col.Shooters[si];
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        // Color swatch.
+                        var prev = GUI.color;
+                        GUI.color = sd.Color != null ? sd.Color.DisplayColor : Color.magenta;
+                        GUILayout.Box(GUIContent.none, GUILayout.Width(18), GUILayout.Height(18));
+                        GUI.color = prev;
+
+                        bool isTop = si == col.Shooters.Count - 1;
+                        EditorGUILayout.LabelField(isTop ? $"[{si}] TOP" : $"[{si}]", GUILayout.Width(64));
+
+                        // Count.
+                        EditorGUILayout.LabelField("shots", GUILayout.Width(36));
+                        int newCount = Mathf.Max(1, EditorGUILayout.IntField(sd.ShotCount, GUILayout.Width(48)));
+                        if (newCount != sd.ShotCount) SetField(sd, "shotCount", newCount);
+
+                        // Surprise.
+                        bool newSurprise = GUILayout.Toggle(sd.IsSurprise, "Surprise", "Button", GUILayout.Width(80));
+                        if (newSurprise != sd.IsSurprise) SetField(sd, "isSurprise", newSurprise);
+
+                        // Link group id.
+                        EditorGUILayout.LabelField("link", GUILayout.Width(30));
+                        int newLink = Mathf.Max(0, EditorGUILayout.IntField(sd.LinkGroupId, GUILayout.Width(40)));
+                        if (newLink != sd.LinkGroupId) SetField(sd, "linkGroupId", newLink);
+
+                        // Lock key id (0 = unlocked).
+                        EditorGUILayout.LabelField("lockKey", GUILayout.Width(50));
+                        int newLock = Mathf.Max(0, EditorGUILayout.IntField(sd.LockKeyId, GUILayout.Width(40)));
+                        if (newLock != sd.LockKeyId) SetField(sd, "lockKeyId", newLock);
+                    }
+                }
             }
         }
 
@@ -1117,6 +1273,8 @@ namespace PixelShoot.LevelEditor.EditorTools
             EnsureCellsArray();
             for (int i = 0; i < cells.Length; i++) cells[i] = -1;
             for (int i = 0; i < tones.Length; i++) tones[i] = 0; // reset to Normal
+            if (bombs != null) for (int i = 0; i < bombs.Length; i++) bombs[i] = false;
+            if (keys != null) for (int i = 0; i < keys.Length; i++) keys[i] = 0;
             foreach (var bc in targetAsset.Grid.Cells)
             {
                 if (bc.IsEmpty) continue;
@@ -1127,6 +1285,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 cells[flat] = idx;
                 tones[flat] = (byte)bc.Tone;
                 if (bombs != null && flat < bombs.Length) bombs[flat] = bc.IsBomb;
+                if (keys != null && flat < keys.Length) keys[flat] = bc.KeyId;
             }
             columns = new List<ColumnData>(targetAsset.Columns);
             conveyorSlotCapacity = targetAsset.ConveyorSlotCapacity;
@@ -1167,6 +1326,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                     int flat = z * gridSize + x;
                     SetField(bc, "tone", (Tone)tones[flat]);
                     SetField(bc, "isBomb", bombs != null && flat < bombs.Length && bombs[flat]);
+                    SetField(bc, "keyId", keys != null && flat < keys.Length ? keys[flat] : 0);
                     boxCells.Add(bc);
                 }
             }

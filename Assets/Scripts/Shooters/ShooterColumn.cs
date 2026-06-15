@@ -20,6 +20,46 @@ namespace PixelShoot.Shooters
 
         public IReadOnlyList<Shooter> Shooters => shooters;
 
+        /// <summary>Find the column currently holding <paramref name="s"/>, or null.</summary>
+        public static ShooterColumn ColumnOf(Shooter s)
+        {
+            if (s == null) return null;
+            foreach (var c in all)
+                if (c != null && c.shooters.Contains(s)) return c;
+            return null;
+        }
+
+        public int IndexOf(Shooter s) => shooters.IndexOf(s);
+
+        /// <summary>Remove a specific shooter from this column (restacks + refreshes the new top).</summary>
+        public bool RemoveShooter(Shooter s)
+        {
+            if (s == null || !shooters.Remove(s)) return false;
+            RestackAnimated();
+            RefreshTop();
+            return true;
+        }
+
+        /// <summary>Auto-reveal the top bus when it's a surprise — mirrors HexaSort's reveal-on-surface.</summary>
+        public void RevealTopIfSurprise()
+        {
+            var top = TopShooter;
+            if (top != null && top.IsSurprise) top.RevealSurprise();
+        }
+
+        /// <summary>
+        /// Refresh the column's top bus: reveal it if it's a surprise, and try to unlock it
+        /// if it's locked (its key may already be collected). Called whenever the top changes
+        /// and whenever a key is collected.
+        /// </summary>
+        public void RefreshTop()
+        {
+            var top = TopShooter;
+            if (top == null) return;
+            if (top.IsSurprise) top.RevealSurprise();
+            if (top.IsLocked) top.TryUnlock();
+        }
+
         [SerializeField] private float stackSpacing = 1.1f;
         [SerializeField] private float restackDuration = 0.25f;
 
@@ -53,10 +93,23 @@ namespace PixelShoot.Shooters
             if (shooter != TopShooter) return false;
             if (shooter.State != ShooterState.InColumn) return false;
 
+            // Locked: a top bus whose key isn't collected yet can't board. Try once more
+            // (key may have just been collected), else shake and reject.
+            if (shooter.IsLocked)
+            {
+                if (!shooter.TryUnlock()) { shooter.PlayLockedFeedback(); return false; }
+            }
+
+            // Linked: the GameController removes EVERY member from its column itself,
+            // so this column must not pop the tapped one here.
+            if (shooter.IsLinked)
+                return launchRequest != null && launchRequest(shooter);
+
             if (launchRequest != null && launchRequest(shooter))
             {
                 shooters.Remove(shooter);
                 RestackAnimated();
+                RefreshTop();
                 return true;
             }
             return false;
@@ -66,7 +119,7 @@ namespace PixelShoot.Shooters
         public void RemoveExpiredShooter(Shooter s)
         {
             if (s == null) return;
-            if (shooters.Remove(s)) RestackAnimated();
+            if (shooters.Remove(s)) { RestackAnimated(); RefreshTop(); }
         }
 
         /// <summary>

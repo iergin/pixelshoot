@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using PixelShoot.Conveyor;
@@ -48,12 +49,62 @@ namespace PixelShoot.Game
         {
             if (state != GameState.Playing) return false;
 
+            // Linked buses board as a whole group, removed from every column at once.
+            if (shooter != null && shooter.IsLinked)
+                return RequestLaunchGroup(shooter);
+
+            // Surprise reveal happens before boarding (defensive — usually already revealed on surface).
+            if (shooter != null && shooter.IsSurprise) shooter.RevealSurprise();
+
             if (conveyor.TryReserveSlot(out float boardingDuration, out float landingProgress))
             {
                 BoardConveyor(shooter, boardingDuration, landingProgress);
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Board an entire link group from the columns. Requires EVERY member to be in a
+        /// column with nothing but other group members stacked above it (so the whole group
+        /// can surface) and enough free conveyor slots for all of them. All-or-nothing —
+        /// returns false (no visual change) if any precondition fails, matching HexaSort.
+        /// </summary>
+        private bool RequestLaunchGroup(Shooter tapped)
+        {
+            var group = tapped.LinkGroup;
+            if (group == null || group.Count == 0) return false;
+
+            // 1) Every member must be in a column, unlocked, and boardable (no foreign bus above it).
+            foreach (var m in group)
+            {
+                if (m == null || m.State != ShooterState.InColumn) return false;
+                // A locked member blocks the whole group until its key is collected.
+                if (m.IsLocked && !m.TryUnlock()) { m.PlayLockedFeedback(); return false; }
+                var col = ShooterColumn.ColumnOf(m);
+                if (col == null) return false;
+                int idx = col.IndexOf(m);
+                if (idx < 0) return false;
+                // "Above" = higher index (top is the last element). Any non-member above → buried.
+                for (int i = idx + 1; i < col.Shooters.Count; i++)
+                    if (!group.Contains(col.Shooters[i])) return false;
+            }
+
+            // 2) Need a free conveyor slot for every member.
+            if (conveyor.FreeCount < group.Count) return false;
+
+            // 3) Reveal surprises, then detach + board each. Snapshot first — boarding
+            //    mutates columns and (on dissolve) the shared group list.
+            var members = new List<Shooter>(group);
+            foreach (var m in members)
+            {
+                if (m == null) continue;
+                if (m.IsSurprise) m.RevealSurprise();
+                ShooterColumn.ColumnOf(m)?.RemoveShooter(m);
+                if (conveyor.TryReserveSlot(out float dur, out float landing))
+                    BoardConveyor(m, dur, landing);
+            }
+            return true;
         }
 
         /// <summary>
@@ -64,6 +115,9 @@ namespace PixelShoot.Game
         {
             if (state != GameState.Playing) return;
             if (shooter == null || shooter.State != ShooterState.InReserve) return;
+
+            // A surprise that somehow reached reserve unrevealed reveals on the way out.
+            if (shooter.IsSurprise) shooter.RevealSurprise();
 
             if (!conveyor.TryReserveSlot(out float boardingDuration, out float landingProgress)) return;
 

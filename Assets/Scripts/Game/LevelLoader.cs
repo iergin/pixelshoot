@@ -84,6 +84,10 @@ namespace PixelShoot.Game
 
         public void Build()
         {
+            // Keys must be reset BEFORE grid.Build — a key cell on the initial frontier
+            // collects its key during Build. (No-op in the editor preview.)
+            EnsureKeyManager()?.ResetForLevel();
+
             grid.Build(levelData.Grid);
             conveyor.Initialize(levelData.ConveyorSlotCapacity);
             reserve.Initialize(levelData.ReserveSlotCapacity);
@@ -93,10 +97,25 @@ namespace PixelShoot.Game
             ValidateBulletBudget();
         }
 
+        private KeyManager EnsureKeyManager()
+        {
+            if (KeyManager.Instance != null) return KeyManager.Instance;
+            // Editor preview rebuilds (edit mode) don't need a runtime manager — and creating
+            // one would leak GameObjects since Awake (which sets Instance) doesn't run in edit mode.
+            if (!Application.isPlaying) return null;
+            var go = new GameObject("[KeyManager]");
+            return go.AddComponent<KeyManager>();
+        }
+
         private void SpawnColumns()
         {
             int columnCount = levelData.Columns.Count;
             float xOffset = (columnCount - 1) * 0.5f * columnSpacing;
+
+            // Buckets every spawned shooter by its link group id (>0) so we can wire
+            // the shared link lists once all of them exist.
+            var linkBuckets = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<Shooter>>();
+            var spawnedColumns = new System.Collections.Generic.List<ShooterColumn>();
 
             for (int ci = 0; ci < columnCount; ci++)
             {
@@ -104,15 +123,51 @@ namespace PixelShoot.Game
                 var column = Instantiate(columnPrefab, columnsRoot != null ? columnsRoot : transform);
                 column.transform.localPosition = new Vector3(ci * columnSpacing - xOffset, 0f, 0f);
                 column.Initialize(gameController.RequestLaunch, gameController.RequestBoardFromReserve);
+                spawnedColumns.Add(column);
 
                 for (int si = 0; si < colData.Count; si++)
                 {
                     var sData = colData.Shooters[si];
                     var shooter = Instantiate(shooterPrefab);
-                    shooter.Initialize(sData.Color, sData.ShotCount);
+                    shooter.Initialize(sData.Color, sData.ShotCount, sData.IsSurprise, sData.LinkGroupId, sData.LockKeyId);
                     shooter.SetGridAndConveyor(grid, conveyor);
                     column.AddShooter(shooter);
+
+                    if (sData.LinkGroupId > 0)
+                    {
+                        if (!linkBuckets.TryGetValue(sData.LinkGroupId, out var list))
+                        {
+                            list = new System.Collections.Generic.List<Shooter>();
+                            linkBuckets[sData.LinkGroupId] = list;
+                        }
+                        list.Add(shooter);
+                    }
                 }
+            }
+
+            BuildLinkGroups(linkBuckets);
+
+            // Refresh the initial top of every column — reveal surprises sitting on top and
+            // unlock any locked top whose key was already collected during grid build.
+            foreach (var col in spawnedColumns) col.RefreshTop();
+        }
+
+        /// <summary>
+        /// Wire each bucket of ≥2 shooters into a shared link group (first member = owner).
+        /// A bucket with a single member is a level-data mistake — left unlinked with a warning.
+        /// </summary>
+        private void BuildLinkGroups(System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<Shooter>> buckets)
+        {
+            foreach (var kv in buckets)
+            {
+                var members = kv.Value;
+                if (members.Count < 2)
+                {
+                    Debug.LogWarning($"LevelLoader: link group {kv.Key} has only {members.Count} member — needs ≥2. Left unlinked.");
+                    continue;
+                }
+                for (int i = 0; i < members.Count; i++)
+                    members[i].SetLinkGroup(members, isOwner: i == 0);
             }
         }
 
