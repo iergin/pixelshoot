@@ -153,7 +153,9 @@ namespace PixelShoot.Grid
                     baseColor = m != null ? ReadColor(m) : UnityEngine.Color.gray;
                     break;
                 case BoxState.Frontier:
-                    m = unhitMat;
+                    // Frontier (shootable, stroke shown) → box model takes the per-color
+                    // Hit material too, so it reads in its real colour like the stroke.
+                    m = color != null && color.BoxHitMaterial != null ? color.BoxHitMaterial : unhitMat;
                     baseColor = m != null ? ReadColor(m) : UnityEngine.Color.gray;
                     break;
                 case BoxState.Hit:
