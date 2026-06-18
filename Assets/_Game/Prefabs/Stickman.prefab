@@ -330,7 +330,7 @@ MonoBehaviour:
   fallingTrigger: Falling
   flightSpeed: 5
   minFlightDuration: 0.05
-  flightEase: 9
+  flightEase: 3
   apexScaleMultiplier: 1
 --- !u!1 &2866954109378261240
 GameObject:

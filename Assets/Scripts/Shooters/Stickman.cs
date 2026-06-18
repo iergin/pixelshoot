@@ -31,14 +31,34 @@ namespace PixelShoot.Shooters
         [SerializeField] private float flightSpeed = 12f;
         [Tooltip("Floor on the flight duration so an extremely close target still has a brief, visible flight. Keep small to preserve the speed-based feel.")]
         [SerializeField, Min(0f)] private float minFlightDuration = 0.05f;
-        [Tooltip("Easing curve. OutSine = fast start, only mild slowdown at the end.")]
-        [SerializeField] private Ease flightEase = Ease.OutSine;
+        [Tooltip("Relative velocity at the START of the flight (slope at t=0). 1 = constant speed. Higher = faster launch.")]
+        [SerializeField, Min(0f)] private float startSpeed = 2f;
+        [Tooltip("Relative velocity at the END of the flight (slope at t=1). 1 = constant speed. Lower = more slowdown on arrival; raise it so it doesn't crawl at the end.")]
+        [SerializeField, Min(0f)] private float endSpeed = 0.7f;
         [Tooltip("Scale multiplier at the midpoint of the flight — the stickman grows to this then shrinks back to its default scale. 1 = no scale change.")]
         [SerializeField, Min(1f)] private float apexScaleMultiplier = 1.4f;
 
         private Tween seatTween;
         private Tween flightTween;
         private Tween flightScaleTween;
+
+        // Cached easing curve built from startSpeed / endSpeed (rebuilt when they change).
+        private AnimationCurve flightCurve;
+        private float cachedStart = float.NaN, cachedEnd = float.NaN;
+
+        private AnimationCurve FlightCurve()
+        {
+            if (flightCurve == null || cachedStart != startSpeed || cachedEnd != endSpeed)
+            {
+                // Normalised ease (0,0)→(1,1); tangents are the relative start/end speeds.
+                flightCurve = new AnimationCurve(
+                    new Keyframe(0f, 0f, 0f, startSpeed),
+                    new Keyframe(1f, 1f, endSpeed, 0f));
+                cachedStart = startSpeed;
+                cachedEnd = endSpeed;
+            }
+            return flightCurve;
+        }
 
         public void SetColor(ColorData c)
         {
@@ -103,7 +123,7 @@ namespace PixelShoot.Shooters
 
             transform.LookAt(endPos);
             flightTween = transform.DOMove(endPos, duration)
-                .SetEase(flightEase)
+                .SetEase(FlightCurve())
                 .OnComplete(() =>
                 {
                     if (grid != null && target != null && target.IsAlive)
