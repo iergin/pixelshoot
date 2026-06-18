@@ -73,7 +73,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &665121492787260663
 GameObject:
@@ -148,7 +149,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &953791842723524743
 GameObject:
@@ -223,7 +225,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &986153777508890457
 GameObject:
@@ -298,7 +301,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &1327776318602842711
 GameObject:
@@ -373,7 +377,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &1540837716332010571
 GameObject:
@@ -448,7 +453,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &2169771493518643026
 GameObject:
@@ -523,7 +529,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &2925777569062640421
 GameObject:
@@ -598,7 +605,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &3239660579139591123
 GameObject:
@@ -673,7 +681,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &3351046293258196268
 GameObject:
@@ -716,7 +725,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8634088186683131081}
-  - component: {fileID: 7462392464641636957}
   m_Layer: 0
   m_Name: GridLayoutGroup
   m_TagString: Untagged
@@ -755,28 +763,6 @@ Transform:
   - {fileID: 9104620456517181220}
   m_Father: {fileID: 7100344792059929981}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7462392464641636957
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3585158079351468445}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 153d274151e534cf982b5fbbbc72ce16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Utils.TransformLayoutGroup
-  plane: 0
-  mode: 0
-  constraintCount: 2
-  fillRowByRow: 1
-  spacing: {x: 0.55, y: 0.5}
-  centered: 1
-  flipPrimary: 0
-  flipSecondary: 1
-  includeInactive: 0
-  resetRotation: 0
 --- !u!1 &3660661500137484250
 GameObject:
   m_ObjectHideFlags: 0
@@ -850,7 +836,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &4333126779220416575
 GameObject:
@@ -925,7 +912,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &4630976533007187606
 GameObject:
@@ -1000,7 +988,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &4842609585320742802
 GameObject:
@@ -1191,7 +1180,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &6456615836415151962
 GameObject:
@@ -1266,7 +1256,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &6465389235553466867
 GameObject:
@@ -1341,7 +1332,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1 &7335065206399632522
 GameObject:
@@ -1449,7 +1441,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 12
-  jumpPower: 2.5
+  minFlightDuration: 0.05
+  flightEase: 3
   apexScaleMultiplier: 1.4
 --- !u!1001 &4653370611906358973
 PrefabInstance:

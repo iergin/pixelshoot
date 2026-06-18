@@ -8,7 +8,7 @@ namespace PixelShoot.Shooters
     /// <summary>
     /// A passenger riding the bus (the projectile that replaces the old Bullet).
     /// Sits in a seat playing the idle animation; on launch it plays the falling
-    /// animation, flies in a parabolic arc to the target box, and applies the hit.
+    /// animation, flies straight to the target box, and applies the hit.
     ///
     /// <para><b>Seat shifting</b>: the bus retargets stickmen with
     /// <see cref="MoveToSeat"/>; a new call kills the previous shift tween so
@@ -27,11 +27,13 @@ namespace PixelShoot.Shooters
         [SerializeField] private string fallingTrigger = "Falling";
 
         [Header("Flight")]
-        [Tooltip("World units per second of horizontal travel toward the target box.")]
+        [Tooltip("World units per second of travel toward the target box. Duration = distance / speed, so far targets take longer than near ones.")]
         [SerializeField] private float flightSpeed = 12f;
-        [Tooltip("Apex height of the parabolic arc, in world units.")]
-        [SerializeField] private float jumpPower = 2.5f;
-        [Tooltip("Scale multiplier at the apex of the jump — the stickman grows to this while rising, then shrinks back to its default scale while falling. 1 = no scale change.")]
+        [Tooltip("Floor on the flight duration so an extremely close target still has a brief, visible flight. Keep small to preserve the speed-based feel.")]
+        [SerializeField, Min(0f)] private float minFlightDuration = 0.05f;
+        [Tooltip("Easing curve. OutSine = fast start, only mild slowdown at the end.")]
+        [SerializeField] private Ease flightEase = Ease.OutSine;
+        [Tooltip("Scale multiplier at the midpoint of the flight — the stickman grows to this then shrinks back to its default scale. 1 = no scale change.")]
         [SerializeField, Min(1f)] private float apexScaleMultiplier = 1.4f;
 
         private Tween seatTween;
@@ -80,7 +82,7 @@ namespace PixelShoot.Shooters
         }
 
         /// <summary>
-        /// Detach from the bus and fly to the target box in a parabolic arc.
+        /// Detach from the bus and fly straight to the target box (eased DOMove).
         /// Applies the hit via <see cref="GridController.NotifyBoxHit"/> on landing,
         /// then destroys itself.
         /// </summary>
@@ -97,11 +99,11 @@ namespace PixelShoot.Shooters
                 ? grid.GetCellWorldPosition(target.GridX, target.GridZ)
                 : transform.position;
             float distance = Vector3.Distance(transform.position, endPos);
-            float duration = Mathf.Max(0.15f, distance / Mathf.Max(0.01f, flightSpeed));
+            float duration = Mathf.Max(minFlightDuration, distance / Mathf.Max(0.01f, flightSpeed));
 
             transform.LookAt(endPos);
             flightTween = transform.DOMove(endPos, duration)
-                .SetEase(Ease.Linear)
+                .SetEase(flightEase)
                 .OnComplete(() =>
                 {
                     if (grid != null && target != null && target.IsAlive)
@@ -109,8 +111,8 @@ namespace PixelShoot.Shooters
                     Destroy(gameObject);
                 });
 
-            // Scale pulse matched to the arc: grow toward the apex on the way up,
-            // shrink BACK TO the default scale (never below it) on the way down.
+            // Scale pulse over the flight: grow to the midpoint, shrink BACK TO the
+            // default scale (never below it) by the time it lands.
             if (apexScaleMultiplier > 1f)
             {
                 flightScaleTween?.Kill();

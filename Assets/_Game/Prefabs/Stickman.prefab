@@ -329,7 +329,8 @@ MonoBehaviour:
   idleState: Idle
   fallingTrigger: Falling
   flightSpeed: 5
-  jumpPower: 2
+  minFlightDuration: 0.05
+  flightEase: 9
   apexScaleMultiplier: 1
 --- !u!1 &2866954109378261240
 GameObject:
