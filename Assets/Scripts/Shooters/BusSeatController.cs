@@ -116,6 +116,7 @@ namespace PixelShoot.Shooters
         private Stickman Spawn()
         {
             var s = Instantiate(stickmanPrefab, transform);
+            s.transform.localScale = Vector3.one * 1.27f;
             s.SetColor(color);
             s.PlayIdle();
             return s;

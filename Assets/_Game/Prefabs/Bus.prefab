@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5188379636420145230}
   - component: {fileID: 543823670615707780}
   m_Layer: 0
-  m_Name: Stickman (3)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 3616045960842439746}
   - component: {fileID: 6029595747921603517}
   m_Layer: 0
-  m_Name: Stickman (14)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -162,7 +162,7 @@ GameObject:
   - component: {fileID: 2211075544242761060}
   - component: {fileID: 7496260887310353453}
   m_Layer: 0
-  m_Name: Stickman (2)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -237,7 +237,7 @@ GameObject:
   - component: {fileID: 7740273457670939384}
   - component: {fileID: 8996882853521912912}
   m_Layer: 0
-  m_Name: Stickman (4)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -312,7 +312,7 @@ GameObject:
   - component: {fileID: 5472566226790051156}
   - component: {fileID: 3637219158807586280}
   m_Layer: 0
-  m_Name: Stickman
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -387,7 +387,7 @@ GameObject:
   - component: {fileID: 445829758840962887}
   - component: {fileID: 1785314891115794937}
   m_Layer: 0
-  m_Name: Stickman (5)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -462,7 +462,7 @@ GameObject:
   - component: {fileID: 3663390524605229906}
   - component: {fileID: 2916910722711235449}
   m_Layer: 0
-  m_Name: Stickman (13)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -537,7 +537,7 @@ GameObject:
   - component: {fileID: 2249456246777662905}
   - component: {fileID: 2502495146661983069}
   m_Layer: 0
-  m_Name: Stickman (12)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -612,7 +612,7 @@ GameObject:
   - component: {fileID: 8542810458701404376}
   - component: {fileID: 3169843109818512855}
   m_Layer: 0
-  m_Name: Stickman (1)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -699,13 +699,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3351046293258196268}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5124725392851519830}
-  m_Father: {fileID: 8766742154365271281}
+  m_Father: {fileID: 7100344792059929981}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3585158079351468445
 GameObject:
@@ -732,7 +732,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3585158079351468445}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -0.99, z: -0.16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -753,7 +753,7 @@ Transform:
   - {fileID: 2093951870479210758}
   - {fileID: 4151248850908690044}
   - {fileID: 9104620456517181220}
-  m_Father: {fileID: 8766742154365271281}
+  m_Father: {fileID: 7100344792059929981}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7462392464641636957
 MonoBehaviour:
@@ -762,7 +762,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3585158079351468445}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 153d274151e534cf982b5fbbbc72ce16, type: 3}
   m_Name: 
@@ -789,7 +789,7 @@ GameObject:
   - component: {fileID: 5017625810825878790}
   - component: {fileID: 580884363083585114}
   m_Layer: 0
-  m_Name: Stickman (15)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -864,7 +864,7 @@ GameObject:
   - component: {fileID: 8097334378212673315}
   - component: {fileID: 5616713407932608641}
   m_Layer: 0
-  m_Name: Stickman (9)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -939,7 +939,7 @@ GameObject:
   - component: {fileID: 9067594795238483150}
   - component: {fileID: 1537497961989092684}
   m_Layer: 0
-  m_Name: Stickman (6)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -1034,8 +1034,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8634088186683131081}
-  - {fileID: 2910163904152063392}
+  - {fileID: 7100344792059929981}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &6984037869676799080
@@ -1078,7 +1077,7 @@ MonoBehaviour:
   facingLookAhead: 0.15
   conveyorScale: 0.75
   launchInterval: 0.12
-  wobbleTarget: {fileID: 0}
+  wobbleTarget: {fileID: 7100344792059929981}
   wobbleAmount: 0.04
   wobbleDuration: 0.18
   busVisualRoot: {fileID: 0}
@@ -1131,7 +1130,7 @@ GameObject:
   - component: {fileID: 9156166514085123985}
   - component: {fileID: 4777158823610072370}
   m_Layer: 0
-  m_Name: Stickman (7)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -1206,7 +1205,7 @@ GameObject:
   - component: {fileID: 2181071913150542036}
   - component: {fileID: 7259524360924274303}
   m_Layer: 0
-  m_Name: Stickman (11)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -1281,7 +1280,7 @@ GameObject:
   - component: {fileID: 4442554118789720776}
   - component: {fileID: 1428965405950177255}
   m_Layer: 0
-  m_Name: Stickman (8)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -1344,6 +1343,39 @@ MonoBehaviour:
   flightSpeed: 12
   jumpPower: 2.5
   apexScaleMultiplier: 1.4
+--- !u!1 &7335065206399632522
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7100344792059929981}
+  m_Layer: 0
+  m_Name: Root
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7100344792059929981
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7335065206399632522}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8634088186683131081}
+  - {fileID: 2910163904152063392}
+  m_Father: {fileID: 8766742154365271281}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8086599691936095080
 GameObject:
   m_ObjectHideFlags: 0
@@ -1356,7 +1388,7 @@ GameObject:
   - component: {fileID: 6345656333152626081}
   - component: {fileID: 1970266728268442527}
   m_Layer: 0
-  m_Name: Stickman (10)
+  m_Name: TargetPos
   m_TagString: Untagged
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
