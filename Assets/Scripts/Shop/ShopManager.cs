@@ -25,6 +25,8 @@ namespace PixelShoot.Shop
         [Header("UI")]
         [Tooltip("Root panel containing the shop UI. Activated by OpenShop(), deactivated by CloseShop().")]
         [SerializeField] private GameObject shopPanel;
+        [Tooltip("If set, open/close routes through the global UiPanelManager so the shop never overlaps another panel.")]
+        [SerializeField] private PixelShoot.UI.UiPanel uiPanel;
         [Tooltip("Button that opens the shop. Wired automatically in Awake.")]
         [SerializeField] private Button openShopButton;
         [Tooltip("Optional close (X) button inside the panel. Wired automatically in Awake if set.")]
@@ -175,10 +177,19 @@ namespace PixelShoot.Shop
             }
         }
 
+        /// <summary>Resolve the UiPanel: explicit field, else a component on the shop panel.</summary>
+        private PixelShoot.UI.UiPanel ResolvePanel()
+        {
+            if (uiPanel != null) return uiPanel;
+            if (shopPanel != null) uiPanel = shopPanel.GetComponent<PixelShoot.UI.UiPanel>();
+            return uiPanel;
+        }
+
         public void OpenShop()
         {
-            Debug.Log($"[ShopManager] OpenShop() called. shopPanel={NameOf(shopPanel)}, " +
-                      $"currentActive={(shopPanel != null ? shopPanel.activeSelf.ToString() : "n/a")}.");
+            var p = ResolvePanel();
+            Debug.Log($"[ShopManager] OpenShop() called. uiPanel={(p != null ? "set" : "<null>")}, shopPanel={NameOf(shopPanel)}.");
+            if (p != null) { p.RequestOpen(replaceCurrent: true); return; }
             if (shopPanel == null)
             {
                 Debug.LogWarning("[ShopManager] OpenShop: shopPanel reference is missing — nothing to show.");
@@ -189,7 +200,8 @@ namespace PixelShoot.Shop
 
         public void CloseShop()
         {
-            Debug.Log($"[ShopManager] CloseShop() called. shopPanel={NameOf(shopPanel)}.");
+            var p = ResolvePanel();
+            if (p != null) { p.RequestClose(); return; }
             if (shopPanel != null) shopPanel.SetActive(false);
         }
 

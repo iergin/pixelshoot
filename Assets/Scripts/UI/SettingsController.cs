@@ -50,13 +50,29 @@ namespace PixelShoot.UI
             RefreshSoundLabel();
         }
 
+        [Tooltip("If set, open/close routes through the global UiPanelManager so it never overlaps another panel. Falls back to plain SetActive otherwise.")]
+        [SerializeField] private UiPanel uiPanel;
+
+        private UiPanel ResolvePanel()
+        {
+            if (uiPanel != null) return uiPanel;
+            if (panel != null) uiPanel = panel.GetComponent<UiPanel>();
+            return uiPanel;
+        }
+
         public void OpenPanel()
         {
+            var p = ResolvePanel();
+            Debug.Log($"[Settings] OpenPanel() called. uiPanel={(p != null ? "set" : "<null>")}, panel={(panel != null ? panel.name : "<null>")}.");
+            if (p != null) { p.RequestOpen(replaceCurrent: true); return; }
             if (panel != null) panel.SetActive(true);
+            else Debug.LogWarning("[Settings] OpenPanel: both uiPanel and panel are null — nothing to open.");
         }
 
         public void ClosePanel()
         {
+            var p = ResolvePanel();
+            if (p != null) { p.RequestClose(); return; }
             if (panel != null) panel.SetActive(false);
         }
 

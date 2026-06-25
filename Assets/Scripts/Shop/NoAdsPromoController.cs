@@ -38,6 +38,10 @@ namespace PixelShoot.Shop
         [SerializeField] private GameObject promoPanel;
         [Tooltip("Starter Pack promo — shown at Trigger 2 IF NoAds has been bought.")]
         [SerializeField] private GameObject starterPromoPanel;
+        [Header("Panel routing (optional)")]
+        [Tooltip("If set, promos open through the global UiPanelManager in QUEUE mode — they wait for any open panel to close instead of overlapping it.")]
+        [SerializeField] private PixelShoot.UI.UiPanel noAdsUiPanel;
+        [SerializeField] private PixelShoot.UI.UiPanel starterUiPanel;
 
         [Header("Sources")]
         [Tooltip("InterstitialController whose OnInterstitialClosed event we subscribe to for the first-ad trigger.")]
@@ -116,20 +120,26 @@ namespace PixelShoot.Shop
         }
 
         // ─── Show / close helpers ───────────────────────────────────────────
+        // Promos open in QUEUE mode (replaceCurrent: false): if a panel is already up,
+        // they wait for it to close instead of popping over it.
         public void ShowNoAdsPanel()
         {
+            if (noAdsUiPanel != null) { noAdsUiPanel.RequestOpen(replaceCurrent: false); return; }
             if (promoPanel == null) { Debug.LogWarning("[NoAdsPromo] No NoAds panel assigned."); return; }
             promoPanel.SetActive(true);
         }
 
         public void ShowStarterPanel()
         {
+            if (starterUiPanel != null) { starterUiPanel.RequestOpen(replaceCurrent: false); return; }
             if (starterPromoPanel == null) { Debug.LogWarning("[NoAdsPromo] No Starter panel assigned."); return; }
             starterPromoPanel.SetActive(true);
         }
 
         public void ClosePanels()
         {
+            if (noAdsUiPanel   != null) noAdsUiPanel.RequestClose();
+            if (starterUiPanel != null) starterUiPanel.RequestClose();
             if (promoPanel        != null) promoPanel.SetActive(false);
             if (starterPromoPanel != null) starterPromoPanel.SetActive(false);
         }
