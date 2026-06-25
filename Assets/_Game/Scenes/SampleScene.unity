@@ -5046,18 +5046,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1366056750}
     m_Modifications:
-    - target: {fileID: 981674503963611319, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: useFade
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2434500041149180566, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: useFade
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3513859263744050792, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: useFade
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4248817929678912514, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -5141,62 +5129,6 @@ PrefabInstance:
     - target: {fileID: 4248817929678912515, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
       propertyPath: m_Name
       value: MainMenu
-      objectReference: {fileID: 0}
-    - target: {fileID: 4248817929678912515, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4248817930014352983, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4248817930014352983, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4248817930014352983, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4248817930014352983, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4668026683197671141, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4668026683197671141, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4668026683197671141, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4668026683197671141, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6482033353964568482, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: useFade
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8930911655889375893, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8930911655889375893, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8930911655889375893, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8930911655889375893, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8154,17 +8086,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Conveyor.ConveyorPathNode
   isCanShoot: 0
   targetSide: 2
---- !u!114 &1562541765 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 368629593249835009, guid: 77c98af6695b58145a67b7bd6b696fdc, type: 3}
-  m_PrefabInstance: {fileID: 1022030407}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc54b2ed2df1c4179bf29645311b5921, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.UiTransition
 --- !u!1 &1567138197
 GameObject:
   m_ObjectHideFlags: 0
@@ -10261,7 +10182,7 @@ MonoBehaviour:
   - {fileID: 1856731838}
   - {fileID: 689248061}
   - {fileID: 1426137987}
-  - {fileID: 1562541765}
+  - {fileID: 0}
   - {fileID: 1022030415}
   startButton: {fileID: 1022030411}
   shopButton: {fileID: 2090581811}
@@ -11667,6 +11588,7 @@ MonoBehaviour:
   starterPromoPanel: {fileID: 1770811838}
   noAdsUiPanel: {fileID: 1783026277}
   starterUiPanel: {fileID: 1770811842}
+  maxNoAdsShows: 3
   interstitial: {fileID: 386235632}
   gameController: {fileID: 448307441}
 --- !u!1 &2133745242
