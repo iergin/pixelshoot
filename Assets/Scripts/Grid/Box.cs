@@ -131,7 +131,6 @@ namespace PixelShoot.Grid
             state = newState;
             if (newState == BoxState.Hit) reservedForHit = false;
             ApplyMaterialForState();
-            ApplyHeightForState();
             // Dot is the color hint for locked boxes only — hide once the box can be shot or has been shot.
             if (colorDot != null && colorDot.gameObject.activeSelf != (newState == BoxState.Locked))
                 colorDot.gameObject.SetActive(newState == BoxState.Locked);
@@ -144,15 +143,23 @@ namespace PixelShoot.Grid
                 bool shouldShow = isBomb && newState != BoxState.Hit;
                 if (bombVisual.activeSelf != shouldShow) bombVisual.SetActive(shouldShow);
             }
-            // Impact feedback: a quick punch-scale when the box is actually hit.
-            if (newState == BoxState.Hit) PlayHitPunch();
+
+            // On hit, punch FIRST, then change the height once the punch finishes. Other
+            // transitions (and the spawn snap) change height immediately.
+            if (newState == BoxState.Hit && TryPlayHitPunch(ApplyHeightForState))
+                return;
+            ApplyHeightForState();
         }
 
-        /// <summary>Quick punch-scale on the punch target — the box's "got hit" feedback.</summary>
-        private void PlayHitPunch()
+        /// <summary>
+        /// Quick punch-scale on the punch target — the box's "got hit" feedback.
+        /// Returns true if a punch was started (and <paramref name="onComplete"/> will run
+        /// when it finishes); false if punching is disabled / not in play mode.
+        /// </summary>
+        private bool TryPlayHitPunch(System.Action onComplete)
         {
-            if (!Application.isPlaying) return;
-            if (hitPunchScale <= 0f || hitPunchDuration <= 0f) return;
+            if (!Application.isPlaying) return false;
+            if (hitPunchScale <= 0f || hitPunchDuration <= 0f) return false;
 
             var t = punchTarget != null ? punchTarget : transform;
             if (!punchBaseCaptured) { punchBaseScale = t.localScale; punchBaseCaptured = true; }
@@ -160,7 +167,9 @@ namespace PixelShoot.Grid
             punchTween?.Kill();
             t.localScale = punchBaseScale; // start clean so repeated hits don't stack
             punchTween = t.DOPunchScale(Vector3.one * hitPunchScale, hitPunchDuration, hitPunchVibrato, hitPunchElasticity)
-                          .SetUpdate(false);
+                          .SetUpdate(false)
+                          .OnComplete(() => onComplete?.Invoke());
+            return true;
         }
 
         public void ReserveHit() => reservedForHit = true;
