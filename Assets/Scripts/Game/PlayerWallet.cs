@@ -163,6 +163,37 @@ namespace PixelShoot.Game
             }
         }
 
+        // ── Music / Effects toggles (independent, both default ON) ────────────
+        private const string MusicKey = "PixelShoot.MusicEnabled";
+        private const string SfxKey   = "PixelShoot.SfxEnabled";
+
+        /// <summary>Fired after the music flag changes. Payload = new enabled state.</summary>
+        public static event Action<bool> OnMusicEnabledChanged;
+        /// <summary>Fired after the effects flag changes. Payload = new enabled state.</summary>
+        public static event Action<bool> OnSfxEnabledChanged;
+
+        public static bool MusicEnabled
+        {
+            get => PlayerPrefs.GetInt(MusicKey, 1) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(MusicKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                OnMusicEnabledChanged?.Invoke(value);
+            }
+        }
+
+        public static bool SfxEnabled
+        {
+            get => PlayerPrefs.GetInt(SfxKey, 1) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(SfxKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                OnSfxEnabledChanged?.Invoke(value);
+            }
+        }
+
         private static void SetBalance(int value)
         {
             PlayerPrefs.SetInt(BalanceKey, value);
