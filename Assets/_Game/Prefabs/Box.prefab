@@ -91,6 +91,11 @@ MonoBehaviour:
   heightTweenDuration: 0.2
   scaleFromBottom: 1
   meshUnitHeight: 1
+  punchTarget: {fileID: 1328583009216109609}
+  hitPunchScale: 0.2
+  hitPunchDuration: 0.2
+  hitPunchVibrato: 6
+  hitPunchElasticity: 0.5
 --- !u!1 &681223077695429011
 GameObject:
   m_ObjectHideFlags: 0

@@ -47,9 +47,24 @@ namespace PixelShoot.Grid
         [Tooltip("Local height of the height-root mesh at scale.y = 1 (standard Unity cube = 1). Used to compute the bottom anchor.")]
         [SerializeField] private float meshUnitHeight = 1f;
 
+        [Header("Hit punch")]
+        [Tooltip("Transform that plays a quick punch-scale when the box is hit. If null, falls back to this transform. Keep it OFF the height root so it doesn't fight the height tween.")]
+        [SerializeField] private Transform punchTarget;
+        [Tooltip("Punch strength added to scale on hit (0 = disabled).")]
+        [SerializeField, Min(0f)] private float hitPunchScale = 0.2f;
+        [Tooltip("Duration of the hit punch-scale.")]
+        [SerializeField, Min(0f)] private float hitPunchDuration = 0.2f;
+        [Tooltip("How many times the punch oscillates before settling.")]
+        [SerializeField, Min(0)] private int hitPunchVibrato = 6;
+        [Tooltip("0 = stiff/no overshoot, 1 = springy overshoot.")]
+        [SerializeField, Range(0f, 1f)] private float hitPunchElasticity = 0.5f;
+
         private Tween heightTween;
         private Tween anchorTween;
         private Tween positionTween;
+        private Tween punchTween;
+        private Vector3 punchBaseScale;
+        private bool punchBaseCaptured;
         private bool hasInitialHeight;
         private Vector3 heightRootBasePos;
         private float heightRootBaseScaleY = 1f;
@@ -129,6 +144,23 @@ namespace PixelShoot.Grid
                 bool shouldShow = isBomb && newState != BoxState.Hit;
                 if (bombVisual.activeSelf != shouldShow) bombVisual.SetActive(shouldShow);
             }
+            // Impact feedback: a quick punch-scale when the box is actually hit.
+            if (newState == BoxState.Hit) PlayHitPunch();
+        }
+
+        /// <summary>Quick punch-scale on the punch target — the box's "got hit" feedback.</summary>
+        private void PlayHitPunch()
+        {
+            if (!Application.isPlaying) return;
+            if (hitPunchScale <= 0f || hitPunchDuration <= 0f) return;
+
+            var t = punchTarget != null ? punchTarget : transform;
+            if (!punchBaseCaptured) { punchBaseScale = t.localScale; punchBaseCaptured = true; }
+
+            punchTween?.Kill();
+            t.localScale = punchBaseScale; // start clean so repeated hits don't stack
+            punchTween = t.DOPunchScale(Vector3.one * hitPunchScale, hitPunchDuration, hitPunchVibrato, hitPunchElasticity)
+                          .SetUpdate(false);
         }
 
         public void ReserveHit() => reservedForHit = true;
@@ -268,6 +300,7 @@ namespace PixelShoot.Grid
             heightTween?.Kill();
             anchorTween?.Kill();
             positionTween?.Kill();
+            punchTween?.Kill();
         }
 
         private static Color ReadColor(Material m)
