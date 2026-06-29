@@ -144,6 +144,11 @@ namespace PixelShoot.Grid
                 if (bombVisual.activeSelf != shouldShow) bombVisual.SetActive(shouldShow);
             }
 
+            // Sound + punch ONLY on the Hit transition (box cleared) — not on the
+            // Locked / Frontier transitions or the spawn snap.
+            if (newState == BoxState.Hit)
+                PixelShoot.Audio.AudioManager.Instance?.PlayBoxHit();
+
             // On hit, punch FIRST, then change the height once the punch finishes. Other
             // transitions (and the spawn snap) change height immediately.
             if (newState == BoxState.Hit && TryPlayHitPunch(ApplyHeightForState))

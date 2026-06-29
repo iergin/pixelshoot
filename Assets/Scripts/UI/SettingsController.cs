@@ -6,8 +6,8 @@ using PixelShoot.Game;
 namespace PixelShoot.UI
 {
     /// <summary>
-    /// Drop-in settings panel: sound on/off toggle and a privacy-policy button.
-    /// GDPR / Apple App Store: shipping with a reachable privacy policy is
+    /// Drop-in settings panel: independent Music / Effects toggles and a privacy-policy
+    /// button. GDPR / Apple App Store: shipping with a reachable privacy policy is
     /// a hard requirement for the EU and most stores — wire that URL in
     /// the inspector before launch.
     /// </summary>
@@ -17,11 +17,6 @@ namespace PixelShoot.UI
         [SerializeField] private GameObject panel;
         [SerializeField] private Button openButton;
         [SerializeField] private Button closeButton;
-
-        [Header("Sound (master)")]
-        [SerializeField] private Toggle soundToggle;
-        [Tooltip("Optional. Label that reads 'Sound: ON' / 'Sound: OFF' on top of the toggle.")]
-        [SerializeField] private TMP_Text soundLabel;
 
         [Header("Music")]
         [SerializeField] private Toggle musicToggle;
@@ -49,12 +44,6 @@ namespace PixelShoot.UI
                 privacyPolicyButton.onClick.RemoveAllListeners();
                 privacyPolicyButton.onClick.AddListener(OpenPrivacyPolicy);
             }
-            if (soundToggle != null)
-            {
-                soundToggle.isOn = !PlayerWallet.SoundMuted; // ON = sound playing
-                soundToggle.onValueChanged.RemoveAllListeners();
-                soundToggle.onValueChanged.AddListener(OnSoundToggle);
-            }
             if (musicToggle != null)
             {
                 musicToggle.isOn = PlayerWallet.MusicEnabled;
@@ -67,9 +56,6 @@ namespace PixelShoot.UI
                 sfxToggle.onValueChanged.RemoveAllListeners();
                 sfxToggle.onValueChanged.AddListener(OnSfxToggle);
             }
-            // Push the persisted mute state into the AudioListener.
-            AudioListener.volume = PlayerWallet.SoundMuted ? 0f : 1f;
-            RefreshSoundLabel();
             RefreshMusicLabel();
             RefreshSfxLabel();
         }
@@ -100,12 +86,6 @@ namespace PixelShoot.UI
             if (panel != null) panel.SetActive(false);
         }
 
-        private void OnSoundToggle(bool soundOn)
-        {
-            PlayerWallet.SoundMuted = !soundOn;
-            RefreshSoundLabel();
-        }
-
         private void OnMusicToggle(bool musicOn)
         {
             PlayerWallet.MusicEnabled = musicOn; // AudioManager reacts via the change event
@@ -116,12 +96,6 @@ namespace PixelShoot.UI
         {
             PlayerWallet.SfxEnabled = sfxOn;
             RefreshSfxLabel();
-        }
-
-        private void RefreshSoundLabel()
-        {
-            if (soundLabel == null) return;
-            soundLabel.text = PlayerWallet.SoundMuted ? "Sound: OFF" : "Sound: ON";
         }
 
         private void RefreshMusicLabel()

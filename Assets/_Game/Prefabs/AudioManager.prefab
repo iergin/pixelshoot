@@ -190,8 +190,10 @@ MonoBehaviour:
   musicSource: {fileID: 7085554152433615255}
   defaultMusic: {fileID: 0}
   clips: []
-  shooterClickClip: {fileID: 0}
+  shooterClickClip: {fileID: 8300000, guid: 5f01bf7fdeae74d5a9e53c216f26f14f, type: 3}
   shooterClickVolume: 1
+  boxHitClip: {fileID: 8300000, guid: d58f8153623544044ac2822c7ad7efa6, type: 3}
+  boxHitVolume: 1
 --- !u!1 &5505097005529517983
 GameObject:
   m_ObjectHideFlags: 0

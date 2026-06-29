@@ -36,6 +36,9 @@ namespace PixelShoot.Audio
         [Tooltip("Played by PlayShooterClick() when a column shooter is tapped.")]
         [SerializeField] private AudioClip shooterClickClip;
         [SerializeField, Range(0f, 1f)] private float shooterClickVolume = 1f;
+        [Tooltip("Played by PlayBoxHit() when a box is cleared (transitions to the Hit state).")]
+        [SerializeField] private AudioClip boxHitClip;
+        [SerializeField, Range(0f, 1f)] private float boxHitVolume = 1f;
 
         [System.Serializable]
         public class NamedClip
@@ -93,6 +96,8 @@ namespace PixelShoot.Audio
         }
 
         public void PlayShooterClick() => PlaySfx(shooterClickClip, shooterClickVolume);
+
+        public void PlayBoxHit() => PlaySfx(boxHitClip, boxHitVolume);
 
         private AudioSource GetFreeSfxSource()
         {
