@@ -18,10 +18,20 @@ namespace PixelShoot.UI
         [SerializeField] private Button openButton;
         [SerializeField] private Button closeButton;
 
-        [Header("Sound")]
+        [Header("Sound (master)")]
         [SerializeField] private Toggle soundToggle;
         [Tooltip("Optional. Label that reads 'Sound: ON' / 'Sound: OFF' on top of the toggle.")]
         [SerializeField] private TMP_Text soundLabel;
+
+        [Header("Music")]
+        [SerializeField] private Toggle musicToggle;
+        [Tooltip("Optional. Label that reads 'Music: ON' / 'Music: OFF'.")]
+        [SerializeField] private TMP_Text musicLabel;
+
+        [Header("Effects (SFX)")]
+        [SerializeField] private Toggle sfxToggle;
+        [Tooltip("Optional. Label that reads 'Effects: ON' / 'Effects: OFF'.")]
+        [SerializeField] private TMP_Text sfxLabel;
 
         [Header("Privacy policy")]
         [SerializeField] private Button privacyPolicyButton;
@@ -45,9 +55,23 @@ namespace PixelShoot.UI
                 soundToggle.onValueChanged.RemoveAllListeners();
                 soundToggle.onValueChanged.AddListener(OnSoundToggle);
             }
+            if (musicToggle != null)
+            {
+                musicToggle.isOn = PlayerWallet.MusicEnabled;
+                musicToggle.onValueChanged.RemoveAllListeners();
+                musicToggle.onValueChanged.AddListener(OnMusicToggle);
+            }
+            if (sfxToggle != null)
+            {
+                sfxToggle.isOn = PlayerWallet.SfxEnabled;
+                sfxToggle.onValueChanged.RemoveAllListeners();
+                sfxToggle.onValueChanged.AddListener(OnSfxToggle);
+            }
             // Push the persisted mute state into the AudioListener.
             AudioListener.volume = PlayerWallet.SoundMuted ? 0f : 1f;
             RefreshSoundLabel();
+            RefreshMusicLabel();
+            RefreshSfxLabel();
         }
 
         [Tooltip("If set, open/close routes through the global UiPanelManager so it never overlaps another panel. Falls back to plain SetActive otherwise.")]
@@ -82,10 +106,34 @@ namespace PixelShoot.UI
             RefreshSoundLabel();
         }
 
+        private void OnMusicToggle(bool musicOn)
+        {
+            PlayerWallet.MusicEnabled = musicOn; // AudioManager reacts via the change event
+            RefreshMusicLabel();
+        }
+
+        private void OnSfxToggle(bool sfxOn)
+        {
+            PlayerWallet.SfxEnabled = sfxOn;
+            RefreshSfxLabel();
+        }
+
         private void RefreshSoundLabel()
         {
             if (soundLabel == null) return;
             soundLabel.text = PlayerWallet.SoundMuted ? "Sound: OFF" : "Sound: ON";
+        }
+
+        private void RefreshMusicLabel()
+        {
+            if (musicLabel == null) return;
+            musicLabel.text = PlayerWallet.MusicEnabled ? "Music: ON" : "Music: OFF";
+        }
+
+        private void RefreshSfxLabel()
+        {
+            if (sfxLabel == null) return;
+            sfxLabel.text = PlayerWallet.SfxEnabled ? "Effects: ON" : "Effects: OFF";
         }
 
         public void OpenPrivacyPolicy()
