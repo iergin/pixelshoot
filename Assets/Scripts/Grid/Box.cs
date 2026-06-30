@@ -61,12 +61,21 @@ namespace PixelShoot.Grid
         [Tooltip("0 = stiff/no overshoot, 1 = springy overshoot.")]
         [SerializeField, Range(0f, 1f)] private float hitPunchElasticity = 0.5f;
 
+        [Header("Hit mesh shrink")]
+        [Tooltip("Horizontal (X/Z) scale multiplier applied to the box model once it is Hit — shrink it a touch so the outline reads cleanly around it. 1 = no change. Y (height) is left to the height system.")]
+        [SerializeField, Min(0.01f)] private float hitMeshScaleMultiplier = 1f;
+        [Tooltip("Seconds to tween the mesh shrink between states. 0 = snap.")]
+        [SerializeField, Min(0f)] private float hitMeshScaleDuration = 0.2f;
+
         private Tween heightTween;
         private Tween anchorTween;
         private Tween positionTween;
         private Tween punchTween;
+        private Tween meshScaleTween;
         private Vector3 punchBaseScale;
         private bool punchBaseCaptured;
+        private Vector3 meshBaseScale = Vector3.one;
+        private bool meshBaseCaptured;
         private bool hasInitialHeight;
         private Vector3 heightRootBasePos;
         private float heightRootBaseScaleY = 1f;
@@ -156,11 +165,53 @@ namespace PixelShoot.Grid
             if (newState == BoxState.Hit)
                 PixelShoot.Audio.AudioManager.Instance?.PlayBoxHit();
 
-            // On hit, punch FIRST, then change the height once the punch finishes. Other
-            // transitions (and the spawn snap) change height immediately.
-            if (newState == BoxState.Hit && TryPlayHitPunch(ApplyHeightForState))
+            // On hit, punch FIRST, then change the height + mesh scale once the punch
+            // finishes. Other transitions (and the spawn snap) change them immediately.
+            if (newState == BoxState.Hit && TryPlayHitPunch(ApplyStateTransforms))
                 return;
+            ApplyStateTransforms();
+        }
+
+        private void ApplyStateTransforms()
+        {
             ApplyHeightForState();
+            ApplyMeshScaleForState();
+        }
+
+        /// <summary>
+        /// Shrink the box model horizontally (X/Z) by <see cref="hitMeshScaleMultiplier"/>
+        /// while Hit so the outline has room; restore full size in every other state.
+        /// Y is left untouched (the height system owns it).
+        /// </summary>
+        private void ApplyMeshScaleForState()
+        {
+            if (boxMesh == null) boxMesh = GetComponent<MeshRenderer>();
+            if (boxMesh == null) return;
+            var t = boxMesh.transform;
+
+            bool first = !meshBaseCaptured;
+            if (!meshBaseCaptured) { meshBaseScale = t.localScale; meshBaseCaptured = true; }
+
+            float m = state == BoxState.Hit ? hitMeshScaleMultiplier : 1f;
+
+            meshScaleTween?.Kill(); meshScaleTween = null;
+            bool instant = first || hitMeshScaleDuration <= 0f || !Application.isPlaying;
+            if (instant) { SetMeshXZ(m); return; }
+
+            // Tween ONLY a scalar multiplier and apply it to X/Z each frame — never touch Y.
+            // boxMesh and heightRoot can be the same transform, so the height system owns Y;
+            // a full DOScale here would fight it and pin the box at the wrong height.
+            float startM = Mathf.Abs(meshBaseScale.x) > 1e-5f ? t.localScale.x / meshBaseScale.x : 1f;
+            meshScaleTween = DOTween.To(() => startM, SetMeshXZ, m, hitMeshScaleDuration).SetEase(Ease.OutBack);
+        }
+
+        /// <summary>Apply the horizontal multiplier to X/Z, leaving Y (height) as-is.</summary>
+        private void SetMeshXZ(float m)
+        {
+            if (boxMesh == null) return;
+            var t = boxMesh.transform;
+            var s = t.localScale;
+            t.localScale = new Vector3(meshBaseScale.x * m, s.y, meshBaseScale.z * m);
         }
 
         /// <summary>
@@ -322,6 +373,7 @@ namespace PixelShoot.Grid
             anchorTween?.Kill();
             positionTween?.Kill();
             punchTween?.Kill();
+            meshScaleTween?.Kill();
         }
 
         private static Color ReadColor(Material m)

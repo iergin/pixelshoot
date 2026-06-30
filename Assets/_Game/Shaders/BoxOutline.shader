@@ -5,11 +5,9 @@
 // the corners, whereas pushing each vertex out from the centre keeps shared corner
 // positions together, so the outline stays gap-free.
 //
-// Overlap control: the pass tests Stencil != 1. BoxStencilMask stamps 1 over every
-// box footprint at an earlier render queue, so any outline pixel lying on top of a
-// neighbouring box body is discarded. Result: two adjacent hit boxes do NOT draw a
-// doubled line along their shared edge — only the OUTER border of the hit region is
-// outlined.
+// Every hit box draws its FULL perimeter ring — all four sides, internal grid seams
+// included (no neighbour clipping). `Offset -1,-1` pulls the ring slightly toward the
+// camera so it reliably wins against the coplanar box tops instead of z-fighting.
 Shader "PixelShoot/BoxOutline"
 {
     Properties
@@ -31,12 +29,7 @@ Shader "PixelShoot/BoxOutline"
             Cull Front           // inverted hull: show the back of the grown shell
             ZWrite On
             ZTest LEqual
-
-            Stencil
-            {
-                Ref 1
-                Comp NotEqual    // skip pixels already covered by a box body
-            }
+            Offset -1, -1        // bias toward camera so the ring draws over box tops, no z-fight
 
             HLSLPROGRAM
             #pragma vertex vert

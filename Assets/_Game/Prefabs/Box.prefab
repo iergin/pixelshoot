@@ -97,6 +97,8 @@ MonoBehaviour:
   hitPunchDuration: 0.4
   hitPunchVibrato: 6
   hitPunchElasticity: 0.5
+  hitMeshScaleMultiplier: 0.85
+  hitMeshScaleDuration: 0.2
 --- !u!1 &681223077695429011
 GameObject:
   m_ObjectHideFlags: 0
