@@ -24,6 +24,8 @@ namespace PixelShoot.Grid
         [SerializeField] private MeshRenderer stroke;
         [Tooltip("Optional visual (e.g. bomb mesh) toggled on for bomb cells.")]
         [SerializeField] private GameObject bombVisual;
+        [Tooltip("Optional outline child (stencil-mask + BoxOutline materials) enabled ONLY while the box is Hit. Outlines clip against neighbouring hit boxes so shared edges don't double up.")]
+        [SerializeField] private GameObject outline;
         [Tooltip("Optional particle that plays when this bomb explodes. Instantiated at the bomb position and auto-destroyed by its own ParticleSystem.")]
         [SerializeField] private GameObject explosionParticlePrefab;
         [Tooltip("Duration of the colour fade between state transitions. The material swaps instantly; only the tint colour interpolates.")]
@@ -143,6 +145,11 @@ namespace PixelShoot.Grid
                 bool shouldShow = isBomb && newState != BoxState.Hit;
                 if (bombVisual.activeSelf != shouldShow) bombVisual.SetActive(shouldShow);
             }
+            // Outline: only once the box is Hit. Each hit box's stencil mask clips its
+            // neighbours' outlines, so internal seams stay clean and only the outer
+            // border of the hit region is outlined.
+            if (outline != null && outline.activeSelf != (newState == BoxState.Hit))
+                outline.SetActive(newState == BoxState.Hit);
 
             // Sound + punch ONLY on the Hit transition (box cleared) — not on the
             // Locked / Frontier transitions or the spawn snap.
