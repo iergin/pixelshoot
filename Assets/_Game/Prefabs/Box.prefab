@@ -92,8 +92,8 @@ MonoBehaviour:
   scaleFromBottom: 1
   meshUnitHeight: 1
   punchTarget: {fileID: 1328583009216109609}
-  hitPunchScale: 0.2
-  hitPunchDuration: 0.2
+  hitPunchScale: 0.6
+  hitPunchDuration: 0.4
   hitPunchVibrato: 6
   hitPunchElasticity: 0.5
 --- !u!1 &681223077695429011
