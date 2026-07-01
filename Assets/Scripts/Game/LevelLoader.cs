@@ -9,9 +9,7 @@ namespace PixelShoot.Game
     public class LevelLoader : MonoBehaviour
     {
         [Header("Data")]
-        [Tooltip("Optional explicit override. If set, this level is used and AllLevels is ignored.\n" +
-                 "Left null in normal play; the level editor wizard sets this for previews.")]
-        [SerializeField] private LevelData levelData;
+         private LevelData levelData;
         [Tooltip("Ordered playlist consulted when no explicit LevelData override is assigned. " +
                  "Picks levels by PlayerProgress.LevelIndex; falls back to a random pick once " +
                  "the index runs past the last entry.")]

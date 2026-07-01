@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: AllLevels
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Data.AllLevelsData
   levels:
-  - {fileID: 11400000, guid: 7e0bc0214437bd24cbf0c0753f102418, type: 2}
+  - {fileID: 11400000, guid: 005c60c525a9f432aade62901635589c, type: 2}
+  - {fileID: 11400000, guid: 21b5b7cf85c4d4cf89af864a1177c12d, type: 2}

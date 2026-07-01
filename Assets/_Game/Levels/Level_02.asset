@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 86fab0ae20a4c42a59ed53eaf77de69d, type: 3}
-  m_Name: dejeme
+  m_Name: Level_02
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Data.LevelData
   grid:
     size: 32
-    rootPosition: {x: -0.81, y: 0, z: 0}
-    rootScale: {x: 0.27, y: 0.27, z: 0.27}
+    rootPosition: {x: 0.0285, y: 0, z: 0.119999886}
+    rootScale: {x: 0.6146706, y: 0.6146706, z: 0.6146706}
     cells:
     - gridX: 11
       gridZ: 4
@@ -70,7 +70,7 @@ MonoBehaviour:
       gridZ: 4
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 19
@@ -84,7 +84,7 @@ MonoBehaviour:
       gridZ: 4
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 10
@@ -147,7 +147,7 @@ MonoBehaviour:
       gridZ: 5
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 19
@@ -168,7 +168,7 @@ MonoBehaviour:
       gridZ: 5
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 9
@@ -203,7 +203,7 @@ MonoBehaviour:
       gridZ: 6
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 14
@@ -259,14 +259,14 @@ MonoBehaviour:
       gridZ: 6
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 22
       gridZ: 6
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 8
@@ -280,7 +280,7 @@ MonoBehaviour:
       gridZ: 7
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 10
@@ -301,7 +301,7 @@ MonoBehaviour:
       gridZ: 7
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 13
@@ -329,28 +329,28 @@ MonoBehaviour:
       gridZ: 7
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 17
       gridZ: 7
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 18
       gridZ: 7
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 19
       gridZ: 7
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 20
@@ -392,7 +392,7 @@ MonoBehaviour:
       gridZ: 8
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 10
@@ -434,28 +434,28 @@ MonoBehaviour:
       gridZ: 8
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 16
       gridZ: 8
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 17
       gridZ: 8
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 1
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 18
       gridZ: 8
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 19
@@ -504,7 +504,7 @@ MonoBehaviour:
       gridZ: 9
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 10
@@ -525,7 +525,7 @@ MonoBehaviour:
       gridZ: 9
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 13
@@ -567,7 +567,7 @@ MonoBehaviour:
       gridZ: 9
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 19
@@ -581,7 +581,7 @@ MonoBehaviour:
       gridZ: 9
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 21
@@ -595,7 +595,7 @@ MonoBehaviour:
       gridZ: 9
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 23
@@ -616,14 +616,14 @@ MonoBehaviour:
       gridZ: 10
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 11
       gridZ: 10
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 12
@@ -637,7 +637,7 @@ MonoBehaviour:
       gridZ: 10
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 14
@@ -770,7 +770,7 @@ MonoBehaviour:
       gridZ: 11
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 19
@@ -791,7 +791,7 @@ MonoBehaviour:
       gridZ: 11
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 22
@@ -819,14 +819,14 @@ MonoBehaviour:
       gridZ: 12
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 10
       gridZ: 12
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 11
@@ -847,7 +847,7 @@ MonoBehaviour:
       gridZ: 12
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 14
@@ -875,7 +875,7 @@ MonoBehaviour:
       gridZ: 12
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 18
@@ -903,7 +903,7 @@ MonoBehaviour:
       gridZ: 12
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 22
@@ -945,14 +945,14 @@ MonoBehaviour:
       gridZ: 13
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 9
       gridZ: 13
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 10
@@ -966,7 +966,7 @@ MonoBehaviour:
       gridZ: 13
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 1
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 12
@@ -987,7 +987,7 @@ MonoBehaviour:
       gridZ: 13
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 15
@@ -1008,7 +1008,7 @@ MonoBehaviour:
       gridZ: 13
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 18
@@ -1022,14 +1022,14 @@ MonoBehaviour:
       gridZ: 13
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 20
       gridZ: 13
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 21
@@ -1043,14 +1043,14 @@ MonoBehaviour:
       gridZ: 13
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 23
       gridZ: 13
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 24
@@ -1078,7 +1078,7 @@ MonoBehaviour:
       gridZ: 14
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 7
@@ -1092,14 +1092,14 @@ MonoBehaviour:
       gridZ: 14
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 9
       gridZ: 14
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 10
@@ -1120,7 +1120,7 @@ MonoBehaviour:
       gridZ: 14
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 13
@@ -1169,7 +1169,7 @@ MonoBehaviour:
       gridZ: 14
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 20
@@ -1190,7 +1190,7 @@ MonoBehaviour:
       gridZ: 14
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 23
@@ -1218,7 +1218,7 @@ MonoBehaviour:
       gridZ: 14
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 4
@@ -1295,7 +1295,7 @@ MonoBehaviour:
       gridZ: 15
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 15
@@ -1309,7 +1309,7 @@ MonoBehaviour:
       gridZ: 15
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 17
@@ -1330,14 +1330,14 @@ MonoBehaviour:
       gridZ: 15
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 20
       gridZ: 15
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 21
@@ -1351,14 +1351,14 @@ MonoBehaviour:
       gridZ: 15
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 23
       gridZ: 15
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 24
@@ -1379,14 +1379,14 @@ MonoBehaviour:
       gridZ: 15
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 4
       gridZ: 16
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 1
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 5
@@ -1470,7 +1470,7 @@ MonoBehaviour:
       gridZ: 16
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 17
@@ -1512,21 +1512,21 @@ MonoBehaviour:
       gridZ: 16
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 23
       gridZ: 16
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 24
       gridZ: 16
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 25
@@ -1547,7 +1547,7 @@ MonoBehaviour:
       gridZ: 16
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 4
@@ -1568,7 +1568,7 @@ MonoBehaviour:
       gridZ: 17
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 7
@@ -1589,14 +1589,14 @@ MonoBehaviour:
       gridZ: 17
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 10
       gridZ: 17
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 11
@@ -1610,7 +1610,7 @@ MonoBehaviour:
       gridZ: 17
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 13
@@ -1659,7 +1659,7 @@ MonoBehaviour:
       gridZ: 17
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 20
@@ -1687,7 +1687,7 @@ MonoBehaviour:
       gridZ: 17
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 24
@@ -1708,21 +1708,21 @@ MonoBehaviour:
       gridZ: 17
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 27
       gridZ: 17
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 4
       gridZ: 18
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 5
@@ -1736,14 +1736,14 @@ MonoBehaviour:
       gridZ: 18
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 7
       gridZ: 18
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 8
@@ -1785,7 +1785,7 @@ MonoBehaviour:
       gridZ: 18
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 14
@@ -1820,7 +1820,7 @@ MonoBehaviour:
       gridZ: 18
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 19
@@ -1848,7 +1848,7 @@ MonoBehaviour:
       gridZ: 18
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 23
@@ -1876,7 +1876,7 @@ MonoBehaviour:
       gridZ: 18
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 27
@@ -1918,7 +1918,7 @@ MonoBehaviour:
       gridZ: 19
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 10
@@ -1967,7 +1967,7 @@ MonoBehaviour:
       gridZ: 19
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 17
@@ -1981,7 +1981,7 @@ MonoBehaviour:
       gridZ: 19
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 19
@@ -2023,14 +2023,14 @@ MonoBehaviour:
       gridZ: 19
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 25
       gridZ: 19
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 26
@@ -2044,7 +2044,7 @@ MonoBehaviour:
       gridZ: 19
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 5
@@ -2114,7 +2114,7 @@ MonoBehaviour:
       gridZ: 20
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 15
@@ -2156,7 +2156,7 @@ MonoBehaviour:
       gridZ: 20
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 21
@@ -2205,7 +2205,7 @@ MonoBehaviour:
       gridZ: 21
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 7
@@ -2254,7 +2254,7 @@ MonoBehaviour:
       gridZ: 21
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 14
@@ -2275,14 +2275,14 @@ MonoBehaviour:
       gridZ: 21
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 17
       gridZ: 21
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 18
@@ -2310,7 +2310,7 @@ MonoBehaviour:
       gridZ: 21
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 22
@@ -2331,7 +2331,7 @@ MonoBehaviour:
       gridZ: 21
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 25
@@ -2345,7 +2345,7 @@ MonoBehaviour:
       gridZ: 22
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 7
@@ -2373,14 +2373,14 @@ MonoBehaviour:
       gridZ: 22
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 11
       gridZ: 22
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 12
@@ -2394,7 +2394,7 @@ MonoBehaviour:
       gridZ: 22
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 14
@@ -2450,7 +2450,7 @@ MonoBehaviour:
       gridZ: 22
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 22
@@ -2464,7 +2464,7 @@ MonoBehaviour:
       gridZ: 22
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 24
@@ -2478,7 +2478,7 @@ MonoBehaviour:
       gridZ: 22
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 7
@@ -2541,7 +2541,7 @@ MonoBehaviour:
       gridZ: 23
       isEmpty: 0
       color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 16
@@ -2555,21 +2555,21 @@ MonoBehaviour:
       gridZ: 23
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 18
       gridZ: 23
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 19
       gridZ: 23
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 20
@@ -2597,14 +2597,14 @@ MonoBehaviour:
       gridZ: 23
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 2
       isBomb: 0
       keyId: 0
     - gridX: 24
       gridZ: 23
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 8
@@ -2639,14 +2639,14 @@ MonoBehaviour:
       gridZ: 24
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 13
       gridZ: 24
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 14
@@ -2667,7 +2667,7 @@ MonoBehaviour:
       gridZ: 24
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 17
@@ -2688,7 +2688,7 @@ MonoBehaviour:
       gridZ: 24
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 20
@@ -2702,14 +2702,14 @@ MonoBehaviour:
       gridZ: 24
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 22
       gridZ: 24
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 23
@@ -2737,7 +2737,7 @@ MonoBehaviour:
       gridZ: 25
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 11
@@ -2772,21 +2772,21 @@ MonoBehaviour:
       gridZ: 25
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 16
       gridZ: 25
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 2
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 17
       gridZ: 25
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 18
@@ -2828,14 +2828,14 @@ MonoBehaviour:
       gridZ: 25
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 11
       gridZ: 26
       isEmpty: 0
       color: {fileID: 11400000, guid: e6a5f474b02344c66bb57d4588bb2e9b, type: 2}
-      tone: 1
+      tone: 0
       isBomb: 0
       keyId: 0
     - gridX: 12
@@ -2891,7 +2891,7 @@ MonoBehaviour:
       gridZ: 26
       isEmpty: 0
       color: {fileID: 11400000, guid: 9a477c100692145c2b12a8644a11e537, type: 2}
-      tone: 0
+      tone: 1
       isBomb: 0
       keyId: 0
     - gridX: 20

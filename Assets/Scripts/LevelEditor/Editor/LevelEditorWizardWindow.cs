@@ -34,6 +34,13 @@ namespace PixelShoot.LevelEditor.EditorTools
         [SerializeField] private int gridSize = 30;
         [SerializeField] private Vector3 gridRootPosition = Vector3.zero;
         [SerializeField] private Vector3 gridRootScale = Vector3.one;
+        // Auto-fit: on import, scale + centre the grid to fit inside the "GridArea" plane.
+        [SerializeField] private bool autoFitOnImport = true;
+        [SerializeField] private string gridAreaName = "GridArea";
+        [Tooltip("1 = grid touches the GridArea edges; <1 leaves a margin.")]
+        [SerializeField] private float autoFitFill = 1f;
+        // Fallback target span (world units) used only when no GridArea object is found.
+        [SerializeField] private float autoFitWorldSize = 6f;
         [SerializeField] private int conveyorSlotCapacity = 5;
         [SerializeField] private int reserveSlotCapacity = 5;
         [SerializeField] private List<ColorData> palette = new List<ColorData>();
@@ -579,6 +586,10 @@ namespace PixelShoot.LevelEditor.EditorTools
                 foreach (var v in decoded) if (v >= 0) filledCells++;
             }
 
+            // Auto-fit AFTER cells are decoded so it measures the filled pixels, not the
+            // empty grid. Fine-tune with the scale slider / position later.
+            if (autoFitOnImport && gridSize > 0) ApplyAutoFit();
+
             // Columns straight from JSON (replaces the old auto-generate path).
             if (parsed != null && parsed.Columns != null && parsed.Columns.Count > 0)
             {
@@ -621,6 +632,143 @@ namespace PixelShoot.LevelEditor.EditorTools
         }
 
         // ─── Grid & painting ─────────────────────────────────────────
+        // The GridController's cellSize governs how many world units one cell spans before
+        // rootScale. Read it from the scene loader/grid if present; default to 1.
+        private float SceneCellSize()
+        {
+#if UNITY_2023_1_OR_NEWER
+            var gc = Object.FindFirstObjectByType<GridController>(FindObjectsInactive.Include);
+#else
+            var gc = Object.FindObjectOfType<GridController>();
+#endif
+            return gc != null && gc.CellSize > 0.0001f ? gc.CellSize : 1f;
+        }
+
+        /// <summary>
+        /// Scale + centre the grid so it fits inside the scene's "GridArea" object.
+        /// The grid is square (gridSize × cellSize per side); we fit it to the SMALLER of
+        /// the area's world width/depth so it stays fully inside, then centre the root on
+        /// the area. Falls back to <see cref="autoFitWorldSize"/> if no GridArea is found.
+        /// </summary>
+        private void ApplyAutoFit()
+        {
+            if (gridSize <= 0) return;
+            float cell = SceneCellSize();
+
+            // Bounding box of the filled cells; fall back to the full grid if empty.
+            if (!GetContentBounds(out int minX, out int maxX, out int minZ, out int maxZ))
+            { minX = minZ = 0; maxX = maxZ = gridSize - 1; }
+
+            float contentW = (maxX - minX + 1) * cell;   // local width  of the filled pixels
+            float contentH = (maxZ - minZ + 1) * cell;   // local height of the filled pixels
+            if (contentW < 1e-4f || contentH < 1e-4f) return;
+
+            // Content centroid in gridRoot-local space (the grid is centred on the root).
+            float half = (gridSize - 1) * 0.5f;
+            Vector3 contentCenterLocal = new Vector3(
+                ((minX + maxX) * 0.5f - half) * cell, 0f,
+                ((minZ + maxZ) * 0.5f - half) * cell);
+
+            // Parent scale so world-span math holds even if gridRoot is nested/scaled.
+            Transform gridRoot = SceneGridRoot();
+            Transform parent = gridRoot != null ? gridRoot.parent : null;
+            Vector3 pl = parent != null ? parent.lossyScale : Vector3.one;
+            float pSx = Mathf.Abs(pl.x) < 1e-4f ? 1f : Mathf.Abs(pl.x);
+            float pSz = Mathf.Abs(pl.z) < 1e-4f ? 1f : Mathf.Abs(pl.z);
+
+            var area = FindGridArea();
+            float s;
+            if (area != null && TryGetWorldExtents(area, out Vector3 areaSize, out Vector3 areaCenter))
+            {
+                float fill = Mathf.Clamp01(autoFitFill);
+                // Fit the filled content inside the area — whichever axis binds sets the scale.
+                float sByX = areaSize.x / (pSx * contentW);
+                float sByZ = areaSize.z / (pSz * contentH);
+                s = Mathf.Max(0.001f, Mathf.Min(sByX, sByZ) * fill);
+                gridRootScale = Vector3.one * s;
+
+                // Position so the CONTENT centre lands on the area centre (X/Z); keep Y.
+                Vector3 areaCenterLocal = parent != null ? parent.InverseTransformPoint(areaCenter) : areaCenter;
+                gridRootPosition = new Vector3(
+                    areaCenterLocal.x - s * contentCenterLocal.x,
+                    gridRootPosition.y,
+                    areaCenterLocal.z - s * contentCenterLocal.z);
+
+                pendingPreviewRefresh = true;
+                SetStatus($"Auto-fit → '{area.name}': content {maxX - minX + 1}×{maxZ - minZ + 1} cells, scale {s:0.###}, centred.", MessageType.Info);
+            }
+            else
+            {
+                // No GridArea → fit content to the fixed world-size number, centre on origin.
+                s = Mathf.Max(0.001f, autoFitWorldSize / (Mathf.Max(pSx, pSz) * Mathf.Max(contentW, contentH)));
+                gridRootScale = Vector3.one * s;
+                gridRootPosition = new Vector3(-s * contentCenterLocal.x, gridRootPosition.y, -s * contentCenterLocal.z);
+                pendingPreviewRefresh = true;
+                SetStatus($"Auto-fit: no '{gridAreaName}' found — used {autoFitWorldSize} units. Scale {s:0.###}.", MessageType.Warning);
+            }
+        }
+
+        // Bounding box (inclusive) of filled cells. Returns false if the grid is empty.
+        private bool GetContentBounds(out int minX, out int maxX, out int minZ, out int maxZ)
+        {
+            minX = minZ = int.MaxValue; maxX = maxZ = int.MinValue;
+            if (cells == null) return false;
+            for (int z = 0; z < gridSize; z++)
+            {
+                for (int x = 0; x < gridSize; x++)
+                {
+                    if (cells[z * gridSize + x] < 0) continue;
+                    if (x < minX) minX = x; if (x > maxX) maxX = x;
+                    if (z < minZ) minZ = z; if (z > maxZ) maxZ = z;
+                }
+            }
+            return maxX >= minX && maxZ >= minZ;
+        }
+
+        private Transform SceneGridRoot()
+        {
+#if UNITY_2023_1_OR_NEWER
+            var gc = Object.FindFirstObjectByType<GridController>(FindObjectsInactive.Include);
+#else
+            var gc = Object.FindObjectOfType<GridController>();
+#endif
+            return gc != null ? gc.GridRoot : null;
+        }
+
+        // Find the GridArea object by name (searches inactive too).
+        private GameObject FindGridArea()
+        {
+            if (string.IsNullOrEmpty(gridAreaName)) return null;
+            var go = GameObject.Find(gridAreaName);
+            if (go != null) return go;
+#if UNITY_2023_1_OR_NEWER
+            foreach (var t in Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+#else
+            foreach (var t in Object.FindObjectsOfType<Transform>(true))
+#endif
+                if (t.name == gridAreaName) return t.gameObject;
+            return null;
+        }
+
+        // World-space size + centre of the area: prefer the Renderer bounds (works for any
+        // plane/quad/mesh), else fall back to a MeshFilter's bounds scaled by the transform.
+        private static bool TryGetWorldExtents(GameObject go, out Vector3 size, out Vector3 center)
+        {
+            var rend = go.GetComponent<Renderer>();
+            if (rend != null) { size = rend.bounds.size; center = rend.bounds.center; return true; }
+            var mf = go.GetComponent<MeshFilter>();
+            if (mf != null && mf.sharedMesh != null)
+            {
+                Vector3 ls = mf.sharedMesh.bounds.size;
+                Vector3 sc = go.transform.lossyScale;
+                size = new Vector3(Mathf.Abs(ls.x * sc.x), Mathf.Abs(ls.y * sc.y), Mathf.Abs(ls.z * sc.z));
+                center = go.transform.TransformPoint(mf.sharedMesh.bounds.center);
+                return true;
+            }
+            size = center = Vector3.zero;
+            return false;
+        }
+
         private void DrawStep_Grid()
         {
             EditorGUILayout.LabelField("Grid", EditorStyles.boldLabel);
@@ -644,9 +792,26 @@ namespace PixelShoot.LevelEditor.EditorTools
             gridRootPosition = EditorGUILayout.Vector3Field("Grid root position", gridRootPosition);
             // Uniform scale slider — every axis tracks the same value so the grid scales evenly.
             float currentUniform = gridRootScale.x > 0.0001f ? gridRootScale.x : 1f;
-            float newUniform = EditorGUILayout.Slider("Grid root scale", currentUniform, 0.05f, 5f);
+            float newUniform = EditorGUILayout.Slider("Grid root scale", currentUniform, 0.01f, 10f);
             if (!Mathf.Approximately(newUniform, currentUniform))
                 gridRootScale = Vector3.one * newUniform;
+
+            // Auto-fit: scale + centre the grid to fit inside the scene's GridArea plane.
+            // The scale slider / position above are then just fine-tuning.
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                gridAreaName = EditorGUILayout.TextField(
+                    new GUIContent("Fit target (scene object)", "Name of the scene object (e.g. a plane) the grid is scaled + centred to fit inside."),
+                    gridAreaName, GUILayout.Width(320));
+                autoFitFill = EditorGUILayout.Slider(new GUIContent("Fill", "1 = touch the edges; <1 leaves a margin."), autoFitFill, 0.5f, 1f);
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button($"Fit grid to '{gridAreaName}'", GUILayout.Width(220))) ApplyAutoFit();
+                autoFitOnImport = GUILayout.Toggle(autoFitOnImport, "auto on import", GUILayout.Width(120));
+                EditorGUILayout.LabelField(new GUIContent("(fallback units)", "Used only if no such object exists in the scene."), GUILayout.Width(100));
+                autoFitWorldSize = EditorGUILayout.FloatField(autoFitWorldSize, GUILayout.Width(60));
+            }
 
             using (new EditorGUILayout.HorizontalScope())
             {
