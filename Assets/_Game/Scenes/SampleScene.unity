@@ -959,8 +959,8 @@ MonoBehaviour:
   loopEnabled: 1
   loopStartDelay: 1.5
   loopInterval: 3
-  loopDuration: 4
-  loopIntensity: 0.35
+  loopDuration: 5
+  loopIntensity: 0.1
 --- !u!1 &193045658
 GameObject:
   m_ObjectHideFlags: 0
