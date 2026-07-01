@@ -28,6 +28,9 @@ namespace PixelShoot.LevelEditor.EditorTools
 
         // ─── Persisted editing state ──────────────────────────────────
         [SerializeField] private LevelData targetAsset;
+        // Throwaway in-memory clone used to feed the scene preview without ever mutating
+        // the real bound asset. Never saved to disk; destroyed when the window closes.
+        [System.NonSerialized] private LevelData previewAsset;
         [SerializeField] private int gridSize = 30;
         [SerializeField] private Vector3 gridRootPosition = Vector3.zero;
         [SerializeField] private Vector3 gridRootScale = Vector3.one;
@@ -186,11 +189,16 @@ namespace PixelShoot.LevelEditor.EditorTools
             pendingPreviewRefresh = false;
             lastAutoRefreshTime = now;
             if (targetAsset == null) return;
-            // Do NOT persist on auto-refresh. Disk writes happen only when the user
-            // explicitly presses Save — that's the contract the wizard advertises.
-            // The asset's in-memory state still gets the latest data (so the scene
-            // build matches the wizard), and SetDirty makes Unity flag it for save.
+            // Auto-refresh only rebuilds the scene from a throwaway preview clone. The
+            // real bound asset is NEVER touched here — its contents change only when the
+            // user explicitly presses Save (which also asks for confirmation).
             RefreshScenePreview(persistToDisk: false);
+        }
+
+        private void OnDisable()
+        {
+            // Drop the throwaway preview clone so it doesn't leak between window sessions.
+            if (previewAsset != null) { DestroyImmediate(previewAsset); previewAsset = null; }
         }
 
         private void EnsureStyles()
@@ -253,11 +261,23 @@ namespace PixelShoot.LevelEditor.EditorTools
 
             if (onDisk != null)
             {
-                // Asset with this name exists → overwrite.
+                // Asset with this name exists → confirm overwrite before touching it.
+                bool overwrite = EditorUtility.DisplayDialog(
+                    "Üzerine yaz?",
+                    $"'{levelName}.asset' zaten mevcut.\n\nİçeriği şu anki wizard durumuyla üzerine yazılsın mı? Bu işlem geri alınamaz.",
+                    "Üzerine yaz", "İptal");
+                if (!overwrite) { SetStatus("Save iptal edildi — asset değişmedi.", MessageType.Info); return; }
                 targetAsset = onDisk;
             }
             else
             {
+                // New asset → confirm creation.
+                bool create = EditorUtility.DisplayDialog(
+                    "Yeni level kaydedilsin mi?",
+                    $"'{levelName}.asset' adında yeni bir level oluşturulup\n{LevelsDir} altına kaydedilecek. Emin misiniz?",
+                    "Kaydet", "İptal");
+                if (!create) { SetStatus("Save iptal edildi — hiçbir asset oluşturulmadı.", MessageType.Info); return; }
+
                 // Create new asset with the requested name (no GenerateUniqueAssetPath —
                 // we *want* the exact filename, and we already proved nothing's there).
                 var asset = ScriptableObject.CreateInstance<LevelData>();
@@ -268,6 +288,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             SaveToAsset();
             EditorUtility.SetDirty(targetAsset);
             AssetDatabase.SaveAssets();
+            SetStatus($"Kaydedildi → '{levelName}.asset'.", MessageType.Info);
             // Refresh the in-scene preview so the saved data shows up immediately.
             if (HasLoaderInScene()) RefreshScenePreview(persistToDisk: false);
         }
@@ -1119,11 +1140,17 @@ namespace PixelShoot.LevelEditor.EditorTools
             Debug.Log($"[LevelWizard] RefreshScenePreview(persistToDisk={persistToDisk}) targetAsset={(targetAsset != null ? targetAsset.name : "<null>")}");
             if (targetAsset == null) { Debug.LogWarning("[LevelWizard] RefreshScenePreview aborted: no targetAsset."); return false; }
 
-            // Flush wizard state into the bound asset before rebuilding from it.
-            Debug.Log("[LevelWizard] RefreshScenePreview → SaveToAsset()");
-            SaveToAsset();
-            EditorUtility.SetDirty(targetAsset);
-            if (persistToDisk) AssetDatabase.SaveAssets();
+            // IMPORTANT: never mutate the real bound asset here. Build the scene from a
+            // THROWAWAY clone of the wizard state so the ScriptableObject's contents only
+            // ever change when the user explicitly presses Save.
+            if (previewAsset == null)
+            {
+                previewAsset = ScriptableObject.CreateInstance<LevelData>();
+                previewAsset.hideFlags = HideFlags.HideAndDontSave;
+            }
+            WriteInto(previewAsset);
+            // persistToDisk is intentionally ignored now — the preview never writes the
+            // real asset to disk; only SmartSave does.
 
 #if UNITY_2023_1_OR_NEWER
             var loader = Object.FindFirstObjectByType<LevelLoader>(FindObjectsInactive.Include);
@@ -1139,9 +1166,10 @@ namespace PixelShoot.LevelEditor.EditorTools
                 return false;
             }
 
-            // Bind the asset on the loader (private field).
-            SetField(loader, "levelData", targetAsset);
-            Debug.Log("[LevelWizard] RefreshScenePreview: bound levelData on loader.");
+            // Bind the PREVIEW clone on the loader for the build (restored to the real
+            // asset before we return, so the scene never holds the temp reference).
+            SetField(loader, "levelData", previewAsset);
+            Debug.Log("[LevelWizard] RefreshScenePreview: bound preview clone on loader.");
 
             // SpawnColumns appends children to columnsRoot; calling Build twice would
             // duplicate them. Clear it ourselves before letting Build run.
@@ -1165,6 +1193,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 SetStatus($"Build threw: {ex.GetType().Name} — {ex.Message}\nSee console for stack.",
                           MessageType.Error);
                 Debug.LogException(ex);
+                SetField(loader, "levelData", targetAsset); // restore real ref
                 return false;
             }
 
@@ -1176,7 +1205,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 boxesSpawned = boxes.Length;
             }
             int dataCells = 0;
-            foreach (var c in targetAsset.Grid.Cells) if (!c.IsEmpty) dataCells++;
+            foreach (var c in previewAsset.Grid.Cells) if (!c.IsEmpty) dataCells++;
             int colsSpawned = 0;
             if (columnsRootField != null && columnsRootField.GetValue(loader) is Transform colsRoot && colsRoot != null)
                 colsSpawned = colsRoot.childCount;
@@ -1210,6 +1239,10 @@ namespace PixelShoot.LevelEditor.EditorTools
                     $"Built {boxesSpawned} boxes, {colsSpawned} columns from {targetAsset.name}.",
                     MessageType.Info);
             }
+
+            // Restore the loader's reference to the real asset — the temp clone was only
+            // needed to feed Build() without dirtying the bound ScriptableObject.
+            SetField(loader, "levelData", targetAsset);
 
             SceneView.RepaintAll();
             return true;
@@ -1298,14 +1331,22 @@ namespace PixelShoot.LevelEditor.EditorTools
             Repaint();
         }
 
-        private void SaveToAsset()
+        // Persist the wizard state into the REAL bound asset (only from SmartSave).
+        private void SaveToAsset() => WriteInto(targetAsset);
+
+        /// <summary>
+        /// Serialize the current wizard state into <paramref name="dest"/>. Used for both
+        /// the real bound asset (on Save) and a throwaway preview clone (on auto-refresh),
+        /// so the scene preview never has to mutate the real ScriptableObject.
+        /// </summary>
+        private void WriteInto(LevelData dest)
         {
-            if (targetAsset == null) return;
+            if (dest == null) return;
             EnsureCellsArray();
             // Never write a zero scale — that would make the runtime grid invisible.
             if (gridRootScale.sqrMagnitude < 0.0001f) gridRootScale = Vector3.one;
 
-            var grid = targetAsset.Grid;
+            var grid = dest.Grid;
             SetField(grid, "size", gridSize);
             SetField(grid, "rootPosition", gridRootPosition);
             SetField(grid, "rootScale", gridRootScale);
@@ -1332,9 +1373,9 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
             SetField(grid, "cells", boxCells);
 
-            SetField(targetAsset, "columns", new List<ColumnData>(columns));
-            SetField(targetAsset, "conveyorSlotCapacity", conveyorSlotCapacity);
-            SetField(targetAsset, "reserveSlotCapacity", reserveSlotCapacity);
+            SetField(dest, "columns", new List<ColumnData>(columns));
+            SetField(dest, "conveyorSlotCapacity", conveyorSlotCapacity);
+            SetField(dest, "reserveSlotCapacity", reserveSlotCapacity);
         }
 
         // GenerateColumnsFromGrid removed — columns now come from JSON's sortColumns field.
