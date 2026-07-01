@@ -74,6 +74,7 @@ namespace PixelShoot.Grid
         private Tween positionTween;
         private Tween punchTween;
         private Tween meshScaleTween;
+        private Tween outlineRevealTween;
         private Vector3 punchBaseScale;
         private bool punchBaseCaptured;
         private Vector3 meshBaseScale = Vector3.one;
@@ -156,11 +157,14 @@ namespace PixelShoot.Grid
                 bool shouldShow = isBomb && newState != BoxState.Hit;
                 if (bombVisual.activeSelf != shouldShow) bombVisual.SetActive(shouldShow);
             }
-            // Outline: only once the box is Hit. Each hit box's stencil mask clips its
-            // neighbours' outlines, so internal seams stay clean and only the outer
-            // border of the hit region is outlined.
-            if (outline != null && outline.activeSelf != (newState == BoxState.Hit))
-                outline.SetActive(newState == BoxState.Hit);
+            // Outline turns OFF immediately for any non-Hit state. For Hit it is revealed
+            // only AFTER the hit scale movements (punch + height + mesh shrink) settle —
+            // see ScheduleOutlineReveal.
+            if (newState != BoxState.Hit)
+            {
+                outlineRevealTween?.Kill(); outlineRevealTween = null;
+                if (outline != null && outline.activeSelf) outline.SetActive(false);
+            }
             // Sheen overlay: also Hit-only, so only painted cells catch the looping shine.
             if (sheen != null && sheen.activeSelf != (newState == BoxState.Hit))
                 sheen.SetActive(newState == BoxState.Hit);
@@ -170,10 +174,14 @@ namespace PixelShoot.Grid
             if (newState == BoxState.Hit)
                 PixelShoot.Audio.AudioManager.Instance?.PlayBoxHit();
 
-            // On hit, punch FIRST, then change the height + mesh scale once the punch
-            // finishes. Other transitions (and the spawn snap) change them immediately.
-            if (newState == BoxState.Hit && TryPlayHitPunch(ApplyStateTransforms))
+            // On hit: punch FIRST, then apply height + mesh scale, then reveal the
+            // outline once those tweens finish. Other transitions apply immediately.
+            if (newState == BoxState.Hit)
+            {
+                if (TryPlayHitPunch(ApplyHitTransformsThenOutline)) return;
+                ApplyHitTransformsThenOutline();
                 return;
+            }
             ApplyStateTransforms();
         }
 
@@ -181,6 +189,31 @@ namespace PixelShoot.Grid
         {
             ApplyHeightForState();
             ApplyMeshScaleForState();
+        }
+
+        private void ApplyHitTransformsThenOutline()
+        {
+            ApplyStateTransforms();
+            ScheduleOutlineReveal();
+        }
+
+        /// <summary>Turn the outline on once the height / mesh-scale tweens have finished.</summary>
+        private void ScheduleOutlineReveal()
+        {
+            if (outline == null) return;
+            outlineRevealTween?.Kill(); outlineRevealTween = null;
+
+            float delay = Mathf.Max(heightTweenDuration, hitMeshScaleDuration);
+            if (!Application.isPlaying || delay <= 0f)
+            {
+                if (!outline.activeSelf) outline.SetActive(true);
+                return;
+            }
+            outlineRevealTween = DOVirtual.DelayedCall(delay, () =>
+            {
+                if (this != null && outline != null && state == BoxState.Hit && !outline.activeSelf)
+                    outline.SetActive(true);
+            }, ignoreTimeScale: true);
         }
 
         /// <summary>
@@ -379,6 +412,7 @@ namespace PixelShoot.Grid
             positionTween?.Kill();
             punchTween?.Kill();
             meshScaleTween?.Kill();
+            outlineRevealTween?.Kill();
         }
 
         private static Color ReadColor(Material m)
