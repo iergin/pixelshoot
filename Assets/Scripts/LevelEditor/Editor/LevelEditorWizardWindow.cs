@@ -56,6 +56,9 @@ namespace PixelShoot.LevelEditor.EditorTools
         // ─── Transient UI state ───────────────────────────────────────
         private string levelName = "Level_01";
         private string importBuffer = "";
+        // The raw designer JSON of the last import — persisted onto the asset (SourceJson)
+        // on Save and handed back on Load so it can be copied again.
+        private string importedJson = "";
         // shotsPerShooter field removed — columns now come from JSON import (sortColumns).
         private Vector2 scroll;
         private string lastImportStatus = "";
@@ -288,7 +291,22 @@ namespace PixelShoot.LevelEditor.EditorTools
             SaveToAsset();
             EditorUtility.SetDirty(targetAsset);
             AssetDatabase.SaveAssets();
-            SetStatus($"Kaydedildi → '{levelName}.asset'.", MessageType.Info);
+
+            // Drop a sidecar .json next to the asset so the source is always an openable
+            // file (easy to grab when the blob is huge). Only when we actually have one.
+            string jsonMsg = "";
+            if (!string.IsNullOrEmpty(importedJson))
+            {
+                try
+                {
+                    string jsonPath = $"{LevelsDir}/{levelName}.json";
+                    File.WriteAllText(jsonPath, importedJson);
+                    AssetDatabase.ImportAsset(jsonPath);
+                    jsonMsg = $" (+ {levelName}.json)";
+                }
+                catch (System.Exception ex) { Debug.LogWarning($"[LevelWizard] Sidecar JSON write failed: {ex.Message}"); }
+            }
+            SetStatus($"Kaydedildi → '{levelName}.asset'{jsonMsg}.", MessageType.Info);
             // Refresh the in-scene preview so the saved data shows up immediately.
             if (HasLoaderInScene()) RefreshScenePreview(persistToDisk: false);
         }
@@ -322,6 +340,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             palette?.Clear();
             currentPaletteIdx = 0;
             importBuffer = "";
+            importedJson = "";
             lastImportStatus = "";
 
             // 4) Scene preview: nuke whatever is currently parented under gridRoot /
@@ -426,11 +445,76 @@ namespace PixelShoot.LevelEditor.EditorTools
             using (new EditorGUI.DisabledScope(gated))
             {
                 EditorGUILayout.LabelField("Paste the level designer JSON (gridSize / palette / rle / sortColumns):", EditorStyles.miniLabel);
+                // File-based import/export — the easy path when the JSON is too long to paste.
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("📂 Load JSON from file…", GUILayout.Height(24))) LoadJsonFromFile();
+                    using (new EditorGUI.DisabledScope(string.IsNullOrEmpty(importBuffer)))
+                        if (GUILayout.Button("💾 Save JSON to file…", GUILayout.Height(24))) SaveJsonToFile();
+                }
                 importBuffer = EditorGUILayout.TextArea(importBuffer, GUILayout.MinHeight(140));
-                if (GUILayout.Button("Import all (auto-detect)", GUILayout.Height(28))) ImportAll();
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Import all (auto-detect)", GUILayout.Height(28))) ImportAll();
+                    using (new EditorGUI.DisabledScope(string.IsNullOrEmpty(importBuffer)))
+                    {
+                        if (GUILayout.Button("Copy JSON to clipboard", GUILayout.Height(28), GUILayout.Width(200)))
+                        {
+                            EditorGUIUtility.systemCopyBuffer = importBuffer;
+                            SetStatus("JSON panoya kopyalandı.", MessageType.Info);
+                        }
+                    }
+                }
+            }
+            // Tell the user whether the loaded level carries its original designer JSON.
+            if (targetAsset != null)
+            {
+                if (!string.IsNullOrEmpty(importedJson))
+                    EditorGUILayout.HelpBox("Bu level'ın oluşturulduğu JSON yukarıda — seçip ya da 'Copy JSON' ile kopyalayabilirsin.", MessageType.Info);
+                else
+                    EditorGUILayout.HelpBox("Bu asset'te saklı bir kaynak JSON yok (bu özellikten önce oluşturulmuş olabilir). Yeni bir JSON import edip Save'lersen bir dahaki Load'da geri verilir.", MessageType.None);
             }
             if (!string.IsNullOrEmpty(lastImportStatus))
                 EditorGUILayout.HelpBox(lastImportStatus, MessageType.Info);
+        }
+
+        // Pick a .json file on disk, drop it into the buffer, and import immediately —
+        // avoids pasting a huge blob into the text area.
+        private void LoadJsonFromFile()
+        {
+            string start = System.IO.Directory.Exists(LevelsDir) ? LevelsDir : Application.dataPath;
+            string path = EditorUtility.OpenFilePanel("Import level JSON", start, "json");
+            if (string.IsNullOrEmpty(path)) return;
+            try
+            {
+                importBuffer = File.ReadAllText(path);
+                ImportAll();
+                SetStatus($"JSON dosyadan yüklendi: {System.IO.Path.GetFileName(path)}", MessageType.Info);
+            }
+            catch (System.Exception ex)
+            {
+                EditorUtility.DisplayDialog("Load JSON", $"Dosya okunamadı:\n{ex.Message}", "OK");
+            }
+        }
+
+        // Write the current JSON buffer out to a .json file you choose.
+        private void SaveJsonToFile()
+        {
+            if (string.IsNullOrEmpty(importBuffer)) return;
+            string defaultName = (string.IsNullOrWhiteSpace(levelName) ? "level" : levelName) + ".json";
+            string start = System.IO.Directory.Exists(LevelsDir) ? LevelsDir : Application.dataPath;
+            string path = EditorUtility.SaveFilePanel("Export level JSON", start, defaultName, "json");
+            if (string.IsNullOrEmpty(path)) return;
+            try
+            {
+                File.WriteAllText(path, importBuffer);
+                AssetDatabase.Refresh();
+                SetStatus($"JSON dosyaya yazıldı: {System.IO.Path.GetFileName(path)}", MessageType.Info);
+            }
+            catch (System.Exception ex)
+            {
+                EditorUtility.DisplayDialog("Save JSON", $"Dosya yazılamadı:\n{ex.Message}", "OK");
+            }
         }
 
         private void ImportAll()
@@ -444,6 +528,8 @@ namespace PixelShoot.LevelEditor.EditorTools
 
             // ── NEW: structured JSON path (palette + rle + sortColumns in one blob) ──
             bool isJson = LevelJsonImporter.LooksLikeJson(text);
+            // Remember the raw JSON so Save can stash it on the asset for later copying.
+            if (isJson) importedJson = text;
             LevelJsonImporter.Result parsed = isJson ? LevelJsonImporter.Parse(text) : null;
             string rleText = (parsed != null && !string.IsNullOrEmpty(parsed.RleArrayText)) ? parsed.RleArrayText : text;
             int gridFromJson = parsed != null ? parsed.GridSize : 0;
@@ -1323,6 +1409,10 @@ namespace PixelShoot.LevelEditor.EditorTools
             columns = new List<ColumnData>(targetAsset.Columns);
             conveyorSlotCapacity = targetAsset.ConveyorSlotCapacity;
             reserveSlotCapacity = targetAsset.ReserveSlotCapacity;
+            // Hand back the original designer JSON (if the level was imported from one) so
+            // it shows in the Import box and can be copied again.
+            importedJson = targetAsset.SourceJson ?? "";
+            if (!string.IsNullOrEmpty(importedJson)) importBuffer = importedJson;
             int filled = 0;
             if (cells != null) foreach (var v in cells) if (v >= 0) filled++;
             Debug.Log($"[LevelWizard] LoadFromAsset done. palette={palette.Count}, columns={columns.Count}, " +
@@ -1376,6 +1466,10 @@ namespace PixelShoot.LevelEditor.EditorTools
             SetField(dest, "columns", new List<ColumnData>(columns));
             SetField(dest, "conveyorSlotCapacity", conveyorSlotCapacity);
             SetField(dest, "reserveSlotCapacity", reserveSlotCapacity);
+            // Preserve the original designer JSON on the asset. Only overwrite when we
+            // actually have one, so manual edits + re-save don't wipe a previously stored
+            // blob.
+            if (!string.IsNullOrEmpty(importedJson)) SetField(dest, "sourceJson", importedJson);
         }
 
         // GenerateColumnsFromGrid removed — columns now come from JSON's sortColumns field.

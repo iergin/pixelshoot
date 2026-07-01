@@ -21,9 +21,13 @@ namespace PixelShoot.Data
         [Tooltip("If conveyor is full, shooters jump to reserve. Game fails when reserve is full.")]
         [SerializeField] private int reserveSlotCapacity = 5;
 
+        [Tooltip("Editor-only: the original designer JSON this level was imported from, kept so the Level Editor can hand it back for copying. Not used at runtime.")]
+        [HideInInspector] [SerializeField] private string sourceJson;
+
         public GridData Grid => grid;
         public IReadOnlyList<ColumnData> Columns => columns;
         public int ConveyorSlotCapacity => conveyorSlotCapacity;
         public int ReserveSlotCapacity => reserveSlotCapacity;
+        public string SourceJson => sourceJson;
     }
 }
