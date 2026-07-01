@@ -39,6 +39,10 @@ namespace PixelShoot.Audio
         [Tooltip("Played by PlayBoxHit() when a box is cleared (transitions to the Hit state).")]
         [SerializeField] private AudioClip boxHitClip;
         [SerializeField, Range(0f, 1f)] private float boxHitVolume = 1f;
+        [Tooltip("Minimum seconds between two box-hit SFX. A hit arriving within this window of the previous one is dropped, so bomb ripples / rapid fire don't machine-gun the sound. 0 = no throttle.")]
+        [SerializeField, Min(0f)] private float boxHitMinInterval = 0.1f;
+
+        private float lastBoxHitTime = -999f;
 
         [System.Serializable]
         public class NamedClip
@@ -97,7 +101,17 @@ namespace PixelShoot.Audio
 
         public void PlayShooterClick() => PlaySfx(shooterClickClip, shooterClickVolume);
 
-        public void PlayBoxHit() => PlaySfx(boxHitClip, boxHitVolume);
+        public void PlayBoxHit()
+        {
+            // Throttle: drop hits that land within boxHitMinInterval of the previous one.
+            if (boxHitMinInterval > 0f)
+            {
+                float now = Time.unscaledTime;
+                if (now - lastBoxHitTime < boxHitMinInterval) return;
+                lastBoxHitTime = now;
+            }
+            PlaySfx(boxHitClip, boxHitVolume);
+        }
 
         private AudioSource GetFreeSfxSource()
         {
