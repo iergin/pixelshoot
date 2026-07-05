@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using PixelShoot.Data;
@@ -26,6 +27,11 @@ namespace PixelShoot.Conveyor
         public int Capacity => capacity;
         public int FreeCount => capacity - (ridingShooters.Count + reservedCount);
         public int OccupiedCount => ridingShooters.Count + reservedCount;
+        public bool IsFull => FreeCount <= 0 && capacity > 0;
+
+        /// <summary>Fired when a slot reservation is attempted while the conveyor is full
+        /// (i.e. the player clicked a shooter that can't board). Drives the HUD shake.</summary>
+        public event Action OnFullSlotAttempt;
         public float MaxPathProgress => cumulativeDistances.Count > 0 ? cumulativeDistances[cumulativeDistances.Count - 1] : 0f;
         public Vector3 EntryWorldPosition => nodes.Count > 0 ? nodes[0].Position : transform.position;
 
@@ -63,7 +69,7 @@ namespace PixelShoot.Conveyor
             boardingDuration = baseBoardingDuration;
             landingProgress = 0f;
 
-            if (FreeCount <= 0) return false;
+            if (FreeCount <= 0) { OnFullSlotAttempt?.Invoke(); return false; }
 
             float now = Time.time;
             float earliestSafeLandTime = lastReservationLandTime + safeSpacing / Mathf.Max(0.0001f, pathSpeed);
