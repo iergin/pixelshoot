@@ -554,6 +554,9 @@ namespace PixelShoot.LevelEditor.EditorTools
                 var newPalette = new List<ColorData>(paletteHex.Count);
                 foreach (var hex in paletteHex)
                 {
+                    // Preserve null slots (unused palette indices) so later colours keep
+                    // their exact colorIndex used by the RLE / sortColumns.
+                    if (string.IsNullOrEmpty(hex)) { newPalette.Add(null); continue; }
                     Color col = ColorUtility.TryParseHtmlString("#" + hex, out var pc) ? pc : Color.magenta;
                     newPalette.Add(GetOrCreateColorData(hex, col));
                 }

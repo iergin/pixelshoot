@@ -64,12 +64,15 @@ namespace PixelShoot.Data
             var mGrid = Regex.Match(text, "\"gridSize\"\\s*:\\s*(\\d+)");
             if (mGrid.Success && int.TryParse(mGrid.Groups[1].Value, out int gs)) result.GridSize = gs;
 
-            // palette — collect all hex strings inside the "palette" array section.
+            // palette — collect entries IN ORDER, preserving null slots. The RLE and
+            // sortColumns reference palette entries by index, so dropping the nulls would
+            // shift every later colour's index (e.g. index 7 → 5) and those cells would
+            // fail to map. A null slot is added as null to keep indices aligned.
             string paletteSection = ExtractJsonValue(text, "palette");
             if (!string.IsNullOrEmpty(paletteSection))
             {
-                foreach (Match m in Regex.Matches(paletteSection, "#([0-9A-Fa-f]{6})"))
-                    result.PaletteHex.Add(m.Groups[1].Value.ToUpperInvariant());
+                foreach (Match m in Regex.Matches(paletteSection, "#([0-9A-Fa-f]{6})|null"))
+                    result.PaletteHex.Add(m.Groups[1].Success ? m.Groups[1].Value.ToUpperInvariant() : null);
             }
 
             // rle — raw text, RLECodec can parse it directly.
