@@ -16,8 +16,7013 @@ MonoBehaviour:
     size: 48
     rootPosition: {x: 0.21762942, y: 0, z: 0.3091293}
     rootScale: {x: 0.37825882, y: 0.37825882, z: 0.37825882}
-    cells: []
-  columns: []
+    cells:
+    - gridX: 17
+      gridZ: 5
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 5
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 5
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 6
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 7
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 8
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 9
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 10
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 11
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 12
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 13
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 14
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 15
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 16
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 17
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 18
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 19
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 20
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 21
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 22
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 6
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 23
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 6
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 24
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 5
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 6
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 11
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 41
+      gridZ: 25
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 5
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 6
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 41
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 42
+      gridZ: 26
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 4
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 5
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 6
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 10
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 41
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 42
+      gridZ: 27
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 4
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 5
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 6
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 41
+      gridZ: 28
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 5
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 6
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 9
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 41
+      gridZ: 29
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 5
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 6
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 8
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 41
+      gridZ: 30
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 6
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 7
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 31
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 12
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 32
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 33
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 13
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 35
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 34
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 36
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 41
+      gridZ: 35
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 34
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 37
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 38
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 41
+      gridZ: 36
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 14
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 33
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 39
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 40
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 41
+      gridZ: 37
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 15
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 32
+      gridZ: 38
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 16
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 31
+      gridZ: 39
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 17
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 18
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 19
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 1
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 29
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 30
+      gridZ: 40
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 20
+      gridZ: 41
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 21
+      gridZ: 41
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 22
+      gridZ: 41
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 23
+      gridZ: 41
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 24
+      gridZ: 41
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 2
+      isBomb: 0
+      keyId: 0
+    - gridX: 25
+      gridZ: 41
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 26
+      gridZ: 41
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 27
+      gridZ: 41
+      isEmpty: 0
+      color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+    - gridX: 28
+      gridZ: 41
+      isEmpty: 0
+      color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      tone: 0
+      isBomb: 0
+      keyId: 0
+  columns:
+  - shooters:
+    - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      shotCount: 26
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      shotCount: 31
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 36
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      shotCount: 31
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      shotCount: 34
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      shotCount: 35
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      shotCount: 17
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      shotCount: 37
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      shotCount: 24
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 23
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+  - shooters:
+    - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      shotCount: 24
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 28
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      shotCount: 5
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      shotCount: 28
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      shotCount: 9
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      shotCount: 14
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      shotCount: 24
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      shotCount: 32
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 31
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 9
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 32
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 36
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+  - shooters:
+    - color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      shotCount: 28
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
+      shotCount: 23
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 5
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      shotCount: 21
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 36
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      shotCount: 36
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 39
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 21
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+  - shooters:
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 28
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
+      shotCount: 14
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      shotCount: 23
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
+      shotCount: 14
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
+      shotCount: 17
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 23
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
+      shotCount: 39
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
+    - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
+      shotCount: 14
+      isSurprise: 0
+      linkGroupId: 0
+      lockKeyId: 0
   conveyorSlotCapacity: 5
   reserveSlotCapacity: 5
-  sourceJson: 
+  sourceJson: "{\n  \"version\": 1,\n  \"generatedAt\": \"2026-07-05T15:09:28.902Z\",\n 
+    \"gridSize\": 48,\n  \"palette\": [\n    \"#3F4658\",\n    \"#181B24\",\n   
+    \"#A61E3C\",\n    \"#FF8C1A\",\n    \"#F7EA3A\",\n    \"#F7EA3A\",\n   \"#F7EA3A\",\n   
+    \"#A8642A\"\n  ],\n  \"transparentMarker\": -1,\n  \"rle\": [\n    [\n      -1,\n     
+    48\n    ],\n    [\n      -1,\n      48\n    ],\n    [\n      -1,\n      48\n   
+    ],\n    [\n      -1,\n      48\n    ],\n    [\n      -1,\n      48\n    ],\n   
+    [\n      -1,\n      48\n    ],\n    [\n      -1,\n      20,\n      1,\n     
+    8,\n      0,\n      1,\n      -1,\n      19\n    ],\n    [\n      -1,\n     
+    17,\n      1,\n      3,\n      0,\n      1,\n      2,\n      8,\n      1,\n     
+    2,\n      -1,\n      17\n    ],\n    [\n      -1,\n      16,\n      1,\n     
+    1,\n      0,\n      1,\n      2,\n      13,\n      1,\n      1,\n      -1,\n     
+    16\n    ],\n    [\n      -1,\n      15,\n      1,\n      1,\n      0,\n     
+    1,\n      2,\n      15,\n      1,\n      1,\n      -1,\n      15\n    ],\n   
+    [\n      -1,\n      14,\n      1,\n      1,\n      0,\n      1,\n      2,\n     
+    17,\n      1,\n      1,\n      -1,\n      5,\n      1,\n      3,\n      -1,\n     
+    6\n    ],\n    [\n      -1,\n      14,\n      0,\n      1,\n      2,\n      19,\n     
+    1,\n      1,\n      -1,\n      2,\n      1,\n      2,\n      2,\n      2,\n     
+    1,\n      1,\n      -1,\n      6\n    ],\n    [\n      -1,\n      14,\n     
+    1,\n      1,\n      2,\n      19,\n      1,\n      1,\n      -1,\n      1,\n     
+    1,\n      1,\n      2,\n      4,\n      1,\n      1,\n      -1,\n      6\n   
+    ],\n    [\n      -1,\n      13,\n      1,\n      1,\n      2,\n      3,\n     
+    7,\n      1,\n      4,\n      5,\n      7,\n      1,\n      1,\n      2,\n     
+    2,\n      9,\n      1,\n      1,\n      2,\n      4,\n      0,\n      1,\n     
+    -1,\n      7\n    ],\n    [\n      -1,\n      13,\n      1,\n      1,\n     
+    7,\n      1,\n      4,\n      7,\n      7,\n      1,\n      1,\n      1,\n     
+    7,\n      1,\n      4,\n      3,\n      0,\n      1,\n      1,\n      1,\n     
+    2,\n      5,\n      1,\n      1,\n      2,\n      4,\n      1,\n      1,\n     
+    -1,\n      7\n    ],\n    [\n      -1,\n      12,\n      1,\n      1,\n     
+    4,\n      8,\n      7,\n      1,\n      1,\n      1,\n      7,\n      1,\n     
+    4,\n      6,\n      0,\n      1,\n      2,\n      4,\n      1,\n      1,\n     
+    2,\n      4,\n      1,\n      1,\n      -1,\n      7\n    ],\n    [\n      -1,\n     
+    6,\n      1,\n      2,\n      -1,\n      4,\n      1,\n      1,\n      4,\n     
+    2,\n      7,\n      1,\n      1,\n      3,\n      7,\n      2,\n      1,\n     
+    1,\n      7,\n      1,\n      4,\n      9,\n      0,\n      1,\n      2,\n     
+    3,\n      1,\n      4,\n      -1,\n      8\n    ],\n    [\n      -1,\n      5,\n     
+    1,\n      1,\n      7,\n      2,\n      1,\n      1,\n      -1,\n      3,\n     
+    1,\n      1,\n      4,\n      1,\n      7,\n      1,\n      1,\n      2,\n     
+    0,\n      2,\n      1,\n      2,\n      7,\n      1,\n      4,\n      11,\n     
+    1,\n      1,\n      2,\n      2,\n      1,\n      1,\n      2,\n      3,\n     
+    1,\n      2,\n      -1,\n      6\n    ],\n    [\n      -1,\n      5,\n      1,\n     
+    1,\n      7,\n      3,\n      1,\n      1,\n      -1,\n      2,\n      1,\n     
+    5,\n      0,\n      2,\n      1,\n      1,\n      7,\n      1,\n      4,\n     
+    7,\n      1,\n      1,\n      0,\n      1,\n      4,\n      4,\n      1,\n     
+    1,\n      2,\n      1,\n      1,\n      1,\n      2,\n      4,\n      1,\n     
+    1,\n      -1,\n      6\n    ],\n    [\n      -1,\n      4,\n      1,\n      1,\n     
+    7,\n      4,\n      1,\n      1,\n      -1,\n      2,\n      1,\n      1,\n     
+    3,\n      1,\n      1,\n      2,\n      0,\n      2,\n      1,\n      2,\n     
+    7,\n      1,\n      4,\n      6,\n      0,\n      1,\n      1,\n      1,\n     
+    4,\n      1,\n      0,\n      1,\n      4,\n      4,\n      1,\n      2,\n     
+    2,\n      4,\n      1,\n      1,\n      -1,\n      6\n    ],\n    [\n      -1,\n     
+    4,\n      0,\n      1,\n      7,\n      5,\n      1,\n      1,\n      -1,\n     
+    1,\n      1,\n      1,\n      4,\n      1,\n      3,\n      1,\n      1,\n     
+    5,\n      7,\n      1,\n      3,\n      4,\n      4,\n      2,\n      0,\n     
+    1,\n      1,\n      2,\n      0,\n      1,\n      4,\n      4,\n      1,\n     
+    1,\n      -1,\n      1,\n      1,\n      1,\n      2,\n      4,\n      1,\n     
+    1,\n      -1,\n      5\n    ],\n    [\n      -1,\n      5,\n      1,\n      1,\n     
+    7,\n      4,\n      1,\n      1,\n      -1,\n      1,\n      1,\n      1,\n     
+    4,\n      2,\n      7,\n      1,\n      1,\n      1,\n      0,\n      2,\n     
+    7,\n      1,\n      3,\n      6,\n      4,\n      1,\n      7,\n      1,\n     
+    1,\n      2,\n      7,\n      1,\n      4,\n      4,\n      1,\n      1,\n     
+    -1,\n      2,\n      1,\n      2,\n      2,\n      1,\n      1,\n      2,\n     
+    -1,\n      5\n    ],\n    [\n      -1,\n      5,\n      0,\n      1,\n      7,\n     
+    5,\n      1,\n      2,\n      4,\n      5,\n      3,\n      10,\n      4,\n     
+    7,\n      1,\n      1,\n      -1,\n      4,\n      0,\n      1,\n      1,\n     
+    1,\n      -1,\n      6\n    ],\n    [\n      -1,\n      6,\n      1,\n      1,\n     
+    7,\n      4,\n      1,\n      1,\n      0,\n      1,\n      4,\n      4,\n     
+    3,\n      12,\n      4,\n      5,\n      1,\n      1,\n      -1,\n      13\n   
+    ],\n    [\n      -1,\n      6,\n      1,\n      1,\n      7,\n      4,\n     
+    1,\n      1,\n      -1,\n      1,\n      0,\n      1,\n      4,\n      3,\n     
+    3,\n      4,\n      7,\n      4,\n      3,\n      4,\n      4,\n      5,\n     
+    0,\n      1,\n      -1,\n      13\n    ],\n    [\n      -1,\n      7,\n     
+    1,\n      1,\n      7,\n      3,\n      1,\n      1,\n      -1,\n      2,\n     
+    0,\n      1,\n      4,\n      3,\n      3,\n      10,\n      4,\n      5,\n     
+    0,\n      1,\n      -1,\n      14\n    ],\n    [\n      -1,\n      7,\n     
+    0,\n      1,\n      7,\n      3,\n      1,\n      2,\n      0,\n      1,\n     
+    1,\n      1,\n      7,\n      1,\n      4,\n      4,\n      3,\n      6,\n     
+    4,\n      6,\n      7,\n      1,\n      4,\n      1,\n      0,\n      1,\n     
+    -1,\n      13\n    ],\n    [\n      -1,\n      8,\n      1,\n      1,\n     
+    0,\n      2,\n      7,\n      2,\n      1,\n      1,\n      7,\n      1,\n     
+    3,\n      2,\n      4,\n      18,\n      0,\n      1,\n      -1,\n      12\n   
+    ],\n    [\n      -1,\n      7,\n      1,\n      1,\n      7,\n      3,\n     
+    0,\n      1,\n      7,\n      2,\n      4,\n      1,\n      3,\n      1,\n     
+    4,\n      20,\n      0,\n      1,\n      -1,\n      11\n    ],\n    [\n     
+    -1,\n      7,\n      0,\n      5,\n      4,\n      25,\n      1,\n      1,\n     
+    -1,\n      10\n    ],\n    [\n      -1,\n      8,\n      0,\n      1,\n     
+    1,\n      1,\n      7,\n      1,\n      4,\n      3,\n      3,\n      2,\n     
+    4,\n      16,\n      3,\n      1,\n      4,\n      4,\n      0,\n      1,\n     
+    -1,\n      10\n    ],\n    [\n      -1,\n      9,\n      1,\n      1,\n     
+    4,\n      4,\n      3,\n      2,\n      4,\n      16,\n      3,\n      1,\n     
+    4,\n      5,\n      0,\n      1,\n      -1,\n      9\n    ],\n    [\n      -1,\n     
+    9,\n      0,\n      1,\n      7,\n      1,\n      4,\n      1,\n      3,\n     
+    3,\n      4,\n      18,\n      3,\n      1,\n      4,\n      4,\n      0,\n     
+    1,\n      -1,\n      9\n    ],\n    [\n      -1,\n      10,\n      0,\n     
+    1,\n      7,\n      1,\n      3,\n      3,\n      4,\n      19,\n      3,\n     
+    1,\n      4,\n      2,\n      7,\n      1,\n      0,\n      1,\n      -1,\n     
+    9\n    ],\n    [\n      -1,\n      11,\n      0,\n      3,\n      3,\n      1,\n     
+    4,\n      19,\n      3,\n      1,\n      7,\n      2,\n      0,\n      1,\n     
+    -1,\n      10\n    ],\n    [\n      -1,\n      13,\n      0,\n      1,\n     
+    3,\n      2,\n      4,\n      17,\n      3,\n      1,\n      7,\n      1,\n     
+    0,\n      2,\n      -1,\n      11\n    ],\n    [\n      -1,\n      14,\n     
+    0,\n      1,\n      3,\n      1,\n      4,\n      16,\n      3,\n      1,\n     
+    7,\n      1,\n      0,\n      1,\n      -1,\n      13\n    ],\n    [\n      -1,\n     
+    15,\n      0,\n      1,\n      3,\n      2,\n      4,\n      11,\n      3,\n     
+    4,\n      0,\n      1,\n      -1,\n      14\n    ],\n    [\n      -1,\n     
+    15,\n      0,\n      1,\n      7,\n      1,\n      3,\n      4,\n      4,\n     
+    6,\n      3,\n      5,\n      7,\n      1,\n      0,\n      1,\n      -1,\n     
+    14\n    ],\n    [\n      -1,\n      14,\n      0,\n      1,\n      7,\n     
+    1,\n      3,\n      4,\n      7,\n      8,\n      3,\n      5,\n      7,\n     
+    1,\n      1,\n      1,\n      -1,\n      13\n    ],\n    [\n      -1,\n     
+    14,\n      1,\n      1,\n      7,\n      2,\n      3,\n      1,\n      7,\n     
+    2,\n      1,\n      1,\n      0,\n      1,\n      1,\n      5,\n      0,\n     
+    1,\n      7,\n      2,\n      3,\n      2,\n      7,\n      2,\n      1,\n     
+    1,\n      -1,\n      13\n    ],\n    [\n      -1,\n      14,\n      1,\n     
+    2,\n      0,\n      1,\n      7,\n      1,\n      0,\n      1,\n      1,\n     
+    2,\n      -1,\n      5,\n      1,\n      3,\n      0,\n      1,\n      7,\n     
+    2,\n      1,\n      3,\n      -1,\n      13\n    ],\n    [\n      -1,\n     
+    17,\n      1,\n      1,\n      -1,\n      12,\n      1,\n      2,\n      -1,\n     
+    16\n    ],\n    [\n      -1,\n      48\n    ],\n    [\n      -1,\n      48\n   
+    ],\n    [\n      -1,\n      48\n    ],\n    [\n      -1,\n      48\n    ],\n   
+    [\n      -1,\n      48\n    ]\n  ],\n  \"sortColumns\": [\n    [\n      {\n       
+    \"color\": \"#181B24\",\n        \"colorIndex\": 1,\n        \"count\": 26\n     
+    },\n      {\n        \"color\": \"#A8642A\",\n        \"colorIndex\": 7,\n       
+    \"count\": 31\n      },\n      {\n        \"color\": \"#F7EA3A\",\n        \"colorIndex\":
+    4,\n        \"count\": 36\n      },\n      {\n        \"color\": \"#FF8C1A\",\n       
+    \"colorIndex\": 3,\n        \"count\": 31\n      },\n      {\n        \"color\":
+    \"#181B24\",\n        \"colorIndex\": 1,\n        \"count\": 34\n      },\n     
+    {\n        \"color\": \"#A61E3C\",\n        \"colorIndex\": 2,\n        \"count\":
+    35\n      },\n      {\n        \"color\": \"#181B24\",\n        \"colorIndex\":
+    1,\n        \"count\": 17\n      },\n      {\n        \"color\": \"#A61E3C\",\n       
+    \"colorIndex\": 2,\n        \"count\": 37\n      },\n      {\n        \"color\":
+    \"#3F4658\",\n        \"colorIndex\": 0,\n        \"count\": 24\n      },\n     
+    {\n        \"color\": \"#F7EA3A\",\n        \"colorIndex\": 4,\n        \"count\":
+    23\n      }\n    ],\n    [\n      {\n        \"color\": \"#A61E3C\",\n       
+    \"colorIndex\": 2,\n        \"count\": 24\n      },\n      {\n        \"color\":
+    \"#F7EA3A\",\n        \"colorIndex\": 4,\n        \"count\": 28\n      },\n     
+    {\n        \"color\": \"#A8642A\",\n        \"colorIndex\": 7,\n        \"count\":
+    5\n      },\n      {\n        \"color\": \"#A8642A\",\n        \"colorIndex\":
+    7,\n        \"count\": 28\n      },\n      {\n        \"color\": \"#A61E3C\",\n       
+    \"colorIndex\": 2,\n        \"count\": 9\n      },\n      {\n        \"color\":
+    \"#181B24\",\n        \"colorIndex\": 1,\n        \"count\": 14\n      },\n     
+    {\n        \"color\": \"#A61E3C\",\n        \"colorIndex\": 2,\n        \"count\":
+    24\n      },\n      {\n        \"color\": \"#3F4658\",\n        \"colorIndex\":
+    0,\n        \"count\": 32\n      },\n      {\n        \"color\": \"#F7EA3A\",\n       
+    \"colorIndex\": 4,\n        \"count\": 31\n      },\n      {\n        \"color\":
+    \"#F7EA3A\",\n        \"colorIndex\": 4,\n        \"count\": 9\n      },\n     
+    {\n        \"color\": \"#F7EA3A\",\n        \"colorIndex\": 4,\n        \"count\":
+    32\n      },\n      {\n        \"color\": \"#F7EA3A\",\n        \"colorIndex\":
+    4,\n        \"count\": 36\n      }\n    ],\n    [\n      {\n        \"color\":
+    \"#FF8C1A\",\n        \"colorIndex\": 3,\n        \"count\": 28\n      },\n     
+    {\n        \"color\": \"#A61E3C\",\n        \"colorIndex\": 2,\n        \"count\":
+    23\n      },\n      {\n        \"color\": \"#F7EA3A\",\n        \"colorIndex\":
+    4,\n        \"count\": 5\n      },\n      {\n        \"color\": \"#A8642A\",\n       
+    \"colorIndex\": 7,\n        \"count\": 21\n      },\n      {\n        \"color\":
+    \"#F7EA3A\",\n        \"colorIndex\": 4,\n        \"count\": 36\n      },\n     
+    {\n        \"color\": \"#FF8C1A\",\n        \"colorIndex\": 3,\n        \"count\":
+    36\n      },\n      {\n        \"color\": \"#F7EA3A\",\n        \"colorIndex\":
+    4,\n        \"count\": 39\n      },\n      {\n        \"color\": \"#F7EA3A\",\n       
+    \"colorIndex\": 4,\n        \"count\": 21\n      }\n    ],\n    [\n      {\n       
+    \"color\": \"#F7EA3A\",\n        \"colorIndex\": 4,\n        \"count\": 28\n     
+    },\n      {\n        \"color\": \"#FF8C1A\",\n        \"colorIndex\": 3,\n       
+    \"count\": 14\n      },\n      {\n        \"color\": \"#181B24\",\n        \"colorIndex\":
+    1,\n        \"count\": 23\n      },\n      {\n        \"color\": \"#3F4658\",\n       
+    \"colorIndex\": 0,\n        \"count\": 14\n      },\n      {\n        \"color\":
+    \"#A8642A\",\n        \"colorIndex\": 7,\n        \"count\": 17\n      },\n     
+    {\n        \"color\": \"#F7EA3A\",\n        \"colorIndex\": 4,\n        \"count\":
+    23\n      },\n      {\n        \"color\": \"#181B24\",\n        \"colorIndex\":
+    1,\n        \"count\": 39\n      },\n      {\n        \"color\": \"#F7EA3A\",\n       
+    \"colorIndex\": 4,\n        \"count\": 14\n      }\n    ]\n  ],\n  \"bombs\":
+    [],\n  \"numbered\": [],\n  \"config\": {\n    \"conveyorWidth\": 5,\n    \"conveyorGap\":
+    3,\n    \"hitCount\": 3,\n    \"bombCount\": null\n  },\n  \"difficulty\": {\n   
+    \"finalScore\": 77,\n    \"finalScoreV2\": 77,\n    \"imageHardness\": 70,\n   
+    \"imageHardnessV2\": 71,\n    \"sortMultiplier\": 1.08,\n    \"sortMultiplierV2\":
+    1.08,\n    \"classification\": \"Hard\",\n    \"minPeakSlots\": 5,\n    \"mustOverlap\":
+    false,\n    \"forcedFull1\": true,\n    \"forcedFull2\": false,\n    \"forcedFull3\":
+    false,\n    \"sameColumnStreak\": 5,\n    \"oneAtATimeSolvable\": false,\n   
+    \"criticalMoments\": 5,\n    \"lookaheadHardCount\": 5,\n    \"trapMoveCount\":
+    0,\n    \"avgRegret\": 0,\n    \"maxRegret\": 0,\n    \"maxDangerStreak\": 5,\n   
+    \"maxColorReachabilityDepth\": 1,\n    \"bottleneckColors\": [],\n    \"shooterTotal\":
+    38,\n    \"shooterPerColumn\": [\n      10,\n      12,\n      8,\n      8\n   
+    ],\n    \"shooterSizeCounts\": {\n      \"small\": 4,\n      \"medium\": 15,\n     
+    \"large\": 19\n    },\n    \"shooterSizePct\": {\n      \"small\": 10.5,\n     
+    \"medium\": 39.5,\n      \"large\": 50\n    },\n    \"backToBackSameColor\":
+    5\n  }\n}\n"
