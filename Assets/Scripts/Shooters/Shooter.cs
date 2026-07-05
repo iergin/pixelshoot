@@ -25,6 +25,8 @@ namespace PixelShoot.Shooters
     public class Shooter : MonoBehaviour
     {
         [SerializeField] private MeshRenderer meshRenderer;
+        [Tooltip("Extra bus meshes (body panels etc.) that should also be tinted with the bus colour's ShooterMaterial. The main meshRenderer above is coloured too even if not listed here.")]
+        [SerializeField] private MeshRenderer[] colorRenderers;
         [Tooltip("Seat manager that owns the visible stickmen. If null, hits are applied instantly with no projectile.")]
         [SerializeField] private BusSeatController seats;
         [SerializeField] private float jumpPower = 1.5f;
@@ -125,17 +127,19 @@ namespace PixelShoot.Shooters
             IsLocked = lockKeyId > 0;
             if (lockVisual != null) lockVisual.SetActive(IsLocked);
 
-            if (meshRenderer != null && c != null && c.ShooterMaterial != null)
+            if (c != null && c.ShooterMaterial != null)
             {
+                // Tint the main mesh + every extra bus mesh with the bus colour.
                 // Use sharedMaterials (not materials) so we don't clone-and-leak the
                 // material instance every time Initialize runs — especially important
                 // when the level editor rebuilds the scene preview in edit mode.
-                Material[] mats = meshRenderer.sharedMaterials;
-                mats[0] = c.ShooterMaterial;
-                meshRenderer.sharedMaterials = mats;
+                ApplyColorMaterial(meshRenderer, c.ShooterMaterial);
+                if (colorRenderers != null)
+                    foreach (var r in colorRenderers)
+                        ApplyColorMaterial(r, c.ShooterMaterial);
             }
 
-            // Populate the bus seats with stickmen (visible 6 + hidden reserve).
+            // Bind the bus colour; passengers are now spawned on demand (one per shot).
             if (seats != null) seats.Initialize(shotCount, c);
 
             // Surprise: hide the real bus behind the "?" cover until it surfaces.
@@ -143,6 +147,16 @@ namespace PixelShoot.Shooters
             if (surpriseVisual != null) surpriseVisual.SetActive(isSurprise);
 
             StartEngineWobble();
+        }
+
+        // Swap element 0 of a renderer's shared materials to the bus colour (no leak).
+        private static void ApplyColorMaterial(Renderer r, Material mat)
+        {
+            if (r == null || mat == null) return;
+            Material[] mats = r.sharedMaterials;
+            if (mats.Length == 0) return;
+            mats[0] = mat;
+            r.sharedMaterials = mats;
         }
 
         // ── Surprise ─────────────────────────────────────────────────────────
@@ -526,8 +540,8 @@ namespace PixelShoot.Shooters
 
         /// <summary>
         /// Pops at most one queued launch per call, spacing consecutive launches by
-        /// <see cref="launchInterval"/>. The stickman is popped from the seats at
-        /// ACTUAL launch time so the seat queue order always matches launch order.
+        /// <see cref="launchInterval"/>. A stickman is spawned from the pool at ACTUAL
+        /// launch time and immediately flies at its target.
         /// </summary>
         private void DrainLaunchQueue()
         {
@@ -543,7 +557,7 @@ namespace PixelShoot.Shooters
 
         private void LaunchOne(Box target)
         {
-            var stickman = seats != null ? seats.PopFront() : null;
+            var stickman = seats != null ? seats.SpawnRunner() : null;
             if (stickman != null) stickman.LaunchAt(target, grid);
             else if (grid != null) grid.NotifyBoxHit(target); // bus visually empty — instant hit fallback
         }

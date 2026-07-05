@@ -6,14 +6,9 @@ using PixelShoot.Grid;
 namespace PixelShoot.Shooters
 {
     /// <summary>
-    /// A passenger riding the bus (the projectile that replaces the old Bullet).
-    /// Sits in a seat playing the idle animation; on launch it plays the falling
-    /// animation, flies straight to the target box, and applies the hit.
-    ///
-    /// <para><b>Seat shifting</b>: the bus retargets stickmen with
-    /// <see cref="MoveToSeat"/>; a new call kills the previous shift tween so
-    /// rapid-fire never desyncs the queue — the LOGICAL order lives in
-    /// BusSeatController's list, visuals just catch up.</para>
+    /// A bus passenger (the projectile that replaces the old Bullet). It is spawned from
+    /// the pool at the bus's single spawn point, then immediately flies straight to its
+    /// target box and applies the hit. On arrival it returns to the pool (no Destroy).
     /// </summary>
     public class Stickman : MonoBehaviour
     {
@@ -38,9 +33,12 @@ namespace PixelShoot.Shooters
         [Tooltip("Scale multiplier at the midpoint of the flight — the stickman grows to this then shrinks back to its default scale. 1 = no scale change.")]
         [SerializeField, Min(1f)] private float apexScaleMultiplier = 1.4f;
 
-        private Tween seatTween;
         private Tween flightTween;
         private Tween flightScaleTween;
+
+        /// <summary>The prefab this instance was pooled from (set by <see cref="StickmanPool"/>).</summary>
+        public Stickman SourcePrefab { get; private set; }
+        public void SetSourcePrefab(Stickman prefab) => SourcePrefab = prefab;
 
         // Cached easing curve built from startSpeed / endSpeed (rebuilt when they change).
         private AnimationCurve flightCurve;
@@ -76,39 +74,16 @@ namespace PixelShoot.Shooters
         public void PlayIdle()
         {
             if (animator != null && !string.IsNullOrEmpty(idleState))
-                animator.Play(idleState, 0, Random.value); // random offset so seated stickmen don't move in lockstep
-        }
-
-        /// <summary>
-        /// Tween this stickman's local position to a seat. Kills any previous shift so
-        /// overlapping fires can retarget mid-flight without visual desync.
-        /// </summary>
-        public void MoveToSeat(Vector3 localTarget, float duration)
-        {
-            seatTween?.Kill();
-            if (duration <= 0f || !Application.isPlaying)
-            {
-                transform.localPosition = localTarget;
-                return;
-            }
-            seatTween = transform.DOLocalMove(localTarget, duration).SetEase(Ease.OutCubic);
-        }
-
-        /// <summary>Place instantly on a seat (used at spawn so newcomers don't slide in from origin).</summary>
-        public void SnapToSeat(Vector3 localTarget)
-        {
-            seatTween?.Kill();
-            transform.localPosition = localTarget;
+                animator.Play(idleState, 0, Random.value); // random offset so spawns don't move in lockstep
         }
 
         /// <summary>
         /// Detach from the bus and fly straight to the target box (eased DOMove).
         /// Applies the hit via <see cref="GridController.NotifyBoxHit"/> on landing,
-        /// then destroys itself.
+        /// then returns to the pool.
         /// </summary>
         public void LaunchAt(Box target, GridController grid)
         {
-            seatTween?.Kill();
             flightTween?.Kill();
             transform.SetParent(null, true); // survive the bus expiring mid-flight
 
@@ -128,7 +103,7 @@ namespace PixelShoot.Shooters
                 {
                     if (grid != null && target != null && target.IsAlive)
                         grid.NotifyBoxHit(target);
-                    Destroy(gameObject);
+                    StickmanPool.Release(this);
                 });
 
             // Scale pulse over the flight: grow to the midpoint, shrink BACK TO the
@@ -143,20 +118,25 @@ namespace PixelShoot.Shooters
             }
         }
 
-        /// <summary>Quick disappear used when a bomb consumes this stickman from the back of the bus.</summary>
+        /// <summary>Quick disappear (e.g. bomb payback); returns to the pool afterwards.</summary>
         public void DespawnImmediate()
         {
-            seatTween?.Kill();
             flightTween?.Kill();
             flightScaleTween?.Kill();
             transform.DOScale(Vector3.zero, 0.15f)
                 .SetEase(Ease.InBack)
-                .OnComplete(() => { if (this != null) Destroy(gameObject); });
+                .OnComplete(() => StickmanPool.Release(this));
+        }
+
+        /// <summary>Called by the pool before an instance is parked — cancel any running tweens.</summary>
+        public void ResetForPool()
+        {
+            flightTween?.Kill();
+            flightScaleTween?.Kill();
         }
 
         private void OnDestroy()
         {
-            seatTween?.Kill();
             flightTween?.Kill();
             flightScaleTween?.Kill();
         }
