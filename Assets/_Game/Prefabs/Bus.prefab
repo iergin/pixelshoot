@@ -97,8 +97,9 @@ GameObject:
   - component: {fileID: 1937374478709863890}
   - component: {fileID: 8935555486820125722}
   - component: {fileID: 7720616039176130034}
+  - component: {fileID: 8351551997363262189}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: CountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -267,6 +268,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 8935555486820125722}
   m_maskType: 0
+--- !u!114 &8351551997363262189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4059014458453625921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11bed792d382e46caba13eb484e60b08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.Billboard
+  cam: {fileID: 0}
+  yAxisOnly: 0
 --- !u!1 &4842609585320742802
 GameObject:
   m_ObjectHideFlags: 0

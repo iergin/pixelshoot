@@ -4,10 +4,15 @@ namespace PixelShoot.UI
 {
     /// <summary>
     /// Keeps a world-space object (e.g. a TMP text over the bus) always facing the camera.
-    /// Runs in LateUpdate so it tracks after all movement. Optionally lock to Y-only so a
-    /// ground label just spins to face the camera without tilting.
+    /// It OVERWRITES the world rotation every LateUpdate, so the object never inherits the
+    /// bus's rotation — parent it to the bus (so it follows position) and its facing stays
+    /// locked to the camera regardless of how the bus turns.
+    ///
+    /// <para>High execution order so it runs AFTER any script that rotates the bus, even if
+    /// that also happens in LateUpdate.</para>
     /// </summary>
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(10000)]
     public class Billboard : MonoBehaviour
     {
         [Tooltip("Camera to face. Defaults to Camera.main.")]
