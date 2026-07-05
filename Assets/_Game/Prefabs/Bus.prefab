@@ -350,8 +350,8 @@ MonoBehaviour:
   conveyorScale: 1
   launchInterval: 0.12
   wobbleTarget: {fileID: 7100344792059929981}
-  wobbleAmount: 0.04
-  wobbleDuration: 0.18
+  wobbleAmount: 0.06
+  wobbleDuration: 0.6
   busVisualRoot: {fileID: 0}
   surpriseVisual: {fileID: 0}
   revealPunch: 0.25
