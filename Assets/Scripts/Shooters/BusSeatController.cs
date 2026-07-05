@@ -18,6 +18,8 @@ namespace PixelShoot.Shooters
         [SerializeField] private Stickman stickmanPrefab;
         [Tooltip("Uniform scale applied to each spawned stickman.")]
         [SerializeField] private float stickmanScale = 1.27f;
+        [Tooltip("Optional bus doors that swing open each time a stickman spawns.")]
+        [SerializeField] private BusDoors doors;
 
         private ColorData color;
 
@@ -42,6 +44,7 @@ namespace PixelShoot.Shooters
             s.transform.localScale = Vector3.one * stickmanScale;
             s.SetColor(color);
             s.PlayIdle();
+            if (doors != null) doors.Open(); // swing the doors open (reopens if mid-close)
             return s;
         }
 

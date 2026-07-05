@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using DG.Tweening;
 using PixelShoot.Data;
 using PixelShoot.Grid;
@@ -29,6 +30,8 @@ namespace PixelShoot.Shooters
         [SerializeField] private MeshRenderer[] colorRenderers;
         [Tooltip("Seat manager that owns the visible stickmen. If null, hits are applied instantly with no projectile.")]
         [SerializeField] private BusSeatController seats;
+        [Tooltip("Optional world-space label showing how many stickmen are left to spawn (add a Billboard so it faces the camera).")]
+        [SerializeField] private TMP_Text shotCountLabel;
         [SerializeField] private float jumpPower = 1.5f;
         [Header("Conveyor facing")]
         [Tooltip("How fast the bus turns to face its travel direction, in degrees per second. Higher = snappier cornering.")]
@@ -141,12 +144,19 @@ namespace PixelShoot.Shooters
 
             // Bind the bus colour; passengers are now spawned on demand (one per shot).
             if (seats != null) seats.Initialize(shotCount, c);
+            RefreshShotLabel();
 
             // Surprise: hide the real bus behind the "?" cover until it surfaces.
             SetVisualHidden(isSurprise);
             if (surpriseVisual != null) surpriseVisual.SetActive(isSurprise);
 
             StartEngineWobble();
+        }
+
+        // Update the world-space "shots left" label (no-op if none assigned).
+        private void RefreshShotLabel()
+        {
+            if (shotCountLabel != null) shotCountLabel.text = Mathf.Max(0, shotsRemaining).ToString();
         }
 
         // Swap element 0 of a renderer's shared materials to the bus colour (no leak).
@@ -524,6 +534,7 @@ namespace PixelShoot.Shooters
             // visual launch, so a delayed stickman can't cause double-targeting.
             target.ReserveHit();
             shotsRemaining--;
+            RefreshShotLabel();
 
             if (seats != null)
             {
@@ -592,6 +603,7 @@ namespace PixelShoot.Shooters
             if (amount <= 0 || shotsRemaining <= 0) return 0;
             int taken = Mathf.Min(amount, shotsRemaining);
             shotsRemaining -= taken;
+            RefreshShotLabel();
             // Mirror the deduction on the bus: stickmen leave from the back
             // (hidden reserve drains first, then back seats despawn).
             if (seats != null) seats.ConsumeFromBack(taken);
