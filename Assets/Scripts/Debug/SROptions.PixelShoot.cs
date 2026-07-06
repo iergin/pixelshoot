@@ -68,6 +68,38 @@ public partial class SROptions
         OnPropertyChanged(nameof(CoinBalance));
     }
 
+    // ── Lives ───────────────────────────────────────────────────────────
+    [Category("PixelShoot — Lives"), Sort(0)]
+    [DisplayName("Lives")]
+    public int LivesCount => PlayerLives.Lives;
+
+    [Category("PixelShoot — Lives"), Sort(1)]
+    [DisplayName("Add life")]
+    public void DebugAddLife()
+    {
+        PlayerLives.AddLives(1);
+        Debug.Log($"[SRDebug] +1 life. Lives now {PlayerLives.Lives}.");
+        OnPropertyChanged(nameof(LivesCount));
+    }
+
+    [Category("PixelShoot — Lives"), Sort(2)]
+    [DisplayName("Refill (full)")]
+    public void DebugRefillLives()
+    {
+        PlayerLives.Refill();
+        Debug.Log($"[SRDebug] Lives refilled to {PlayerLives.Lives}.");
+        OnPropertyChanged(nameof(LivesCount));
+    }
+
+    [Category("PixelShoot — Lives"), Sort(3)]
+    [DisplayName("Reset to 0")]
+    public void DebugZeroLives()
+    {
+        PlayerLives.SetLives(0);
+        Debug.Log("[SRDebug] Lives reset to 0 (regen timer restarted).");
+        OnPropertyChanged(nameof(LivesCount));
+    }
+
     // ── Ads ─────────────────────────────────────────────────────────────
     [Category("PixelShoot — Ads")]
     [DisplayName("Show interstitial")]

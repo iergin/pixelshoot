@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using PixelShoot.Shop;
+using PixelShoot.Game;
 
 namespace PixelShoot.UI
 {
@@ -42,8 +43,14 @@ namespace PixelShoot.UI
         [Tooltip("Open the menu automatically on scene start.")]
         [SerializeField] private bool openOnStart = true;
 
+        [Header("Lives")]
+        [Tooltip("Shown when Start is pressed with no lives left (refill with coins / rewarded ad).")]
+        [SerializeField] private OutOfLivesController outOfLives;
+
         /// <summary>Fired the moment the start transition finishes and gameplay begins.</summary>
         public event Action OnGameStarted;
+        /// <summary>Fired when Start is pressed but the player has no lives left.</summary>
+        public event Action OnOutOfLives;
 
         private bool starting;
 
@@ -103,6 +110,27 @@ namespace PixelShoot.UI
         public void StartGame()
         {
             if (starting) return;
+
+            // A life is spent the instant the level starts — once committed it's gone even
+            // if the player quits or backs out. Block the start (and show the out-of-lives
+            // UI) when there are none left.
+            if (!PlayerLives.TryConsumeForLevelStart())
+            {
+                if (outOfLives != null)
+                {
+                    Debug.Log($"[MainMenu] Start blocked — out of lives. Opening '{outOfLives.name}'.");
+                    outOfLives.Open();
+                }
+                else
+                {
+                    Debug.LogWarning("[MainMenu] Start blocked — out of lives, but the 'Out Of Lives' " +
+                                     "reference is NOT assigned. Run Generator ▶ Create Out Of Lives Panel UI, " +
+                                     "or drag the OutOfLivesController onto MainMenuController.outOfLives.");
+                }
+                OnOutOfLives?.Invoke();
+                return;
+            }
+
             starting = true;
 
             // Reveal the game panel underneath right away so the fade-out uncovers live gameplay.
