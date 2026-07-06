@@ -509,6 +509,14 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -7884947305597208214, guid: 2b54192e762481946a6783cd4ab2a324, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 450
+      objectReference: {fileID: 0}
+    - target: {fileID: -7074249778142525385, guid: 2b54192e762481946a6783cd4ab2a324, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 450
+      objectReference: {fileID: 0}
     - target: {fileID: -3379382682831265090, guid: 2b54192e762481946a6783cd4ab2a324, type: 3}
       propertyPath: m_Name
       value: Color
@@ -536,6 +544,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 2b54192e762481946a6783cd4ab2a324, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5161575572513830354, guid: 2b54192e762481946a6783cd4ab2a324, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 450
+      objectReference: {fileID: 0}
+    - target: {fileID: 5205109200884819643, guid: 2b54192e762481946a6783cd4ab2a324, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 450
       objectReference: {fileID: 0}
     - target: {fileID: 5458730335399076028, guid: 2b54192e762481946a6783cd4ab2a324, type: 3}
       propertyPath: m_IsActive
