@@ -47,6 +47,11 @@ namespace PixelShoot.UI
         [Tooltip("Shown when Start is pressed with no lives left (refill with coins / rewarded ad).")]
         [SerializeField] private OutOfLivesController outOfLives;
 
+        [Header("Gameplay input")]
+        [Tooltip("Behaviours that must NOT run while the menu is up (e.g. ClickInputRouter). " +
+                 "Disabled on Awake / when the menu opens, enabled only after Start begins gameplay.")]
+        [SerializeField] private Behaviour[] gameplayInput;
+
         /// <summary>Fired the moment the start transition finishes and gameplay begins.</summary>
         public event Action OnGameStarted;
         /// <summary>Fired when Start is pressed but the player has no lives left.</summary>
@@ -58,6 +63,14 @@ namespace PixelShoot.UI
         {
             WireButtons();
             if (gamePanel != null) gamePanel.SetActive(false);
+            SetGameplayInput(false); // no bus clicks until the player presses Start
+        }
+
+        private void SetGameplayInput(bool enabled)
+        {
+            if (gameplayInput == null) return;
+            foreach (var b in gameplayInput)
+                if (b != null) b.enabled = enabled;
         }
 
         private void Start()
@@ -98,6 +111,7 @@ namespace PixelShoot.UI
         {
             if (menuRoot != null) menuRoot.SetActive(true);
             starting = false;
+            SetGameplayInput(false); // menu is up → gameplay input off
             foreach (var g in groups)
             {
                 if (g == null) continue;
@@ -154,6 +168,7 @@ namespace PixelShoot.UI
         private void FinishStart()
         {
             if (menuRoot != null) menuRoot.SetActive(false);
+            SetGameplayInput(true); // gameplay begins → allow bus clicks
             OnGameStarted?.Invoke();
         }
     }

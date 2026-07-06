@@ -2702,7 +2702,6 @@ GameObject:
   - component: {fileID: 448307438}
   - component: {fileID: 448307441}
   - component: {fileID: 448307440}
-  - component: {fileID: 448307439}
   - component: {fileID: 448307442}
   m_Layer: 0
   m_Name: Game
@@ -2726,23 +2725,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1923130748}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &448307439
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 448307437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c802ad75ed675464583a5fbf7ff990b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Shooters.ClickInputRouter
-  cam: {fileID: 330585545}
-  clickMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  rayDistance: 200
 --- !u!114 &448307440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4354,6 +4336,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 715714554}
   m_CullTransparentMesh: 1
+--- !u!1 &749695904
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 749695905}
+  - component: {fileID: 749695906}
+  m_Layer: 0
+  m_Name: Input
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &749695905
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 749695904}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1923130748}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &749695906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 749695904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c802ad75ed675464583a5fbf7ff990b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Shooters.ClickInputRouter
+  cam: {fileID: 330585545}
+  clickMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayDistance: 200
 --- !u!1 &759968274
 GameObject:
   m_ObjectHideFlags: 0
@@ -12139,6 +12170,8 @@ MonoBehaviour:
   noAdsPromo: {fileID: 2125639705}
   openOnStart: 1
   outOfLives: {fileID: 1163847450}
+  gameplayInput:
+  - {fileID: 749695906}
 --- !u!1 &1878902746
 GameObject:
   m_ObjectHideFlags: 0
@@ -12632,6 +12665,7 @@ Transform:
   - {fileID: 3177848958579277313}
   - {fileID: 156149278}
   - {fileID: 1163847449}
+  - {fileID: 749695905}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1938858305
