@@ -363,6 +363,8 @@ MonoBehaviour:
   turnSpeed: 540
   facingLookAhead: 0.15
   conveyorScale: 1
+  boardBoostMultiplier: 1.5
+  boardBoostDuration: 0.1
   launchInterval: 0.12
   wobbleTarget: {fileID: 7100344792059929981}
   wobbleAmount: 0.06

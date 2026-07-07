@@ -40,6 +40,10 @@ namespace PixelShoot.Shooters
         [SerializeField] private float facingLookAhead = 0.15f;
         [Tooltip("Uniform scale multiplier applied while riding the conveyor. The bus tweens to this during the boarding jump and back to its spawn scale when it hops off into reserve.")]
         [SerializeField] private float conveyorScale = 1.2f;
+        [Tooltip("On seating, the bus surges to this many times the normal conveyor speed, then decays back over Board Boost Duration. 1 = no surge.")]
+        [SerializeField, Min(1f)] private float boardBoostMultiplier = 2.5f;
+        [Tooltip("Seconds for the seating speed-surge to ease back to the stable conveyor speed.")]
+        [SerializeField, Min(0f)] private float boardBoostDuration = 0.25f;
 
         [Header("Firing")]
         [Tooltip("Minimum seconds between consecutive stickman launches. Targets are reserved instantly; only the visual departure is staggered.")]
@@ -90,6 +94,7 @@ namespace PixelShoot.Shooters
 
         private float pathProgress;
         private float pathSpeed;
+        private float boostTimer; // seating speed-surge countdown
         private Tween boardingTween;
 
         // Engagement tracking: each column/row gets at most one shot per pass.
@@ -437,6 +442,7 @@ namespace PixelShoot.Shooters
             state = ShooterState.OnConveyor;
             pathProgress = 0f;
             pathSpeed = speed;
+            boostTimer = boardBoostDuration; // surge on seating, then decay to normal
             // Reset engagement so the shooter can fire again at every column on this fresh lap.
             lastEngagedParallelIndex = int.MinValue;
             lastSide = default;
@@ -480,7 +486,16 @@ namespace PixelShoot.Shooters
             // Conveyor paused (e.g., level failed) → freeze in place.
             if (conveyor.IsPaused) return;
 
-            pathProgress += pathSpeed * Time.deltaTime;
+            // Seating speed-surge: start fast (boardBoostMultiplier) and ease back to 1.
+            float speedMul = 1f;
+            if (boostTimer > 0f && boardBoostDuration > 0f)
+            {
+                float t = boostTimer / boardBoostDuration; // 1 → 0
+                speedMul = Mathf.Lerp(1f, boardBoostMultiplier, t);
+                boostTimer -= Time.deltaTime;
+            }
+
+            pathProgress += pathSpeed * speedMul * Time.deltaTime;
             float maxProgress = conveyor.MaxPathProgress;
             if (pathProgress >= maxProgress)
             {
