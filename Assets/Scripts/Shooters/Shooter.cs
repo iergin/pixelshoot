@@ -391,6 +391,12 @@ namespace PixelShoot.Shooters
             }
 
             state = ShooterState.Boarding;
+            // Stop ANY tween on the ROOT before reparenting — crucially a still-running
+            // restack DOLocalMove started by the column when a bus above just launched.
+            // Left alive, SetParent(null) turns its local target into a world target and it
+            // yanks the bus toward the column origin ("teleport") while the jump also runs.
+            // The engine wobble lives on a CHILD transform, so it's unaffected.
+            transform.DOKill();
             transform.SetParent(null, true);
             boardingTween?.Kill();
             facingTween?.Kill();
