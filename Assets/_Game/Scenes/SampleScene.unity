@@ -3679,8 +3679,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Conveyor.ConveyorController
   pathRoot: {fileID: 1373890510}
-  pathSpeed: 6
-  safeSpacing: 5
+  pathSpeed: 9
+  safeSpacing: 6
   baseBoardingDuration: 0.45
 --- !u!4 &627407849
 Transform:
