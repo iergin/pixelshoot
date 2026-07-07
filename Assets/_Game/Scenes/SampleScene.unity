@@ -465,7 +465,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 29, y: 7.000061}
+  m_AnchoredPosition: {x: 29, y: 7}
   m_SizeDelta: {x: 640.224, y: 118.6499}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &50235044
@@ -1259,6 +1259,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 193045658}
   m_CullTransparentMesh: 1
+--- !u!1 &259306184
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 259306185}
+  - component: {fileID: 259306186}
+  m_Layer: 0
+  m_Name: LastLoopPoint (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &259306185
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259306184}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -6.69, y: 2.23, z: 2.38}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 627407849}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &259306186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259306184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcbf69ea230d9425898962b8c9859fc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Conveyor.ConveyorPathNode
+  isCanShoot: 1
+  targetSide: 3
 --- !u!1 &302971505
 GameObject:
   m_ObjectHideFlags: 0
@@ -2764,6 +2810,8 @@ MonoBehaviour:
   conveyor: {fileID: 627407848}
   reserve: {fileID: 42776618}
   playOnReserve: {fileID: 1159299285}
+  lastBusesThreshold: 5
+  endgameSpeedMultiplier: 2
 --- !u!114 &448307442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3682,6 +3730,10 @@ MonoBehaviour:
   pathSpeed: 9
   safeSpacing: 6
   baseBoardingDuration: 0.45
+  loopBridgePoints:
+  - {fileID: 1549924036}
+  - {fileID: 1735060402}
+  - {fileID: 259306185}
 --- !u!4 &627407849
 Transform:
   m_ObjectHideFlags: 0
@@ -3697,6 +3749,9 @@ Transform:
   m_Children:
   - {fileID: 1373890510}
   - {fileID: 1464252951}
+  - {fileID: 1549924036}
+  - {fileID: 1735060402}
+  - {fileID: 259306185}
   m_Father: {fileID: 1923130748}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &637478607
@@ -5671,8 +5726,8 @@ Transform:
   m_GameObject: {fileID: 952713676}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.21762942, y: 0, z: 0.3091293}
-  m_LocalScale: {x: 0.37825882, y: 0.37825882, z: 0.37825882}
+  m_LocalPosition: {x: -0.54310125, y: 0, z: 0.119999886}
+  m_LocalScale: {x: 0.28580064, y: 0.28580064, z: 0.28580064}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1908823582}
@@ -9585,6 +9640,52 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Conveyor.ConveyorPathNode
   isCanShoot: 1
   targetSide: 0
+--- !u!1 &1549924035
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1549924036}
+  - component: {fileID: 1549924037}
+  m_Layer: 0
+  m_Name: LastLoopPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1549924036
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1549924035}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8.54, y: 2.23, z: 3.77}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 627407849}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1549924037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1549924035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcbf69ea230d9425898962b8c9859fc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Conveyor.ConveyorPathNode
+  isCanShoot: 1
+  targetSide: 3
 --- !u!1 &1562316625
 GameObject:
   m_ObjectHideFlags: 0
@@ -10685,7 +10786,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 61, y: 7.000061}
+  m_AnchoredPosition: {x: 61, y: 7}
   m_SizeDelta: {x: 226.9322, y: 118.6499}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1611893607
@@ -11244,6 +11345,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1723839736}
   m_CullTransparentMesh: 1
+--- !u!1 &1735060401
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1735060402}
+  - component: {fileID: 1735060403}
+  m_Layer: 0
+  m_Name: LastLoopPoint (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1735060402
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1735060401}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -7.8, y: 2.23, z: 2.78}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 627407849}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1735060403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1735060401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcbf69ea230d9425898962b8c9859fc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Conveyor.ConveyorPathNode
+  isCanShoot: 1
+  targetSide: 3
 --- !u!1 &1755035594
 GameObject:
   m_ObjectHideFlags: 0

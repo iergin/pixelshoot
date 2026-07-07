@@ -18,6 +18,15 @@ namespace PixelShoot.Game
         [SerializeField] private ReserveController reserve;
         [SerializeField] private PlayOnReserveController playOnReserve;
 
+        [Header("Endgame (last buses)")]
+        [Tooltip("When this many (or fewer) buses remain in the whole level, the conveyor speeds up and buses stop using reserve — at path end they loop straight back to the start.")]
+        [SerializeField] private int lastBusesThreshold = 5;
+        [Tooltip("Conveyor speed multiplier once the endgame kicks in.")]
+        [SerializeField, Min(1f)] private float endgameSpeedMultiplier = 2f;
+
+        private bool endgameActive;
+        private bool levelReady; // set once all buses have spawned, so the ramp-up during build doesn't trip it
+
         private GameState state = GameState.Playing;
         private CoinsConfig coinsConfig;
 
@@ -39,6 +48,39 @@ namespace PixelShoot.Game
             reserve = r;
             playOnReserve = p;
             if (grid != null) grid.OnGridCleared += HandleGridCleared;
+
+            // Fresh level → reset endgame and re-arm the alive-bus watcher.
+            endgameActive = false;
+            levelReady = false;
+            Shooter.ClearAliveRegistry();
+            Shooter.AliveCountChanged -= EvaluateEndgame;
+            Shooter.AliveCountChanged += EvaluateEndgame;
+        }
+
+        private void OnDisable() => Shooter.AliveCountChanged -= EvaluateEndgame;
+
+        /// <summary>Called by the loader once every bus has spawned, so the count ramp-up
+        /// during build can't trip the endgame. Also evaluates immediately (covers levels
+        /// that already have ≤ threshold buses).</summary>
+        public void NotifyLevelReady()
+        {
+            levelReady = true;
+            EvaluateEndgame();
+        }
+
+        /// <summary>Enter endgame once only the last few buses remain: crank the conveyor and
+        /// switch path-end handling from "reserve" to "loop back to start".</summary>
+        private void EvaluateEndgame()
+        {
+            if (!levelReady || endgameActive) return;
+            if (Shooter.AliveCount > lastBusesThreshold) return;
+            endgameActive = true;
+            if (conveyor != null)
+            {
+                conveyor.SpeedMultiplier = endgameSpeedMultiplier;
+                conveyor.LoopMode = true; // riders now wrap seamlessly at the path end
+            }
+            Debug.Log($"[GameController] Endgame: {Shooter.AliveCount} buses left → conveyor x{endgameSpeedMultiplier}, belt loops.");
         }
 
         /// <summary>
@@ -163,8 +205,12 @@ namespace PixelShoot.Game
                 return;
             }
 
-            // Has shots — try to park in reserve.
             conveyor.RemoveRider(shooter);
+
+            // Note: in endgame the belt is in LoopMode, so buses with shots WRAP inside
+            // Shooter.Update and never reach here — this path only runs pre-endgame.
+
+            // Has shots — try to park in reserve.
             if (SendToReserve(shooter)) return;
 
             // Reserve full + shots remain: KEEP the shooter on the conveyor at its current

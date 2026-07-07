@@ -93,6 +93,10 @@ namespace PixelShoot.Game
 
             SpawnColumns();
             ValidateBulletBudget();
+
+            // All buses have spawned — arm the endgame watcher (fires now if this level
+            // already has ≤ threshold buses).
+            if (gameController != null) gameController.NotifyLevelReady();
         }
 
         private KeyManager EnsureKeyManager()

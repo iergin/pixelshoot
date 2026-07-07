@@ -15,10 +15,15 @@ namespace PixelShoot.Conveyor
         [SerializeField] private float safeSpacing = 1.2f;
         [Tooltip("Base duration of the boarding jump animation.")]
         [SerializeField] private float baseBoardingDuration = 0.45f;
+        [Tooltip("Extra points for the endgame loop's end→start bridge so it curves (oval) like the other corners instead of a straight line. Order them from NEAR the last path node toward the first. Only used in LoopMode.")]
+        [SerializeField] private Transform[] loopBridgePoints;
 
         // Progress is expressed in world distance along the polyline.
         private readonly List<ConveyorPathNode> nodes = new List<ConveyorPathNode>();
         private readonly List<float> cumulativeDistances = new List<float>();
+        // Closing bridge polyline: [lastNode, bridge points…, firstNode] + its cumulative distances.
+        private readonly List<Vector3> bridgePts = new List<Vector3>();
+        private readonly List<float> bridgeCumulative = new List<float>();
         private readonly List<Shooter> ridingShooters = new List<Shooter>();
         private int capacity;
         private int reservedCount;
@@ -37,6 +42,20 @@ namespace PixelShoot.Conveyor
 
         /// <summary>When true, every Shooter on the belt freezes in place (used after a level fail).</summary>
         public bool IsPaused { get; set; }
+
+        /// <summary>Global belt-speed multiplier applied to every rider (1 = normal). The
+        /// endgame "last N buses" mode cranks this up so the conveyor whips around.</summary>
+        public float SpeedMultiplier { get; set; } = 1f;
+
+        /// <summary>When true, riders that still have shots WRAP seamlessly at the path end
+        /// (continue from the start) instead of leaving to reserve — the belt behaves like a
+        /// continuous loop. Enabled by the endgame "last N buses" mode.</summary>
+        public bool LoopMode { get; set; }
+
+        // Distance of the closing "bridge" segment from the last node back to the first, so a
+        // looping bus travels end→start instead of snapping. LoopPathLength = polyline + bridge.
+        private float closingLength;
+        public float LoopPathLength => MaxPathProgress + closingLength;
 
         public void Initialize(int slotCapacity)
         {
@@ -57,11 +76,14 @@ namespace PixelShoot.Conveyor
                 if (i > 0) accum += Vector3.Distance(nodes[i - 1].Position, nodes[i].Position);
                 cumulativeDistances.Add(accum);
             }
+            BuildBridge();
 
             ridingShooters.Clear();
             reservedCount = 0;
             lastReservationLandTime = float.NegativeInfinity;
             IsPaused = false;
+            SpeedMultiplier = 1f;
+            LoopMode = false;
         }
 
         public bool TryReserveSlot(out float boardingDuration, out float landingProgress)
@@ -115,6 +137,50 @@ namespace PixelShoot.Conveyor
             reservedCount = Mathf.Max(0, reservedCount - 1);
         }
 
+        // Build the closing-bridge polyline: last node → bridge points → first node.
+        private void BuildBridge()
+        {
+            bridgePts.Clear();
+            bridgeCumulative.Clear();
+            closingLength = 0f;
+            if (nodes.Count < 2) return;
+
+            bridgePts.Add(nodes[nodes.Count - 1].Position);
+            if (loopBridgePoints != null)
+                foreach (var t in loopBridgePoints)
+                    if (t != null) bridgePts.Add(t.position);
+            bridgePts.Add(nodes[0].Position);
+
+            float acc = 0f;
+            bridgeCumulative.Add(0f);
+            for (int i = 1; i < bridgePts.Count; i++)
+            {
+                acc += Vector3.Distance(bridgePts[i - 1], bridgePts[i]);
+                bridgeCumulative.Add(acc);
+            }
+            closingLength = acc;
+        }
+
+        // Position at `local` world units along the bridge (0 = last node, closingLength = first node).
+        private Vector3 EvaluateBridge(float local)
+        {
+            if (bridgePts.Count == 0) return transform.position;
+            if (bridgePts.Count == 1) return bridgePts[0];
+            local = Mathf.Clamp(local, 0f, closingLength);
+
+            int i = 0;
+            for (int k = 1; k < bridgeCumulative.Count; k++)
+            {
+                if (bridgeCumulative[k] >= local) { i = k - 1; break; }
+                i = k;
+            }
+            if (i >= bridgePts.Count - 1) return bridgePts[bridgePts.Count - 1];
+
+            float segLen = bridgeCumulative[i + 1] - bridgeCumulative[i];
+            float t = segLen > 0.0001f ? (local - bridgeCumulative[i]) / segLen : 0f;
+            return Vector3.Lerp(bridgePts[i], bridgePts[i + 1], t);
+        }
+
         /// <summary>Sample the path at a distance from start in world units. Linear between nodes.</summary>
         public void EvaluatePath(float distance, out Vector3 worldPos, out bool canShoot, out GridSide side)
         {
@@ -127,6 +193,16 @@ namespace PixelShoot.Conveyor
                 worldPos = nodes[0].Position;
                 canShoot = nodes[0].IsCanShoot;
                 side = nodes[0].TargetSide;
+                return;
+            }
+
+            // Closing bridge: distances past the polyline walk the bridge polyline
+            // (last node → optional bridge points → first node). Only reached in LoopMode.
+            if (distance > MaxPathProgress)
+            {
+                worldPos = EvaluateBridge(distance - MaxPathProgress);
+                canShoot = false;          // the bridge is a travel-only transition
+                side = nodes[nodes.Count - 1].TargetSide;
                 return;
             }
 
@@ -181,6 +257,29 @@ namespace PixelShoot.Conveyor
                     Gizmos.DrawLine(mid, mid - dir * 0.25f - right);
                 }
                 prev = node;
+            }
+
+            // Draw the endgame loop bridge (last node → bridge points → first node) so it can
+            // be shaped in the editor. Dashed-looking cyan to distinguish it from the belt.
+            ConveyorPathNode firstNode = null, lastNode = null;
+            for (int i = 0; i < pathRoot.childCount; i++)
+            {
+                var n = pathRoot.GetChild(i).GetComponent<ConveyorPathNode>();
+                if (n == null) continue;
+                if (firstNode == null) firstNode = n;
+                lastNode = n;
+            }
+            if (firstNode != null && lastNode != null && firstNode != lastNode)
+            {
+                var pts = new List<Vector3> { lastNode.Position };
+                if (loopBridgePoints != null)
+                    foreach (var t in loopBridgePoints) if (t != null) pts.Add(t.position);
+                pts.Add(firstNode.Position);
+
+                Gizmos.color = new Color(0.2f, 0.85f, 0.95f, 1f);
+                for (int i = 1; i < pts.Count; i++) Gizmos.DrawLine(pts[i - 1], pts[i]);
+                if (loopBridgePoints != null)
+                    foreach (var t in loopBridgePoints) if (t != null) Gizmos.DrawWireSphere(t.position, 0.12f);
             }
         }
 #endif

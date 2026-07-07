@@ -108,6 +108,14 @@ namespace PixelShoot.Shooters
         public event Action<Shooter> OnExpired;
         public event Action<Shooter> OnPathEnded;
 
+        // ── Alive-bus registry (drives the endgame "last N buses" mode) ──────
+        private static readonly HashSet<Shooter> aliveBuses = new HashSet<Shooter>();
+        public static int AliveCount => aliveBuses.Count;
+        public static event Action AliveCountChanged;
+        public static void ClearAliveRegistry() => aliveBuses.Clear();
+        private void RegisterAlive()   { if (aliveBuses.Add(this))    AliveCountChanged?.Invoke(); }
+        private void UnregisterAlive() { if (aliveBuses.Remove(this)) AliveCountChanged?.Invoke(); }
+
         // ── Surprise / Link / Lock state ─────────────────────────────────────
         public bool IsSurprise { get; private set; }
         public int LinkGroupId { get; private set; }
@@ -129,6 +137,7 @@ namespace PixelShoot.Shooters
             color = c;
             shotsRemaining = shotCount;
             state = ShooterState.InColumn;
+            RegisterAlive();
             IsSurprise = isSurprise;
             LinkGroupId = linkGroupId;
             LockKeyId = lockKeyId;
@@ -387,7 +396,7 @@ namespace PixelShoot.Shooters
         /// non-conveyor destination (defaults to identity); conveyor jumps always face the path.
         /// </summary>
         public void JumpTo(Vector3 worldTarget, float duration, Action onDone, ShooterState endState,
-            float scaleMultiplier = 1f, Quaternion? landingRotation = null)
+            float scaleMultiplier = 1f, Quaternion? landingRotation = null, Ease? jumpEase = null)
         {
             if (!baseScaleCaptured)
             {
@@ -417,6 +426,7 @@ namespace PixelShoot.Shooters
                     state = endState;
                     onDone?.Invoke();
                 });
+            if (jumpEase.HasValue) boardingTween.SetEase(jumpEase.Value);
 
             if (endState == ShooterState.OnConveyor)
             {
@@ -495,9 +505,22 @@ namespace PixelShoot.Shooters
                 boostTimer -= Time.deltaTime;
             }
 
-            pathProgress += pathSpeed * speedMul * Time.deltaTime;
+            pathProgress += pathSpeed * speedMul * conveyor.SpeedMultiplier * Time.deltaTime;
             float maxProgress = conveyor.MaxPathProgress;
-            if (pathProgress >= maxProgress)
+
+            if (conveyor.LoopMode && shotsRemaining > 0 && maxProgress > 0f)
+            {
+                // Endgame loop: travel the polyline AND the closing bridge (last node → first
+                // node), then wrap — the belt is a continuous loop, no jump, no reserve.
+                float loopLen = conveyor.LoopPathLength;
+                if (pathProgress >= loopLen)
+                {
+                    pathProgress -= loopLen;              // carry overflow → seamless
+                    lastEngagedParallelIndex = int.MinValue; // fresh lap can fire again
+                    lastSide = default;
+                }
+            }
+            else if (pathProgress >= maxProgress)
             {
                 pathProgress = maxProgress;
                 if (pathEndFired) return; // already notified for this lap
@@ -597,6 +620,7 @@ namespace PixelShoot.Shooters
         public void Expire()
         {
             if (state == ShooterState.Expired) return;
+            UnregisterAlive();
             // Still linked when expiring outside a coordinated dissolve (e.g. path-end)?
             // Detach cleanly so siblings don't hold a destroyed reference.
             if (IsLinked) BreakLink();
@@ -634,6 +658,7 @@ namespace PixelShoot.Shooters
 
         private void OnDestroy()
         {
+            UnregisterAlive();
             boardingTween?.Kill();
             facingTween?.Kill();
             scaleTween?.Kill();
