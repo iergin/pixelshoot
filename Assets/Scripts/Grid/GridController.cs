@@ -271,7 +271,7 @@ namespace PixelShoot.Grid
             return true;
         }
 
-        public void NotifyBoxHit(Box b)
+        public void NotifyBoxHit(Box b, bool fromBomb = false)
         {
             if (b == null || !b.IsAlive) return;
             bool wasBomb = b.IsBomb;
@@ -279,7 +279,7 @@ namespace PixelShoot.Grid
             var bombParticle = b.ExplosionParticlePrefab;
             Vector3 bombWorldPos = b.transform.position;
 
-            b.TakeHit();
+            b.TakeHit(fromBomb);
             aliveCount--;
 
             // Promote any locked 4-neighbors to frontier — wave-front expansion.
@@ -365,7 +365,8 @@ namespace PixelShoot.Grid
                     // NotifyBoxHit handles aliveCount, frontier promotion, and any chained
                     // bomb on the affected cells (chain explosion). The reservation already
                     // set on neighbour bombs prevents them from being double-processed.
-                    NotifyBoxHit(b);
+                    // fromBomb:true → these play the bomb-open clip.
+                    NotifyBoxHit(b, fromBomb: true);
                 }
             }
         }

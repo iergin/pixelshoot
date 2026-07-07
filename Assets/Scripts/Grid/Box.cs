@@ -169,10 +169,7 @@ namespace PixelShoot.Grid
             if (sheen != null && sheen.activeSelf != (newState == BoxState.Hit))
                 sheen.SetActive(newState == BoxState.Hit);
 
-            // Sound + punch ONLY on the Hit transition (box cleared) — not on the
-            // Locked / Frontier transitions or the spawn snap.
-            if (newState == BoxState.Hit)
-                PixelShoot.Audio.AudioManager.Instance?.PlayBoxHit();
+            // (Hit sound is played in TakeHit, which knows whether a bomb opened it.)
 
             // On hit: punch FIRST, then apply height + mesh scale, then reveal the
             // outline once those tweens finish. Other transitions apply immediately.
@@ -275,9 +272,17 @@ namespace PixelShoot.Grid
 
         public void ReserveHit() => reservedForHit = true;
 
-        public void TakeHit()
+        public void TakeHit(bool fromBomb = false)
         {
             if (state == BoxState.Hit) return;
+            // Play the clear sound here (SetState is also used for non-hit transitions):
+            // bomb blasts get their own clip, stickman hits the normal one.
+            var am = PixelShoot.Audio.AudioManager.Instance;
+            if (am != null)
+            {
+                if (fromBomb) am.PlayBoxHitBomb();
+                else          am.PlayBoxHit();
+            }
             SetState(BoxState.Hit);
         }
 

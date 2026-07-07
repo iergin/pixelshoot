@@ -41,8 +41,14 @@ namespace PixelShoot.Audio
         [SerializeField, Range(0f, 1f)] private float boxHitVolume = 1f;
         [Tooltip("Minimum seconds between two box-hit SFX. A hit arriving within this window of the previous one is dropped, so bomb ripples / rapid fire don't machine-gun the sound. 0 = no throttle.")]
         [SerializeField, Min(0f)] private float boxHitMinInterval = 0.1f;
+        [Tooltip("Separate clip for boxes opened by a BOMB blast (vs a stickman). Has its own throttle.")]
+        [SerializeField] private AudioClip boxBombClip;
+        [SerializeField, Range(0f, 1f)] private float boxBombVolume = 1f;
+        [Tooltip("Minimum seconds between two bomb-open SFX (same idea as Box Hit Min Interval). 0 = no throttle.")]
+        [SerializeField, Min(0f)] private float boxBombMinInterval = 0.1f;
 
         private float lastBoxHitTime = -999f;
+        private float lastBoxBombTime = -999f;
 
         [System.Serializable]
         public class NamedClip
@@ -111,6 +117,18 @@ namespace PixelShoot.Audio
                 lastBoxHitTime = now;
             }
             PlaySfx(boxHitClip, boxHitVolume);
+        }
+
+        /// <summary>Box opened by a BOMB blast — its own clip + own throttle.</summary>
+        public void PlayBoxHitBomb()
+        {
+            if (boxBombMinInterval > 0f)
+            {
+                float now = Time.unscaledTime;
+                if (now - lastBoxBombTime < boxBombMinInterval) return;
+                lastBoxBombTime = now;
+            }
+            PlaySfx(boxBombClip, boxBombVolume);
         }
 
         private AudioSource GetFreeSfxSource()
