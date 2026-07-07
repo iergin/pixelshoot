@@ -125,9 +125,10 @@ Material:
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _Speed: 0.4
+    - _Speed: 0.9
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
+    - _SrgbToLinear: 1
     - _Surface: 0
     - _Value: 1
     - _WorkflowMode: 1

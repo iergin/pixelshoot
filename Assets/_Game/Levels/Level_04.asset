@@ -204,7 +204,7 @@ MonoBehaviour:
       isEmpty: 0
       color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
       tone: 0
-      isBomb: 0
+      isBomb: 1
       keyId: 0
     - gridX: 22
       gridZ: 7
@@ -218,7 +218,7 @@ MonoBehaviour:
       isEmpty: 0
       color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
       tone: 0
-      isBomb: 0
+      isBomb: 1
       keyId: 0
     - gridX: 24
       gridZ: 7
@@ -337,7 +337,7 @@ MonoBehaviour:
       isEmpty: 0
       color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
       tone: 0
-      isBomb: 0
+      isBomb: 1
       keyId: 0
     - gridX: 20
       gridZ: 8
@@ -505,7 +505,7 @@ MonoBehaviour:
       isEmpty: 0
       color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       tone: 0
-      isBomb: 0
+      isBomb: 1
       keyId: 0
     - gridX: 24
       gridZ: 9
@@ -778,7 +778,7 @@ MonoBehaviour:
       isEmpty: 0
       color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       tone: 2
-      isBomb: 0
+      isBomb: 1
       keyId: 0
     - gridX: 24
       gridZ: 11
@@ -925,7 +925,7 @@ MonoBehaviour:
       isEmpty: 0
       color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       tone: 0
-      isBomb: 0
+      isBomb: 1
       keyId: 0
     - gridX: 23
       gridZ: 12
@@ -1100,7 +1100,7 @@ MonoBehaviour:
       isEmpty: 0
       color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       tone: 0
-      isBomb: 0
+      isBomb: 1
       keyId: 0
     - gridX: 22
       gridZ: 13
@@ -1289,7 +1289,7 @@ MonoBehaviour:
       isEmpty: 0
       color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       tone: 0
-      isBomb: 0
+      isBomb: 1
       keyId: 0
     - gridX: 21
       gridZ: 14
@@ -1492,7 +1492,7 @@ MonoBehaviour:
       isEmpty: 0
       color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       tone: 2
-      isBomb: 0
+      isBomb: 1
       keyId: 0
     - gridX: 20
       gridZ: 15
