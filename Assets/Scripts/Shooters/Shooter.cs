@@ -25,7 +25,6 @@ namespace PixelShoot.Shooters
     /// </summary>
     public class Shooter : MonoBehaviour
     {
-        [SerializeField] private MeshRenderer meshRenderer;
         [Tooltip("Extra bus meshes (body panels etc.) that should also be tinted with the bus colour's ShooterMaterial. The main meshRenderer above is coloured too even if not listed here.")]
         [SerializeField] private MeshRenderer[] colorRenderers;
         [Tooltip("Seat manager that owns the visible stickmen. If null, hits are applied instantly with no projectile.")]
@@ -150,7 +149,7 @@ namespace PixelShoot.Shooters
                 // Use sharedMaterials (not materials) so we don't clone-and-leak the
                 // material instance every time Initialize runs — especially important
                 // when the level editor rebuilds the scene preview in edit mode.
-                ApplyColorMaterial(meshRenderer, c.ShooterMaterial);
+                ApplyColorMaterial(null, c.ShooterMaterial);
                 if (colorRenderers != null)
                     foreach (var r in colorRenderers)
                         ApplyColorMaterial(r, c.ShooterMaterial);
@@ -192,9 +191,10 @@ namespace PixelShoot.Shooters
             }
             else
             {
-                if (meshRenderer != null) meshRenderer.enabled = !hidden;
                 if (seats != null) seats.gameObject.SetActive(!hidden);
             }
+            // The count label lives outside the visual root — hide/show it in lockstep.
+            if (shotCountLabel != null) shotCountLabel.gameObject.SetActive(!hidden);
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace PixelShoot.Shooters
             if (revealPunch > 0f && Application.isPlaying)
             {
                 var t = busVisualRoot != null ? busVisualRoot.transform
-                      : (meshRenderer != null ? meshRenderer.transform : null);
+                      :null;
                 if (t != null && t != transform)
                     t.DOPunchScale(t.localScale * revealPunch, 0.3f, 6, 0.6f);
             }
@@ -351,7 +351,7 @@ namespace PixelShoot.Shooters
         {
             if (!Application.isPlaying) return;
             var t = busVisualRoot != null ? busVisualRoot.transform
-                  : (meshRenderer != null ? meshRenderer.transform : transform);
+                  : null;
             t.DOShakePosition(0.25f, 0.12f, 12, 90f, false, true);
         }
 
@@ -367,7 +367,7 @@ namespace PixelShoot.Shooters
             if (wobbleAmount <= 0f) return;
 
             var t = wobbleTarget != null ? wobbleTarget
-                  : (meshRenderer != null ? meshRenderer.transform : null);
+                  : null;
             if (t == null || t == transform) return;      // never wobble the root
 
             Vector3 baseS = t.localScale;
