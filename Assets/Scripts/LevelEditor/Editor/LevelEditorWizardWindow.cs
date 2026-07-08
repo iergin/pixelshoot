@@ -1101,7 +1101,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             if (!showShooterEditor) return;
 
             EditorGUILayout.HelpBox(
-                "Column order is bottom-to-top — the LAST row in each column is the TOP (clickable) bus. " +
+                "Rows are shown top-to-bottom — the FIRST row in each column is the TOP (clickable) bus. " +
                 "Surprise = spawns hidden until it surfaces. Link group id > 0 ties buses together (≥2 per id); 0 = unlinked.",
                 MessageType.None);
 
@@ -1142,9 +1142,11 @@ namespace PixelShoot.LevelEditor.EditorTools
                 var col = columns[ci];
                 if (col == null || col.Shooters == null) continue;
                 EditorGUILayout.Space(4);
-                EditorGUILayout.LabelField($"Column {ci}  ({col.Shooters.Count} buses, bottom→top)", EditorStyles.miniBoldLabel);
+                EditorGUILayout.LabelField($"Column {ci}  ({col.Shooters.Count} buses, top→bottom)", EditorStyles.miniBoldLabel);
 
-                for (int si = 0; si < col.Shooters.Count; si++)
+                // Draw TOP (last data index) FIRST so the list reads top-to-bottom like the
+                // real column. The underlying data order (index 0 = bottom) is unchanged.
+                for (int si = col.Shooters.Count - 1; si >= 0; si--)
                 {
                     var sd = col.Shooters[si];
                     using (new EditorGUILayout.HorizontalScope())
