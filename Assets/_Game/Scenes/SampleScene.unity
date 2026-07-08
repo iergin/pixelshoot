@@ -3077,6 +3077,8 @@ MonoBehaviour:
   gameController: {fileID: 448307441}
   successPanel: {fileID: 916064243}
   nextLevelButton: {fileID: 1332150013}
+  rewardLabel: {fileID: 97976199}
+  rewardFormat: +{0}
   doubleCoinsButton: {fileID: 759968276}
   doubleCoinsLabel: {fileID: 964947289}
   doubleCoinsFormat: Get {0}

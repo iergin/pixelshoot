@@ -19,6 +19,9 @@ namespace PixelShoot.UI
         [Header("Success panel")]
         [SerializeField] private GameObject successPanel;
         [SerializeField] private Button nextLevelButton;
+        [Tooltip("Optional. Shows the coins earned this level, e.g. '+20'. {0} = amount. Updates to the doubled value if the 2× ad is watched.")]
+        [SerializeField] private TMP_Text rewardLabel;
+        [SerializeField] private string rewardFormat = "+{0}";
         [Tooltip("Optional 'Watch ad for 2× coins' button on the success panel.")]
         [SerializeField] private Button doubleCoinsButton;
         [Tooltip("Optional. Shows the would-be reward, e.g. 'Get 40 coins'. {0} = doubled reward.")]
@@ -164,6 +167,10 @@ namespace PixelShoot.UI
         {
             if (successPanel != null) successPanel.SetActive(true);
 
+            // "You earned" text — the base win reward (matches what LevelLoader paid).
+            int reward = coinsConfig != null ? coinsConfig.LevelWinReward : 0;
+            if (rewardLabel != null) rewardLabel.text = string.Format(rewardFormat, reward);
+
             // Set up the 2× button. Re-enabled each win in case the previous win consumed it.
             doubleCoinsClaimed = false;
             if (doubleCoinsButton != null) doubleCoinsButton.interactable = true;
@@ -227,6 +234,8 @@ namespace PixelShoot.UI
                     doubleCoinsClaimed = true;
                     if (doubleCoinsButton != null) doubleCoinsButton.interactable = false;
                     PlayerWallet.Add(coinsConfig.LevelWinReward); // first reward already paid by LevelLoader
+                    // Reflect the doubled total on the reward text.
+                    if (rewardLabel != null) rewardLabel.text = string.Format(rewardFormat, coinsConfig.LevelWinReward * 2);
                     if (interstitial != null) interstitial.NotifyRewardedWatched();
                     Debug.Log($"[LevelEndUI] 2× reward claimed (+{coinsConfig.LevelWinReward}).");
                 },
