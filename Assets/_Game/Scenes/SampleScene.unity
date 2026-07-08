@@ -1261,8 +1261,8 @@ MonoBehaviour:
   loopIntensity: 0.1
   overrideOnSuccess: 1
   gameController: {fileID: 448307441}
-  successInterval: 0.6
-  successDuration: 0.7
+  successInterval: 0
+  successDuration: 3
   successIntensity: 1.2
 --- !u!1 &193045658
 GameObject:
