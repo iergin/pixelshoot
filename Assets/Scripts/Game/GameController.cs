@@ -233,7 +233,10 @@ namespace PixelShoot.Game
         {
             shooter.OnPathEnded -= HandleRiderPathEnded;
 
-            if (shooter.ShotsRemaining <= 0)
+            // A spent UNLINKED bus leaves at the path end. A linked bus NEVER leaves alone —
+            // even fully spent it stays bound and parks in reserve with its group; the link
+            // only dissolves when EVERY member is spent (handled in Shooter.HandleShotsDepleted).
+            if (shooter.ShotsRemaining <= 0 && !shooter.IsLinked)
             {
                 conveyor.RemoveRider(shooter);
                 shooter.Expire();

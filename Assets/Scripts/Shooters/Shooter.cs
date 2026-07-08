@@ -69,6 +69,8 @@ namespace PixelShoot.Shooters
         [SerializeField] private LineRenderer linkLine;
         [Tooltip("Vertical offset of the link line above each bus position.")]
         [SerializeField] private float linkLineYOffset = 0.4f;
+        [Tooltip("World units per chain-texture tile. The link line's tiling (_TileU) is recomputed each frame from the ACTUAL line length so chain links stay a constant size as buses move. Smaller = denser chain. Needs a material using PixelShoot/ChainTextured in Stretch texture mode. 0 = off.")]
+        [SerializeField] private float chainTileWorldLength = 1f;
         [Tooltip("Optional visual enabled only on linked buses (e.g. a tow hook / chain).")]
         [SerializeField] private GameObject linkedVisual;
 
@@ -278,16 +280,35 @@ namespace PixelShoot.Shooters
 
         private void LateUpdate() => UpdateLinkLinePositions();
 
+        private static readonly int TileUId = Shader.PropertyToID("_TileU");
+        private MaterialPropertyBlock linkMpb;
+
         private void UpdateLinkLinePositions()
         {
             if (linkLine == null || !IsLinkOwner || LinkGroup == null) return;
             if (linkLine.positionCount != LinkGroup.Count) linkLine.positionCount = LinkGroup.Count;
+
+            float len = 0f;
+            Vector3 prev = Vector3.zero;
             for (int i = 0; i < LinkGroup.Count; i++)
             {
                 var m = LinkGroup[i];
                 Vector3 p = m != null ? m.transform.position : transform.position;
                 p.y += linkLineYOffset;
                 linkLine.SetPosition(i, p);
+                if (i > 0) len += Vector3.Distance(prev, p);
+                prev = p;
+            }
+
+            // Chain texture stays a constant size: derive the tiling from the real line
+            // length (rounded to whole tiles so no partial link shows at the ends).
+            if (chainTileWorldLength > 0.0001f)
+            {
+                float tiles = Mathf.Max(1f, Mathf.Round(len / chainTileWorldLength));
+                if (linkMpb == null) linkMpb = new MaterialPropertyBlock();
+                linkLine.GetPropertyBlock(linkMpb);
+                linkMpb.SetFloat(TileUId, tiles);
+                linkLine.SetPropertyBlock(linkMpb);
             }
         }
 
@@ -302,8 +323,9 @@ namespace PixelShoot.Shooters
 
         /// <summary>
         /// Called when this bus runs out of shots. Unlinked → expire immediately. Linked →
-        /// stay (it just stops firing) until EVERY member is spent, then the whole group
-        /// dissolves at once. Mirrors HexaSort's "link doesn't break on single exhaustion".
+        /// stay bound and keep riding (it just stops firing) until EVERY member is spent,
+        /// then the whole group dissolves at once. Mirrors HexaSort's "link doesn't break
+        /// on single exhaustion".
         /// </summary>
         private void HandleShotsDepleted()
         {
@@ -317,7 +339,7 @@ namespace PixelShoot.Shooters
                 foreach (var m in LinkGroup.ToArray())
                     if (m != null) m.ExpireForDissolve();
             }
-            // else: keep riding idle; firing stops naturally via the shotsRemaining<=0 check.
+            // else: keep riding bound & idle; firing stops naturally via the shotsRemaining<=0 check.
         }
 
         /// <summary>Expire as part of a coordinated link-group dissolve (clears link state first).</summary>
