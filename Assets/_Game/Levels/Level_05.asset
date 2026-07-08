@@ -4593,7 +4593,7 @@ MonoBehaviour:
     - color: {fileID: 11400000, guid: 9e73225d80428de41b03c7dc73451967, type: 2}
       shotCount: 34
       isSurprise: 0
-      linkGroupId: 0
+      linkGroupId: 1
       lockKeyId: 0
   - shooters:
     - color: {fileID: 11400000, guid: 9e73225d80428de41b03c7dc73451967, type: 2}
@@ -4623,13 +4623,13 @@ MonoBehaviour:
       lockKeyId: 0
     - color: {fileID: 11400000, guid: 9e73225d80428de41b03c7dc73451967, type: 2}
       shotCount: 6
-      isSurprise: 0
+      isSurprise: 1
       linkGroupId: 0
       lockKeyId: 0
     - color: {fileID: 11400000, guid: 9e73225d80428de41b03c7dc73451967, type: 2}
       shotCount: 7
       isSurprise: 0
-      linkGroupId: 0
+      linkGroupId: 1
       lockKeyId: 0
   - shooters:
     - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
@@ -4655,11 +4655,11 @@ MonoBehaviour:
     - color: {fileID: 11400000, guid: 9e73225d80428de41b03c7dc73451967, type: 2}
       shotCount: 27
       isSurprise: 0
-      linkGroupId: 0
+      linkGroupId: 2
       lockKeyId: 0
     - color: {fileID: 11400000, guid: 9e73225d80428de41b03c7dc73451967, type: 2}
       shotCount: 21
-      isSurprise: 0
+      isSurprise: 1
       linkGroupId: 0
       lockKeyId: 0
     - color: {fileID: 11400000, guid: 9e73225d80428de41b03c7dc73451967, type: 2}
@@ -4701,7 +4701,7 @@ MonoBehaviour:
     - color: {fileID: 11400000, guid: 9e73225d80428de41b03c7dc73451967, type: 2}
       shotCount: 35
       isSurprise: 0
-      linkGroupId: 0
+      linkGroupId: 2
       lockKeyId: 0
   conveyorSlotCapacity: 5
   reserveSlotCapacity: 5
