@@ -9,8 +9,9 @@ namespace PixelShoot.Game
     /// two GLOBAL shader floats, so every box stays in sync and the whole grid reads as
     /// one continuous light wave travelling bottom-left → top-right.
     ///
-    /// <para>LOOP ONLY: a subtle sweep replays every <see cref="loopInterval"/> seconds.
-    /// There is no event-triggered (hit/win) sweep — it just keeps shimmering.</para>
+    /// <para>A subtle sweep replays every <see cref="loopInterval"/> seconds during normal
+    /// play; once the level is won it switches to the separate "success" values
+    /// (faster / brighter) so the celebration reads differently.</para>
     /// </summary>
     public class GridSheenController : MonoBehaviour
     {
@@ -21,7 +22,7 @@ namespace PixelShoot.Game
         [Tooltip("How far past the edges the band starts/ends, so it fully enters and exits the screen.")]
         [SerializeField] private float edgeMargin = 0.25f;
 
-        [Header("Loop")]
+        [Header("Loop (normal gameplay)")]
         [Tooltip("Enable the periodic shimmer.")]
         [SerializeField] private bool loopEnabled = true;
         [Tooltip("Seconds to wait before the very first loop sweep.")]
@@ -33,8 +34,23 @@ namespace PixelShoot.Game
         [Tooltip("Brightness of the loop sweep (keep low for a soft shimmer).")]
         [SerializeField, Min(0f)] private float loopIntensity = 0.35f;
 
+        [Header("Loop after level success (different feel)")]
+        [Tooltip("Switch to the success values below when the level is won.")]
+        [SerializeField] private bool overrideOnSuccess = true;
+        [Tooltip("GameController whose OnLevelWon flips the sheen into 'success' mode.")]
+        [SerializeField] private GameController gameController;
+        [SerializeField] private float successInterval = 0.6f;
+        [SerializeField] private float successDuration = 0.7f;
+        [SerializeField, Min(0f)] private float successIntensity = 1.2f;
+
+        private bool successMode;
         private Tween sweepTween;
         private Coroutine loopRoutine;
+
+        // Active values follow the success flag once the level is won.
+        private float CurInterval  => (successMode && overrideOnSuccess) ? successInterval  : loopInterval;
+        private float CurDuration  => (successMode && overrideOnSuccess) ? successDuration  : loopDuration;
+        private float CurIntensity => (successMode && overrideOnSuccess) ? successIntensity : loopIntensity;
 
         private void Awake()
         {
@@ -45,24 +61,34 @@ namespace PixelShoot.Game
 
         private void OnEnable()
         {
-            if (loopEnabled) loopRoutine = StartCoroutine(LoopRoutine());
+            if (gameController != null) gameController.OnLevelWon += OnLevelWon;
+            if (loopEnabled) loopRoutine = StartCoroutine(LoopRoutine(immediate: false));
         }
 
         private void OnDisable()
         {
+            if (gameController != null) gameController.OnLevelWon -= OnLevelWon;
             if (loopRoutine != null) { StopCoroutine(loopRoutine); loopRoutine = null; }
             sweepTween?.Kill();
         }
 
-        private IEnumerator LoopRoutine()
+        private void OnLevelWon()
         {
-            yield return new WaitForSeconds(loopStartDelay);
-            var wait = new WaitForSeconds(loopInterval);
+            successMode = true;
+            if (!loopEnabled) return;
+            // Restart the loop so the success values kick in right away (no idle wait).
+            if (loopRoutine != null) StopCoroutine(loopRoutine);
+            loopRoutine = StartCoroutine(LoopRoutine(immediate: true));
+        }
+
+        private IEnumerator LoopRoutine(bool immediate)
+        {
+            if (!immediate) yield return new WaitForSeconds(loopStartDelay);
             while (true)
             {
-                Sweep(loopDuration, loopIntensity);
-                yield return new WaitForSeconds(loopDuration);
-                yield return wait;
+                Sweep(CurDuration, CurIntensity);
+                yield return new WaitForSeconds(CurDuration);
+                yield return new WaitForSeconds(CurInterval);
             }
         }
 

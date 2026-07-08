@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -23,6 +24,16 @@ namespace PixelShoot.UI
         [Tooltip("Optional. Shows the would-be reward, e.g. 'Get 40 coins'. {0} = doubled reward.")]
         [SerializeField] private TMP_Text doubleCoinsLabel;
         [SerializeField] private string doubleCoinsFormat = "Get {0}";
+
+        [Header("Success sequence (win → confetti → camera → panel)")]
+        [Tooltip("Confetti burst played the instant the level is won.")]
+        [SerializeField] private ParticleSystem confetti;
+        [Tooltip("Seconds to let the confetti play before blending to the success camera.")]
+        [SerializeField] private float confettiLeadTime = 0.4f;
+        [Tooltip("Cinemachine success vcam GameObject — activated to blend the camera. Give it a higher Priority than the gameplay vcam.")]
+        [SerializeField] private GameObject successCamera;
+        [Tooltip("Seconds to wait for the camera blend to finish before showing the success panel (match the CinemachineBrain blend time).")]
+        [SerializeField] private float cameraTransitionDuration = 1f;
 
         [Header("Ads")]
         [SerializeField] private InterstitialController interstitial;
@@ -124,6 +135,33 @@ namespace PixelShoot.UI
         private void HandleWon()
         {
             if (failPanel != null) failPanel.SetActive(false);
+            // Don't pop the panel yet — play the celebration first, THEN show it.
+            StopAllCoroutines();
+            StartCoroutine(SuccessSequence());
+        }
+
+        /// <summary>Win celebration: confetti burst → blend to the success camera → then
+        /// (once the blend finishes) show the success panel.</summary>
+        private IEnumerator SuccessSequence()
+        {
+            // 1) Confetti.
+            if (confetti != null)
+            {
+                if (!confetti.gameObject.activeSelf) confetti.gameObject.SetActive(true);
+                confetti.Play(true);
+            }
+            if (confettiLeadTime > 0f) yield return new WaitForSecondsRealtime(confettiLeadTime);
+
+            // 2) Switch to the success Cinemachine camera (higher priority → brain blends).
+            if (successCamera != null) successCamera.SetActive(true);
+            if (cameraTransitionDuration > 0f) yield return new WaitForSecondsRealtime(cameraTransitionDuration);
+
+            // 3) Camera settled → reveal the success panel.
+            ShowSuccessPanel();
+        }
+
+        private void ShowSuccessPanel()
+        {
             if (successPanel != null) successPanel.SetActive(true);
 
             // Set up the 2× button. Re-enabled each win in case the previous win consumed it.
@@ -132,9 +170,7 @@ namespace PixelShoot.UI
             if (doubleCoinsLabel != null && coinsConfig != null)
                 doubleCoinsLabel.text = string.Format(doubleCoinsFormat, coinsConfig.LevelWinReward * 2);
 
-            // Fire the interstitial gate. The InterstitialController decides whether to
-            // actually show one based on level / cadence; it counts this call as one
-            // completed level whether or not an ad pops.
+            // Fire the interstitial gate now (with the panel), not over the celebration.
             if (interstitial != null) interstitial.NotifyLevelEnded();
         }
 
