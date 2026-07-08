@@ -15,7 +15,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2337492590219154208
 Transform:
   m_ObjectHideFlags: 0
@@ -161,7 +161,7 @@ LineRenderer:
       atime6: 0
       atime7: 0
       m_Mode: 0
-      m_ColorSpace: -1
+      m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
     numCornerVertices: 0
@@ -613,7 +613,7 @@ MonoBehaviour:
   surpriseVisual: {fileID: 4234444523045164275}
   revealPunch: 0.25
   linkLine: {fileID: 3130548968954832622}
-  linkLineYOffset: 0.4
+  linkLineYOffset: 1
   linkedVisual: {fileID: 1399113150305056644}
   lockVisual: {fileID: 3376133699316672865}
 --- !u!114 &314220976446819896

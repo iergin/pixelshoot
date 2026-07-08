@@ -33,6 +33,6 @@ Material:
     - _Thickness: 0.485
     - _Tiling: 3.07
     m_Colors:
-    - _Color: {r: 0.75, g: 0.76, b: 0.8, a: 1}
+    - _Color: {r: 0.2980598, g: 0.30329707, b: 0.3207547, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
