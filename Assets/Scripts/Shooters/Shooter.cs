@@ -153,8 +153,6 @@ namespace PixelShoot.Shooters
                 if (colorRenderers != null)
                     foreach (var r in colorRenderers)
                         ApplyColorMaterial(r, c.ShooterMaterial);
-                // Link line uses the same bus colour material.
-                ApplyColorMaterial(linkLine, c.ShooterMaterial);
             }
 
             // Bind the bus colour; passengers are now spawned on demand (one per shot).
