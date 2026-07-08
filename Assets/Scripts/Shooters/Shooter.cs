@@ -153,6 +153,8 @@ namespace PixelShoot.Shooters
                 if (colorRenderers != null)
                     foreach (var r in colorRenderers)
                         ApplyColorMaterial(r, c.ShooterMaterial);
+                // Link line uses the same bus colour material.
+                ApplyColorMaterial(linkLine, c.ShooterMaterial);
             }
 
             // Bind the bus colour; passengers are now spawned on demand (one per shot).
@@ -271,9 +273,14 @@ namespace PixelShoot.Shooters
             // Only the owner renders the polyline; non-owners keep an empty line.
             if (!IsLinkOwner || LinkGroup == null) { linkLine.positionCount = 0; return; }
             linkLine.positionCount = LinkGroup.Count;
+            // Populate positions immediately so the line shows in the level-editor preview,
+            // where LateUpdate never runs (edit mode).
+            UpdateLinkLinePositions();
         }
 
-        private void LateUpdate()
+        private void LateUpdate() => UpdateLinkLinePositions();
+
+        private void UpdateLinkLinePositions()
         {
             if (linkLine == null || !IsLinkOwner || LinkGroup == null) return;
             if (linkLine.positionCount != LinkGroup.Count) linkLine.positionCount = LinkGroup.Count;
