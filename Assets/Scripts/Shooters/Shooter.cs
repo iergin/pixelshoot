@@ -78,6 +78,10 @@ namespace PixelShoot.Shooters
         [Tooltip("Lock overlay shown while this bus is locked. Hidden (with a pop) on unlock.")]
         [SerializeField] private GameObject lockVisual;
 
+        [Header("Exhaust")]
+        [Tooltip("Exhaust smoke — emits ONLY while the bus is riding the conveyor.")]
+        [SerializeField] private ParticleSystem exhaustParticle;
+
         private Vector3 baseScale = Vector3.one;
         private bool baseScaleCaptured;
         private Tween facingTween;
@@ -163,6 +167,7 @@ namespace PixelShoot.Shooters
 
             // Surprise: hide the real bus behind the "?" cover until it surfaces.
             SetVisualHidden(isSurprise);
+            SetExhaust(false); // off until it boards the conveyor
             if (surpriseVisual != null) surpriseVisual.SetActive(isSurprise);
 
             StartEngineWobble();
@@ -182,6 +187,22 @@ namespace PixelShoot.Shooters
             if (mats.Length == 0) return;
             mats[0] = mat;
             r.sharedMaterials = mats;
+        }
+
+        // ── Exhaust ──────────────────────────────────────────────────────────
+        // Emit only while riding the conveyor. When turned off, already-spawned puffs are
+        // left to fade out (StopEmitting) rather than popping away.
+        private void SetExhaust(bool on)
+        {
+            if (exhaustParticle == null) return;
+            if (on)
+            {
+                if (!exhaustParticle.isEmitting) exhaustParticle.Play(true);
+            }
+            else
+            {
+                exhaustParticle.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            }
         }
 
         // ── Surprise ─────────────────────────────────────────────────────────
@@ -432,6 +453,7 @@ namespace PixelShoot.Shooters
             }
 
             state = ShooterState.Boarding;
+            SetExhaust(false); // in the air (to conveyor or reserve) → smoke off
             // Stop ANY tween on the ROOT before reparenting — crucially a still-running
             // restack DOLocalMove started by the column when a bus above just launched.
             // Left alive, SetParent(null) turns its local target into a world target and it
@@ -480,6 +502,7 @@ namespace PixelShoot.Shooters
             pathProgress = 0f;
             pathSpeed = speed;
             boostTimer = boardBoostDuration; // surge on seating, then decay to normal
+            SetExhaust(true); // riding the conveyor → smoke on
             // Reset engagement so the shooter can fire again at every column on this fresh lap.
             lastEngagedParallelIndex = int.MinValue;
             lastSide = default;
@@ -648,6 +671,7 @@ namespace PixelShoot.Shooters
         {
             if (state == ShooterState.Expired) return;
             UnregisterAlive();
+            SetExhaust(false);
             // Still linked when expiring outside a coordinated dissolve (e.g. path-end)?
             // Detach cleanly so siblings don't hold a destroyed reference.
             if (IsLinked) BreakLink();
