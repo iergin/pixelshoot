@@ -20,18 +20,18 @@ Material:
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses: []
-  m_LockedProperties:
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Tiling: 8
-    - _Thickness: 0.16
-    - _LongRadius: 0.46
-    - _ShortRadius: 0.28
-    - _Softness: 0.05
+    - _LongRadius: 0.436
     - _ScrollSpeed: 0
+    - _ShortRadius: 0.425
+    - _Softness: 0.001
+    - _Thickness: 0.485
+    - _Tiling: 3.07
     m_Colors:
     - _Color: {r: 0.75, g: 0.76, b: 0.8, a: 1}
   m_BuildTextureStacks: []
