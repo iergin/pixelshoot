@@ -46,7 +46,23 @@ namespace PixelShoot.Game
             // anchor is already mid-cycle and must be kept so in-progress regen continues.
             DateTime anchor = wasFull ? DateTime.UtcNow : GetAnchor();
             Save(lives - 1, anchor);
+            startLifeSpent = true; // remember so a WIN can refund it
             return true;
+        }
+
+        // True after a level-start life was spent, cleared once refunded on a win. Static so
+        // it survives the menu→game transition; resets naturally on domain reload.
+        private static bool startLifeSpent;
+
+        /// <summary>
+        /// Winning is free: give back the life spent at level start (if any). Call on level win.
+        /// No-op if no start-life is pending, so it can't grant a free extra life.
+        /// </summary>
+        public static void RefundLevelStart()
+        {
+            if (!startLifeSpent) return;
+            startLifeSpent = false;
+            AddLives(1);
         }
 
         /// <summary>Grant lives (ad reward / purchase / refill). Clamped to the cap.</summary>

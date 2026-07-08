@@ -187,6 +187,9 @@ namespace PixelShoot.Game
 
         private void HandleLevelWon()
         {
+            // Winning is free — refund the life that was spent when the level started.
+            PlayerLives.RefundLevelStart();
+
             // Mark "first level of this session done" so the no-ads promo controller
             // knows when to consider showing the second-session trigger.
             PlayerWallet.MarkFirstLevelDoneThisSession();
