@@ -158,18 +158,53 @@ namespace PixelShoot.Game
             if (state != GameState.Playing) return;
             if (shooter == null || shooter.State != ShooterState.InReserve) return;
 
+            // Linked buses that parked in reserve together board the conveyor together.
+            if (shooter.IsLinked) { RequestBoardGroupFromReserve(shooter); return; }
+
             // A surprise that somehow reached reserve unrevealed reveals on the way out.
             if (shooter.IsSurprise) shooter.RevealSurprise();
 
             if (!conveyor.TryReserveSlot(out float boardingDuration, out float landingProgress)) return;
 
-            // Try the regular reserve first; fall back to the play-on reservoir.
+            FreeFromReservoir(shooter);
+            BoardConveyor(shooter, boardingDuration, landingProgress);
+        }
+
+        /// <summary>
+        /// Board an entire link group out of reserve at once. All-or-nothing: every member
+        /// must currently be in reserve and the conveyor must have a free slot for each.
+        /// </summary>
+        private void RequestBoardGroupFromReserve(Shooter tapped)
+        {
+            var group = tapped.LinkGroup;
+            if (group == null || group.Count == 0) return;
+
+            // Every live member must be parked in reserve (they travel as a unit).
+            foreach (var m in group)
+                if (m == null || m.State != ShooterState.InReserve) return;
+
+            // Need a free conveyor slot for the whole group.
+            if (conveyor.FreeCount < group.Count) return;
+
+            // Snapshot — boarding mutates reservoirs and (on dissolve) the shared group list.
+            var members = new List<Shooter>(group);
+            foreach (var m in members)
+            {
+                if (m == null) continue;
+                if (m.IsSurprise) m.RevealSurprise();
+                FreeFromReservoir(m);
+                if (conveyor.TryReserveSlot(out float dur, out float landing))
+                    BoardConveyor(m, dur, landing);
+            }
+        }
+
+        /// <summary>Remove a shooter from whichever reservoir currently holds it.</summary>
+        private void FreeFromReservoir(Shooter shooter)
+        {
             if (reserve != null && reserve.Contains(shooter))
                 reserve.FreeSlot(shooter);
             else if (playOnReserve != null && playOnReserve.Contains(shooter))
                 playOnReserve.Remove(shooter);
-
-            BoardConveyor(shooter, boardingDuration, landingProgress);
         }
 
         private void BoardConveyor(Shooter shooter, float boardingDuration, float landingProgress)
