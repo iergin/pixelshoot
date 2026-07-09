@@ -136,8 +136,10 @@ namespace PixelShoot.Game
             if (conveyor.FreeCount < group.Count) return false;
 
             // 3) Reveal surprises, then detach + board each. Snapshot first — boarding
-            //    mutates columns and (on dissolve) the shared group list.
+            //    mutates columns and (on dissolve) the shared group list. Board LEFT→RIGHT
+            //    so the leftmost bus always reaches the conveyor first.
             var members = new List<Shooter>(group);
+            SortLeftToRight(members);
             foreach (var m in members)
             {
                 if (m == null) continue;
@@ -147,6 +149,17 @@ namespace PixelShoot.Game
                     BoardConveyor(m, dur, landing);
             }
             return true;
+        }
+
+        /// <summary>Order buses by world X so the leftmost is first. Nulls sink to the end.</summary>
+        private static void SortLeftToRight(List<Shooter> list)
+        {
+            list.Sort((a, b) =>
+            {
+                float xa = a != null ? a.transform.position.x : float.MaxValue;
+                float xb = b != null ? b.transform.position.x : float.MaxValue;
+                return xa.CompareTo(xb);
+            });
         }
 
         /// <summary>
@@ -187,7 +200,9 @@ namespace PixelShoot.Game
             if (conveyor.FreeCount < group.Count) return;
 
             // Snapshot — boarding mutates reservoirs and (on dissolve) the shared group list.
+            // Board LEFT→RIGHT so the leftmost bus reaches the conveyor first.
             var members = new List<Shooter>(group);
+            SortLeftToRight(members);
             foreach (var m in members)
             {
                 if (m == null) continue;
@@ -282,6 +297,17 @@ namespace PixelShoot.Game
             }
 
             var riders = conveyor.GetRidersSnapshot();
+            // Keep linked buses ADJACENT in play-on (same LinkGroupId together), each group
+            // ordered left→right. Unlinked buses (id 0) group up front, also left→right.
+            riders.Sort((a, b) =>
+            {
+                int ga = a != null ? a.LinkGroupId : 0;
+                int gb = b != null ? b.LinkGroupId : 0;
+                if (ga != gb) return ga.CompareTo(gb);
+                float xa = a != null ? a.transform.position.x : float.MaxValue;
+                float xb = b != null ? b.transform.position.x : float.MaxValue;
+                return xa.CompareTo(xb);
+            });
             foreach (var s in riders)
             {
                 if (s == null) continue;
