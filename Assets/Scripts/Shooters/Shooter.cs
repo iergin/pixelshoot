@@ -39,6 +39,8 @@ namespace PixelShoot.Shooters
         [SerializeField] private float facingLookAhead = 0.15f;
         [Tooltip("Uniform scale multiplier applied while riding the conveyor. The bus tweens to this during the boarding jump and back to its spawn scale when it hops off into reserve.")]
         [SerializeField] private float conveyorScale = 1.2f;
+        [Tooltip("Uniform scale multiplier applied while the bus sits in a COLUMN (its resting/spawn state). 1 = the prefab scale.")]
+        [SerializeField] private float columnScale = 1f;
         [Tooltip("On seating, the bus surges to this many times the normal conveyor speed, then decays back over Board Boost Duration. 1 = no surge.")]
         [SerializeField, Min(1f)] private float boardBoostMultiplier = 2.5f;
         [Tooltip("Seconds for the seating speed-surge to ease back to the stable conveyor speed.")]
@@ -143,6 +145,15 @@ namespace PixelShoot.Shooters
             shotsRemaining = shotCount;
             state = ShooterState.InColumn;
             RegisterAlive();
+
+            // Capture the prefab scale as the base (so conveyor/reserve multipliers are
+            // relative to it), then apply the column scale for the resting/spawn state.
+            if (!baseScaleCaptured)
+            {
+                baseScale = transform.localScale;
+                baseScaleCaptured = true;
+            }
+            transform.localScale = baseScale * columnScale;
             IsSurprise = isSurprise;
             LinkGroupId = linkGroupId;
             LockKeyId = lockKeyId;
