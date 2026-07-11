@@ -20174,6 +20174,10 @@ PrefabInstance:
       value: AudioManager
       objectReference: {fileID: 0}
     - target: {fileID: 5581855551808369578, guid: 425ca54bb98f94b578067e0c7eabd8ec, type: 3}
+      propertyPath: blockedClip
+      value: 
+      objectReference: {fileID: 8300000, guid: afead5a9d87e741d98678fdf59d490af, type: 3}
+    - target: {fileID: 5581855551808369578, guid: 425ca54bb98f94b578067e0c7eabd8ec, type: 3}
       propertyPath: boxBombClip
       value: 
       objectReference: {fileID: 8300000, guid: 51388c9ef1f256f4a9732ba0780696f7, type: 3}

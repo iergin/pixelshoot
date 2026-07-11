@@ -46,6 +46,9 @@ namespace PixelShoot.Audio
         [SerializeField, Range(0f, 1f)] private float boxBombVolume = 1f;
         [Tooltip("Minimum seconds between two bomb-open SFX (same idea as Box Hit Min Interval). 0 = no throttle.")]
         [SerializeField, Min(0f)] private float boxBombMinInterval = 0.1f;
+        [Tooltip("Negative 'can't do that' cue — e.g. tapping a linked group that can't board yet because a member hasn't surfaced.")]
+        [SerializeField] private AudioClip blockedClip;
+        [SerializeField, Range(0f, 1f)] private float blockedVolume = 1f;
 
         private float lastBoxHitTime = -999f;
         private float lastBoxBombTime = -999f;
@@ -106,6 +109,9 @@ namespace PixelShoot.Audio
         }
 
         public void PlayShooterClick() => PlaySfx(shooterClickClip, shooterClickVolume);
+
+        /// <summary>Negative cue when an action is rejected (e.g. a linked group can't board yet).</summary>
+        public void PlayBlocked() => PlaySfx(blockedClip, blockedVolume);
 
         public void PlayBoxHit()
         {

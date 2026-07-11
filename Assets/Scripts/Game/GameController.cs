@@ -103,6 +103,8 @@ namespace PixelShoot.Game
                 BoardConveyor(shooter, boardingDuration, landingProgress);
                 return true;
             }
+            // Conveyor full → can't board: negative cue.
+            PixelShoot.Audio.AudioManager.Instance?.PlayBlocked();
             return false;
         }
 
@@ -118,22 +120,24 @@ namespace PixelShoot.Game
             if (group == null || group.Count == 0) return false;
 
             // 1) Every member must be in a column, unlocked, and boardable (no foreign bus above it).
+            //    If a member hasn't surfaced to the top of its column yet, the group can't move —
+            //    play a negative cue so the tap gives feedback.
             foreach (var m in group)
             {
-                if (m == null || m.State != ShooterState.InColumn) return false;
+                if (m == null || m.State != ShooterState.InColumn) return RejectGroupTap();
                 // A locked member blocks the whole group until its key is collected.
                 if (m.IsLocked && !m.TryUnlock()) { m.PlayLockedFeedback(); return false; }
                 var col = ShooterColumn.ColumnOf(m);
-                if (col == null) return false;
+                if (col == null) return RejectGroupTap();
                 int idx = col.IndexOf(m);
-                if (idx < 0) return false;
+                if (idx < 0) return RejectGroupTap();
                 // "Above" = higher index (top is the last element). Any non-member above → buried.
                 for (int i = idx + 1; i < col.Shooters.Count; i++)
-                    if (!group.Contains(col.Shooters[i])) return false;
+                    if (!group.Contains(col.Shooters[i])) return RejectGroupTap();
             }
 
             // 2) Need a free conveyor slot for every member.
-            if (conveyor.FreeCount < group.Count) return false;
+            if (conveyor.FreeCount < group.Count) return RejectGroupTap();
 
             // 3) Reveal surprises, then detach + board each. Snapshot first — boarding
             //    mutates columns and (on dissolve) the shared group list. Board LEFT→RIGHT
@@ -149,6 +153,14 @@ namespace PixelShoot.Game
                     BoardConveyor(m, dur, landing);
             }
             return true;
+        }
+
+        /// <summary>A linked-group tap that can't board (a member isn't ready): play the
+        /// negative cue and reject.</summary>
+        private static bool RejectGroupTap()
+        {
+            PixelShoot.Audio.AudioManager.Instance?.PlayBlocked();
+            return false;
         }
 
         /// <summary>Order buses by world X so the leftmost is first. Nulls sink to the end.</summary>
@@ -177,7 +189,11 @@ namespace PixelShoot.Game
             // A surprise that somehow reached reserve unrevealed reveals on the way out.
             if (shooter.IsSurprise) shooter.RevealSurprise();
 
-            if (!conveyor.TryReserveSlot(out float boardingDuration, out float landingProgress)) return;
+            if (!conveyor.TryReserveSlot(out float boardingDuration, out float landingProgress))
+            {
+                PixelShoot.Audio.AudioManager.Instance?.PlayBlocked(); // conveyor full
+                return;
+            }
 
             FreeFromReservoir(shooter);
             BoardConveyor(shooter, boardingDuration, landingProgress);
@@ -194,10 +210,10 @@ namespace PixelShoot.Game
 
             // Every live member must be parked in reserve (they travel as a unit).
             foreach (var m in group)
-                if (m == null || m.State != ShooterState.InReserve) return;
+                if (m == null || m.State != ShooterState.InReserve) { RejectGroupTap(); return; }
 
             // Need a free conveyor slot for the whole group.
-            if (conveyor.FreeCount < group.Count) return;
+            if (conveyor.FreeCount < group.Count) { RejectGroupTap(); return; }
 
             // Snapshot — boarding mutates reservoirs and (on dissolve) the shared group list.
             // Board LEFT→RIGHT so the leftmost bus reaches the conveyor first.
