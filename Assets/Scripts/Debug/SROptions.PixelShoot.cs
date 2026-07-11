@@ -100,6 +100,25 @@ public partial class SROptions
         OnPropertyChanged(nameof(LivesCount));
     }
 
+    // ── Boosters ────────────────────────────────────────────────────────
+    [Category("PixelShoot — Boosters")]
+    [DisplayName("+5 each booster")]
+    public void DebugAddBoosters()
+    {
+        foreach (var id in new[] { "conveyor_capacity", "booster_2", "booster_3", "booster_4" })
+            PlayerBoosters.Add(id, 5);
+        Debug.Log("[SRDebug] +5 of every booster.");
+    }
+
+    [Category("PixelShoot — Boosters")]
+    [DisplayName("Clear all boosters")]
+    public void DebugClearBoosters()
+    {
+        foreach (var id in new[] { "conveyor_capacity", "booster_2", "booster_3", "booster_4" })
+            PlayerBoosters.TryConsume(id, PlayerBoosters.Count(id));
+        Debug.Log("[SRDebug] Boosters cleared.");
+    }
+
     // ── Ads ─────────────────────────────────────────────────────────────
     [Category("PixelShoot — Ads")]
     [DisplayName("Show interstitial")]
