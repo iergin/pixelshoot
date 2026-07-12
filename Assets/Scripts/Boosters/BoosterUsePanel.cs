@@ -22,8 +22,12 @@ namespace PixelShoot.Boosters
         [SerializeField] private TMP_Text descriptionLabel;
         [SerializeField] private Image iconImage;
 
-        [Header("Button")]
+        [Header("Buttons")]
         [SerializeField] private Button useButton;
+        [Tooltip("Explicit exit/X button — closes without using.")]
+        [SerializeField] private Button closeButton;
+        [Tooltip("Full-screen transparent catcher behind the card — a tap outside the card closes.")]
+        [SerializeField] private Button backgroundButton;
 
         [Header("Links")]
         [SerializeField] private BoosterManager manager;
@@ -39,7 +43,9 @@ namespace PixelShoot.Boosters
         {
             if (wired) return;
             wired = true;
-            if (useButton != null) { useButton.onClick.RemoveAllListeners(); useButton.onClick.AddListener(OnUse); }
+            if (useButton != null)       { useButton.onClick.RemoveAllListeners();       useButton.onClick.AddListener(OnUse); }
+            if (closeButton != null)     { closeButton.onClick.RemoveAllListeners();     closeButton.onClick.AddListener(Close); }
+            if (backgroundButton != null){ backgroundButton.onClick.RemoveAllListeners(); backgroundButton.onClick.AddListener(Close); }
         }
 
         /// <summary>Open the panel for a just-acquired booster.</summary>
