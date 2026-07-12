@@ -18,6 +18,7 @@ MonoBehaviour:
   icon: {fileID: 0}
   type: 3
   amount: 1
+  unlockLevel: 8
   coinCost: 800
   coinPurchaseEnabled: 1
   adPurchaseEnabled: 1

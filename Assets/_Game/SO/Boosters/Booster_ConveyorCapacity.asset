@@ -18,6 +18,7 @@ MonoBehaviour:
   icon: {fileID: 0}
   type: 0
   amount: 1
+  unlockLevel: 1
   coinCost: 500
   coinPurchaseEnabled: 1
   adPurchaseEnabled: 1

@@ -8,9 +8,11 @@ namespace PixelShoot.Boosters
 {
     /// <summary>
     /// Central booster logic: a button asks to use a booster; if the player owns one we
-    /// consume it, fly a particle from the button to the target (e.g. the conveyor capacity
-    /// text) and apply the effect when it lands. If the player owns none, the shared
-    /// purchase popup opens.
+    /// consume it, fly a particle from a START world point to an END world point, then
+    /// apply the effect when it lands. If the player owns none, the purchase popup opens.
+    ///
+    /// <para>The fly uses two plain world-space Transforms (drop empty GameObjects where
+    /// you want) — no UI/camera math. A button may override the start with its own point.</para>
     /// </summary>
     public class BoosterManager : MonoBehaviour
     {
@@ -21,30 +23,34 @@ namespace PixelShoot.Boosters
         [Header("Purchase")]
         [SerializeField] private BoosterPurchaseController purchasePopup;
 
-        [Header("Fly-to-target animation")]
-        [Tooltip("Particle prefab that flies from the button to the target, then the effect applies. Assign in the inspector.")]
+        [Header("Fly (world-space)")]
+        [Tooltip("Particle prefab that flies from Start to End, then the effect applies.")]
         [SerializeField] private GameObject flyParticlePrefab;
-        [Tooltip("World-space target (e.g. the world conveyor-capacity text). Preferred.")]
-        [SerializeField] private Transform flyWorldTarget;
-        [Tooltip("UI target used only if Fly World Target is empty (converted to world at Fly Depth).")]
-        [SerializeField] private RectTransform flyTarget;
-        [SerializeField] private Camera flyCamera;
-        [Tooltip("Distance from the camera used to place the fly in world space (for UI screen positions).")]
-        [SerializeField] private float flyDepth = 10f;
+        [Tooltip("Default START world point (an empty GameObject near the booster bar). A button can override this.")]
+        [SerializeField] private Transform flyStart;
+        [Tooltip("END world point — an empty GameObject at the conveyor capacity text.")]
+        [SerializeField] private Transform flyEnd;
         [SerializeField] private float flyDuration = 0.5f;
         [SerializeField] private Ease flyEase = Ease.InOutSine;
         [Tooltip("Seconds to keep the particle alive after landing so trailing particles fade.")]
         [SerializeField] private float flyCleanupDelay = 1f;
 
-        /// <summary>Use a booster (or open its purchase popup if none owned).</summary>
-        public void RequestBooster(BoosterData data, RectTransform fromButton)
+        [Header("Lock hint")]
+        [Tooltip("Full-screen transparent click catcher — enabled while an 'unlock level' hint is open so a tap OUTSIDE closes it. Its own Button/onClick should call CloseUnlockInfo.")]
+        [SerializeField] private GameObject clickBlocker;
+
+        private BoosterButton openUnlock;
+
+        /// <summary>Use a booster (or open its purchase popup if none owned).
+        /// <paramref name="startOverride"/> is an optional per-button start point.</summary>
+        public void RequestBooster(BoosterData data, Transform startOverride = null)
         {
             if (data == null) return;
 
             if (PlayerBoosters.Count(data.Id) > 0)
             {
                 if (!PlayerBoosters.TryConsume(data.Id)) return;
-                FlyThenApply(data, fromButton);
+                FlyThenApply(data, startOverride);
             }
             else if (purchasePopup != null)
             {
@@ -52,54 +58,47 @@ namespace PixelShoot.Boosters
             }
         }
 
-        private void FlyThenApply(BoosterData data, RectTransform fromButton)
+        // ── Locked-booster unlock hint ───────────────────────────────────────
+        /// <summary>Tapped a locked booster: toggle its hint. Same button → close;
+        /// another → switch; any outside tap (via the click blocker) also closes.</summary>
+        public void ToggleUnlockInfo(BoosterButton btn)
         {
-            var cam = flyCamera != null ? flyCamera : Camera.main;
-            if (flyParticlePrefab == null || fromButton == null || cam == null ||
-                !ResolveWorldPoints(cam, fromButton, out Vector3 startW, out Vector3 endW))
+            if (openUnlock == btn) { CloseUnlockInfo(); return; }
+            CloseUnlockInfo();            // close any other open hint first
+            openUnlock = btn;
+            btn.SetUnlockInfoVisible(true);
+            if (clickBlocker != null) clickBlocker.SetActive(true);
+        }
+
+        /// <summary>Close the open unlock hint (wire the click blocker's onClick to this).</summary>
+        public void CloseUnlockInfo()
+        {
+            if (openUnlock != null) openUnlock.SetUnlockInfoVisible(false);
+            openUnlock = null;
+            if (clickBlocker != null) clickBlocker.SetActive(false);
+        }
+
+        private void FlyThenApply(BoosterData data, Transform startOverride)
+        {
+            Transform start = startOverride != null ? startOverride : flyStart;
+            if (flyParticlePrefab == null || start == null || flyEnd == null)
             {
-                ApplyEffect(data); // no prefab / target → apply immediately
+                ApplyEffect(data); // nothing to fly → apply immediately
                 return;
             }
 
-            var go = Instantiate(flyParticlePrefab, startW, Quaternion.identity);
-            go.transform.DOMove(endW, flyDuration)
+            var go = Instantiate(flyParticlePrefab, start.position, start.rotation);
+            go.transform.DOMove(flyEnd.position, flyDuration)
               .SetEase(flyEase)
               .SetUpdate(true)
               .OnComplete(() =>
               {
                   ApplyEffect(data);
-                  if (flyTarget != null) flyTarget.DOPunchScale(Vector3.one * 0.25f, 0.25f, 6, 0.6f).SetUpdate(true);
+                  flyEnd.DOPunchScale(Vector3.one * 0.2f, 0.25f, 6, 0.6f).SetUpdate(true);
                   var ps = go.GetComponentInChildren<ParticleSystem>();
                   if (ps != null) ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
                   Destroy(go, Mathf.Max(0f, flyCleanupDelay));
               });
-        }
-
-        // Resolve the fly start (button) and end (target) in WORLD space, both at the
-        // target's depth so the particle travels on a consistent plane.
-        private bool ResolveWorldPoints(Camera cam, RectTransform fromButton, out Vector3 startW, out Vector3 endW)
-        {
-            startW = endW = Vector3.zero;
-            float depth;
-
-            if (flyWorldTarget != null)
-            {
-                endW = flyWorldTarget.position;
-                depth = cam.WorldToScreenPoint(endW).z;
-                if (depth <= 0.01f) depth = flyDepth;
-            }
-            else if (flyTarget != null)
-            {
-                depth = flyDepth;
-                Vector3 ts = flyTarget.position; // screen px (overlay canvas)
-                endW = cam.ScreenToWorldPoint(new Vector3(ts.x, ts.y, depth));
-            }
-            else return false;
-
-            Vector3 bs = fromButton.position; // screen px (overlay canvas)
-            startW = cam.ScreenToWorldPoint(new Vector3(bs.x, bs.y, depth));
-            return true;
         }
 
         private void ApplyEffect(BoosterData data)

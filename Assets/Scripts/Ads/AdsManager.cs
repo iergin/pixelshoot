@@ -31,8 +31,8 @@ namespace PixelShoot.Ads
             Service.Initialize();
 
             // NoAds purchase hides the banner too.
-            if (autoShowBanner && !PlayerWallet.HasNoAds)
-                Service.ShowBanner(bannerPosition);
+            // if (autoShowBanner && !PlayerWallet.HasNoAds)
+            //     Service.ShowBanner(bannerPosition);
         }
 
         /// <summary>Hide the banner permanently — called when NoAds is purchased mid-session.</summary>

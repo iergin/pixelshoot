@@ -30,9 +30,23 @@ namespace PixelShoot.EditorTools
 
             // Manager on the canvas.
             var manager = canvasGo.GetComponent<BoosterManager>() ?? canvasGo.AddComponent<BoosterManager>();
+
+            // Full-screen click catcher — closes the open unlock hint on an outside tap.
+            // Created BEFORE the bar (lower sibling index) so the buttons render on top.
+            var blocker = SettingsUICreator.CreateUI("UnlockClickBlocker", canvasGo.transform);
+            SettingsUICreator.StretchToParent(blocker);
+            var blockerImg = blocker.AddComponent<Image>();
+            blockerImg.color = new Color(0f, 0f, 0f, 0f); // invisible but raycastable
+            var blockerBtn = blocker.AddComponent<Button>();
+            blockerBtn.transition = Selectable.Transition.None;
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(blockerBtn.onClick,
+                new UnityEngine.Events.UnityAction(manager.CloseUnlockInfo));
+            blocker.SetActive(false);
+
             var soM = new SerializedObject(manager);
             SettingsUICreator.SetRef(soM, "conveyor", FindInScene<ConveyorController>());
             SettingsUICreator.SetRef(soM, "purchasePopup", FindInScene<BoosterPurchaseController>());
+            SettingsUICreator.SetRef(soM, "clickBlocker", blocker);
             soM.ApplyModifiedProperties();
 
             // Bottom bar container.
@@ -88,6 +102,29 @@ namespace PixelShoot.EditorTools
                 badgeTxt.color = new Color(0.3f, 1f, 0.4f, 1f);
                 badgeTxt.raycastTarget = false;
 
+                // Lock overlay (covers the button while locked).
+                var lockGo = SettingsUICreator.CreateUI("LockIcon", btnGo.transform);
+                SettingsUICreator.StretchToParent(lockGo);
+                var lockImg = lockGo.AddComponent<Image>();
+                lockImg.color = new Color(0f, 0f, 0f, 0.6f);
+                lockImg.raycastTarget = false;
+                var lockGlyph = SettingsUICreator.CreateText("Glyph", lockGo.transform, "\U0001F512", 40, TextAlignmentOptions.Center, FontStyles.Bold);
+                SettingsUICreator.StretchToParent(lockGlyph);
+                lockGlyph.GetComponent<TMP_Text>().raycastTarget = false;
+
+                // Unlock hint ("Lv N") shown ABOVE the button when a locked button is tapped.
+                var infoGo = SettingsUICreator.CreateUI("UnlockInfo", btnGo.transform);
+                var infoRT = infoGo.GetComponent<RectTransform>();
+                infoRT.anchorMin = new Vector2(0.5f, 1f); infoRT.anchorMax = new Vector2(0.5f, 1f);
+                infoRT.pivot = new Vector2(0.5f, 0f);
+                infoRT.sizeDelta = new Vector2(150f, 60f);
+                infoRT.anchoredPosition = new Vector2(0f, 12f);
+                infoGo.AddComponent<Image>().color = new Color(0.1f, 0.09f, 0.14f, 0.97f);
+                var infoLabel = SettingsUICreator.CreateText("Label", infoGo.transform, "Lv ?", 22, TextAlignmentOptions.Center, FontStyles.Bold);
+                SettingsUICreator.StretchToParent(infoLabel);
+                infoLabel.GetComponent<TMP_Text>().raycastTarget = false;
+                infoGo.SetActive(false);
+
                 var bb = btnGo.AddComponent<BoosterButton>();
                 var so = new SerializedObject(bb);
                 SettingsUICreator.SetRef(so, "booster", data);
@@ -96,6 +133,9 @@ namespace PixelShoot.EditorTools
                 SettingsUICreator.SetRef(so, "iconImage", icon);
                 SettingsUICreator.SetRef(so, "countLabel", count.GetComponent<TMP_Text>());
                 SettingsUICreator.SetRef(so, "buyBadge", badge);
+                SettingsUICreator.SetRef(so, "lockIcon", lockGo);
+                SettingsUICreator.SetRef(so, "unlockInfo", infoGo);
+                SettingsUICreator.SetRef(so, "unlockLevelLabel", infoLabel.GetComponent<TMP_Text>());
                 so.ApplyModifiedProperties();
             }
 

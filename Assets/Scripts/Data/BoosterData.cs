@@ -30,6 +30,10 @@ namespace PixelShoot.Data
         [Tooltip("Effect magnitude — e.g. how many conveyor slots to add.")]
         [SerializeField, Min(1)] private int amount = 1;
 
+        [Header("Unlock")]
+        [Tooltip("Booster is locked until the player reaches this (1-based) level. 1 = always unlocked.")]
+        [SerializeField, Min(1)] private int unlockLevel = 1;
+
         [Header("Purchase")]
         [Tooltip("Coin price. The 'buy with coins' button uses this.")]
         [SerializeField, Min(0)] private int coinCost = 500;
@@ -46,6 +50,8 @@ namespace PixelShoot.Data
         public Sprite Icon => icon;
         public BoosterType Type => type;
         public int Amount => amount;
+        public int UnlockLevel => unlockLevel;
+        public bool IsUnlockedAtLevel(int displayLevel) => displayLevel >= unlockLevel;
         public int CoinCost => coinCost;
         public bool CoinPurchaseEnabled => coinPurchaseEnabled;
         public bool AdPurchaseEnabled => adPurchaseEnabled;
