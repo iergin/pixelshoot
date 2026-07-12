@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b005ada7a0000111222233334444555a, type: 3}
   m_Name: Booster_ConveyorCapacity
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: conveyor_capacity
   displayName: Extra Lane
   description: Adds one extra slot to the conveyor for this level.
@@ -19,7 +19,7 @@ MonoBehaviour:
   type: 0
   amount: 1
   unlockLevel: 1
-  defaultFreeAmount: 2
+  defaultFreeAmount: 3
   hasTutorial: 1
   tutorialText: Tap the booster to add an extra conveyor lane!
   coinCost: 500
