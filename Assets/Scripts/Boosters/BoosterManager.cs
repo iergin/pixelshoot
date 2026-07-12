@@ -22,6 +22,8 @@ namespace PixelShoot.Boosters
 
         [Header("Purchase")]
         [SerializeField] private BoosterPurchaseController purchasePopup;
+        [Tooltip("Shown after a purchase (coins/ad) so the player can use the booster right away.")]
+        [SerializeField] private BoosterUsePanel usePanel;
 
         [Header("Fly (world-space)")]
         [Tooltip("Particle prefab that flies from Start to End, then the effect applies.")]
@@ -62,6 +64,22 @@ namespace PixelShoot.Boosters
         public void UseBoosterFree(BoosterData data, Transform startOverride = null)
         {
             if (data != null) FlyThenApply(data, startOverride);
+        }
+
+        /// <summary>Called by the purchase popup after a booster is bought (coins or ad):
+        /// open the use panel so the player can use it right away. If no panel is assigned
+        /// the booster simply stays in the inventory.</summary>
+        public void OnPurchased(BoosterData data)
+        {
+            if (data != null && usePanel != null) usePanel.Open(data);
+        }
+
+        /// <summary>The use panel's button: consume one booster and trigger the fly + effect.</summary>
+        public void UseFromPanel(BoosterData data)
+        {
+            if (data == null) return;
+            if (!PlayerBoosters.TryConsume(data.Id)) return;
+            FlyThenApply(data, null);
         }
 
         // ── Locked-booster unlock hint ───────────────────────────────────────

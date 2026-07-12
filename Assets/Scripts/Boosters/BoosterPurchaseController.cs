@@ -36,6 +36,7 @@ namespace PixelShoot.Boosters
         [SerializeField] private Button closeButton;
 
         [Header("Links")]
+        [SerializeField] private BoosterManager manager;
         [SerializeField] private ShopManager shop;
         [Tooltip("Conveyor paused while the popup is open.")]
         [SerializeField] private ConveyorController conveyor;
@@ -92,8 +93,10 @@ namespace PixelShoot.Boosters
             if (current == null) return;
             if (PlayerWallet.TrySpend(current.CoinCost))
             {
-                PlayerBoosters.Add(current.Id, current.GrantAmount);
+                var bought = current;
+                PlayerBoosters.Add(bought.Id, bought.GrantAmount);
                 Close();
+                if (manager != null) manager.OnPurchased(bought); // → opens the use panel
             }
             else
             {
@@ -114,9 +117,10 @@ namespace PixelShoot.Boosters
             var svc = AdsManager.Service;
             if (svc == null || !svc.IsRewardedReady) { Debug.Log("[BoosterPurchase] Rewarded ad not ready."); return; }
             var granted = current;
+            bool rewarded = false;
             svc.ShowRewarded(
-                onRewarded: () => PlayerBoosters.Add(granted.Id, granted.GrantAmount),
-                onClosed:   Close);
+                onRewarded: () => { PlayerBoosters.Add(granted.Id, granted.GrantAmount); rewarded = true; },
+                onClosed:   () => { Close(); if (rewarded && manager != null) manager.OnPurchased(granted); });
         }
 
         private void Update()
