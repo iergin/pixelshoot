@@ -30,8 +30,14 @@ namespace PixelShoot.Conveyor
         private float lastReservationLandTime = float.NegativeInfinity;
 
         public int Capacity => capacity;
+        /// <summary>Fired whenever the capacity changes (e.g. the conveyor-capacity booster).</summary>
+        public event Action OnCapacityChanged;
         /// <summary>Booster hook: permanently add conveyor slots this level.</summary>
-        public void AddCapacity(int n) => capacity = Mathf.Max(0, capacity + n);
+        public void AddCapacity(int n)
+        {
+            capacity = Mathf.Max(0, capacity + n);
+            OnCapacityChanged?.Invoke();
+        }
         public int FreeCount => capacity - (ridingShooters.Count + reservedCount);
         public int OccupiedCount => ridingShooters.Count + reservedCount;
         public bool IsFull => FreeCount <= 0 && capacity > 0;

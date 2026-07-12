@@ -19,7 +19,7 @@ namespace PixelShoot.Game
         [SerializeField] private PlayOnReserveController playOnReserve;
 
         [Header("Endgame (last buses)")]
-        [Tooltip("When this many (or fewer) buses remain in the whole level, the conveyor speeds up and buses stop using reserve — at path end they loop straight back to the start.")]
+        [Tooltip("Fallback threshold used only if no conveyor is bound. Normally the endgame triggers when alive buses <= the conveyor's CAPACITY (so a capacity booster raises the threshold too).")]
         [SerializeField] private int lastBusesThreshold = 5;
         [Tooltip("Conveyor speed multiplier once the endgame kicks in.")]
         [SerializeField, Min(1f)] private float endgameSpeedMultiplier = 2f;
@@ -55,9 +55,19 @@ namespace PixelShoot.Game
             Shooter.ClearAliveRegistry();
             Shooter.AliveCountChanged -= EvaluateEndgame;
             Shooter.AliveCountChanged += EvaluateEndgame;
+            // Re-evaluate when the conveyor capacity changes (capacity booster raises the threshold).
+            if (conveyor != null)
+            {
+                conveyor.OnCapacityChanged -= EvaluateEndgame;
+                conveyor.OnCapacityChanged += EvaluateEndgame;
+            }
         }
 
-        private void OnDisable() => Shooter.AliveCountChanged -= EvaluateEndgame;
+        private void OnDisable()
+        {
+            Shooter.AliveCountChanged -= EvaluateEndgame;
+            if (conveyor != null) conveyor.OnCapacityChanged -= EvaluateEndgame;
+        }
 
         /// <summary>Called by the loader once every bus has spawned, so the count ramp-up
         /// during build can't trip the endgame. Also evaluates immediately (covers levels
@@ -73,14 +83,16 @@ namespace PixelShoot.Game
         private void EvaluateEndgame()
         {
             if (!levelReady || endgameActive) return;
-            if (Shooter.AliveCount > lastBusesThreshold) return;
+            // Threshold = conveyor capacity, so a capacity booster raises it too ("last N" = N slots).
+            int threshold = conveyor != null ? conveyor.Capacity : lastBusesThreshold;
+            if (Shooter.AliveCount > threshold) return;
             endgameActive = true;
             if (conveyor != null)
             {
                 conveyor.SpeedMultiplier = endgameSpeedMultiplier;
                 conveyor.LoopMode = true; // riders now wrap seamlessly at the path end
             }
-            Debug.Log($"[GameController] Endgame: {Shooter.AliveCount} buses left → conveyor x{endgameSpeedMultiplier}, belt loops.");
+            Debug.Log($"[GameController] Endgame: {Shooter.AliveCount} buses left (<= capacity {threshold}) → conveyor x{endgameSpeedMultiplier}, belt loops.");
         }
 
         /// <summary>
