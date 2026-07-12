@@ -100,12 +100,13 @@ namespace PixelShoot.Boosters
             }
             else
             {
-                // Not enough coins → shop, then come back to this popup.
+                // Not enough coins → shop, then come back to this popup. Hide the panel but
+                // KEEP the conveyor paused so the game stays frozen behind the shop.
                 Debug.Log($"[BoosterPurchase] Not enough coins ({PlayerWallet.Balance}/{current.CoinCost}) → shop.");
                 pendingReopen = current;
                 waitingForShop = true;
                 sawShopOpen = false;
-                Close();
+                if (panel != null) panel.SetActive(false); // NOT Close() — don't resume the conveyor
                 var s = shop != null ? shop : ShopManager.Instance;
                 if (s != null) s.OpenShop();
             }
