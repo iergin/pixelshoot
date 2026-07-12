@@ -7387,7 +7387,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Boosters.BoosterManager
   conveyor: {fileID: 627407848}
   purchasePopup: {fileID: 790227869}
-  usePanel: {fileID: 0}
+  usePanel: {fileID: 790227872}
   flyParticlePrefab: {fileID: 2352725207995146957, guid: b8e2a9e015e484d7b98665ec811bfea1, type: 3}
   flyStart: {fileID: 643177700}
   flyEnd: {fileID: 1464252951}
@@ -7416,7 +7416,7 @@ MonoBehaviour:
   coinCostLabel: {fileID: 335347470}
   coinCostFormat: '{0}'
   closeButton: {fileID: 182133490}
-  manager: {fileID: 0}
+  manager: {fileID: 790227868}
   shop: {fileID: 1772466328}
   conveyor: {fileID: 627407848}
 --- !u!4 &790227870
