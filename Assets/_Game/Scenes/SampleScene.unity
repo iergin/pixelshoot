@@ -15771,6 +15771,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 19816240, guid: a54f4434684ca0143bf644289de35374, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19816240, guid: a54f4434684ca0143bf644289de35374, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
       value: 0.20825918
       objectReference: {fileID: 0}
@@ -15811,6 +15815,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 19859704, guid: a54f4434684ca0143bf644289de35374, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19859704, guid: a54f4434684ca0143bf644289de35374, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
       value: 0.32226774
       objectReference: {fileID: 0}
@@ -15829,6 +15837,10 @@ PrefabInstance:
     - target: {fileID: 19859704, guid: a54f4434684ca0143bf644289de35374, type: 3}
       propertyPath: InitialModule.startRotationY.minMaxState
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 19890786, guid: a54f4434684ca0143bf644289de35374, type: 3}
+      propertyPath: playOnAwake
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 19890786, guid: a54f4434684ca0143bf644289de35374, type: 3}
       propertyPath: ShapeModule.radius.value
@@ -22398,6 +22410,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2033806492}
     m_Modifications:
+    - target: {fileID: 7474044752101324566, guid: 98de40d43a08c4f1a900f5b22528dfc2, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8247933778593161274, guid: 98de40d43a08c4f1a900f5b22528dfc2, type: 3}
       propertyPath: offer
       value: 
