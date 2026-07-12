@@ -25,4 +25,4 @@ MonoBehaviour:
   coinCost: 500
   coinPurchaseEnabled: 1
   adPurchaseEnabled: 1
-  grantAmount: 1
+  grantAmount: 3
