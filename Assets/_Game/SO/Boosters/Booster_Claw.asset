@@ -22,7 +22,7 @@ MonoBehaviour:
   unlockLevel: 2
   defaultFreeAmount: 2
   hasTutorial: 1
-  tutorialStyle: 1
+  tutorialStyle: 0
   tutorialText: Tap the Claw to grab a bus!
   coinCost: 600
   coinPurchaseEnabled: 1

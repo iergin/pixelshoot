@@ -7979,6 +7979,11 @@ MonoBehaviour:
   tutorialText: {fileID: 2030580802}
   raiseSortingOrder: 500
   extraHighlights: []
+  spotlight: {fileID: 915990680}
+  holeSets:
+  - booster: {fileID: 11400000, guid: 568cfae5fa2404806aa3b52f8cb7c1be, type: 2}
+    holes:
+    - {fileID: 1464252951}
 --- !u!114 &790227872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9414,8 +9419,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.SpotlightOverlay
   cam: {fileID: 330585545}
-  holes:
-  - {fileID: 1464252951}
+  holes: []
   padding: {x: 24, y: 24}
 --- !u!114 &915990681
 MonoBehaviour:

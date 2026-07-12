@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using PixelShoot.Data;
 using PixelShoot.Game;
+using PixelShoot.UI;
 
 namespace PixelShoot.Boosters
 {
@@ -26,6 +27,20 @@ namespace PixelShoot.Boosters
         [Tooltip("Extra UI objects to keep lit (raised above the dark). E.g. a UI marker over the conveyor text.")]
         [SerializeField] private List<GameObject> extraHighlights = new List<GameObject>();
 
+        [Header("Spotlight holes (per booster)")]
+        [Tooltip("Spotlight overlay whose world-space holes are set per tutorial. If null, the one on the dark overlay is used.")]
+        [SerializeField] private SpotlightOverlay spotlight;
+        [Tooltip("Which world targets stay LIT (holes) for each booster's tutorial. A booster with no entry (e.g. Claw) gets NO holes — only its button is lit.")]
+        [SerializeField] private List<TutorialHoleSet> holeSets = new List<TutorialHoleSet>();
+
+        /// <summary>Per-booster set of world-space targets kept lit (holes) during its tutorial.</summary>
+        [System.Serializable]
+        public class TutorialHoleSet
+        {
+            public BoosterData booster;
+            public List<RectTransform> holes = new List<RectTransform>();
+        }
+
         private BoosterData activeBooster;
         private readonly List<GameObject> raised = new List<GameObject>();
         private readonly List<bool> raisedAddedCanvas = new List<bool>();
@@ -47,6 +62,7 @@ namespace PixelShoot.Boosters
         {
             activeBooster = data;
             if (darkOverlay != null) darkOverlay.SetActive(true);
+            ApplyHolesFor(data); // per-booster: booster 1 lights the conveyor text, Claw lights nothing
             Shooters.ClickInputRouter.PushSuspend(); // block world bus taps behind the overlay
 
             Raise(btn.gameObject);
@@ -73,6 +89,19 @@ namespace PixelShoot.Boosters
             if (darkOverlay != null) darkOverlay.SetActive(false);
             Shooters.ClickInputRouter.PopSuspend();
             activeBooster = null;
+        }
+
+        // Drive the spotlight holes from the active booster: its configured set, or none.
+        private void ApplyHolesFor(BoosterData data)
+        {
+            var spot = spotlight != null ? spotlight
+                     : (darkOverlay != null ? darkOverlay.GetComponent<SpotlightOverlay>() : null);
+            if (spot == null) return;
+
+            List<RectTransform> holes = null;
+            foreach (var set in holeSets)
+                if (set != null && set.booster == data) { holes = set.holes; break; }
+            spot.SetHoles(holes); // null / empty → fully dark except the raised button
         }
 
         // Raise a UI object above the dark overlay (temporary overrideSorting canvas + raycaster).

@@ -55,6 +55,7 @@ namespace PixelShoot.Boosters
         public void RequestBooster(BoosterData data, Transform startOverride = null)
         {
             if (data == null) return;
+            CloseUnlockInfo(); // tapping any usable booster closes an open unlock hint
 
             if (PlayerBoosters.Count(data.Id) > 0)
             {
