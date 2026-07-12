@@ -178,6 +178,64 @@ namespace PixelShoot.Game
         /// Reserve / play-on slot click. The shooter is in InReserve state regardless of which
         /// reservoir owns it — we check both before boarding the conveyor.
         /// </summary>
+        // ── Claw booster ─────────────────────────────────────────────────────
+        /// <summary>
+        /// True if the Claw booster could pull this shooter onto the conveyor: it must be in a
+        /// column, unlocked, and the conveyor must have enough free slots (the whole link
+        /// group for a linked bus). Unlike normal boarding this ignores column burial — the
+        /// claw reaches any shooter. Used to highlight/filter selectable buses.
+        /// </summary>
+        public bool CanClawGrab(Shooter shooter)
+        {
+            if (state != GameState.Playing || conveyor == null) return false;
+            if (shooter == null || shooter.State != ShooterState.InColumn) return false;
+            if (shooter.IsLocked) return false; // locked buses can't be carried
+
+            if (shooter.IsLinked)
+            {
+                var g = shooter.LinkGroup;
+                if (g == null || g.Count == 0) return false;
+                foreach (var m in g)
+                    if (m == null || m.State != ShooterState.InColumn || m.IsLocked) return false;
+                return conveyor.FreeCount >= g.Count;
+            }
+            return conveyor.FreeCount >= 1;
+        }
+
+        /// <summary>
+        /// Claw booster: pull a shooter (buried or not) straight onto the conveyor. Linked →
+        /// the whole group boards at once. Surprises reveal on the way. Returns false (no
+        /// change) if <see cref="CanClawGrab"/> would reject it.
+        /// </summary>
+        public bool ClawGrab(Shooter shooter)
+        {
+            if (!CanClawGrab(shooter)) return false;
+
+            if (shooter.IsLinked)
+            {
+                var members = new List<Shooter>(shooter.LinkGroup);
+                SortLeftToRight(members);
+                foreach (var m in members)
+                {
+                    if (m == null) continue;
+                    if (m.IsSurprise) m.RevealSurprise();
+                    ShooterColumn.ColumnOf(m)?.RemoveShooter(m);
+                    if (conveyor.TryReserveSlot(out float dur, out float landing))
+                        BoardConveyor(m, dur, landing);
+                }
+                return true;
+            }
+
+            if (shooter.IsSurprise) shooter.RevealSurprise();
+            ShooterColumn.ColumnOf(shooter)?.RemoveShooter(shooter);
+            if (conveyor.TryReserveSlot(out float d, out float l))
+            {
+                BoardConveyor(shooter, d, l);
+                return true;
+            }
+            return false;
+        }
+
         public void RequestBoardFromReserve(Shooter shooter)
         {
             if (state != GameState.Playing) return;

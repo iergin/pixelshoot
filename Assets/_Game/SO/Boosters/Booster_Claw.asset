@@ -10,16 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b005ada7a0000111222233334444555a, type: 3}
-  m_Name: Booster_Four
-  m_EditorClassIdentifier:
-  id: booster_4
-  displayName: Booster 4
-  description: Description for booster 4.
+  m_Name: Booster_Claw
+  m_EditorClassIdentifier: 
+  id: claw
+  displayName: Claw
+  description: Tap the Claw, then pick any bus from the columns to pull it straight
+    onto the conveyor.
   icon: {fileID: 0}
-  type: 3
+  type: 1
   amount: 1
-  unlockLevel: 8
-  coinCost: 800
+  unlockLevel: 2
+  defaultFreeAmount: 2
+  hasTutorial: 1
+  tutorialStyle: 1
+  tutorialText: Tap the Claw to grab a bus!
+  coinCost: 600
   coinPurchaseEnabled: 1
   adPurchaseEnabled: 1
   grantAmount: 1

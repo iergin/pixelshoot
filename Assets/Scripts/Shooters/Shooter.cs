@@ -84,6 +84,10 @@ namespace PixelShoot.Shooters
         [Tooltip("Exhaust smoke — emits ONLY while the bus is riding the conveyor.")]
         [SerializeField] private ParticleSystem exhaustParticle;
 
+        [Header("Claw")]
+        [Tooltip("Optional glow/ring shown while this bus is a valid Claw-booster pick. Toggled by SetClawHighlight.")]
+        [SerializeField] private GameObject clawHighlightVisual;
+
         private Vector3 baseScale = Vector3.one;
         private bool baseScaleCaptured;
         private Tween facingTween;
@@ -91,6 +95,9 @@ namespace PixelShoot.Shooters
         private readonly System.Collections.Generic.Queue<Box> launchQueue = new System.Collections.Generic.Queue<Box>();
         private float nextLaunchTime;
         private Tween wobbleTween;
+        private Tween clawPulse;
+        private Vector3 clawPulseBaseScale;
+        private bool clawPulsing;
 
         private ColorData color;
         private int shotsRemaining;
@@ -414,6 +421,34 @@ namespace PixelShoot.Shooters
             t.DOShakePosition(0.25f, 0.12f, 12, 90f, false, true);
         }
 
+        // ── Claw highlight ───────────────────────────────────────────────────
+        /// <summary>
+        /// Toggle the "grabbable by Claw" emphasis: shows the optional glow visual and pulses
+        /// the body (a CHILD transform — never the root, whose scale belongs to the conveyor/
+        /// reserve transitions). Safe to call after the bus has boarded (only touches the child).
+        /// </summary>
+        public void SetClawHighlight(bool on)
+        {
+            if (clawHighlightVisual != null) clawHighlightVisual.SetActive(on);
+
+            Transform t = busVisualRoot != null ? busVisualRoot.transform : null;
+            if (t == null || t == transform) return; // no safe child to pulse
+
+            if (on)
+            {
+                if (!clawPulsing) { clawPulseBaseScale = t.localScale; clawPulsing = true; }
+                clawPulse?.Kill();
+                clawPulse = t.DOScale(clawPulseBaseScale * 1.12f, 0.45f)
+                    .SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo).SetUpdate(true);
+            }
+            else
+            {
+                clawPulse?.Kill();
+                clawPulse = null;
+                if (clawPulsing) { t.localScale = clawPulseBaseScale; clawPulsing = false; }
+            }
+        }
+
         /// <summary>
         /// Looping squash-and-stretch on a child visual so the bus looks like its
         /// engine is running. Applied to a CHILD transform — the root's scale belongs
@@ -725,6 +760,7 @@ namespace PixelShoot.Shooters
             facingTween?.Kill();
             scaleTween?.Kill();
             wobbleTween?.Kill();
+            clawPulse?.Kill();
         }
     }
 }

@@ -37,7 +37,20 @@ namespace PixelShoot.Boosters
         [SerializeField] private TMP_Text unlockLevelLabel;
         [SerializeField] private string unlockLevelFormat = "Lv {0}";
 
+        [Header("Glow tutorial")]
+        [Tooltip("Glow shown on this button the first time a GlowButton-style tutorial booster unlocks. Cleared once the button is pressed.")]
+        [SerializeField] private GameObject tutorialGlow;
+
         public bool IsLocked => booster != null && !booster.IsUnlockedAtLevel(PlayerProgress.DisplayLevel);
+
+        // The lightweight "just glow the button" tutorial: this booster unlocks now, uses the
+        // GlowButton style, and hasn't been shown yet.
+        private bool WantsGlowTutorial =>
+            booster != null && booster.HasTutorial &&
+            booster.TutorialStyle == BoosterTutorialStyle.GlowButton &&
+            !IsLocked &&
+            PlayerProgress.DisplayLevel == booster.UnlockLevel &&
+            !PlayerBoosters.IsTutorialShown(booster.Id);
 
         private void Awake()
         {
@@ -70,11 +83,17 @@ namespace PixelShoot.Boosters
         private void OnClick()
         {
             if (booster == null || manager == null) return;
-            // During its tutorial, the tap uses the booster FOR FREE and ends the tutorial.
+            // During its (spotlight) tutorial, the tap uses the booster FOR FREE and ends it.
             if (tutorial != null && tutorial.IsActiveFor(booster))
             {
                 tutorial.CompleteWithUse(this, flyStartPoint);
                 return;
+            }
+            // Glow-style tutorial: first press just clears the glow, then uses normally.
+            if (WantsGlowTutorial)
+            {
+                PlayerBoosters.MarkTutorialShown(booster.Id);
+                if (tutorialGlow != null) tutorialGlow.SetActive(false);
             }
             if (IsLocked) manager.ToggleUnlockInfo(this);   // locked → show/hide the unlock hint
             else          manager.RequestBooster(booster, flyStartPoint);
@@ -99,6 +118,9 @@ namespace PixelShoot.Boosters
 
             // Unlocked buttons never show the unlock hint.
             if (!locked && unlockInfo != null) unlockInfo.SetActive(false);
+
+            // Glow the button while its one-time GlowButton tutorial is pending.
+            if (tutorialGlow != null) tutorialGlow.SetActive(WantsGlowTutorial);
         }
     }
 }

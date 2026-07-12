@@ -36,6 +36,7 @@ namespace PixelShoot.Boosters
         public void CheckFor(BoosterButton btn, BoosterData data)
         {
             if (btn == null || data == null || !data.HasTutorial) return;
+            if (data.TutorialStyle != BoosterTutorialStyle.Spotlight) return;    // glow-style handled by the button itself
             if (activeBooster != null) return;                                  // one at a time
             if (PlayerProgress.DisplayLevel != data.UnlockLevel) return;         // only on the unlock level
             if (PlayerBoosters.IsTutorialShown(data.Id)) return;                 // once ever
@@ -46,6 +47,7 @@ namespace PixelShoot.Boosters
         {
             activeBooster = data;
             if (darkOverlay != null) darkOverlay.SetActive(true);
+            Shooters.ClickInputRouter.PushSuspend(); // block world bus taps behind the overlay
 
             Raise(btn.gameObject);
             foreach (var h in extraHighlights) if (h != null) Raise(h);
@@ -69,6 +71,7 @@ namespace PixelShoot.Boosters
             RestoreAll();
             if (tutorialPanel != null) tutorialPanel.SetActive(false);
             if (darkOverlay != null) darkOverlay.SetActive(false);
+            Shooters.ClickInputRouter.PopSuspend();
             activeBooster = null;
         }
 

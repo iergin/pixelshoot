@@ -5,10 +5,23 @@ namespace PixelShoot.Data
     /// <summary>What a booster does when used. Extend as new boosters are added.</summary>
     public enum BoosterType
     {
-        ConveyorCapacity, // +Amount conveyor slots
-        Custom1,
+        ConveyorCapacity, // +Amount conveyor slots (instant)
+        Claw,             // interactive: pick any column shooter and pull it onto the conveyor
         Custom2,
         Custom3,
+    }
+
+    /// <summary>How the one-time tutorial is presented.</summary>
+    public enum BoosterTutorialStyle
+    {
+        Spotlight,  // darken everything, keep the button + target lit, show a panel
+        GlowButton, // just make the booster button glow (no dark overlay)
+    }
+
+    /// <summary>Boosters whose "use" opens an interactive mode instead of an instant effect.</summary>
+    public static class BoosterTypeExtensions
+    {
+        public static bool IsInteractive(this BoosterType t) => t == BoosterType.Claw;
     }
 
     /// <summary>
@@ -39,6 +52,8 @@ namespace PixelShoot.Data
         [SerializeField, Min(0)] private int defaultFreeAmount = 0;
         [Tooltip("Show a one-time forced tutorial on the level this booster unlocks.")]
         [SerializeField] private bool hasTutorial = false;
+        [Tooltip("How the tutorial is shown: Spotlight (dark overlay + panel) or GlowButton (just glow the button).")]
+        [SerializeField] private BoosterTutorialStyle tutorialStyle = BoosterTutorialStyle.Spotlight;
         [Tooltip("Text shown in the tutorial panel.")]
         [SerializeField, TextArea] private string tutorialText = "Tap to use this booster!";
 
@@ -62,6 +77,8 @@ namespace PixelShoot.Data
         public bool IsUnlockedAtLevel(int displayLevel) => displayLevel >= unlockLevel;
         public int DefaultFreeAmount => defaultFreeAmount;
         public bool HasTutorial => hasTutorial;
+        public BoosterTutorialStyle TutorialStyle => tutorialStyle;
+        public bool IsInteractive => type.IsInteractive();
         public string TutorialText => tutorialText;
         public int CoinCost => coinCost;
         public bool CoinPurchaseEnabled => coinPurchaseEnabled;

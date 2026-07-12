@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using DG.Tweening;
 using PixelShoot.Data;
 using PixelShoot.Game;
@@ -25,6 +28,10 @@ namespace PixelShoot.Boosters
         [Tooltip("Shown after a purchase (coins/ad) so the player can use the booster right away.")]
         [SerializeField] private BoosterUsePanel usePanel;
 
+        [Header("Interactive")]
+        [Tooltip("Handles interactive boosters (e.g. Claw). Instant boosters ignore this.")]
+        [SerializeField] private ClawController clawController;
+
         [Header("Fly (world-space)")]
         [Tooltip("Particle prefab that flies from Start to End, then the effect applies.")]
         [SerializeField] private GameObject flyParticlePrefab;
@@ -38,7 +45,7 @@ namespace PixelShoot.Boosters
         [SerializeField] private float flyCleanupDelay = 1f;
 
         [Header("Lock hint")]
-        [Tooltip("Full-screen transparent click catcher — enabled while an 'unlock level' hint is open so a tap OUTSIDE closes it. Its own Button/onClick should call CloseUnlockInfo.")]
+        [Tooltip("OPTIONAL. A tap outside a booster button already closes the hint (handled in Update). Assign only if you also want a visible dim/catcher object toggled with the hint.")]
         [SerializeField] private GameObject clickBlocker;
 
         private BoosterButton openUnlock;
@@ -51,6 +58,13 @@ namespace PixelShoot.Boosters
 
             if (PlayerBoosters.Count(data.Id) > 0)
             {
+                // Interactive boosters (Claw) open a selection mode and consume on a successful
+                // grab — NOT up front, so a cancel keeps the booster.
+                if (data.IsInteractive)
+                {
+                    if (clawController != null) clawController.Begin(data, consume: true);
+                    return;
+                }
                 if (!PlayerBoosters.TryConsume(data.Id)) return;
                 FlyThenApply(data, startOverride);
             }
@@ -63,7 +77,13 @@ namespace PixelShoot.Boosters
         /// <summary>Use a booster WITHOUT consuming one (the tutorial's free use).</summary>
         public void UseBoosterFree(BoosterData data, Transform startOverride = null)
         {
-            if (data != null) FlyThenApply(data, startOverride);
+            if (data == null) return;
+            if (data.IsInteractive)
+            {
+                if (clawController != null) clawController.Begin(data, consume: false);
+                return;
+            }
+            FlyThenApply(data, startOverride);
         }
 
         /// <summary>Called by the purchase popup after a booster is bought (coins or ad):
@@ -74,17 +94,23 @@ namespace PixelShoot.Boosters
             if (data != null && usePanel != null) usePanel.Open(data);
         }
 
-        /// <summary>The use panel's button: consume one booster and trigger the fly + effect.</summary>
+        /// <summary>The use panel's button: use one booster (instant effect, or open the
+        /// interactive mode which consumes on a successful action).</summary>
         public void UseFromPanel(BoosterData data)
         {
             if (data == null) return;
+            if (data.IsInteractive)
+            {
+                if (clawController != null) clawController.Begin(data, consume: true);
+                return;
+            }
             if (!PlayerBoosters.TryConsume(data.Id)) return;
             FlyThenApply(data, null);
         }
 
         // ── Locked-booster unlock hint ───────────────────────────────────────
         /// <summary>Tapped a locked booster: toggle its hint. Same button → close;
-        /// another → switch; any outside tap (via the click blocker) also closes.</summary>
+        /// another → switch; any tap outside a booster button also closes (see Update).</summary>
         public void ToggleUnlockInfo(BoosterButton btn)
         {
             if (openUnlock == btn) { CloseUnlockInfo(); return; }
@@ -94,12 +120,52 @@ namespace PixelShoot.Boosters
             if (clickBlocker != null) clickBlocker.SetActive(true);
         }
 
-        /// <summary>Close the open unlock hint (wire the click blocker's onClick to this).</summary>
+        /// <summary>Close the open unlock hint.</summary>
         public void CloseUnlockInfo()
         {
             if (openUnlock != null) openUnlock.SetUnlockInfoVisible(false);
             openUnlock = null;
             if (clickBlocker != null) clickBlocker.SetActive(false);
+        }
+
+        // While a hint is open, any press that ISN'T on a booster button closes it. Presses
+        // ON a booster button are left to that button's onClick (which toggles/switches),
+        // so there's no race. This makes the optional clickBlocker unnecessary.
+        private static readonly List<RaycastResult> raycastResults = new List<RaycastResult>();
+
+        private void Update()
+        {
+            if (openUnlock == null) return;
+            if (!TryReadPress(out Vector2 screen)) return;
+            if (IsPointerOverBoosterButton(screen)) return; // its onClick handles it
+            CloseUnlockInfo();
+        }
+
+        private static bool IsPointerOverBoosterButton(Vector2 screen)
+        {
+            if (EventSystem.current == null) return false;
+            var ped = new PointerEventData(EventSystem.current) { position = screen };
+            raycastResults.Clear();
+            EventSystem.current.RaycastAll(ped, raycastResults);
+            foreach (var r in raycastResults)
+                if (r.gameObject != null && r.gameObject.GetComponentInParent<BoosterButton>() != null)
+                    return true;
+            return false;
+        }
+
+        private static bool TryReadPress(out Vector2 screen)
+        {
+            screen = default;
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            { screen = Mouse.current.position.ReadValue(); return true; }
+            if (Touchscreen.current != null)
+            {
+                var t = Touchscreen.current.primaryTouch;
+                if (t.press.wasPressedThisFrame) { screen = t.position.ReadValue(); return true; }
+            }
+            if (Pointer.current != null && Pointer.current.press.wasPressedThisFrame)
+            { screen = Pointer.current.position.ReadValue(); return true; }
+            return false;
         }
 
         private void FlyThenApply(BoosterData data, Transform startOverride)
