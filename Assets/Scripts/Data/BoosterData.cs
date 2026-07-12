@@ -34,6 +34,14 @@ namespace PixelShoot.Data
         [Tooltip("Booster is locked until the player reaches this (1-based) level. 1 = always unlocked.")]
         [SerializeField, Min(1)] private int unlockLevel = 1;
 
+        [Header("Onboarding")]
+        [Tooltip("Free boosters granted once, the first time the player ever sees this booster.")]
+        [SerializeField, Min(0)] private int defaultFreeAmount = 0;
+        [Tooltip("Show a one-time forced tutorial on the level this booster unlocks.")]
+        [SerializeField] private bool hasTutorial = false;
+        [Tooltip("Text shown in the tutorial panel.")]
+        [SerializeField, TextArea] private string tutorialText = "Tap to use this booster!";
+
         [Header("Purchase")]
         [Tooltip("Coin price. The 'buy with coins' button uses this.")]
         [SerializeField, Min(0)] private int coinCost = 500;
@@ -52,6 +60,9 @@ namespace PixelShoot.Data
         public int Amount => amount;
         public int UnlockLevel => unlockLevel;
         public bool IsUnlockedAtLevel(int displayLevel) => displayLevel >= unlockLevel;
+        public int DefaultFreeAmount => defaultFreeAmount;
+        public bool HasTutorial => hasTutorial;
+        public string TutorialText => tutorialText;
         public int CoinCost => coinCost;
         public bool CoinPurchaseEnabled => coinPurchaseEnabled;
         public bool AdPurchaseEnabled => adPurchaseEnabled;

@@ -129,6 +129,7 @@ namespace PixelShoot.EditorTools
                 var so = new SerializedObject(bb);
                 SettingsUICreator.SetRef(so, "booster", data);
                 SettingsUICreator.SetRef(so, "manager", manager);
+                SettingsUICreator.SetRef(so, "tutorial", FindInScene<BoosterTutorialController>());
                 SettingsUICreator.SetRef(so, "button", button);
                 SettingsUICreator.SetRef(so, "iconImage", icon);
                 SettingsUICreator.SetRef(so, "countLabel", count.GetComponent<TMP_Text>());

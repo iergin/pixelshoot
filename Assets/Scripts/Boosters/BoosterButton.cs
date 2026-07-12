@@ -17,6 +17,7 @@ namespace PixelShoot.Boosters
     {
         [SerializeField] private BoosterData booster;
         [SerializeField] private BoosterManager manager;
+        [SerializeField] private BoosterTutorialController tutorial;
         [SerializeField] private Button button;
         [SerializeField] private Image iconImage;
         [Tooltip("Shows the owned count (e.g. 'x3'). {0} = count.")]
@@ -43,6 +44,14 @@ namespace PixelShoot.Boosters
             if (button == null) button = GetComponent<Button>();
             if (button != null) { button.onClick.RemoveAllListeners(); button.onClick.AddListener(OnClick); }
             if (booster != null && iconImage != null && booster.Icon != null) iconImage.sprite = booster.Icon;
+            // Grant the one-time free boosters the very first time this booster is seen.
+            if (booster != null) PlayerBoosters.GrantDefaultOnce(booster.Id, booster.DefaultFreeAmount);
+        }
+
+        private void Start()
+        {
+            // Kick off the one-time tutorial if this is the unlock level for this booster.
+            if (tutorial != null && booster != null) tutorial.CheckFor(this, booster);
         }
 
         private void OnEnable()
@@ -61,6 +70,12 @@ namespace PixelShoot.Boosters
         private void OnClick()
         {
             if (booster == null || manager == null) return;
+            // During its tutorial, the tap uses the booster FOR FREE and ends the tutorial.
+            if (tutorial != null && tutorial.IsActiveFor(booster))
+            {
+                tutorial.CompleteWithUse(this, flyStartPoint);
+                return;
+            }
             if (IsLocked) manager.ToggleUnlockInfo(this);   // locked → show/hide the unlock hint
             else          manager.RequestBooster(booster, flyStartPoint);
         }

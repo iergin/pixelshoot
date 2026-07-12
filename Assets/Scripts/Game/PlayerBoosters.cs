@@ -32,6 +32,28 @@ namespace PixelShoot.Game
             return true;
         }
 
+        // ── One-time default grant ───────────────────────────────────────────
+        private const string GrantedPrefix = "PixelShoot.BoosterGranted.";
+        /// <summary>Grant `amount` free boosters once per device for this id.</summary>
+        public static void GrantDefaultOnce(string id, int amount)
+        {
+            if (string.IsNullOrEmpty(id) || amount <= 0) return;
+            if (PlayerPrefs.GetInt(GrantedPrefix + id, 0) == 1) return;
+            PlayerPrefs.SetInt(GrantedPrefix + id, 1);
+            Add(id, amount); // Add() saves
+        }
+
+        // ── Tutorial-seen flag ───────────────────────────────────────────────
+        private const string TutorialPrefix = "PixelShoot.BoosterTutorial.";
+        public static bool IsTutorialShown(string id)
+            => !string.IsNullOrEmpty(id) && PlayerPrefs.GetInt(TutorialPrefix + id, 0) == 1;
+        public static void MarkTutorialShown(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return;
+            PlayerPrefs.SetInt(TutorialPrefix + id, 1);
+            PlayerPrefs.Save();
+        }
+
         private static void SetCount(string id, int value)
         {
             value = Mathf.Max(0, value);

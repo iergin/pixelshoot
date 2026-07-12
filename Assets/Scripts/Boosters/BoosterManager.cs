@@ -58,6 +58,12 @@ namespace PixelShoot.Boosters
             }
         }
 
+        /// <summary>Use a booster WITHOUT consuming one (the tutorial's free use).</summary>
+        public void UseBoosterFree(BoosterData data, Transform startOverride = null)
+        {
+            if (data != null) FlyThenApply(data, startOverride);
+        }
+
         // ── Locked-booster unlock hint ───────────────────────────────────────
         /// <summary>Tapped a locked booster: toggle its hint. Same button → close;
         /// another → switch; any outside tap (via the click blocker) also closes.</summary>
