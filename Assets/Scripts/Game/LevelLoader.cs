@@ -24,6 +24,8 @@ namespace PixelShoot.Game
         [SerializeField] private ReserveController reserve;
         [SerializeField] private PlayOnReserveController playOnReserve;
         [SerializeField] private GameController gameController;
+        [Tooltip("Shows first-time tutorials for special items (Surprise/Link/LockKey/Bomb) present in the level.")]
+        [SerializeField] private PixelShoot.UI.SpecialItemTutorialController specialItemTutorial;
 
         [Header("Shooter spawning")]
         [SerializeField] private Shooter shooterPrefab;
@@ -97,6 +99,9 @@ namespace PixelShoot.Game
             // All buses have spawned — arm the endgame watcher (fires now if this level
             // already has ≤ threshold buses).
             if (gameController != null) gameController.NotifyLevelReady();
+
+            // First-time tutorials for any special items this level uses.
+            if (specialItemTutorial != null) specialItemTutorial.CheckLevel(levelData);
         }
 
         private KeyManager EnsureKeyManager()

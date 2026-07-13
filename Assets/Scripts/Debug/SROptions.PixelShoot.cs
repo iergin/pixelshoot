@@ -2,6 +2,7 @@ using System.ComponentModel;
 using UnityEngine;
 using PixelShoot.Ads;
 using PixelShoot.Game;
+using PixelShoot.UI;
 
 /// <summary>
 /// PixelShoot extensions to SRDebugger's runtime options panel. The class is
@@ -117,6 +118,15 @@ public partial class SROptions
         foreach (var id in new[] { "conveyor_capacity", "booster_2", "booster_3", "booster_4" })
             PlayerBoosters.TryConsume(id, PlayerBoosters.Count(id));
         Debug.Log("[SRDebug] Boosters cleared.");
+    }
+
+    // ── Tutorials ───────────────────────────────────────────────────────
+    [Category("PixelShoot — Tutorials")]
+    [DisplayName("Reset special item tutorials")]
+    public void DebugResetSpecialItemTutorials()
+    {
+        SpecialItemTutorialState.ResetAll();
+        Debug.Log("[SRDebug] Special item tutorials reset — they'll show again next level.");
     }
 
     // ── Ads ─────────────────────────────────────────────────────────────
