@@ -30,8 +30,8 @@ namespace PixelShoot.Shooters
         [SerializeField, Min(0f)] private float startSpeed = 2f;
         [Tooltip("Relative velocity at the END of the flight (slope at t=1). 1 = constant speed. Lower = more slowdown on arrival; raise it so it doesn't crawl at the end.")]
         [SerializeField, Min(0f)] private float endSpeed = 0.7f;
-        [Tooltip("Scale multiplier at the midpoint of the flight — the stickman grows to this then shrinks back to its default scale. 1 = no scale change.")]
-        [SerializeField, Min(1f)] private float apexScaleMultiplier = 1.4f;
+        [Tooltip("Spawn/run scale tuning for bus stickmen (spawn scale, run = box scale × mult, grow time).")]
+        [SerializeField] private StickmanScaleConfig scaleConfig;
 
         private Tween flightTween;
         private Tween flightScaleTween;
@@ -126,15 +126,16 @@ namespace PixelShoot.Shooters
                     StickmanPool.Release(this);
                 });
 
-            // Scale pulse over the flight: grow to the midpoint, shrink BACK TO the
-            // default scale (never below it) by the time it lands.
-            if (apexScaleMultiplier > 1f)
+            // Spawn at the config's spawn scale, then smoothly grow to the RUN scale
+            // (= target box's world scale × multiplier).
+            if (scaleConfig != null)
             {
                 flightScaleTween?.Kill();
-                Vector3 baseScale = transform.localScale;
-                flightScaleTween = DOTween.Sequence()
-                    .Append(transform.DOScale(baseScale * apexScaleMultiplier, duration * 0.5f).SetEase(Ease.OutQuad))
-                    .Append(transform.DOScale(baseScale, duration * 0.5f).SetEase(Ease.InQuad));
+                transform.localScale = Vector3.one * scaleConfig.spawnScale;
+                float boxScale = target != null ? target.transform.lossyScale.x : 1f;
+                float runScale = boxScale * scaleConfig.runScaleBoxMultiplier;
+                flightScaleTween = transform.DOScale(Vector3.one * runScale, scaleConfig.growDuration)
+                    .SetEase(scaleConfig.growEase);
             }
         }
 
