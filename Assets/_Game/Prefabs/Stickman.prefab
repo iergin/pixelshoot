@@ -332,7 +332,7 @@ MonoBehaviour:
   minFlightDuration: 0.05
   startSpeed: 2
   endSpeed: 0.7
-  apexScaleMultiplier: 0.2
+  scaleConfig: {fileID: 11400000, guid: c1a2b3c4d5e6f7081920212223242ac6, type: 2}
 --- !u!1 &2866954109378261240
 GameObject:
   m_ObjectHideFlags: 0
