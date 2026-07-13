@@ -83,6 +83,8 @@ namespace PixelShoot.Boosters
         private void OnClick()
         {
             if (booster == null || manager == null) return;
+            // An interactive booster (Claw / FillColor) is running → ignore all booster taps.
+            if (BoosterProcess.Active) return;
             // During its (spotlight) tutorial, the tap uses the booster FOR FREE and ends it.
             if (tutorial != null && tutorial.IsActiveFor(booster))
             {

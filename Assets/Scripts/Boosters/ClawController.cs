@@ -78,6 +78,7 @@ namespace PixelShoot.Boosters
             consumeOnGrab = consume;
             waitingForRelease = true;
 
+            BoosterProcess.Set(true); // lock other booster buttons + hide the bar
             conveyor.IsPaused = true;
             if (clawCamera != null) clawCamera.SetActive(true);
             ClickInputRouter.PushSuspend(); // reliably block normal boarding taps
@@ -102,6 +103,7 @@ namespace PixelShoot.Boosters
             if (conveyor != null) conveyor.IsPaused = false;
             active = false;
             current = null;
+            BoosterProcess.Set(false); // restore other buttons + bring the bar back
         }
 
         private void Update()

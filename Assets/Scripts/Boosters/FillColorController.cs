@@ -77,6 +77,7 @@ namespace PixelShoot.Boosters
             current = data;
             waitingForRelease = true;
 
+            BoosterProcess.Set(true); // lock other booster buttons + hide the bar
             conveyor.IsPaused = true;
             ClickInputRouter.PushSuspend();
             if (fillCamera != null) fillCamera.SetActive(true);
@@ -100,6 +101,7 @@ namespace PixelShoot.Boosters
             active = false;
             running = false;
             current = null;
+            BoosterProcess.Set(false); // restore other buttons + bring the bar back
         }
 
         private void Update()
