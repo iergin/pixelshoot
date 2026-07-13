@@ -31,6 +31,8 @@ namespace PixelShoot.Boosters
         [Header("Interactive")]
         [Tooltip("Handles interactive boosters (e.g. Claw). Instant boosters ignore this.")]
         [SerializeField] private ClawController clawController;
+        [Tooltip("Handles the Shuffle booster (rearranges the front column rows).")]
+        [SerializeField] private ShuffleController shuffleController;
 
         [Header("Fly (world-space)")]
         [Tooltip("Particle prefab that flies from Start to End, then the effect applies.")]
@@ -67,7 +69,7 @@ namespace PixelShoot.Boosters
                     return;
                 }
                 if (!PlayerBoosters.TryConsume(data.Id)) return;
-                FlyThenApply(data, startOverride);
+                TriggerEffect(data, startOverride);
             }
             else if (purchasePopup != null)
             {
@@ -84,7 +86,7 @@ namespace PixelShoot.Boosters
                 if (clawController != null) clawController.Begin(data, consume: false);
                 return;
             }
-            FlyThenApply(data, startOverride);
+            TriggerEffect(data, startOverride);
         }
 
         /// <summary>Called by the purchase popup after a booster is bought (coins or ad):
@@ -106,7 +108,7 @@ namespace PixelShoot.Boosters
                 return;
             }
             if (!PlayerBoosters.TryConsume(data.Id)) return;
-            FlyThenApply(data, null);
+            TriggerEffect(data, null);
         }
 
         // ── Locked-booster unlock hint ───────────────────────────────────────
@@ -169,6 +171,14 @@ namespace PixelShoot.Boosters
             return false;
         }
 
+        // Only the conveyor-capacity booster flies a particle to the conveyor text; other
+        // effects (shuffle, …) apply where they happen, so skip the fly for them.
+        private void TriggerEffect(BoosterData data, Transform startOverride)
+        {
+            if (data.Type == BoosterType.ConveyorCapacity) FlyThenApply(data, startOverride);
+            else ApplyEffect(data);
+        }
+
         private void FlyThenApply(BoosterData data, Transform startOverride)
         {
             Transform start = startOverride != null ? startOverride : flyStart;
@@ -198,6 +208,10 @@ namespace PixelShoot.Boosters
             {
                 case BoosterType.ConveyorCapacity:
                     if (conveyor != null) conveyor.AddCapacity(data.Amount);
+                    break;
+                case BoosterType.Shuffle:
+                    if (shuffleController != null) shuffleController.Shuffle();
+                    else Debug.LogWarning("[BoosterManager] Shuffle booster used but no ShuffleController assigned.");
                     break;
                 default:
                     Debug.LogWarning($"[BoosterManager] No effect implemented for {data.Type} ('{data.Id}').");

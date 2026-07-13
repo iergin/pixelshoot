@@ -7,7 +7,7 @@ namespace PixelShoot.Data
     {
         ConveyorCapacity, // +Amount conveyor slots (instant)
         Claw,             // interactive: pick any column shooter and pull it onto the conveyor
-        Custom2,
+        Shuffle,          // randomly rearrange the front rows of the columns
         Custom3,
     }
 

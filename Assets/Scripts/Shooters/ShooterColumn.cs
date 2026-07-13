@@ -115,6 +115,27 @@ namespace PixelShoot.Shooters
             return false;
         }
 
+        /// <summary>
+        /// Shuffle booster: replace this column's stack (bottom-to-top order). Reparents and
+        /// reconfigures any incoming shooter (keeping its world pose so it slides in), animates
+        /// everyone to place, and refreshes the new top (revealing a surprise that surfaced).
+        /// </summary>
+        public void ApplyShuffledStack(List<Shooter> newList)
+        {
+            shooters.Clear();
+            if (newList != null) shooters.AddRange(newList);
+            foreach (var s in shooters)
+            {
+                if (s == null) continue;
+                if (s.transform.parent != transform) s.transform.SetParent(transform, true); // keep world pose → slides in
+                var click = s.GetComponent<ShooterClickHandler>();
+                if (click == null) click = s.gameObject.AddComponent<ShooterClickHandler>();
+                click.Configure(s, this, reserveClickHandler);
+            }
+            RestackAnimated();
+            RefreshTop();
+        }
+
         /// <summary>Drop a shooter from this column (used when a bomb pays back its shots in full).</summary>
         public void RemoveExpiredShooter(Shooter s)
         {

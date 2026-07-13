@@ -5246,6 +5246,52 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Conveyor.ConveyorPathNode
   isCanShoot: 1
   targetSide: 3
+--- !u!1 &559567845
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 559567846}
+  - component: {fileID: 559567847}
+  m_Layer: 0
+  m_Name: Shuffle Controller
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &559567846
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559567845}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1923130748}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &559567847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559567845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5907117a0ab0c0d0e0f00112233451ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Boosters.ShuffleController
+  rowsToShuffle: 3
+  solverAttempts: 300
 --- !u!1 &574102376
 GameObject:
   m_ObjectHideFlags: 0
@@ -7914,6 +7960,7 @@ MonoBehaviour:
   purchasePopup: {fileID: 790227869}
   usePanel: {fileID: 790227872}
   clawController: {fileID: 1231573714}
+  shuffleController: {fileID: 559567847}
   flyParticlePrefab: {fileID: 2352725207995146957, guid: b8e2a9e015e484d7b98665ec811bfea1, type: 3}
   flyStart: {fileID: 643177700}
   flyEnd: {fileID: 1464252951}
@@ -13777,9 +13824,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59cbe6689812248adb980fef7b426e67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Boosters.BoosterButton
-  booster: {fileID: 11400000, guid: 5127be968b26a4e32a9f6926d32589e4, type: 2}
+  booster: {fileID: 11400000, guid: c1a2b3c4d5e6f70819202122232426c2, type: 2}
   manager: {fileID: 790227868}
-  tutorial: {fileID: 0}
+  tutorial: {fileID: 790227871}
   button: {fileID: 1271172266}
   iconImage: {fileID: 736227189}
   countLabel: {fileID: 1704851821}
@@ -22881,6 +22928,7 @@ Transform:
   - {fileID: 749695905}
   - {fileID: 790227870}
   - {fileID: 1231573713}
+  - {fileID: 559567846}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1937822310
