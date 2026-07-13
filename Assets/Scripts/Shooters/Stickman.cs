@@ -118,6 +118,42 @@ namespace PixelShoot.Shooters
             }
         }
 
+        /// <summary>
+        /// FillColor booster: run in from the current (off-screen) position to the target box's
+        /// cell at a configurable ground speed, playing <paramref name="runState"/>. Applies the
+        /// hit on arrival, invokes <paramref name="onDone"/>, then returns to the pool.
+        /// </summary>
+        public void RunInAndHit(Box target, GridController grid, float speed, float minDuration,
+            string runTrigger, Ease ease, bool faceMovement, System.Action onDone)
+        {
+            flightTween?.Kill();
+            transform.SetParent(null, true);
+
+            if (animator != null && !string.IsNullOrEmpty(runTrigger))
+                animator.SetTrigger(runTrigger);
+
+            Vector3 endPos = grid != null && target != null
+                ? grid.GetCellWorldPosition(target.GridX, target.GridZ)
+                : transform.position;
+
+            if (faceMovement)
+            {
+                Vector3 dir = endPos - transform.position; dir.y = 0f;
+                if (dir.sqrMagnitude > 0.0001f) transform.rotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
+            }
+
+            float distance = Vector3.Distance(transform.position, endPos);
+            float duration = Mathf.Max(minDuration, distance / Mathf.Max(0.01f, speed));
+            flightTween = transform.DOMove(endPos, duration)
+                .SetEase(ease)
+                .OnComplete(() =>
+                {
+                    if (grid != null && target != null && target.IsAlive) grid.NotifyBoxHit(target);
+                    onDone?.Invoke();
+                    StickmanPool.Release(this);
+                });
+        }
+
         /// <summary>Quick disappear (e.g. bomb payback); returns to the pool afterwards.</summary>
         public void DespawnImmediate()
         {

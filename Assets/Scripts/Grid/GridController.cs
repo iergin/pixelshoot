@@ -193,6 +193,51 @@ namespace PixelShoot.Grid
             return gridRoot != null ? gridRoot.TransformPoint(local) : transform.TransformPoint(local);
         }
 
+        // ── Booster helpers (FillColor) ──────────────────────────────────────
+        /// <summary>Box at a grid cell, or null if out of range / empty.</summary>
+        public Box GetBox(int x, int z)
+        {
+            if (boxes == null || x < 0 || z < 0 || x >= size || z >= size) return null;
+            return boxes[x, z];
+        }
+
+        /// <summary>All still-alive boxes whose gameplay color matches (tone variants resolved).</summary>
+        public List<Box> CollectAliveBoxes(ColorData gameplayColor)
+        {
+            var result = new List<Box>();
+            if (boxes == null || gameplayColor == null) return result;
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b != null && b.IsAlive && b.Color != null && b.Color.GameplayColor == gameplayColor)
+                        result.Add(b);
+                }
+            return result;
+        }
+
+        /// <summary>Intersect a ray with the grid plane. Returns the world point on the plane.</summary>
+        public bool RaycastGridPlane(Ray ray, out Vector3 world)
+        {
+            var root = gridRoot != null ? gridRoot : transform;
+            var plane = new Plane(root.up, root.position);
+            if (plane.Raycast(ray, out float enter)) { world = ray.GetPoint(enter); return true; }
+            world = default;
+            return false;
+        }
+
+        /// <summary>Map a camera ray to the box under it (via the grid plane). Null if off-grid.</summary>
+        public Box PickBox(Ray ray)
+        {
+            if (!RaycastGridPlane(ray, out Vector3 world)) return null;
+            var root = gridRoot != null ? gridRoot : transform;
+            Vector3 local = root.InverseTransformPoint(world);
+            float offset = (size - 1) * 0.5f * cellSize;
+            int x = Mathf.RoundToInt((local.x + offset) / cellSize);
+            int z = Mathf.RoundToInt((local.z + offset) / cellSize);
+            return GetBox(x, z);
+        }
+
         /// <summary>
         /// Find the outermost targetable box from the given side, at the line of fire
         /// closest to the shooter's world position.

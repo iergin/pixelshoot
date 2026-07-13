@@ -8,7 +8,7 @@ namespace PixelShoot.Data
         ConveyorCapacity, // +Amount conveyor slots (instant)
         Claw,             // interactive: pick any column shooter and pull it onto the conveyor
         Shuffle,          // randomly rearrange the front rows of the columns
-        Custom3,
+        FillColor,        // interactive: pick a box → hit every box of that color
     }
 
     /// <summary>How the one-time tutorial is presented.</summary>
@@ -21,7 +21,7 @@ namespace PixelShoot.Data
     /// <summary>Boosters whose "use" opens an interactive mode instead of an instant effect.</summary>
     public static class BoosterTypeExtensions
     {
-        public static bool IsInteractive(this BoosterType t) => t == BoosterType.Claw;
+        public static bool IsInteractive(this BoosterType t) => t == BoosterType.Claw || t == BoosterType.FillColor;
     }
 
     /// <summary>

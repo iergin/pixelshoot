@@ -29,8 +29,10 @@ namespace PixelShoot.Boosters
         [SerializeField] private BoosterUsePanel usePanel;
 
         [Header("Interactive")]
-        [Tooltip("Handles interactive boosters (e.g. Claw). Instant boosters ignore this.")]
+        [Tooltip("Handles the Claw booster (pick a column bus → conveyor).")]
         [SerializeField] private ClawController clawController;
+        [Tooltip("Handles the FillColor booster (pick a box → hit every box of that color).")]
+        [SerializeField] private FillColorController fillColorController;
         [Tooltip("Handles the Shuffle booster (rearranges the front column rows).")]
         [SerializeField] private ShuffleController shuffleController;
 
@@ -65,7 +67,7 @@ namespace PixelShoot.Boosters
                 // grab — NOT up front, so a cancel keeps the booster.
                 if (data.IsInteractive)
                 {
-                    if (clawController != null) clawController.Begin(data, consume: true);
+                    BeginInteractive(data, consume: true);
                     return;
                 }
                 if (!PlayerBoosters.TryConsume(data.Id)) return;
@@ -83,7 +85,7 @@ namespace PixelShoot.Boosters
             if (data == null) return;
             if (data.IsInteractive)
             {
-                if (clawController != null) clawController.Begin(data, consume: false);
+                BeginInteractive(data, consume: false);
                 return;
             }
             TriggerEffect(data, startOverride);
@@ -104,11 +106,31 @@ namespace PixelShoot.Boosters
             if (data == null) return;
             if (data.IsInteractive)
             {
-                if (clawController != null) clawController.Begin(data, consume: true);
+                BeginInteractive(data, consume: true);
                 return;
             }
             if (!PlayerBoosters.TryConsume(data.Id)) return;
             TriggerEffect(data, null);
+        }
+
+        // Route an interactive booster to its controller. Consume happens on a successful
+        // action inside the controller (so cancelling keeps the booster).
+        private void BeginInteractive(BoosterData data, bool consume)
+        {
+            switch (data.Type)
+            {
+                case BoosterType.Claw:
+                    if (clawController != null) clawController.Begin(data, consume);
+                    else Debug.LogWarning("[BoosterManager] Claw booster used but no ClawController assigned.");
+                    break;
+                case BoosterType.FillColor:
+                    if (fillColorController != null) fillColorController.Begin(data, consume);
+                    else Debug.LogWarning("[BoosterManager] FillColor booster used but no FillColorController assigned.");
+                    break;
+                default:
+                    Debug.LogWarning($"[BoosterManager] No interactive controller for {data.Type}.");
+                    break;
+            }
         }
 
         // ── Locked-booster unlock hint ───────────────────────────────────────
