@@ -193,6 +193,14 @@ namespace PixelShoot.Grid
             return gridRoot != null ? gridRoot.TransformPoint(local) : transform.TransformPoint(local);
         }
 
+        /// <summary>Grid-local → world (respects the grid root's transform).</summary>
+        public Vector3 GridLocalToWorld(Vector3 local) =>
+            gridRoot != null ? gridRoot.TransformPoint(local) : transform.TransformPoint(local);
+
+        /// <summary>World → grid-local (respects the grid root's transform).</summary>
+        public Vector3 WorldToGridLocal(Vector3 world) =>
+            gridRoot != null ? gridRoot.InverseTransformPoint(world) : transform.InverseTransformPoint(world);
+
         // ── Booster helpers (FillColor) ──────────────────────────────────────
         /// <summary>Box at a grid cell, or null if out of range / empty.</summary>
         public Box GetBox(int x, int z)

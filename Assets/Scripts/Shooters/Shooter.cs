@@ -678,8 +678,10 @@ namespace PixelShoot.Shooters
 
             if (seats != null)
             {
-                launchQueue.Enqueue(target);
-                DrainLaunchQueue(); // launch right away if the interval has elapsed
+                // Launch immediately (no stagger): the bus is aligned with the target at this
+                // exact frame, so the stickman leaves from the bus's real spawn point.
+                LaunchOne(target);
+                if (shotsRemaining <= 0) HandleShotsDepleted();
             }
             else
             {

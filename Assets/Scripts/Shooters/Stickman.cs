@@ -93,10 +93,30 @@ namespace PixelShoot.Shooters
             Vector3 endPos = grid != null && target != null
                 ? grid.GetCellWorldPosition(target.GridX, target.GridZ)
                 : transform.position;
+
+            // Spawn ALIGNED with the box on the bus's travel axis (the one parallel to the grid
+            // edge), so the run is a single straight line along the perpendicular axis with the
+            // travel axis fixed: bus moving in X → stickman keeps the box's X and runs along Z,
+            // and vice-versa. No diagonal, no mid-run turn.
+            if (grid != null && target != null)
+            {
+                Vector3 startLocal = grid.WorldToGridLocal(transform.position);
+                Vector3 endLocal = grid.GetCellLocalPosition(target.GridX, target.GridZ);
+                float offset = (grid.Size - 1) * 0.5f * grid.CellSize;
+                bool fireAlongZ = (Mathf.Abs(startLocal.z) - offset) >= (Mathf.Abs(startLocal.x) - offset);
+                Vector3 alignedLocal = fireAlongZ
+                    ? new Vector3(endLocal.x, startLocal.y, startLocal.z)  // travel axis = X → fix X, run along Z
+                    : new Vector3(startLocal.x, startLocal.y, endLocal.z); // travel axis = Z → fix Z, run along X
+                transform.position = grid.GridLocalToWorld(alignedLocal);
+            }
+
             float distance = Vector3.Distance(transform.position, endPos);
             float duration = Mathf.Max(minFlightDuration, distance / Mathf.Max(0.01f, flightSpeed));
 
-            transform.LookAt(endPos);
+            // Face the run direction, yaw-only (stay upright), then run straight in.
+            Vector3 face = endPos - transform.position; face.y = 0f;
+            if (face.sqrMagnitude > 0.0001f) transform.rotation = Quaternion.LookRotation(face.normalized, Vector3.up);
+
             flightTween = transform.DOMove(endPos, duration)
                 .SetEase(FlightCurve())
                 .OnComplete(() =>
