@@ -127,7 +127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4747da60837c44f9ba4b4a86879bcc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Obi::Obi.ObiRopeExtrudedRenderer
-  material: {fileID: 2100000, guid: 44ab0cc40b59345718856f6e1c1225f3, type: 2}
+  material: {fileID: 2100000, guid: 5a9d1f0c8b3e4d4fa1c2000000000011, type: 2}
   renderParameters:
     layer: 0
     lightProbeUsage: 1
