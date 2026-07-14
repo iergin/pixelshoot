@@ -175,6 +175,9 @@ namespace PixelShoot.Game
                 }
                 for (int i = 0; i < members.Count; i++)
                     members[i].SetLinkGroup(members, isOwner: i == 0);
+
+                // Connect the group with Obi ropes (one per adjacent pair).
+                PixelShoot.Shooters.LinkRopeController.Instance?.BuildForGroup(members);
             }
         }
 

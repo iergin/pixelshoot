@@ -67,6 +67,8 @@ namespace PixelShoot.Shooters
         [SerializeField] private float revealPunch = 0.25f;
 
         [Header("Link")]
+        [Tooltip("Use the built-in LineRenderer chain. Turn OFF when connecting links with Obi rope (LinkRopeController) instead.")]
+        [SerializeField] private bool useLinkLineRenderer = false;
         [Tooltip("LineRenderer (on the OWNER bus) drawn through every member of the link group. Optional.")]
         [SerializeField] private LineRenderer linkLine;
         [Tooltip("Vertical offset of the link line above each bus position.")]
@@ -308,6 +310,7 @@ namespace PixelShoot.Shooters
 
         private void RefreshLinkLine()
         {
+            if (!useLinkLineRenderer) { if (linkLine != null) linkLine.positionCount = 0; return; }
             if (linkLine == null) return;
             // Only the owner renders the polyline; non-owners keep an empty line.
             if (!IsLinkOwner || LinkGroup == null) { linkLine.positionCount = 0; return; }
@@ -324,6 +327,7 @@ namespace PixelShoot.Shooters
 
         private void UpdateLinkLinePositions()
         {
+            if (!useLinkLineRenderer) return;
             if (linkLine == null || !IsLinkOwner || LinkGroup == null) return;
             if (linkLine.positionCount != LinkGroup.Count) linkLine.positionCount = LinkGroup.Count;
 
