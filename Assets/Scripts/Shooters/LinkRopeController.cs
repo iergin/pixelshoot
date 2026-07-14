@@ -29,6 +29,8 @@ namespace PixelShoot.Shooters
         [SerializeField, Min(2)] private int entrySmoothness = 4;
         [Tooltip("Looseness of the middle span: rope rest length × this. 1 = taut, >1 = looser/saggier. Needs solver gravity on. Only affects the free middle, not the pinned ends.")]
         [SerializeField, Min(1f)] private float slack = 1.4f;
+        [Tooltip("Two-tone: the rope shows bus A's colour on its half and bus B's on the other. This is the blend band around the middle — 0 = hard split, larger = smoother gradient. Needs a vertex-colour rope material.")]
+        [SerializeField, Range(0f, 0.5f)] private float colorBlendBand = 0.15f;
 
         private class Rope { public Shooter a, b; public GameObject go; }
         private readonly List<Rope> ropes = new List<Rope>();
@@ -147,6 +149,9 @@ namespace PixelShoot.Shooters
 
             atts[0].target = a.transform; // binds capturing the stub/offset
             atts[1].target = b.transform;
+
+            // Two-tone: paint each particle from bus A's colour to bus B's colour along the rope.
+            ApplyRopeColors(rope, n, a, b);
         }
 
         private void RemoveRopesTouching(IReadOnlyList<Shooter> members)
@@ -178,6 +183,45 @@ namespace PixelShoot.Shooters
 
         private static bool Alive(Shooter s) =>
             s != null && s.State != ShooterState.Expired && s.IsLinked;
+
+        // Set per-particle colours (bus A → bus B). Obi's extruded renderer bakes these into the
+        // mesh vertex colours, so a vertex-colour material shows the two-tone rope.
+        private void ApplyRopeColors(ObiRope rope, int n, Shooter a, Shooter b)
+        {
+            var s = rope.solver;
+            if (s == null) return;
+            Color colA = RenderColor(ColorOf(a)), colB = RenderColor(ColorOf(b));
+            float lo = 0.5f - colorBlendBand, hi = 0.5f + colorBlendBand;
+
+            for (int i = 0; i < n; i++)
+            {
+                float t = n > 1 ? i / (float)(n - 1) : 0.5f;
+                float k = (hi > lo) ? Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(lo, hi, t))
+                                    : (t < 0.5f ? 0f : 1f); // 0 band → hard split
+                int si = rope.solverIndices[i];
+                s.colors[si] = Color.Lerp(colA, colB, k);
+            }
+        }
+
+        // The EXACT colour the bus renders with (its ShooterMaterial's base colour), or grey for
+        // a still-hidden surprise (don't leak its colour).
+        private static Color ColorOf(Shooter s)
+        {
+            if (s == null || s.IsSurprise || s.Color == null) return Color.gray;
+            var cd = s.Color;
+            var m = cd.ShooterMaterial;
+            if (m != null)
+            {
+                if (m.HasProperty("_BaseColor")) return m.GetColor("_BaseColor");
+                if (m.HasProperty("_Color"))     return m.GetColor("_Color");
+            }
+            return cd.DisplayColor;
+        }
+
+        // Unlit vertex colours are passed to the shader AS-IS (Unity gamma→linear-converts material
+        // colours but not vertex colours), so in a Linear project convert here to match the bus.
+        private static Color RenderColor(Color c) =>
+            QualitySettings.activeColorSpace == ColorSpace.Linear ? c.linear : c;
 
         private static void AddToGroup(ObiParticleGroup group, int index)
         {

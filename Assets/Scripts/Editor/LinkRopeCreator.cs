@@ -58,11 +58,11 @@ namespace PixelShoot.EditorTools
             var mat = AssetDatabase.LoadAssetAtPath<Material>(MatPath);
             if (mat == null)
             {
-                var urp = Shader.Find("Universal Render Pipeline/Lit");
-                mat = new Material(urp) { name = "M_LinkRope" };
-                if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", new Color(0.15f, 0.15f, 0.17f));
-                if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.3f);
-                mat.enableInstancing = true; // ObiRopeChainRenderer draws links via RenderMeshInstanced
+                // Vertex-colour shader so the rope can show bus A's colour → bus B's colour.
+                var shader = Shader.Find("PixelShoot/LinkRopeVertexColor") ?? Shader.Find("Universal Render Pipeline/Lit");
+                mat = new Material(shader) { name = "M_LinkRope" };
+                if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
+                mat.enableInstancing = true;
                 AssetDatabase.CreateAsset(mat, MatPath);
             }
 

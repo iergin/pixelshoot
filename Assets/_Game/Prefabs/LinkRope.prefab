@@ -29,7 +29,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4693331891570375792}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -49,40 +49,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Obi::Obi.ObiRope
   solverIndices:
-    serializedContents: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b0000001c0000001d0000001e0000001f000000200000002100000022000000230000002400000025000000260000002700000028000000290000002a0000002b0000002c0000002d0000002e0000002f0000003000000031000000320000003300000034000000350000003600000037000000
+    serializedContents: 
     m_AlignBytes: 16
-  groupID: 1
+  groupID: 0
   m_CollisionMaterial: {fileID: 0}
   m_SurfaceCollisions: 0
   m_MassScale: 1
   m_SelfCollisions: 0
-  restLength_: 2.9887297
-  elements:
-  - particle1: 0
-    particle2: 1
-    restLength: 0.5920582
-    constraintForce: 0
-    tearResistance: 1
-  - particle1: 1
-    particle2: 2
-    restLength: 0.6020528
-    constraintForce: 0
-    tearResistance: 1
-  - particle1: 2
-    particle2: 3
-    restLength: 0.60050726
-    constraintForce: 0
-    tearResistance: 1
-  - particle1: 3
-    particle2: 4
-    restLength: 0.6020532
-    constraintForce: 0
-    tearResistance: 1
-  - particle1: 4
-    particle2: 5
-    restLength: 0.59205824
-    constraintForce: 0
-    tearResistance: 1
+  restLength_: 0
+  elements: []
   _aerodynamicsEnabled: 1
   _drag: 0.05
   _lift: 0.02
@@ -112,7 +87,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Obi::Obi.ObiPathSmoother
   decimation: 0
-  smoothing: 3
+  smoothing: 0
   twist: 0
   indexInSystem: 0
 --- !u!114 &4331831633794304117
@@ -127,7 +102,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4747da60837c44f9ba4b4a86879bcc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Obi::Obi.ObiRopeExtrudedRenderer
-  material: {fileID: 2100000, guid: 5a9d1f0c8b3e4d4fa1c2000000000011, type: 2}
+  material: {fileID: 2100000, guid: 28692c79fca514e9db8b0336c47dca3e, type: 2}
   renderParameters:
     layer: 0
     lightProbeUsage: 1
