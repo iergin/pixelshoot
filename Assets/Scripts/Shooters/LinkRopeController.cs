@@ -21,8 +21,10 @@ namespace PixelShoot.Shooters
         [SerializeField] private GameObject ropePrefab;
         [Tooltip("ObiSolver transform — ropes are parented here so they get simulated.")]
         [SerializeField] private Transform solver;
-        [Tooltip("Vertical offset of the rope above each bus (world +Y).")]
+        [Tooltip("Vertical offset of the rope's attach point above each bus (world +Y).")]
         [SerializeField] private float yOffset = 0.4f;
+        [Tooltip("Height of the vertical 'stub' at each end so the rope plugs into the bus perpendicular. 0 = straight (no stub).")]
+        [SerializeField] private float perpRise = 0.4f;
 
         private class Rope { public Shooter a, b; public GameObject go; }
         private readonly List<Rope> ropes = new List<Rope>();
@@ -71,18 +73,41 @@ namespace PixelShoot.Shooters
                 yield return null;
             if (a == null || b == null || rope == null) yield break;
 
-            // Lay the rope on the A→B line, raised by yOffset, so the Static ends bind that far
-            // ABOVE each bus and keep that offset as the buses move.
-            Vector3 up = Vector3.up * yOffset;
-            Vector3 pa = a.transform.position + up, pb = b.transform.position + up;
             int n = rope.activeParticleCount;
-            for (int i = 0; i < n; i++)
+            Vector3 baseA = a.transform.position + Vector3.up * yOffset;
+            Vector3 baseB = b.transform.position + Vector3.up * yOffset;
+
+            if (n >= 4 && perpRise > 0.001f)
             {
-                float t = n > 1 ? i / (float)(n - 1) : 0.5f;
-                rope.TeleportParticle(i, Vector3.Lerp(pa, pb, t));
+                // Rigid 2-particle "stub" at each end: pin the end particle at the bus AND the
+                // next one directly above it (add it to the attachment group), so the last
+                // segment stays vertical — the rope plugs into the bus perpendicular and the
+                // stub rotates with the bus.
+                if (atts[0].particleGroup != null && !atts[0].particleGroup.particleIndices.Contains(1))
+                    atts[0].particleGroup.particleIndices.Add(1);
+                if (atts[1].particleGroup != null && !atts[1].particleGroup.particleIndices.Contains(n - 2))
+                    atts[1].particleGroup.particleIndices.Add(n - 2);
+
+                Vector3 topA = baseA + Vector3.up * perpRise;
+                Vector3 topB = baseB + Vector3.up * perpRise;
+                for (int i = 0; i < n; i++)
+                {
+                    Vector3 pos;
+                    if (i == 0)          pos = baseA; // end pinned at bus A
+                    else if (i == 1)     pos = topA;  // riser straight above A
+                    else if (i == n - 1) pos = baseB; // end pinned at bus B
+                    else if (i == n - 2) pos = topB;  // riser straight above B
+                    else                 pos = Vector3.Lerp(topA, topB, (i - 1) / (float)(n - 3));
+                    rope.TeleportParticle(i, pos);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < n; i++)
+                    rope.TeleportParticle(i, Vector3.Lerp(baseA, baseB, n > 1 ? i / (float)(n - 1) : 0.5f));
             }
 
-            atts[0].target = a.transform; // binds capturing the +Y offset
+            atts[0].target = a.transform; // binds capturing the stub/offset
             atts[1].target = b.transform;
         }
 
