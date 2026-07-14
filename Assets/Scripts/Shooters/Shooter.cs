@@ -718,6 +718,10 @@ namespace PixelShoot.Shooters
         public void Expire()
         {
             if (state == ShooterState.Expired) return;
+            // If we were sitting in a column (e.g. depleted by a bomb / FillColor), leave it now.
+            // No-op for buses on the conveyor / in reserve. Linked buses that stay BOUND never
+            // reach here, so their column slot is preserved.
+            ShooterColumn.ColumnOf(this)?.RemoveExpiredShooter(this);
             UnregisterAlive();
             SetExhaust(false);
             // Still linked when expiring outside a coordinated dissolve (e.g. path-end)?

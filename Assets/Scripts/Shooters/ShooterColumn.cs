@@ -183,7 +183,9 @@ namespace PixelShoot.Shooters
                 int took = entry.s.ConsumeShots(amount);
                 amount   -= took;
                 consumed += took;
-                if (entry.s.ShotsRemaining <= 0) entry.col.RemoveExpiredShooter(entry.s);
+                // Depleted buses that actually Expire remove themselves from the column
+                // (Shooter.Expire). A linked bus with a still-alive member of ANOTHER colour
+                // stays BOUND (not expired), so we must NOT pull it out here — just its count drops.
             }
             return consumed;
         }
