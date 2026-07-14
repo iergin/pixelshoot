@@ -604,7 +604,10 @@ namespace PixelShoot.Shooters
             pathProgress += pathSpeed * speedMul * conveyor.SpeedMultiplier * Time.deltaTime;
             float maxProgress = conveyor.MaxPathProgress;
 
-            if (conveyor.LoopMode && shotsRemaining > 0 && maxProgress > 0f)
+            // A linked bus keeps looping while ANY group member still has shots — it stays bound
+            // and rides (never drops to reserve) until the whole group is spent.
+            bool keepLooping = shotsRemaining > 0 || (IsLinked && !AllGroupSpent());
+            if (conveyor.LoopMode && keepLooping && maxProgress > 0f)
             {
                 // Endgame loop: travel the polyline AND the closing bridge (last node → first
                 // node), then wrap — the belt is a continuous loop, no jump, no reserve.
