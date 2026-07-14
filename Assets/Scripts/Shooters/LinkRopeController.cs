@@ -21,6 +21,8 @@ namespace PixelShoot.Shooters
         [SerializeField] private GameObject ropePrefab;
         [Tooltip("ObiSolver transform — ropes are parented here so they get simulated.")]
         [SerializeField] private Transform solver;
+        [Tooltip("Vertical offset of the rope above each bus (world +Y).")]
+        [SerializeField] private float yOffset = 0.4f;
 
         private class Rope { public Shooter a, b; public GameObject go; }
         private readonly List<Rope> ropes = new List<Rope>();
@@ -69,7 +71,10 @@ namespace PixelShoot.Shooters
                 yield return null;
             if (a == null || b == null || rope == null) yield break;
 
-            Vector3 pa = a.transform.position, pb = b.transform.position;
+            // Lay the rope on the A→B line, raised by yOffset, so the Static ends bind that far
+            // ABOVE each bus and keep that offset as the buses move.
+            Vector3 up = Vector3.up * yOffset;
+            Vector3 pa = a.transform.position + up, pb = b.transform.position + up;
             int n = rope.activeParticleCount;
             for (int i = 0; i < n; i++)
             {
@@ -77,7 +82,7 @@ namespace PixelShoot.Shooters
                 rope.TeleportParticle(i, Vector3.Lerp(pa, pb, t));
             }
 
-            atts[0].target = a.transform; // binds with ~0 offset now that the end is on the bus
+            atts[0].target = a.transform; // binds capturing the +Y offset
             atts[1].target = b.transform;
         }
 

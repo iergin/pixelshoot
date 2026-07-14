@@ -14375,6 +14375,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Shooters.LinkRopeController
   ropePrefab: {fileID: 4693331891570375792, guid: 97e868d3d0e824c1cb6e810577a8dd19, type: 3}
   solver: {fileID: 1226993394}
+  slack: 1.1
 --- !u!1 &1231573712
 GameObject:
   m_ObjectHideFlags: 0

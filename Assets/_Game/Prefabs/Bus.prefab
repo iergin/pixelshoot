@@ -706,8 +706,9 @@ MonoBehaviour:
   busVisualRoot: {fileID: 4891062933326436674}
   surpriseVisual: {fileID: 4234444523045164275}
   revealPunch: 0.25
+  useLinkLineRenderer: 0
   linkLine: {fileID: 3130548968954832622}
-  linkLineYOffset: 1
+  linkLineYOffset: 2.05
   chainTileWorldLength: 1
   linkedVisual: {fileID: 1399113150305056644}
   lockVisual: {fileID: 3376133699316672865}

@@ -48,7 +48,7 @@ namespace Obi.Samples
 
         private void FixedUpdate()
         {
-            var velocity = unityRigidbody.velocity;
+            var velocity = unityRigidbody.linearVelocity;
 
             prevError = error;
             error = Vector3.SignedAngle(unityRigidbody.transform.up, Vector3.up, Vector3.forward);
@@ -73,7 +73,7 @@ namespace Obi.Samples
                 velocity.y += extraGravity * Time.deltaTime;
             }
 
-            unityRigidbody.velocity = velocity;
+            unityRigidbody.linearVelocity = velocity;
         }
     }
 }

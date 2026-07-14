@@ -67,15 +67,7 @@ namespace PixelShoot.Shooters
         [SerializeField] private float revealPunch = 0.25f;
 
         [Header("Link")]
-        [Tooltip("Use the built-in LineRenderer chain. Turn OFF when connecting links with Obi rope (LinkRopeController) instead.")]
-        [SerializeField] private bool useLinkLineRenderer = false;
-        [Tooltip("LineRenderer (on the OWNER bus) drawn through every member of the link group. Optional.")]
-        [SerializeField] private LineRenderer linkLine;
-        [Tooltip("Vertical offset of the link line above each bus position.")]
-        [SerializeField] private float linkLineYOffset = 0.4f;
-        [Tooltip("World units per chain-texture tile. The link line's tiling (_TileU) is recomputed each frame from the ACTUAL line length so chain links stay a constant size as buses move. Smaller = denser chain. Needs a material using PixelShoot/ChainTextured in Stretch texture mode. 0 = off.")]
-        [SerializeField] private float chainTileWorldLength = 1f;
-        [Tooltip("Optional visual enabled only on linked buses (e.g. a tow hook / chain).")]
+        [Tooltip("Optional visual enabled only on linked buses (e.g. a tow hook / chain). Links are drawn with Obi rope (LinkRopeController).")]
         [SerializeField] private GameObject linkedVisual;
 
         [Header("Lock")]
@@ -267,7 +259,6 @@ namespace PixelShoot.Shooters
             LinkGroup = group;
             IsLinkOwner = isOwner;
             if (linkedVisual != null) linkedVisual.SetActive(IsLinked);
-            RefreshLinkLine();
         }
 
         /// <summary>Silently drop this bus's link state (no cascade) — used during dissolve.</summary>
@@ -277,7 +268,6 @@ namespace PixelShoot.Shooters
             IsLinkOwner = false;
             LinkGroupId = 0;
             if (linkedVisual != null) linkedVisual.SetActive(false);
-            if (linkLine != null) linkLine.positionCount = 0;
         }
 
         /// <summary>
@@ -305,53 +295,6 @@ namespace PixelShoot.Shooters
                 var newOwner = group[0];
                 for (int i = 0; i < group.Count; i++)
                     if (group[i] != null) group[i].SetLinkGroup(group, isOwner: group[i] == newOwner);
-            }
-        }
-
-        private void RefreshLinkLine()
-        {
-            if (!useLinkLineRenderer) { if (linkLine != null) linkLine.positionCount = 0; return; }
-            if (linkLine == null) return;
-            // Only the owner renders the polyline; non-owners keep an empty line.
-            if (!IsLinkOwner || LinkGroup == null) { linkLine.positionCount = 0; return; }
-            linkLine.positionCount = LinkGroup.Count;
-            // Populate positions immediately so the line shows in the level-editor preview,
-            // where LateUpdate never runs (edit mode).
-            UpdateLinkLinePositions();
-        }
-
-        private void LateUpdate() => UpdateLinkLinePositions();
-
-        private static readonly int TileUId = Shader.PropertyToID("_TileU");
-        private MaterialPropertyBlock linkMpb;
-
-        private void UpdateLinkLinePositions()
-        {
-            if (!useLinkLineRenderer) return;
-            if (linkLine == null || !IsLinkOwner || LinkGroup == null) return;
-            if (linkLine.positionCount != LinkGroup.Count) linkLine.positionCount = LinkGroup.Count;
-
-            float len = 0f;
-            Vector3 prev = Vector3.zero;
-            for (int i = 0; i < LinkGroup.Count; i++)
-            {
-                var m = LinkGroup[i];
-                Vector3 p = m != null ? m.transform.position : transform.position;
-                p.y += linkLineYOffset;
-                linkLine.SetPosition(i, p);
-                if (i > 0) len += Vector3.Distance(prev, p);
-                prev = p;
-            }
-
-            // Chain texture stays a constant size: derive the tiling from the real line
-            // length (rounded to whole tiles so no partial link shows at the ends).
-            if (chainTileWorldLength > 0.0001f)
-            {
-                float tiles = Mathf.Max(1f, Mathf.Round(len / chainTileWorldLength));
-                if (linkMpb == null) linkMpb = new MaterialPropertyBlock();
-                linkLine.GetPropertyBlock(linkMpb);
-                linkMpb.SetFloat(TileUId, tiles);
-                linkLine.SetPropertyBlock(linkMpb);
             }
         }
 

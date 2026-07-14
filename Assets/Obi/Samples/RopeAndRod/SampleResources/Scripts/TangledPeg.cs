@@ -42,7 +42,7 @@ namespace Obi.Samples
             float distance = Vector3.Magnitude(vector);
 
             // simple damped spring: F = -kx - vu
-            Vector3 accel = stiffness * vector - damping * rb.velocity;
+            Vector3 accel = stiffness * vector - damping * rb.linearVelocity;
 
             // clamp spring acceleration:
             accel = Vector3.ClampMagnitude(accel, maxAccel);
