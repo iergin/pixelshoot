@@ -23,8 +23,12 @@ namespace PixelShoot.Shooters
         [SerializeField] private Transform solver;
         [Tooltip("Vertical offset of the rope's attach point above each bus (world +Y).")]
         [SerializeField] private float yOffset = 0.4f;
-        [Tooltip("Height of the vertical 'stub' at each end so the rope plugs into the bus perpendicular. 0 = straight (no stub).")]
+        [Tooltip("Height of the curved entry at each end so the rope plugs into the bus (near-)perpendicular. 0 = straight (no curve).")]
         [SerializeField] private float perpRise = 0.4f;
+        [Tooltip("Particles forming the smooth entry arc at EACH end. More = smoother, rounder bend (needs enough blueprint particles).")]
+        [SerializeField, Min(2)] private int entrySmoothness = 4;
+        [Tooltip("Looseness of the middle span: rope rest length × this. 1 = taut, >1 = looser/saggier. Needs solver gravity on. Only affects the free middle, not the pinned ends.")]
+        [SerializeField, Min(1f)] private float slack = 1.4f;
 
         private class Rope { public Shooter a, b; public GameObject go; }
         private readonly List<Rope> ropes = new List<Rope>();
@@ -36,6 +40,22 @@ namespace PixelShoot.Shooters
         }
 
         private void OnDestroy() { if (Instance == this) Instance = null; }
+
+        /// <summary>Rebuild every rope with the CURRENT inspector values — press this after
+        /// tweaking yOffset / perpRise / entrySmoothness to see the change live (in Play mode).
+        /// Right-click the component header (or the ⋮ menu) → "Rebuild Link Ropes".</summary>
+        [ContextMenu("Rebuild Link Ropes")]
+        public void RebuildAll()
+        {
+            var pairs = new List<(Shooter a, Shooter b)>();
+            foreach (var r in ropes)
+            {
+                if (r.a != null && r.b != null) pairs.Add((r.a, r.b));
+                if (r.go != null) Destroy(r.go);
+            }
+            ropes.Clear();
+            foreach (var p in pairs) CreateRope(p.a, p.b);
+        }
 
         /// <summary>Spawn ropes for a link group (one per adjacent pair). Replaces any existing
         /// ropes touching these members first, so it's safe to call again.</summary>
@@ -69,36 +89,51 @@ namespace PixelShoot.Shooters
         private IEnumerator SetupRope(ObiRope rope, ObiParticleAttachment[] atts, Shooter a, Shooter b)
         {
             int guard = 0;
-            while ((rope.solver == null || rope.activeParticleCount == 0) && guard++ < 300)
+            while (guard++ < 300)
+            {
+                if (rope == null || a == null || b == null) yield break; // rope may be destroyed by a rebuild
+                if (rope.solver != null && rope.activeParticleCount > 0) break;
                 yield return null;
-            if (a == null || b == null || rope == null) yield break;
+            }
+            if (rope == null || a == null || b == null) yield break;
 
             int n = rope.activeParticleCount;
             Vector3 baseA = a.transform.position + Vector3.up * yOffset;
             Vector3 baseB = b.transform.position + Vector3.up * yOffset;
 
-            if (n >= 4 && perpRise > 0.001f)
-            {
-                // Rigid 2-particle "stub" at each end: pin the end particle at the bus AND the
-                // next one directly above it (add it to the attachment group), so the last
-                // segment stays vertical — the rope plugs into the bus perpendicular and the
-                // stub rotates with the bus.
-                if (atts[0].particleGroup != null && !atts[0].particleGroup.particleIndices.Contains(1))
-                    atts[0].particleGroup.particleIndices.Add(1);
-                if (atts[1].particleGroup != null && !atts[1].particleGroup.particleIndices.Contains(n - 2))
-                    atts[1].particleGroup.particleIndices.Add(n - 2);
+            // Reset the end groups to a single particle so re-tuning (rebuild) starts clean.
+            ResetGroup(atts[0].particleGroup, 0);
+            ResetGroup(atts[1].particleGroup, n - 1);
 
-                Vector3 topA = baseA + Vector3.up * perpRise;
-                Vector3 topB = baseB + Vector3.up * perpRise;
-                for (int i = 0; i < n; i++)
+            int k = Mathf.Clamp(entrySmoothness, 2, Mathf.Max(2, (n - 1) / 2)); // arc particles per end
+            if (n >= 2 * k + 1 && perpRise > 0.001f)
+            {
+                // Pin a small quarter-arc at each end: the rope leaves the bus (near-)vertical
+                // and curves SMOOTHLY into the span — steep but no sharp kink. The pinned arc
+                // particles rotate with the bus.
+                Vector3 toB = baseB - baseA; toB.y = 0f;
+                Vector3 dirB = toB.sqrMagnitude > 1e-6f ? toB.normalized : Vector3.forward;
+                Vector3 dirA = -dirB;
+                float r = perpRise;
+
+                for (int j = 0; j < k; j++)
                 {
-                    Vector3 pos;
-                    if (i == 0)          pos = baseA; // end pinned at bus A
-                    else if (i == 1)     pos = topA;  // riser straight above A
-                    else if (i == n - 1) pos = baseB; // end pinned at bus B
-                    else if (i == n - 2) pos = topB;  // riser straight above B
-                    else                 pos = Vector3.Lerp(topA, topB, (i - 1) / (float)(n - 3));
-                    rope.TeleportParticle(i, pos);
+                    float th = (Mathf.PI * 0.5f) * (j / (float)(k - 1)); // 0=vertical → 90°=horizontal
+                    Vector3 aPos = baseA + Vector3.up * (r * Mathf.Sin(th)) + dirB * (r * (1f - Mathf.Cos(th)));
+                    Vector3 bPos = baseB + Vector3.up * (r * Mathf.Sin(th)) + dirA * (r * (1f - Mathf.Cos(th)));
+                    rope.TeleportParticle(j, aPos);
+                    rope.TeleportParticle(n - 1 - j, bPos);
+                    AddToGroup(atts[0].particleGroup, j);
+                    AddToGroup(atts[1].particleGroup, n - 1 - j);
+                }
+
+                Vector3 arcTopA = baseA + Vector3.up * r + dirB * r; // horizontal tangent — matches the span
+                Vector3 arcTopB = baseB + Vector3.up * r + dirA * r;
+                int midCount = n - 2 * k;
+                for (int m = 0; m < midCount; m++)
+                {
+                    float t = midCount > 1 ? (m + 1) / (float)(midCount + 1) : 0.5f;
+                    rope.TeleportParticle(k + m, Vector3.Lerp(arcTopA, arcTopB, t));
                 }
             }
             else
@@ -106,6 +141,9 @@ namespace PixelShoot.Shooters
                 for (int i = 0; i < n; i++)
                     rope.TeleportParticle(i, Vector3.Lerp(baseA, baseB, n > 1 ? i / (float)(n - 1) : 0.5f));
             }
+
+            // Looser middle: longer rest length → the free span sags (pinned ends unaffected).
+            rope.stretchingScale = slack;
 
             atts[0].target = a.transform; // binds capturing the stub/offset
             atts[1].target = b.transform;
@@ -140,5 +178,18 @@ namespace PixelShoot.Shooters
 
         private static bool Alive(Shooter s) =>
             s != null && s.State != ShooterState.Expired && s.IsLinked;
+
+        private static void AddToGroup(ObiParticleGroup group, int index)
+        {
+            if (group != null && !group.particleIndices.Contains(index))
+                group.particleIndices.Add(index);
+        }
+
+        private static void ResetGroup(ObiParticleGroup group, int endIndex)
+        {
+            if (group == null) return;
+            group.particleIndices.Clear();
+            group.particleIndices.Add(endIndex);
+        }
     }
 }

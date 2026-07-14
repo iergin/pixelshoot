@@ -14228,9 +14228,9 @@ MonoBehaviour:
   synchronization: 0
   parameters:
     mode: 0
-    interpolation: 0
-    gravity: {x: 0, y: -9.81, z: 0}
-    ambientWind: {x: 0, y: 0, z: 0}
+    interpolation: 1
+    gravity: {x: 0, y: 0, z: 0}
+    ambientWind: {x: 2.93, y: 4.82, z: 1.94}
     foamGravityScale: 1
     damping: 0
     maxAnisotropy: 3
@@ -14249,9 +14249,9 @@ MonoBehaviour:
   maxFoamParticles: 8192
   maxParticleNeighbors: 128
   maxParticleContacts: 6
-  gravity: {x: 0, y: -3, z: 0}
-  gravitySpace: 1
-  ambientWind: {x: 0, y: 0, z: 0}
+  gravity: {x: 0, y: 0, z: 0}
+  gravitySpace: 0
+  ambientWind: {x: 2.93, y: 4.82, z: 1.94}
   windSpace: 1
   foamSubsteps: 1
   maxFoamVelocityStretch: 0.3
@@ -14375,8 +14375,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Shooters.LinkRopeController
   ropePrefab: {fileID: 4693331891570375792, guid: 97e868d3d0e824c1cb6e810577a8dd19, type: 3}
   solver: {fileID: 1226993394}
-  yOffset: 0.4
-  perpRise: 0.2
+  yOffset: 0.42
+  perpRise: 0
+  entrySmoothness: 2
+  slack: 1.4
 --- !u!1 &1231573712
 GameObject:
   m_ObjectHideFlags: 0

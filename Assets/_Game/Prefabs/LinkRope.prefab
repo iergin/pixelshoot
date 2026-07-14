@@ -112,7 +112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Obi::Obi.ObiPathSmoother
   decimation: 0
-  smoothing: 0
+  smoothing: 3
   twist: 0
   indexInSystem: 0
 --- !u!114 &4331831633794304117
