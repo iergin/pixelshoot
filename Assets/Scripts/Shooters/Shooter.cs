@@ -79,8 +79,10 @@ namespace PixelShoot.Shooters
         [SerializeField] private ParticleSystem exhaustParticle;
 
         [Header("Claw")]
-        [Tooltip("Optional glow/ring shown while this bus is a valid Claw-booster pick. Toggled by SetClawHighlight.")]
-        [SerializeField] private GameObject clawHighlightVisual;
+        [Tooltip("Renderers moved onto the outline layer while claw-highlighted (Free Outline draws them). Empty = all child renderers.")]
+        [SerializeField] private Renderer[] outlineRenderers;
+        [Tooltip("Layer the Free Outline feature filters. Buses stay on Default; claw switches these renderers to this layer to light the outline, then restores.")]
+        [SerializeField] private string outlineLayer = "Outline";
 
         private Vector3 baseScale = Vector3.one;
         private bool baseScaleCaptured;
@@ -89,9 +91,9 @@ namespace PixelShoot.Shooters
         private readonly System.Collections.Generic.Queue<Box> launchQueue = new System.Collections.Generic.Queue<Box>();
         private float nextLaunchTime;
         private Tween wobbleTween;
-        private Tween clawPulse;
-        private Vector3 clawPulseBaseScale;
-        private bool clawPulsing;
+        private Renderer[] outlineRends;
+        private int[] outlineOrigLayers;
+        private int outlineLayerIdx = -2; // -2 = unresolved
 
         private ColorData color;
         private int shotsRemaining;
@@ -374,25 +376,29 @@ namespace PixelShoot.Shooters
         /// the body (a CHILD transform — never the root, whose scale belongs to the conveyor/
         /// reserve transitions). Safe to call after the bus has boarded (only touches the child).
         /// </summary>
-        public void SetClawHighlight(bool on)
+        public void SetClawHighlight(bool on) => ApplyOutlineLayer(on);
+
+        // Claw highlight: move the bus meshes onto the outline layer (Free Outline draws them)
+        // while highlighted, and restore their original layers when off.
+        private void ApplyOutlineLayer(bool on)
         {
-            if (clawHighlightVisual != null) clawHighlightVisual.SetActive(on);
+            if (outlineLayerIdx == -2) outlineLayerIdx = LayerMask.NameToLayer(outlineLayer);
+            if (outlineLayerIdx < 0) return; // layer doesn't exist — nothing to do
 
-            Transform t = busVisualRoot != null ? busVisualRoot.transform : null;
-            if (t == null || t == transform) return; // no safe child to pulse
-
-            if (on)
+            if (outlineRends == null)
             {
-                if (!clawPulsing) { clawPulseBaseScale = t.localScale; clawPulsing = true; }
-                clawPulse?.Kill();
-                clawPulse = t.DOScale(clawPulseBaseScale * 1.12f, 0.45f)
-                    .SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo).SetUpdate(true);
+                outlineRends = (outlineRenderers != null && outlineRenderers.Length > 0)
+                    ? outlineRenderers
+                    : GetComponentsInChildren<Renderer>(true);
+                outlineOrigLayers = new int[outlineRends.Length];
+                for (int i = 0; i < outlineRends.Length; i++)
+                    if (outlineRends[i] != null) outlineOrigLayers[i] = outlineRends[i].gameObject.layer;
             }
-            else
+
+            for (int i = 0; i < outlineRends.Length; i++)
             {
-                clawPulse?.Kill();
-                clawPulse = null;
-                if (clawPulsing) { t.localScale = clawPulseBaseScale; clawPulsing = false; }
+                if (outlineRends[i] == null) continue;
+                outlineRends[i].gameObject.layer = on ? outlineLayerIdx : outlineOrigLayers[i];
             }
         }
 
@@ -716,7 +722,6 @@ namespace PixelShoot.Shooters
             facingTween?.Kill();
             scaleTween?.Kill();
             wobbleTween?.Kill();
-            clawPulse?.Kill();
         }
     }
 }
