@@ -70,10 +70,6 @@ namespace PixelShoot.Shooters
         [Tooltip("Optional visual enabled only on linked buses (e.g. a tow hook / chain). Links are drawn with Obi rope (LinkRopeController).")]
         [SerializeField] private GameObject linkedVisual;
 
-        [Header("Lock")]
-        [Tooltip("Lock overlay shown while this bus is locked. Hidden (with a pop) on unlock.")]
-        [SerializeField] private GameObject lockVisual;
-
         [Header("Exhaust")]
         [Tooltip("Exhaust smoke — emits ONLY while the bus is riding the conveyor.")]
         [SerializeField] private ParticleSystem exhaustParticle;
@@ -134,15 +130,12 @@ namespace PixelShoot.Shooters
         public bool IsLinkOwner { get; private set; }
         public bool IsLinked => LinkGroup != null && LinkGroup.Count >= 2;
 
-        public int LockKeyId { get; private set; }
-        public bool IsLocked { get; private set; }
-
         public ColorData Color => color;
         public int ShotsRemaining => shotsRemaining;
         public ShooterState State => state;
         public float PathProgress => pathProgress;
 
-        public void Initialize(ColorData c, int shotCount, bool isSurprise = false, int linkGroupId = 0, int lockKeyId = 0)
+        public void Initialize(ColorData c, int shotCount, bool isSurprise = false, int linkGroupId = 0)
         {
             color = c;
             shotsRemaining = shotCount;
@@ -151,17 +144,9 @@ namespace PixelShoot.Shooters
 
             // Capture the prefab scale as the base (so conveyor/reserve multipliers are
             // relative to it), then apply the column scale for the resting/spawn state.
-            if (!baseScaleCaptured)
-            {
-                baseScale = transform.localScale;
-                baseScaleCaptured = true;
-            }
-            transform.localScale = baseScale * columnScale;
+            ApplyColumnScale();
             IsSurprise = isSurprise;
             LinkGroupId = linkGroupId;
-            LockKeyId = lockKeyId;
-            IsLocked = lockKeyId > 0;
-            if (lockVisual != null) lockVisual.SetActive(IsLocked);
 
             if (c != null && c.ShooterMaterial != null)
             {
@@ -337,37 +322,17 @@ namespace PixelShoot.Shooters
             Expire();
         }
 
-        // ── Lock ─────────────────────────────────────────────────────────────
-        /// <summary>
-        /// Called when this bus is the top of its column. If it's locked and its key has
-        /// been collected, unlock it (drop the lock visual with a pop). Otherwise stays
-        /// locked. No-op for unlocked buses. Returns true if it is (now) tappable.
-        /// </summary>
-        public bool TryUnlock()
+        // ── Column resting scale ─────────────────────────────────────────────
+        /// <summary>Capture the prefab scale once, then apply the resting column scale.
+        /// Shared by bus <see cref="Initialize"/> and the <see cref="Lock"/> subclass setup.</summary>
+        protected void ApplyColumnScale()
         {
-            if (!IsLocked) return true;
-            var km = PixelShoot.Game.KeyManager.Instance;
-            if (km == null || !km.IsCollected(LockKeyId)) return false;
-
-            IsLocked = false;
-            if (lockVisual != null)
+            if (!baseScaleCaptured)
             {
-                if (Application.isPlaying)
-                    lockVisual.transform.DOScale(Vector3.zero, 0.25f).SetEase(Ease.InBack)
-                        .OnComplete(() => { if (lockVisual != null) lockVisual.SetActive(false); });
-                else
-                    lockVisual.SetActive(false);
+                baseScale = transform.localScale;
+                baseScaleCaptured = true;
             }
-            return true;
-        }
-
-        /// <summary>Little shake when a locked bus is tapped but can't board yet.</summary>
-        public void PlayLockedFeedback()
-        {
-            if (!Application.isPlaying) return;
-            var t = busVisualRoot != null ? busVisualRoot.transform
-                  : null;
-            t.DOShakePosition(0.25f, 0.12f, 12, 90f, false, true);
+            transform.localScale = baseScale * columnScale;
         }
 
         // ── Claw highlight ───────────────────────────────────────────────────

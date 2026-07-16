@@ -65,10 +65,52 @@ namespace PixelShoot.Grid
                 aliveCount++;
             }
 
+            // A key doesn't remove its cells — it COVERS them: the boxes stay in the grid
+            // (still count toward the win, still drive the frontier) but show nothing until
+            // the key is collected, at which point they're revealed. Hide them up front.
+            HideKeyCoveredBoxes();
+
             // Keys must exist BEFORE the initial frontier is computed — a key cell that
             // starts on the silhouette collects its key right away.
             SpawnKeyVisuals(data);
+
+            // Reveal a key-group's boxes the moment its key is banked (also fires during the
+            // initial frontier pass below for any key that starts exposed).
+            var km = PixelShoot.Game.KeyManager.Instance;
+            if (km != null)
+            {
+                km.OnKeyCollected -= HandleKeyCollected;
+                km.OnKeyCollected += HandleKeyCollected;
+                subscribedKeyManager = km;
+            }
+
             ComputeInitialFrontier();
+        }
+
+        private PixelShoot.Game.KeyManager subscribedKeyManager;
+
+        /// <summary>Hide every box that carries a key id — the key visual stands in for them.</summary>
+        private void HideKeyCoveredBoxes()
+        {
+            if (boxes == null) return;
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b != null && b.KeyId > 0) b.SetKeyHidden(true);
+                }
+        }
+
+        /// <summary>Key banked → reveal all boxes it was covering so they become normal cells.</summary>
+        private void HandleKeyCollected(int keyId)
+        {
+            if (boxes == null) return;
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b != null && b.KeyId == keyId && b.IsHiddenByKey) b.SetKeyHidden(false);
+                }
         }
 
         /// <summary>Spawns one floating key per key-group at the centroid of its cells.</summary>
@@ -159,6 +201,11 @@ namespace PixelShoot.Grid
 
         public void Clear()
         {
+            if (subscribedKeyManager != null)
+            {
+                subscribedKeyManager.OnKeyCollected -= HandleKeyCollected;
+                subscribedKeyManager = null;
+            }
             if (boxes != null)
             {
                 foreach (var b in boxes)

@@ -6652,195 +6652,239 @@ MonoBehaviour:
       shotCount: 26
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
       shotCount: 31
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 36
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
       shotCount: 31
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
       shotCount: 34
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
       shotCount: 35
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
       shotCount: 17
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
       shotCount: 37
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
       shotCount: 24
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
+    - color: {fileID: 0}
+      shotCount: 1
+      isSurprise: 0
+      linkGroupId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 23
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
   - shooters:
     - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
       shotCount: 24
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 28
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
       shotCount: 5
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
       shotCount: 28
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
       shotCount: 9
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
       shotCount: 14
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
       shotCount: 24
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
       shotCount: 32
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 31
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 9
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 32
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 36
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
   - shooters:
     - color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
       shotCount: 28
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 045e7b84b87734c8aad43a1f7e6d40f6, type: 2}
       shotCount: 23
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 5
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
       shotCount: 21
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 36
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
       shotCount: 36
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 39
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 21
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
   - shooters:
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 28
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 1ed93b4918d38486c9f8477b6faab433, type: 2}
       shotCount: 14
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
       shotCount: 23
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: c09ac456908f6449bb2a38f8a9d1a8d0, type: 2}
       shotCount: 14
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: e21dd7fb0d3c74ee6b46ff041d624384, type: 2}
       shotCount: 17
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 23
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: bf9fa4ed5453b486f948ef9f0e05974f, type: 2}
       shotCount: 39
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
     - color: {fileID: 11400000, guid: 519a30622533d43e695e2df6fee2abdf, type: 2}
       shotCount: 14
       isSurprise: 0
       linkGroupId: 0
-      lockKeyId: 0
+      isLock: 0
+      keyId: 0
   conveyorSlotCapacity: 5
   reserveSlotCapacity: 5
   sourceJson: "{\n  \"version\": 1,\n  \"generatedAt\": \"2026-07-05T15:09:28.902Z\",\n 

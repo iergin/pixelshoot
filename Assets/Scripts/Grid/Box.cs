@@ -144,30 +144,39 @@ namespace PixelShoot.Grid
         {
             state = newState;
             if (newState == BoxState.Hit) reservedForHit = false;
-            ApplyMaterialForState();
-            // Dot is the color hint for locked boxes only — hide once the box can be shot or has been shot.
-            if (colorDot != null && colorDot.gameObject.activeSelf != (newState == BoxState.Locked))
-                colorDot.gameObject.SetActive(newState == BoxState.Locked);
-            // Stroke is the shootable-state cue — only on while Frontier.
-            if (stroke != null && stroke.gameObject.activeSelf != (newState == BoxState.Frontier))
-                stroke.gameObject.SetActive(newState == BoxState.Frontier);
-            // Bomb model: on for bomb cells until they detonate (state == Hit).
-            if (bombVisual != null)
+
+            // While covered by an uncollected key, the box is invisible regardless of state.
+            if (hiddenByKey)
             {
-                bool shouldShow = isBomb && newState != BoxState.Hit;
-                if (bombVisual.activeSelf != shouldShow) bombVisual.SetActive(shouldShow);
+                HideKeyVisuals();
             }
-            // Outline turns OFF immediately for any non-Hit state. For Hit it is revealed
-            // only AFTER the hit scale movements (punch + height + mesh shrink) settle —
-            // see ScheduleOutlineReveal.
-            if (newState != BoxState.Hit)
+            else
             {
-                outlineRevealTween?.Kill(); outlineRevealTween = null;
-                if (outline != null && outline.activeSelf) outline.SetActive(false);
+                ApplyMaterialForState();
+                // Dot is the color hint for locked boxes only — hide once the box can be shot or has been shot.
+                if (colorDot != null && colorDot.gameObject.activeSelf != (newState == BoxState.Locked))
+                    colorDot.gameObject.SetActive(newState == BoxState.Locked);
+                // Stroke is the shootable-state cue — only on while Frontier.
+                if (stroke != null && stroke.gameObject.activeSelf != (newState == BoxState.Frontier))
+                    stroke.gameObject.SetActive(newState == BoxState.Frontier);
+                // Bomb model: on for bomb cells until they detonate (state == Hit).
+                if (bombVisual != null)
+                {
+                    bool shouldShow = isBomb && newState != BoxState.Hit;
+                    if (bombVisual.activeSelf != shouldShow) bombVisual.SetActive(shouldShow);
+                }
+                // Outline turns OFF immediately for any non-Hit state. For Hit it is revealed
+                // only AFTER the hit scale movements (punch + height + mesh shrink) settle —
+                // see ScheduleOutlineReveal.
+                if (newState != BoxState.Hit)
+                {
+                    outlineRevealTween?.Kill(); outlineRevealTween = null;
+                    if (outline != null && outline.activeSelf) outline.SetActive(false);
+                }
+                // Sheen overlay: also Hit-only, so only painted cells catch the looping shine.
+                if (sheen != null && sheen.activeSelf != (newState == BoxState.Hit))
+                    sheen.SetActive(newState == BoxState.Hit);
             }
-            // Sheen overlay: also Hit-only, so only painted cells catch the looping shine.
-            if (sheen != null && sheen.activeSelf != (newState == BoxState.Hit))
-                sheen.SetActive(newState == BoxState.Hit);
 
             // (Hit sound is played in TakeHit, which knows whether a bomb opened it.)
 
@@ -180,6 +189,32 @@ namespace PixelShoot.Grid
                 return;
             }
             ApplyStateTransforms();
+        }
+
+        // ── Key cover: while an uncollected key sits on this cell, the box exists in the
+        // grid (counts toward the win, participates in frontier) but shows nothing — the
+        // floating key visual stands in for it. Revealed when the key is collected. ──
+        private bool hiddenByKey;
+        public bool IsHiddenByKey => hiddenByKey;
+
+        /// <summary>Hide or reveal this box because a key is (un)covering it. Purely visual;
+        /// state / gameplay are untouched. Revealing re-applies the current state's visuals.</summary>
+        public void SetKeyHidden(bool hidden)
+        {
+            hiddenByKey = hidden;
+            if (boxMesh != null) boxMesh.enabled = !hidden;
+            if (hidden) HideKeyVisuals();
+            else SetState(state); // restore the state-appropriate visuals now that it's exposed
+        }
+
+        private void HideKeyVisuals()
+        {
+            if (boxMesh != null) boxMesh.enabled = false;
+            if (colorDot != null && colorDot.gameObject.activeSelf) colorDot.gameObject.SetActive(false);
+            if (stroke != null && stroke.gameObject.activeSelf) stroke.gameObject.SetActive(false);
+            if (bombVisual != null && bombVisual.activeSelf) bombVisual.SetActive(false);
+            if (outline != null && outline.activeSelf) outline.SetActive(false);
+            if (sheen != null && sheen.activeSelf) sheen.SetActive(false);
         }
 
         private void ApplyStateTransforms()
@@ -197,7 +232,7 @@ namespace PixelShoot.Grid
         /// <summary>Turn the outline on once the height / mesh-scale tweens have finished.</summary>
         private void ScheduleOutlineReveal()
         {
-            if (outline == null) return;
+            if (outline == null || hiddenByKey) return;
             outlineRevealTween?.Kill(); outlineRevealTween = null;
 
             float delay = Mathf.Max(heightTweenDuration, hitMeshScaleDuration);

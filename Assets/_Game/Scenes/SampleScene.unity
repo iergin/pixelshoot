@@ -1831,7 +1831,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: What this booster does.
+  m_text: This bus is locked. Clear the matching key box to unlock it.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5192,6 +5192,7 @@ MonoBehaviour:
   gameController: {fileID: 448307441}
   specialItemTutorial: {fileID: 921884343}
   shooterPrefab: {fileID: 7749044057658203902, guid: 10b95fb2691024f15a22346905fe680e, type: 3}
+  lockPrefab: {fileID: 3790275361738899584, guid: 869d5df959e1c4901bd51c96a3cd15fd, type: 3}
   columnPrefab: {fileID: 2657055777082917559, guid: 6634c4b9b89754e0480d56d38e2b021d, type: 3}
   columnsRoot: {fileID: 1070926439}
   columnSpacing: 3.85
@@ -5366,7 +5367,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 466244881}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -10596,8 +10597,8 @@ Transform:
   m_GameObject: {fileID: 952713676}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.54310125, y: 0, z: 0.119999886}
-  m_LocalScale: {x: 0.28580064, y: 0.28580064, z: 0.28580064}
+  m_LocalPosition: {x: 0.0285, y: 0, z: 0.119999886}
+  m_LocalScale: {x: 0.43388513, y: 0.43388513, z: 0.43388513}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1908823582}
@@ -14379,6 +14380,7 @@ MonoBehaviour:
   perpRise: 0
   entrySmoothness: 2
   slack: 1.4
+  colorBlendBand: 0.15
 --- !u!1 &1231573712
 GameObject:
   m_ObjectHideFlags: 0
@@ -24162,7 +24164,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: BOOSTER
+  m_text: Locked Bus
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

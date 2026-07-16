@@ -108,7 +108,7 @@ namespace PixelShoot.UI
             {
                 case SpecialItem.Surprise: return AnyShooter(data, s => s.IsSurprise);
                 case SpecialItem.Link:     return AnyShooter(data, s => s.LinkGroupId != 0);
-                case SpecialItem.LockKey:  return AnyShooter(data, s => s.LockKeyId != 0) || AnyCell(data, c => c.KeyId != 0);
+                case SpecialItem.LockKey:  return AnyShooter(data, s => s.IsLock) || AnyCell(data, c => c.KeyId != 0);
                 case SpecialItem.Bomb:     return AnyCell(data, c => c.IsBomb);
                 default: return false;
             }

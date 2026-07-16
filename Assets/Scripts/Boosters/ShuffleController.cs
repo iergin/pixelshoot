@@ -35,7 +35,8 @@ namespace PixelShoot.Boosters
             int R = rowsToShuffle;
 
             int[] depth = new int[C];
-            bool[,] exists = new bool[C, R];          // slot (c, row-1) present?
+            bool[,] exists = new bool[C, R];          // shuffle slot (c, row-1) present (a bus)?
+            var fixedItem = new Shooter[C, R];        // lock barriers stay in their slot
             var buses = new List<Shooter>();
             for (int c = 0; c < C; c++)
             {
@@ -44,9 +45,11 @@ namespace PixelShoot.Boosters
                 for (int r = 1; r <= R; r++)
                 {
                     if (depth[c] < r) continue;
+                    var item = list[depth[c] - r]; // row r from the top
+                    if (item == null) continue;
+                    if (item is Lock) { fixedItem[c, r - 1] = item; continue; } // lock is fixed, not shuffled
                     exists[c, r - 1] = true;
-                    var bus = list[depth[c] - r]; // row r from the top
-                    if (bus != null) buses.Add(bus);
+                    buses.Add(item);
                 }
             }
             if (buses.Count == 0) return;
@@ -59,11 +62,15 @@ namespace PixelShoot.Boosters
             for (int c = 0; c < C; c++)
             {
                 var list = cols[c].Shooters;
-                int deepCount = Mathf.Max(0, depth[c] - R); // buses below the shuffled rows stay
+                int deepCount = Mathf.Max(0, depth[c] - R); // items below the shuffled rows stay
                 var newList = new List<Shooter>(depth[c]);
                 for (int i = 0; i < deepCount; i++) newList.Add(list[i]);
                 for (int r = R; r >= 1; r--)                 // row R (lower) → row 1 (top)
-                    if (exists[c, r - 1]) newList.Add(occ[c, r - 1]);
+                {
+                    if (depth[c] < r) continue;
+                    if (fixedItem[c, r - 1] != null) newList.Add(fixedItem[c, r - 1]); // lock keeps its slot
+                    else if (exists[c, r - 1]) newList.Add(occ[c, r - 1]);
+                }
                 newLists.Add(newList);
             }
             for (int c = 0; c < C; c++) cols[c].ApplyShuffledStack(newLists[c]);
@@ -94,11 +101,8 @@ namespace PixelShoot.Boosters
                 foreach (var g in Shuffled(multiGroups))
                 {
                     int k = g.Count;
-                    bool hasLocked = false;
-                    foreach (var m in g) if (m.IsLocked) { hasLocked = true; break; }
-
                     var rows = new List<int>();
-                    for (int r = 1; r <= R; r++) { if (hasLocked && r == 1) continue; rows.Add(r); }
+                    for (int r = 1; r <= R; r++) rows.Add(r);
                     Shuffle(rows);
 
                     bool placedGroup = false;
@@ -129,19 +133,7 @@ namespace PixelShoot.Boosters
                 }
                 if (!ok) continue;
 
-                // 2) Locked singles → a random free slot in rows 2..R.
-                var lockedSingles = new List<Shooter>();
-                foreach (var b in buses) if (b.IsLocked && !placed.Contains(b)) lockedSingles.Add(b);
-                var lockSlots = FreeSlots(exists, used, C, R, minRow: 2);
-                if (lockedSingles.Count > lockSlots.Count) continue; // no room → retry
-                Shuffle(lockedSingles); Shuffle(lockSlots);
-                for (int i = 0; i < lockedSingles.Count; i++)
-                {
-                    var (c, r) = lockSlots[i];
-                    occ[c, r - 1] = lockedSingles[i]; used[c, r - 1] = true; placed.Add(lockedSingles[i]);
-                }
-
-                // 3) Everyone else → the remaining slots (any row).
+                // 2) Everyone else → the remaining slots (any row).
                 var freeBuses = new List<Shooter>();
                 foreach (var b in buses) if (!placed.Contains(b)) freeBuses.Add(b);
                 var freeSlots = FreeSlots(exists, used, C, R, minRow: 1);
@@ -156,33 +148,23 @@ namespace PixelShoot.Boosters
                 return occ;
             }
 
-            Debug.LogWarning("[Shuffle] Couldn't satisfy link adjacency in the given layout → lock-only fallback.");
+            Debug.LogWarning("[Shuffle] Couldn't satisfy link adjacency in the given layout → simple fallback.");
             return FallbackSolve(exists, C, R, buses);
         }
 
-        // Best-effort placement that only guarantees the lock rule (links may not be adjacent).
+        // Best-effort placement (links may not be adjacent): just fill every slot with a bus.
         private Shooter[,] FallbackSolve(bool[,] exists, int C, int R, List<Shooter> buses)
         {
             var occ = new Shooter[C, R];
             var used = new bool[C, R];
-            var locked = new List<Shooter>();
-            var free = new List<Shooter>();
-            foreach (var b in buses) (b.IsLocked ? locked : free).Add(b);
-            Shuffle(locked); Shuffle(free);
+            var free = new List<Shooter>(buses);
+            Shuffle(free);
 
-            var lockSlots = FreeSlots(exists, used, C, R, minRow: 2);
-            Shuffle(lockSlots);
-            int li = 0;
-            foreach (var b in locked)
+            var slots = FreeSlots(exists, used, C, R, minRow: 1);
+            Shuffle(slots);
+            for (int i = 0; i < slots.Count && i < free.Count; i++)
             {
-                if (li < lockSlots.Count) { var (c, r) = lockSlots[li++]; occ[c, r - 1] = b; used[c, r - 1] = true; }
-                else free.Add(b); // no rows 2..R left → last resort, allow front
-            }
-            var rest = FreeSlots(exists, used, C, R, minRow: 1);
-            Shuffle(rest);
-            for (int i = 0; i < rest.Count && i < free.Count; i++)
-            {
-                var (c, r) = rest[i]; occ[c, r - 1] = free[i]; used[c, r - 1] = true;
+                var (c, r) = slots[i]; occ[c, r - 1] = free[i]; used[c, r - 1] = true;
             }
             return occ;
         }

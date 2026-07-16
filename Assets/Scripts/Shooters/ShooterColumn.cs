@@ -56,8 +56,9 @@ namespace PixelShoot.Shooters
         {
             var top = TopShooter;
             if (top == null) return;
+            // A lock barrier at the top opens (and drops out, restacking) if its key is collected.
+            if (top is Lock topLock) { topLock.TryOpen(); return; }
             if (top.IsSurprise) top.RevealSurprise();
-            if (top.IsLocked) top.TryUnlock();
         }
 
         [SerializeField] private float stackSpacing = 1.1f;
@@ -79,9 +80,15 @@ namespace PixelShoot.Shooters
             shooters.Add(shooter);
             LayoutImmediate();
 
+            // ShooterClickHandler [RequireComponent(Collider)] — AddComponent returns null on a
+            // prefab that has no Collider (a common mis-set on hand-made Lock prefabs). Guard it
+            // so one un-collidered item can't NullRef its way out of the whole column build.
             var click = shooter.GetComponent<ShooterClickHandler>();
-            if (click == null) click = shooter.gameObject.AddComponent<ShooterClickHandler>();
-            click.Configure(shooter, this, reserveClickHandler);
+            if (click == null && shooter.GetComponent<Collider>() != null)
+                click = shooter.gameObject.AddComponent<ShooterClickHandler>();
+            if (click != null) click.Configure(shooter, this, reserveClickHandler);
+            else Debug.LogWarning($"[ShooterColumn] '{shooter.name}' has no Collider — it won't be tappable. " +
+                                  "Add a Collider to the prefab (locks need one to block/receive taps).", shooter);
         }
 
         // Top of column = last element (matches LevelData semantics: list order = bottom-to-top).
@@ -93,11 +100,12 @@ namespace PixelShoot.Shooters
             if (shooter != TopShooter) return false;
             if (shooter.State != ShooterState.InColumn) return false;
 
-            // Locked: a top bus whose key isn't collected yet can't board. Try once more
-            // (key may have just been collected), else shake and reject.
-            if (shooter.IsLocked)
+            // Lock barrier at the top: not boardable. Try to open it (key may have just been
+            // collected), else shake — the column is blocked until it opens.
+            if (shooter is Lock lk)
             {
-                if (!shooter.TryUnlock()) { shooter.PlayLockedFeedback(); return false; }
+                if (!lk.TryOpen()) lk.PlayLockedFeedback();
+                return false;
             }
 
             // Linked: the GameController removes EVERY member from its column itself,

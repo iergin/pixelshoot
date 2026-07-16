@@ -29,7 +29,8 @@ namespace PixelShoot.Data
             public int Count;
             public bool IsSurprise;   // optional JSON key "isSurprise"
             public int LinkGroupId;   // optional JSON key "linkGroupId" (0 = unlinked)
-            public int LockKeyId;     // optional JSON key "lockKeyId" (0 = unlocked)
+            public bool IsLock;       // JSON: { "isLock": true, "keyId": N } — a lock barrier item
+            public int KeyId;         // key id the lock waits for
         }
 
         public class Result
@@ -185,7 +186,8 @@ namespace PixelShoot.Data
         private static readonly Regex RxCount      = new Regex("\"count\"\\s*:\\s*(\\d+)");
         private static readonly Regex RxSurprise   = new Regex("\"isSurprise\"\\s*:\\s*(true|false)");
         private static readonly Regex RxLinkGroup  = new Regex("\"linkGroupId\"\\s*:\\s*(-?\\d+)");
-        private static readonly Regex RxLockKey    = new Regex("\"lockKeyId\"\\s*:\\s*(-?\\d+)");
+        private static readonly Regex RxIsLock     = new Regex("\"isLock\"\\s*:\\s*(true|false)");
+        private static readonly Regex RxKeyId      = new Regex("\"keyId\"\\s*:\\s*(-?\\d+)");
 
         private static List<ColumnShooter> ParseShootersInColumn(string colText)
         {
@@ -207,21 +209,33 @@ namespace PixelShoot.Data
                     if (depth == 0 && objStart >= 0)
                     {
                         string obj = colText.Substring(objStart, i - objStart + 1);
-                        var mi = RxColorIndex.Match(obj);
-                        var mc = RxCount.Match(obj);
-                        if (mi.Success && mc.Success)
+                        var mLock = RxIsLock.Match(obj);
+                        if (mLock.Success && mLock.Groups[1].Value == "true")
                         {
-                            var ms = RxSurprise.Match(obj);
-                            var ml = RxLinkGroup.Match(obj);
-                            var mk = RxLockKey.Match(obj);
+                            // A lock barrier stack item: { "isLock": true, "keyId": N }
+                            var mkey = RxKeyId.Match(obj);
                             list.Add(new ColumnShooter
                             {
-                                ColorIndex   = int.Parse(mi.Groups[1].Value),
-                                Count        = int.Parse(mc.Groups[1].Value),
-                                IsSurprise   = ms.Success && ms.Groups[1].Value == "true",
-                                LinkGroupId  = ml.Success ? int.Parse(ml.Groups[1].Value) : 0,
-                                LockKeyId    = mk.Success ? int.Parse(mk.Groups[1].Value) : 0,
+                                IsLock = true,
+                                KeyId  = mkey.Success ? int.Parse(mkey.Groups[1].Value) : 0,
                             });
+                        }
+                        else
+                        {
+                            var mi = RxColorIndex.Match(obj);
+                            var mc = RxCount.Match(obj);
+                            if (mi.Success && mc.Success)
+                            {
+                                var ms = RxSurprise.Match(obj);
+                                var ml = RxLinkGroup.Match(obj);
+                                list.Add(new ColumnShooter
+                                {
+                                    ColorIndex   = int.Parse(mi.Groups[1].Value),
+                                    Count        = int.Parse(mc.Groups[1].Value),
+                                    IsSurprise   = ms.Success && ms.Groups[1].Value == "true",
+                                    LinkGroupId  = ml.Success ? int.Parse(ml.Groups[1].Value) : 0,
+                                });
+                            }
                         }
                         objStart = -1;
                     }

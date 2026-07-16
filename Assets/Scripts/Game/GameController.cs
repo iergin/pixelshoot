@@ -137,8 +137,8 @@ namespace PixelShoot.Game
             foreach (var m in group)
             {
                 if (m == null || m.State != ShooterState.InColumn) return RejectGroupTap();
-                // A locked member blocks the whole group until its key is collected.
-                if (m.IsLocked && !m.TryUnlock()) { m.PlayLockedFeedback(); return false; }
+                // A lock barrier above any member counts as a non-member above it → buried, so
+                // the "nothing but group members above" check below already blocks the group.
                 var col = ShooterColumn.ColumnOf(m);
                 if (col == null) return RejectGroupTap();
                 int idx = col.IndexOf(m);
@@ -201,14 +201,14 @@ namespace PixelShoot.Game
         {
             if (state != GameState.Playing || conveyor == null) return false;
             if (shooter == null || shooter.State != ShooterState.InColumn) return false;
-            if (shooter.IsLocked) return false; // locked buses can't be carried
+            if (shooter is PixelShoot.Shooters.Lock) return false; // the lock itself isn't a grabbable bus (claw ignores locks)
 
             if (shooter.IsLinked)
             {
                 var g = shooter.LinkGroup;
                 if (g == null || g.Count == 0) return false;
                 foreach (var m in g)
-                    if (m == null || m.State != ShooterState.InColumn || m.IsLocked) return false;
+                    if (m == null || m.State != ShooterState.InColumn || m is PixelShoot.Shooters.Lock) return false;
                 return conveyor.FreeCount >= g.Count;
             }
             return conveyor.FreeCount >= 1;

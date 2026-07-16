@@ -29,6 +29,8 @@ namespace PixelShoot.Game
 
         [Header("Shooter spawning")]
         [SerializeField] private Shooter shooterPrefab;
+        [Tooltip("Prefab for a LOCK barrier stack item (has a Lock component). Spawned for ColumnData items with Is Lock.")]
+        [SerializeField] private Lock lockPrefab;
         [SerializeField] private ShooterColumn columnPrefab;
         [SerializeField] private Transform columnsRoot;
         [SerializeField] private float columnSpacing = 1.4f;
@@ -135,8 +137,24 @@ namespace PixelShoot.Game
                 for (int si = 0; si < colData.Count; si++)
                 {
                     var sData = colData.Shooters[si];
+
+                    // A lock barrier stack item: spawn the dedicated Lock prefab, no colour/link.
+                    if (sData.IsLock)
+                    {
+                        if (lockPrefab == null)
+                        {
+                            Debug.LogWarning("[LevelLoader] Column has an isLock item but no Lock Prefab is assigned — skipping it.", this);
+                            continue;
+                        }
+                        var lock_ = Instantiate(lockPrefab);
+                        lock_.InitializeAsLock(sData.KeyId);
+                        lock_.SetGridAndConveyor(grid, conveyor);
+                        column.AddShooter(lock_);
+                        continue;
+                    }
+
                     var shooter = Instantiate(shooterPrefab);
-                    shooter.Initialize(sData.Color, sData.ShotCount, sData.IsSurprise, sData.LinkGroupId, sData.LockKeyId);
+                    shooter.Initialize(sData.Color, sData.ShotCount, sData.IsSurprise, sData.LinkGroupId);
                     shooter.SetGridAndConveyor(grid, conveyor);
                     column.AddShooter(shooter);
 

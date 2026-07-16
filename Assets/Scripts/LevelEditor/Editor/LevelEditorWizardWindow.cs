@@ -428,6 +428,12 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
             string path = $"{LevelsDir}/{levelName}.asset";
             Debug.Log($"[LevelWizard] SmartLoad looking up '{path}'");
+            // Force a reimport so Load ALWAYS reflects what's on DISK. AssetDatabase caches the
+            // loaded ScriptableObject, and Unity carries live objects across domain reloads, so
+            // an asset left dirty in memory by an earlier (unsaved) edit would otherwise come
+            // back with phantom locks/changes. Reimport discards that unsaved in-memory state.
+            if (System.IO.File.Exists(path))
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             var onDisk = AssetDatabase.LoadAssetAtPath<LevelData>(path);
             if (onDisk == null)
             {
@@ -602,13 +608,20 @@ namespace PixelShoot.LevelEditor.EditorTools
                     var shooters = new List<ShooterData>();
                     foreach (var sh in col)
                     {
-                        if (sh.ColorIndex < 0 || sh.ColorIndex >= palette.Count) continue;
                         var sd = new ShooterData();
+                        if (sh.IsLock)
+                        {
+                            // A lock barrier stack item — no colour / shots.
+                            SetField(sd, "isLock", true);
+                            SetField(sd, "keyId", sh.KeyId);
+                            shooters.Add(sd);
+                            continue;
+                        }
+                        if (sh.ColorIndex < 0 || sh.ColorIndex >= palette.Count) continue;
                         SetField(sd, "color", palette[sh.ColorIndex]);
                         SetField(sd, "shotCount", sh.Count);
                         SetField(sd, "isSurprise", sh.IsSurprise);
                         SetField(sd, "linkGroupId", sh.LinkGroupId);
-                        SetField(sd, "lockKeyId", sh.LockKeyId);
                         shooters.Add(sd);
                         shooterCount++;
                     }
@@ -860,7 +873,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 {
                     EditorGUILayout.LabelField("Key id to paint", GUILayout.Width(100));
                     currentKeyId = Mathf.Max(1, EditorGUILayout.IntField(currentKeyId, GUILayout.Width(50)));
-                    EditorGUILayout.LabelField("(matches a bus's lockKeyId)", EditorStyles.miniLabel);
+                    EditorGUILayout.LabelField("(matches a lock barrier's key id)", EditorStyles.miniLabel);
                 }
             }
 
@@ -1119,11 +1132,11 @@ namespace PixelShoot.LevelEditor.EditorTools
                     EditorGUILayout.HelpBox($"Link group(s) with a single member (need ≥2): {string.Join(", ", bad)}.", MessageType.Warning);
             }
 
-            // Key/lock integrity: a locked bus needs a key painted somewhere with the same id.
+            // Key/lock integrity: a lock barrier needs a key painted somewhere with the same id.
             var lockIds = new HashSet<int>();
             foreach (var col in columns)
                 foreach (var s in col.Shooters)
-                    if (s.LockKeyId > 0) lockIds.Add(s.LockKeyId);
+                    if (s.IsLock && s.KeyId > 0) lockIds.Add(s.KeyId);
             if (lockIds.Count > 0)
             {
                 var keyIds = new HashSet<int>();
@@ -1137,12 +1150,25 @@ namespace PixelShoot.LevelEditor.EditorTools
                         MessageType.Error);
             }
 
+            // Deferred structural edits — applied AFTER the draw loop so we never mutate a
+            // List while enumerating it. Only one button can fire per GUI frame.
+            int pendingCol = -1, pendingInsertAt = -1, pendingRemoveAt = -1;
+
             for (int ci = 0; ci < columns.Count; ci++)
             {
                 var col = columns[ci];
                 if (col == null || col.Shooters == null) continue;
                 EditorGUILayout.Space(4);
-                EditorGUILayout.LabelField($"Column {ci}  ({col.Shooters.Count} buses, top→bottom)", EditorStyles.miniBoldLabel);
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField($"Column {ci}  ({col.Shooters.Count} buses, top→bottom)", EditorStyles.miniBoldLabel);
+                    // Insert a lock at the very top of this column.
+                    if (GUILayout.Button("+ Lock (top)", GUILayout.Width(90)))
+                    {
+                        pendingCol = ci;
+                        pendingInsertAt = col.Shooters.Count; // append = topmost
+                    }
+                }
 
                 // Draw TOP (last data index) FIRST so the list reads top-to-bottom like the
                 // real column. The underlying data order (index 0 = bottom) is unchanged.
@@ -1151,34 +1177,83 @@ namespace PixelShoot.LevelEditor.EditorTools
                     var sd = col.Shooters[si];
                     using (new EditorGUILayout.HorizontalScope())
                     {
-                        // Color swatch.
+                        bool isLock = sd.IsLock;
+
+                        // Swatch: lock badge or bus colour.
                         var prev = GUI.color;
-                        GUI.color = sd.Color != null ? sd.Color.DisplayColor : Color.magenta;
-                        GUILayout.Box(GUIContent.none, GUILayout.Width(18), GUILayout.Height(18));
+                        GUI.color = isLock ? new Color(0.85f, 0.72f, 0.2f) : (sd.Color != null ? sd.Color.DisplayColor : Color.magenta);
+                        GUILayout.Box(new GUIContent(isLock ? "L" : ""), GUILayout.Width(18), GUILayout.Height(18));
                         GUI.color = prev;
 
                         bool isTop = si == col.Shooters.Count - 1;
                         EditorGUILayout.LabelField(isTop ? $"[{si}] TOP" : $"[{si}]", GUILayout.Width(64));
 
-                        // Count.
-                        EditorGUILayout.LabelField("shots", GUILayout.Width(36));
-                        int newCount = Mathf.Max(1, EditorGUILayout.IntField(sd.ShotCount, GUILayout.Width(48)));
-                        if (newCount != sd.ShotCount) SetField(sd, "shotCount", newCount);
+                        // Lock toggle — turns this stack item into a barrier (no colour/shots).
+                        bool newIsLock = GUILayout.Toggle(isLock, "Lock", "Button", GUILayout.Width(50));
+                        if (newIsLock != isLock) SetField(sd, "isLock", newIsLock);
 
-                        // Surprise.
-                        bool newSurprise = GUILayout.Toggle(sd.IsSurprise, "Surprise", "Button", GUILayout.Width(80));
-                        if (newSurprise != sd.IsSurprise) SetField(sd, "isSurprise", newSurprise);
+                        if (newIsLock)
+                        {
+                            EditorGUILayout.LabelField("key", GUILayout.Width(28));
+                            int newKey = Mathf.Max(0, EditorGUILayout.IntField(sd.KeyId, GUILayout.Width(40)));
+                            if (newKey != sd.KeyId) SetField(sd, "keyId", newKey);
+                        }
+                        else
+                        {
+                            // Count.
+                            EditorGUILayout.LabelField("shots", GUILayout.Width(36));
+                            int newCount = Mathf.Max(1, EditorGUILayout.IntField(sd.ShotCount, GUILayout.Width(48)));
+                            if (newCount != sd.ShotCount) SetField(sd, "shotCount", newCount);
 
-                        // Link group id.
-                        EditorGUILayout.LabelField("link", GUILayout.Width(30));
-                        int newLink = Mathf.Max(0, EditorGUILayout.IntField(sd.LinkGroupId, GUILayout.Width(40)));
-                        if (newLink != sd.LinkGroupId) SetField(sd, "linkGroupId", newLink);
+                            // Surprise.
+                            bool newSurprise = GUILayout.Toggle(sd.IsSurprise, "Surprise", "Button", GUILayout.Width(80));
+                            if (newSurprise != sd.IsSurprise) SetField(sd, "isSurprise", newSurprise);
 
-                        // Lock key id (0 = unlocked).
-                        EditorGUILayout.LabelField("lockKey", GUILayout.Width(50));
-                        int newLock = Mathf.Max(0, EditorGUILayout.IntField(sd.LockKeyId, GUILayout.Width(40)));
-                        if (newLock != sd.LockKeyId) SetField(sd, "lockKeyId", newLock);
+                            // Link group id.
+                            EditorGUILayout.LabelField("link", GUILayout.Width(30));
+                            int newLink = Mathf.Max(0, EditorGUILayout.IntField(sd.LinkGroupId, GUILayout.Width(40)));
+                            if (newLink != sd.LinkGroupId) SetField(sd, "linkGroupId", newLink);
+                        }
+
+                        GUILayout.FlexibleSpace();
+
+                        // Insert a NEW lock item into the gap above / below this row (data
+                        // index si is bottom-relative; "above" in the column = higher index).
+                        if (GUILayout.Button(new GUIContent("+L↑", "Insert a lock ABOVE this item"), GUILayout.Width(34)))
+                        {
+                            pendingCol = ci;
+                            pendingInsertAt = si + 1;
+                        }
+                        if (GUILayout.Button(new GUIContent("+L↓", "Insert a lock BELOW this item"), GUILayout.Width(34)))
+                        {
+                            pendingCol = ci;
+                            pendingInsertAt = si;
+                        }
+                        if (GUILayout.Button(new GUIContent("✕", "Remove this item"), GUILayout.Width(24)))
+                        {
+                            pendingCol = ci;
+                            pendingRemoveAt = si;
+                        }
                     }
+                }
+            }
+
+            // Apply the one deferred structural edit, then rebuild the preview.
+            if (pendingCol >= 0 && pendingCol < columns.Count &&
+                columns[pendingCol].Shooters is List<ShooterData> backing)
+            {
+                if (pendingRemoveAt >= 0 && pendingRemoveAt < backing.Count)
+                {
+                    backing.RemoveAt(pendingRemoveAt);
+                    pendingPreviewRefresh = true;
+                }
+                else if (pendingInsertAt >= 0 && pendingInsertAt <= backing.Count)
+                {
+                    var lockSd = new ShooterData();
+                    SetField(lockSd, "isLock", true);
+                    SetField(lockSd, "keyId", 0);
+                    backing.Insert(pendingInsertAt, lockSd);
+                    pendingPreviewRefresh = true;
                 }
             }
         }
@@ -1576,7 +1651,10 @@ namespace PixelShoot.LevelEditor.EditorTools
                 if (bombs != null && flat < bombs.Length) bombs[flat] = bc.IsBomb;
                 if (keys != null && flat < keys.Length) keys[flat] = bc.KeyId;
             }
-            columns = new List<ColumnData>(targetAsset.Columns);
+            // DEEP copy — the wizard must edit its own ColumnData/ShooterData instances, never
+            // the asset's. A shallow copy shares those objects, so unsaved edits (adding a lock,
+            // changing shots) mutate the bound asset in memory and survive a reload-without-save.
+            columns = CloneColumns(targetAsset.Columns);
             conveyorSlotCapacity = targetAsset.ConveyorSlotCapacity;
             reserveSlotCapacity = targetAsset.ReserveSlotCapacity;
             // Hand back the original designer JSON (if the level was imported from one) so
@@ -1593,6 +1671,22 @@ namespace PixelShoot.LevelEditor.EditorTools
 
         // Persist the wizard state into the REAL bound asset (only from SmartSave).
         private void SaveToAsset() => WriteInto(targetAsset);
+
+        /// <summary>
+        /// Deep-clones a list of ColumnData (and their nested ShooterData) via JsonUtility so
+        /// the wizard's working copy is fully independent of the source. UnityEngine.Object
+        /// fields (e.g. ShooterData.color → a ColorData asset) are kept as the SAME reference,
+        /// which is what we want — only the plain data containers are duplicated.
+        /// </summary>
+        private static List<ColumnData> CloneColumns(IEnumerable<ColumnData> src)
+        {
+            var list = new List<ColumnData>();
+            if (src == null) return list;
+            foreach (var c in src)
+                list.Add(c == null ? new ColumnData()
+                                   : JsonUtility.FromJson<ColumnData>(JsonUtility.ToJson(c)));
+            return list;
+        }
 
         /// <summary>
         /// Serialize the current wizard state into <paramref name="dest"/>. Used for both
@@ -1633,7 +1727,10 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
             SetField(grid, "cells", boxCells);
 
-            SetField(dest, "columns", new List<ColumnData>(columns));
+            // DEEP copy on the way out too, so the destination asset owns independent objects
+            // and later wizard edits don't leak back into it (matters for the real asset on Save;
+            // harmless for the throwaway preview clone).
+            SetField(dest, "columns", CloneColumns(columns));
             SetField(dest, "conveyorSlotCapacity", conveyorSlotCapacity);
             SetField(dest, "reserveSlotCapacity", reserveSlotCapacity);
             // Preserve the original designer JSON on the asset. Only overwrite when we
