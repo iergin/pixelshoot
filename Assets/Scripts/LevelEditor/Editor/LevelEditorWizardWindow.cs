@@ -594,6 +594,23 @@ namespace PixelShoot.LevelEditor.EditorTools
                 bombs = new bool[cells.Length];
                 keys = new int[cells.Length];
                 foreach (var v in decoded) if (v >= 0) filledCells++;
+
+                // Bombs & keys now come straight from the JSON as [x, y] image coordinates.
+                // Map each to the flat grid index (image row y → z = gridSize-1-y, per RLECodec).
+                if (parsed != null)
+                {
+                    foreach (var (bx, by) in parsed.Bombs)
+                    {
+                        int idx = CoordToFlat(bx, by);
+                        if (idx >= 0) bombs[idx] = true;
+                    }
+                    // The i-th key cell gets key id i+1; a lock's "lock": N references that id.
+                    for (int i = 0; i < parsed.Keys.Count; i++)
+                    {
+                        int idx = CoordToFlat(parsed.Keys[i].x, parsed.Keys[i].y);
+                        if (idx >= 0) keys[idx] = i + 1;
+                    }
+                }
             }
 
             // Auto-fit AFTER cells are decoded so it measures the filled pixels, not the
@@ -639,6 +656,8 @@ namespace PixelShoot.LevelEditor.EditorTools
             if (detectedGrid > 0) parts.Add($"{detectedGrid}×{detectedGrid} grid");
             if (filledCells > 0) parts.Add($"{filledCells} filled cells");
             if (columnsCount > 0) parts.Add($"{columnsCount} columns / {shooterCount} shooters");
+            if (parsed != null && parsed.Bombs.Count > 0) parts.Add($"{parsed.Bombs.Count} bombs");
+            if (parsed != null && parsed.Keys.Count > 0)  parts.Add($"{parsed.Keys.Count} keys");
             lastImportStatus = parts.Count == 0
                 ? "Nothing detected in the pasted text — paste the JSON export from the level designer tool."
                 : "Imported: " + string.Join(", ", parts) + ". (Press Save to persist to disk.)";
@@ -646,6 +665,16 @@ namespace PixelShoot.LevelEditor.EditorTools
             // will rebuild the scene from the in-memory asset state.
             pendingPreviewRefresh = true;
             Repaint();
+        }
+
+        /// <summary>Map an [x, y] image coordinate (y = row from the top) to the flat cells[]
+        /// index, matching RLECodec's orientation (image row y → z = gridSize-1-y). Returns -1
+        /// if out of range.</summary>
+        private int CoordToFlat(int x, int y)
+        {
+            if (x < 0 || x >= gridSize || y < 0 || y >= gridSize) return -1;
+            int z = gridSize - 1 - y;
+            return z * gridSize + x;
         }
 
         // ─── Grid & painting ─────────────────────────────────────────

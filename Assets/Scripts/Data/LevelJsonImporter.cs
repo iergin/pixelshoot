@@ -27,10 +27,10 @@ namespace PixelShoot.Data
         {
             public int ColorIndex;
             public int Count;
-            public bool IsSurprise;   // optional JSON key "isSurprise"
-            public int LinkGroupId;   // optional JSON key "linkGroupId" (0 = unlinked)
-            public bool IsLock;       // JSON: { "isLock": true, "keyId": N } — a lock barrier item
-            public int KeyId;         // key id the lock waits for
+            public bool IsSurprise;   // JSON key "surprise": true
+            public int LinkGroupId;   // JSON key "link": N (0 = unlinked)
+            public bool IsLock;       // JSON: { "lock": N } — a lock barrier stack item
+            public int KeyId;         // the lock's "lock" value = the key id it waits for
         }
 
         public class Result
@@ -42,6 +42,10 @@ namespace PixelShoot.Data
             /// <summary>Raw text of the rle array — pass directly to RLECodec.TryDecode.</summary>
             public string RleArrayText;
             public List<List<ColumnShooter>> Columns = new List<List<ColumnShooter>>();
+            /// <summary>Bomb cells as [x, y] image coordinates (y = row from the top).</summary>
+            public List<(int x, int y)> Bombs = new List<(int x, int y)>();
+            /// <summary>Key cells as [x, y] image coordinates. The i-th key gets key id i+1.</summary>
+            public List<(int x, int y)> Keys = new List<(int x, int y)>();
         }
 
         public static bool LooksLikeJson(string text)
@@ -83,6 +87,10 @@ namespace PixelShoot.Data
             string colsSection = ExtractJsonValue(text, "sortColumns");
             if (!string.IsNullOrEmpty(colsSection))
                 result.Columns = ParseSortColumns(colsSection);
+
+            // bombs / keys — arrays of [x, y] image coordinates.
+            result.Bombs = ParseCoordPairs(ExtractJsonValue(text, "bombs"));
+            result.Keys  = ParseCoordPairs(ExtractJsonValue(text, "keys"));
 
             result.Ok = true;
             return result;
@@ -184,10 +192,20 @@ namespace PixelShoot.Data
 
         private static readonly Regex RxColorIndex = new Regex("\"colorIndex\"\\s*:\\s*(\\d+)");
         private static readonly Regex RxCount      = new Regex("\"count\"\\s*:\\s*(\\d+)");
-        private static readonly Regex RxSurprise   = new Regex("\"isSurprise\"\\s*:\\s*(true|false)");
-        private static readonly Regex RxLinkGroup  = new Regex("\"linkGroupId\"\\s*:\\s*(-?\\d+)");
-        private static readonly Regex RxIsLock     = new Regex("\"isLock\"\\s*:\\s*(true|false)");
-        private static readonly Regex RxKeyId      = new Regex("\"keyId\"\\s*:\\s*(-?\\d+)");
+        private static readonly Regex RxSurprise   = new Regex("\"surprise\"\\s*:\\s*(true|false)");
+        private static readonly Regex RxLink       = new Regex("\"link\"\\s*:\\s*(-?\\d+)");
+        private static readonly Regex RxLock       = new Regex("\"lock\"\\s*:\\s*(-?\\d+)");
+        private static readonly Regex RxCoordPair  = new Regex("\\[\\s*(-?\\d+)\\s*,\\s*(-?\\d+)\\s*\\]");
+
+        /// <summary>Parses a "[[x,y],[x,y],...]" section into a list of (x,y) pairs.</summary>
+        private static List<(int x, int y)> ParseCoordPairs(string section)
+        {
+            var list = new List<(int x, int y)>();
+            if (string.IsNullOrEmpty(section)) return list;
+            foreach (Match m in RxCoordPair.Matches(section))
+                list.Add((int.Parse(m.Groups[1].Value), int.Parse(m.Groups[2].Value)));
+            return list;
+        }
 
         private static List<ColumnShooter> ParseShootersInColumn(string colText)
         {
@@ -209,15 +227,14 @@ namespace PixelShoot.Data
                     if (depth == 0 && objStart >= 0)
                     {
                         string obj = colText.Substring(objStart, i - objStart + 1);
-                        var mLock = RxIsLock.Match(obj);
-                        if (mLock.Success && mLock.Groups[1].Value == "true")
+                        var mLock = RxLock.Match(obj);
+                        if (mLock.Success)
                         {
-                            // A lock barrier stack item: { "isLock": true, "keyId": N }
-                            var mkey = RxKeyId.Match(obj);
+                            // A lock barrier stack item: { "lock": N } — N is the key id it waits for.
                             list.Add(new ColumnShooter
                             {
                                 IsLock = true,
-                                KeyId  = mkey.Success ? int.Parse(mkey.Groups[1].Value) : 0,
+                                KeyId  = int.Parse(mLock.Groups[1].Value),
                             });
                         }
                         else
@@ -227,7 +244,7 @@ namespace PixelShoot.Data
                             if (mi.Success && mc.Success)
                             {
                                 var ms = RxSurprise.Match(obj);
-                                var ml = RxLinkGroup.Match(obj);
+                                var ml = RxLink.Match(obj);
                                 list.Add(new ColumnShooter
                                 {
                                     ColorIndex   = int.Parse(mi.Groups[1].Value),
