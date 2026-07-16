@@ -113,27 +113,34 @@ namespace PixelShoot.Grid
                 }
         }
 
-        /// <summary>Spawns one floating key per key-group at the centroid of its cells.</summary>
+        /// <summary>Spawns one floating key per key-group at the exact geometric centre of its
+        /// cells (midpoint of their bounding box), so it sits dead-centre over the selection.</summary>
         private void SpawnKeyVisuals(GridData data)
         {
             if (keyVisualPrefab == null) return;
 
-            // centroid accumulation per key id
-            var sum = new Dictionary<int, Vector3>();
-            var count = new Dictionary<int, int>();
+            // Per key id: track the min/max cell position so the key lands at their midpoint —
+            // the true centre of the selected boxes, not the mass-weighted centroid (which drifts
+            // toward denser clusters on irregular selections).
+            var min = new Dictionary<int, Vector3>();
+            var max = new Dictionary<int, Vector3>();
             foreach (var cell in data.Cells)
             {
                 if (cell.IsEmpty || cell.KeyId <= 0) continue;
                 Vector3 p = GetCellWorldPosition(cell.GridX, cell.GridZ);
-                if (sum.ContainsKey(cell.KeyId)) { sum[cell.KeyId] += p; count[cell.KeyId]++; }
-                else { sum[cell.KeyId] = p; count[cell.KeyId] = 1; }
+                if (min.ContainsKey(cell.KeyId))
+                {
+                    min[cell.KeyId] = Vector3.Min(min[cell.KeyId], p);
+                    max[cell.KeyId] = Vector3.Max(max[cell.KeyId], p);
+                }
+                else { min[cell.KeyId] = p; max[cell.KeyId] = p; }
             }
 
-            foreach (var kv in sum)
+            foreach (var kv in min)
             {
-                Vector3 centroid = kv.Value / count[kv.Key];
-                centroid.y += keyVisualHeight;
-                var vis = Instantiate(keyVisualPrefab, centroid, Quaternion.identity, gridRoot != null ? gridRoot : transform);
+                Vector3 center = (kv.Value + max[kv.Key]) * 0.5f; // midpoint of the group's bounding box
+                center.y += keyVisualHeight;
+                var vis = Instantiate(keyVisualPrefab, center, Quaternion.identity, gridRoot != null ? gridRoot : transform);
                 vis.Init(kv.Key);
                 keyVisuals.Add(vis.gameObject);
             }
