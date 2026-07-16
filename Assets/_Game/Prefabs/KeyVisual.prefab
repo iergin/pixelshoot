@@ -45,9 +45,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 806cc08ef810443538be3412b2961a72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Game.KeyVisual
-  idleSpinDegPerSec: 60
-  collectRise: 1.5
-  collectDuration: 0.5
+  idlePulseScale: 1.03
+  idlePulseHalfDuration: 3
+  jumpPower: 2
+  jumpCount: 1
+  jumpDuration: 0.5
 --- !u!1 &8234188711506403698
 GameObject:
   m_ObjectHideFlags: 0
@@ -74,13 +76,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8234188711506403698}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5, y: -0.5, z: 0.5, w: 0.5}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 67.296, y: 67.296, z: 67.296}
-  m_ConstrainProportionsScale: 0
+  m_LocalRotation: {x: 0.21968138, y: -0.21968138, z: 0.67211616, w: 0.67211616}
+  m_LocalPosition: {x: 0, y: -1.07, z: 0.01}
+  m_LocalScale: {x: 110, y: 110, z: 110}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 447870250333899696}
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 90}
+  m_LocalEulerAnglesHint: {x: 36.2, y: 0, z: 90}
 --- !u!33 &5294524858224431970
 MeshFilter:
   m_ObjectHideFlags: 0
