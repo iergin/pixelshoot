@@ -18,9 +18,19 @@ namespace PixelShoot.Shooters
         [Header("Lock")]
         [Tooltip("The lock model shown while this barrier is closed. Popped away on open.")]
         [SerializeField] private GameObject lockVisual;
+        [Tooltip("Animator that plays the open animation. Its trigger is fired once the key lands. " +
+                 "Add an Animation Event at the END of the Open clip calling OnOpenAnimationFinished().")]
+        [SerializeField] private Animator animator;
+        [Tooltip("Trigger name fired on the Animator once the key has jumped in.")]
+        [SerializeField] private string openTrigger = "Open";
+        [Tooltip("The collected key DOJumps to THIS transform's position + rotation before the lock " +
+                 "opens. Leave empty to use the lock's own transform.")]
+        [SerializeField] private Transform keyLandTarget;
 
         /// <summary>Key id this lock waits for; opens once that key is collected.</summary>
         public int KeyId { get; private set; }
+
+        private bool opening; // set once the open sequence starts, so taps/RefreshTop don't re-trigger it
 
         /// <summary>Set this up as a lock barrier waiting on <paramref name="keyId"/>. No colour,
         /// no seats, no RegisterAlive — just take a resting column slot and show the lock.</summary>
@@ -37,6 +47,8 @@ namespace PixelShoot.Shooters
         /// </summary>
         public bool TryOpen()
         {
+            if (opening) return true; // open sequence already running — swallow further taps
+
             // A lock needs a REAL, collected key. KeyId <= 0 is a misconfigured lock (KeyManager
             // treats id ≤ 0 as "always available" for buses, which would open the lock instantly)
             // — never auto-open it; the level editor flags such locks so they get a real key id.
@@ -57,16 +69,45 @@ namespace PixelShoot.Shooters
                 return false;
             }
 
-            Debug.Log($"[KEYLOCK] Lock '{name}' (key={KeyId}) TryOpen → AÇILIYOR: key toplanmıştı; key uçuruluyor + box'lar açılıyor + lock kaldırılıyor.", this);
-            // Reaching the top with the key banked is the moment the key is CONSUMED: it flies
-            // away and its covered boxes reveal. Do this BEFORE we remove/destroy ourselves.
-            km.ConsumeKey(KeyId);
-            ShooterColumn.ColumnOf(this)?.RemoveShooter(this); // remove + restack the column
-            if (Application.isPlaying)
-                transform.DOScale(Vector3.zero, 0.25f).SetEase(Ease.InBack)
-                    .OnComplete(() => { if (this != null) Destroy(gameObject); });
-            else if (this != null) DestroyImmediate(gameObject);
+            opening = true;
+            Debug.Log($"[KEYLOCK] Lock '{name}' (key={KeyId}) TryOpen → AÇILIYOR: key jump ile lock'a geliyor...", this);
+
+            // Tell the key to hop onto this lock (pos + rot). When it lands → open animation.
+            var target = keyLandTarget != null ? keyLandTarget : transform;
+            var kv = km.GetKeyVisual(KeyId);
+            if (kv != null && Application.isPlaying) kv.JumpToLock(target, BeginOpenAnimation);
+            else BeginOpenAnimation(); // no key visual (or edit mode) → open straight away
             return true;
+        }
+
+        /// <summary>Key has landed: reveal its covered boxes and fire the Animator's open trigger.
+        /// If there's no Animator wired up, we skip straight to removing the lock.</summary>
+        private void BeginOpenAnimation()
+        {
+            PixelShoot.Game.KeyManager.Instance?.ConsumeKey(KeyId); // reveal the key's covered boxes
+
+            if (Application.isPlaying && animator != null && !string.IsNullOrEmpty(openTrigger))
+            {
+                Debug.Log($"[KEYLOCK] Lock '{name}' → Animator '{openTrigger}' trigger'landı. Open klibinin SONUNA OnOpenAnimationFinished() çağıran bir Animation Event ekle.", this);
+                animator.SetTrigger(openTrigger);
+            }
+            else
+            {
+                Debug.Log($"[KEYLOCK] Lock '{name}' → Animator/trigger yok, lock direkt kaldırılıyor.", this);
+                OnOpenAnimationFinished();
+            }
+        }
+
+        /// <summary>
+        /// Hook this up as an Animation Event at the END of the lock's Open clip. Drops the lock
+        /// out of its column (which restacks the buses below) and destroys it.
+        /// </summary>
+        public void OnOpenAnimationFinished()
+        {
+            Debug.Log($"[KEYLOCK] Lock '{name}' → Open animasyonu bitti (Animation Event): lock column'dan kaldırılıp yok ediliyor.", this);
+            ShooterColumn.ColumnOf(this)?.RemoveShooter(this); // remove + restack the column
+            if (Application.isPlaying) Destroy(gameObject);
+            else DestroyImmediate(gameObject);
         }
 
         /// <summary>Little shake when a still-locked barrier is tapped (key not collected yet).</summary>

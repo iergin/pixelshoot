@@ -20,6 +20,8 @@ namespace PixelShoot.Game
 
         private readonly HashSet<int> collected = new HashSet<int>();
         private readonly HashSet<int> consumed  = new HashSet<int>();
+        // keyId → its floating KeyVisual, so an opening lock can tell the right key to jump to it.
+        private readonly Dictionary<int, KeyVisual> keyVisuals = new Dictionary<int, KeyVisual>();
         // False until the level has finished spawning its columns. During the build, a key cell
         // sitting on the initial frontier collects its key BEFORE the columns exist, so the
         // "no lock waiting → consume now" shortcut can't be trusted yet — defer it to OnLevelReady.
@@ -43,7 +45,15 @@ namespace PixelShoot.Game
         }
 
         /// <summary>Wipe collected/consumed keys at the start of a level build.</summary>
-        public void ResetForLevel() { collected.Clear(); consumed.Clear(); levelReady = false; }
+        public void ResetForLevel() { collected.Clear(); consumed.Clear(); keyVisuals.Clear(); levelReady = false; }
+
+        // ── Key visual registry (so a lock can find the key that must jump to it) ──
+        public void RegisterKeyVisual(int keyId, KeyVisual kv) { if (keyId > 0 && kv != null) keyVisuals[keyId] = kv; }
+        public void UnregisterKeyVisual(int keyId, KeyVisual kv)
+        {
+            if (keyVisuals.TryGetValue(keyId, out var existing) && existing == kv) keyVisuals.Remove(keyId);
+        }
+        public KeyVisual GetKeyVisual(int keyId) => keyVisuals.TryGetValue(keyId, out var kv) ? kv : null;
 
         /// <summary>Columns are all spawned. Consume any key that was banked during the build but
         /// has no lock waiting on it (nothing to surface for). Locks already sitting on top were
