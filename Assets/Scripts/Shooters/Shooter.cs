@@ -59,10 +59,12 @@ namespace PixelShoot.Shooters
         [SerializeField, Min(0.05f)] private float wobbleDuration = 0.18f;
 
         [Header("Surprise")]
-        [Tooltip("Parent of all the normal bus visuals (body + seats). Hidden while the bus is a surprise, shown on reveal. If null, falls back to toggling the mesh renderer + seats object.")]
+        [Tooltip("Parent of the normal bus visuals — used only as the punch target on reveal now (no longer hidden while a surprise).")]
         [SerializeField] private GameObject busVisualRoot;
-        [Tooltip("The '?' cover shown while the bus is a surprise. Hidden on reveal.")]
+        [Tooltip("Optional '?' cover shown while the bus is a surprise. Hidden on reveal.")]
         [SerializeField] private GameObject surpriseVisual;
+        [Tooltip("Material applied to the Color Renderers while the bus is a surprise (the mystery skin). Reverted to the real colour on reveal.")]
+        [SerializeField] private Material surpriseMaterial;
         [Tooltip("Punch scale applied to the body on surprise reveal for a little pop.")]
         [SerializeField] private float revealPunch = 0.25f;
 
@@ -164,8 +166,9 @@ namespace PixelShoot.Shooters
             if (seats != null) seats.Initialize(shotCount, c);
             RefreshShotLabel();
 
-            // Surprise: hide the real bus behind the "?" cover until it surfaces.
-            SetVisualHidden(isSurprise);
+            // Surprise: keep the bus fully visible but skin its colour meshes with the mystery
+            // material (and hide the count) until it surfaces — no longer hides the bus visual root.
+            ApplySurpriseSkin(isSurprise);
             SetExhaust(false); // off until it boards the conveyor
             if (surpriseVisual != null) surpriseVisual.SetActive(isSurprise);
 
@@ -205,18 +208,20 @@ namespace PixelShoot.Shooters
         }
 
         // ── Surprise ─────────────────────────────────────────────────────────
-        private void SetVisualHidden(bool hidden)
+        /// <summary>
+        /// While a surprise, the bus stays visible but its Color Renderers wear the mystery
+        /// <see cref="surpriseMaterial"/> and the shot count is hidden. On reveal we swap the
+        /// colour meshes back to the real bus colour and show the count again.
+        /// </summary>
+        private void ApplySurpriseSkin(bool on)
         {
-            if (busVisualRoot != null)
-            {
-                busVisualRoot.SetActive(!hidden);
-            }
-            else
-            {
-                if (seats != null) seats.gameObject.SetActive(!hidden);
-            }
-            // The count label lives outside the visual root — hide/show it in lockstep.
-            if (shotCountLabel != null) shotCountLabel.gameObject.SetActive(!hidden);
+            Material mat = on ? surpriseMaterial
+                              : (color != null ? color.ShooterMaterial : null);
+            if (mat != null && colorRenderers != null)
+                foreach (var r in colorRenderers)
+                    ApplyColorMaterial(r, mat);
+            // The count is part of the surprise — hidden while covered, shown on reveal.
+            if (shotCountLabel != null) shotCountLabel.gameObject.SetActive(!on);
         }
 
         /// <summary>
@@ -229,7 +234,7 @@ namespace PixelShoot.Shooters
             if (!IsSurprise) return;
             IsSurprise = false;
             if (surpriseVisual != null) surpriseVisual.SetActive(false);
-            SetVisualHidden(false);
+            ApplySurpriseSkin(false); // swap colour meshes back to the real colour + show the count
             if (revealPunch > 0f && Application.isPlaying)
             {
                 var t = busVisualRoot != null ? busVisualRoot.transform
