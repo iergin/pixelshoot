@@ -112,9 +112,10 @@ namespace PixelShoot.Grid
         public bool IsBomb => isBomb;
         public int KeyId { get; private set; }
         public bool IsAlive => state != BoxState.Hit;
-        // Targetable only while on the frontier and not already promised to an incoming bullet
-        // or to an in-flight bomb explosion.
-        public bool IsShootable => state == BoxState.Frontier && !reservedForHit;
+        // Targetable only while on the frontier, not already promised to an incoming bullet or
+        // bomb, AND not hidden under an uncollected key (those boxes are locked away until the
+        // key's lock opens — a bullet must not paint a box the player can't even see).
+        public bool IsShootable => state == BoxState.Frontier && !reservedForHit && !hiddenByKey;
         public bool IsReserved => reservedForHit;
 
         public void Initialize(int x, int z, ColorData c, Material lockedMaterial, Material unhitMaterial, Tone cellTone = Tone.Normal, bool bomb = false, int keyId = 0)

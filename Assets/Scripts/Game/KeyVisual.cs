@@ -23,7 +23,7 @@ namespace PixelShoot.Game
         {
             keyId = id;
             if (KeyManager.Instance != null)
-                KeyManager.Instance.OnKeyCollected += HandleKeyCollected;
+                KeyManager.Instance.OnKeyConsumed += HandleKeyConsumed;
         }
 
         private void Update()
@@ -32,7 +32,7 @@ namespace PixelShoot.Game
             transform.Rotate(Vector3.up, idleSpinDegPerSec * Time.deltaTime, Space.World);
         }
 
-        private void HandleKeyCollected(int id)
+        private void HandleKeyConsumed(int id)
         {
             if (id != keyId || collecting) return;
             collecting = true;
@@ -46,7 +46,7 @@ namespace PixelShoot.Game
         private void Unsubscribe()
         {
             if (KeyManager.Instance != null)
-                KeyManager.Instance.OnKeyCollected -= HandleKeyCollected;
+                KeyManager.Instance.OnKeyConsumed -= HandleKeyConsumed;
         }
 
         private void OnDestroy() => Unsubscribe();

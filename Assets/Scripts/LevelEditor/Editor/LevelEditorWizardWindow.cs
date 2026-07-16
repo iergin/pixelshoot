@@ -51,6 +51,7 @@ namespace PixelShoot.LevelEditor.EditorTools
         [SerializeField] private int[] keys;    // Key group id per cell (0 = none). Parallel to cells[].
         [SerializeField] private int currentPaletteIdx = 0;
         [SerializeField] private int currentKeyId = 1;
+        [System.NonSerialized] private GUIStyle keyLabelStyle; // lazy — draws key ids on the grid canvas
         [SerializeField] private bool eraseMode = false;
         [SerializeField] private bool paintMode = false;
         [SerializeField] private bool bombMode  = false;
@@ -927,8 +928,10 @@ namespace PixelShoot.LevelEditor.EditorTools
                         EditorGUI.DrawRect(new Rect(rect.x + pad, rect.y + pad, dotSize, dotSize),
                             new Color(0f, 0f, 0f, 0.85f));
                     }
-                    // Key marker: a yellow border so key cells stand out (key id shown on hover via the count summary).
-                    if (GetKey(flat) > 0)
+                    // Key marker: a yellow border + the key id drawn in the cell so the designer
+                    // can read which group each cell belongs to (and match it to a lock's key id).
+                    int cellKey = GetKey(flat);
+                    if (cellKey > 0)
                     {
                         Color keyCol = new Color(1f, 0.85f, 0.1f, 1f);
                         float th = Mathf.Max(1f, cellPx * 0.18f);
@@ -936,6 +939,16 @@ namespace PixelShoot.LevelEditor.EditorTools
                         EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - th, rect.width, th), keyCol);
                         EditorGUI.DrawRect(new Rect(rect.x, rect.y, th, rect.height), keyCol);
                         EditorGUI.DrawRect(new Rect(rect.xMax - th, rect.y, th, rect.height), keyCol);
+                        if (cellPx >= 12f) // only when the cell is big enough to read
+                        {
+                            if (keyLabelStyle == null)
+                                keyLabelStyle = new GUIStyle(EditorStyles.miniBoldLabel)
+                                {
+                                    alignment = TextAnchor.MiddleCenter,
+                                    normal = { textColor = Color.black }
+                                };
+                            GUI.Label(rect, cellKey.ToString(), keyLabelStyle);
+                        }
                     }
                 }
             }
@@ -1042,11 +1055,14 @@ namespace PixelShoot.LevelEditor.EditorTools
             int filledPixels = 0;
             if (cells != null) foreach (var v in cells) if (v >= 0) filledPixels++;
 
+            // Locks are barriers, not buses: they don't shoot, so they must NOT count toward the
+            // bullet budget (otherwise every lock's placeholder shotCount reads as a phantom shot).
             int totalShots = 0;
             if (columns != null)
                 foreach (var col in columns)
                     if (col != null && col.Shooters != null)
-                        foreach (var s in col.Shooters) totalShots += s.ShotCount;
+                        foreach (var s in col.Shooters)
+                            if (!s.IsLock) totalShots += s.ShotCount;
 
             if (filledPixels == 0 && totalShots == 0)
             {
@@ -1090,13 +1106,76 @@ namespace PixelShoot.LevelEditor.EditorTools
             DrawBulletBudgetValidation();
             if (columns != null && columns.Count > 0)
             {
-                int sh = 0, shots = 0;
+                int buses = 0, locks = 0, shots = 0;
                 foreach (var col in columns)
-                    foreach (var s in col.Shooters) { sh++; shots += s.ShotCount; }
-                EditorGUILayout.HelpBox($"Columns: {columns.Count}, shooters: {sh}, total shots: {shots}", MessageType.None);
+                    foreach (var s in col.Shooters)
+                        if (s.IsLock) locks++;
+                        else { buses++; shots += s.ShotCount; }
+                EditorGUILayout.HelpBox(
+                    $"Columns: {columns.Count}, buses: {buses}, locks: {locks}, total bus shots: {shots}",
+                    MessageType.None);
             }
 
+            DrawLockKeyValidation();
             DrawShooterDetailEditor();
+        }
+
+        /// <summary>
+        /// Always-visible integrity check for the lock ↔ key pairing (NOT behind the per-shooter
+        /// foldout). A lock opens only when a key with the SAME id is collected, and a key is only
+        /// consumed (flies + reveals its boxes) when its lock opens — so the ids must match up:
+        ///   • lock with keyId ≤ 0        → can never open (misconfigured)
+        ///   • lock keyId with no key cell → key never collected → lock never opens
+        ///   • key cell with no lock       → key never consumed → its hidden boxes never reveal
+        /// </summary>
+        private void DrawLockKeyValidation()
+        {
+            if (columns == null) return;
+
+            int zeroKeyLocks = 0;
+            var lockIds = new HashSet<int>();
+            foreach (var col in columns)
+                if (col?.Shooters != null)
+                    foreach (var s in col.Shooters)
+                        if (s.IsLock)
+                        {
+                            if (s.KeyId <= 0) zeroKeyLocks++;
+                            else lockIds.Add(s.KeyId);
+                        }
+
+            var keyIds = new HashSet<int>();
+            if (keys != null) foreach (var k in keys) if (k > 0) keyIds.Add(k);
+
+            if (zeroKeyLocks == 0 && lockIds.Count == 0 && keyIds.Count == 0)
+                return; // this level uses no locks/keys — nothing to check
+
+            if (zeroKeyLocks > 0)
+                EditorGUILayout.HelpBox(
+                    $"🔒 {zeroKeyLocks} lock(s) have key id ≤ 0 — a lock needs a POSITIVE key id or it can never open. " +
+                    "Set each lock's key id in the per-shooter editor to match its key cells.",
+                    MessageType.Error);
+
+            var orphanLocks = new List<int>();
+            foreach (var id in lockIds) if (!keyIds.Contains(id)) orphanLocks.Add(id);
+            if (orphanLocks.Count > 0)
+                EditorGUILayout.HelpBox(
+                    $"🔒 Lock(s) waiting on key id(s) {string.Join(", ", orphanLocks)} but NO key cells are painted with those ids. " +
+                    "Paint matching key cells (Key tool) or those locks can never open.",
+                    MessageType.Error);
+
+            var orphanKeys = new List<int>();
+            foreach (var id in keyIds) if (!lockIds.Contains(id)) orphanKeys.Add(id);
+            if (orphanKeys.Count > 0)
+                EditorGUILayout.HelpBox(
+                    $"🔑 Key cells with id(s) {string.Join(", ", orphanKeys)} have NO lock waiting on them — " +
+                    "the key is never collected, so its hidden boxes never reveal. Add a lock with that key id, " +
+                    "or fix the ids so lock and key match.",
+                    MessageType.Error);
+
+            if (zeroKeyLocks == 0 && orphanLocks.Count == 0 && orphanKeys.Count == 0)
+                EditorGUILayout.HelpBox(
+                    $"✓ Lock/Key OK — key id(s) {string.Join(", ", lockIds)} matched on both locks and key cells.",
+                    MessageType.Info);
         }
 
         [SerializeField] private bool showShooterEditor;
@@ -1132,23 +1211,8 @@ namespace PixelShoot.LevelEditor.EditorTools
                     EditorGUILayout.HelpBox($"Link group(s) with a single member (need ≥2): {string.Join(", ", bad)}.", MessageType.Warning);
             }
 
-            // Key/lock integrity: a lock barrier needs a key painted somewhere with the same id.
-            var lockIds = new HashSet<int>();
-            foreach (var col in columns)
-                foreach (var s in col.Shooters)
-                    if (s.IsLock && s.KeyId > 0) lockIds.Add(s.KeyId);
-            if (lockIds.Count > 0)
-            {
-                var keyIds = new HashSet<int>();
-                if (keys != null) foreach (var k in keys) if (k > 0) keyIds.Add(k);
-                var orphanLocks = new List<int>();
-                foreach (var id in lockIds) if (!keyIds.Contains(id)) orphanLocks.Add(id);
-                if (orphanLocks.Count > 0)
-                    EditorGUILayout.HelpBox(
-                        $"Locked bus(es) reference key id(s) with NO key cells painted: {string.Join(", ", orphanLocks)}. " +
-                        "Paint key cells (Key tool) with those ids or the buses can never unlock.",
-                        MessageType.Error);
-            }
+            // (Lock/Key integrity is validated in DrawLockKeyValidation, shown always — not behind
+            // this foldout — so a broken lock↔key pairing can't hide.)
 
             // Deferred structural edits — applied AFTER the draw loop so we never mutate a
             // List while enumerating it. Only one button can fire per GUI frame.
@@ -1195,7 +1259,9 @@ namespace PixelShoot.LevelEditor.EditorTools
                         if (newIsLock)
                         {
                             EditorGUILayout.LabelField("key", GUILayout.Width(28));
-                            int newKey = Mathf.Max(0, EditorGUILayout.IntField(sd.KeyId, GUILayout.Width(40)));
+                            // Clamp to ≥1: a lock must wait on a real key (id 0 would open instantly).
+                            // This also auto-heals any existing keyId-0 lock the moment its row draws.
+                            int newKey = Mathf.Max(1, EditorGUILayout.IntField(sd.KeyId, GUILayout.Width(40)));
                             if (newKey != sd.KeyId) SetField(sd, "keyId", newKey);
                         }
                         else
@@ -1251,7 +1317,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 {
                     var lockSd = new ShooterData();
                     SetField(lockSd, "isLock", true);
-                    SetField(lockSd, "keyId", 0);
+                    SetField(lockSd, "keyId", 1); // a lock needs a real (>0) key id; default 1, edit per-row
                     backing.Insert(pendingInsertAt, lockSd);
                     pendingPreviewRefresh = true;
                 }

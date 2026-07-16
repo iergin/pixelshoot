@@ -2982,7 +2982,7 @@ MonoBehaviour:
       isSurprise: 0
       linkGroupId: 0
       isLock: 1
-      keyId: 0
+      keyId: 1
     - color: {fileID: 11400000, guid: b2b46be702fee4d2e8d5fd1d3942f830, type: 2}
       shotCount: 38
       isSurprise: 0

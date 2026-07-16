@@ -96,6 +96,9 @@ namespace PixelShoot.Game
             gameController.Bind(grid, conveyor, reserve, playOnReserve);
 
             SpawnColumns();
+            // Columns exist now: let banked keys that have no lock waiting consume themselves
+            // (keys whose lock starts on top were already opened by SpawnColumns' RefreshTop).
+            KeyManager.Instance?.OnLevelReady();
             ValidateBulletBudget();
 
             // All buses have spawned — arm the endgame watcher (fires now if this level

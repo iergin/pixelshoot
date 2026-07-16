@@ -57,7 +57,12 @@ namespace PixelShoot.Shooters
             var top = TopShooter;
             if (top == null) return;
             // A lock barrier at the top opens (and drops out, restacking) if its key is collected.
-            if (top is Lock topLock) { topLock.TryOpen(); return; }
+            if (top is Lock topLock)
+            {
+                Debug.Log($"[KEYLOCK] Column '{name}': en üstte LOCK var (key={topLock.KeyId}) → otomatik açma denemesi (RefreshTop).", this);
+                topLock.TryOpen();
+                return;
+            }
             if (top.IsSurprise) top.RevealSurprise();
         }
 
@@ -94,6 +99,15 @@ namespace PixelShoot.Shooters
         // Top of column = last element (matches LevelData semantics: list order = bottom-to-top).
         public Shooter TopShooter => shooters.Count > 0 ? shooters[shooters.Count - 1] : null;
 
+        /// <summary>True if this column still holds a lock waiting on <paramref name="keyId"/>
+        /// (anywhere in the stack). Used to decide whether a collected key must wait for a lock.</summary>
+        public bool HasLockWithKey(int keyId)
+        {
+            foreach (var s in shooters)
+                if (s is Lock lk && lk.KeyId == keyId) return true;
+            return false;
+        }
+
         public bool TryLaunchShooter(Shooter shooter)
         {
             if (shooter == null) return false;
@@ -104,6 +118,7 @@ namespace PixelShoot.Shooters
             // collected), else shake — the column is blocked until it opens.
             if (shooter is Lock lk)
             {
+                Debug.Log($"[KEYLOCK] Column '{name}': LOCK'a TIKLANDI (key={lk.KeyId}) → açma denemesi.", this);
                 if (!lk.TryOpen()) lk.PlayLockedFeedback();
                 return false;
             }

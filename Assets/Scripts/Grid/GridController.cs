@@ -74,13 +74,13 @@ namespace PixelShoot.Grid
             // starts on the silhouette collects its key right away.
             SpawnKeyVisuals(data);
 
-            // Reveal a key-group's boxes the moment its key is banked (also fires during the
-            // initial frontier pass below for any key that starts exposed).
+            // Reveal a key-group's boxes when its key is CONSUMED — i.e. its lock reached the top
+            // and opened (not merely when the key was banked). Until then the boxes stay hidden.
             var km = PixelShoot.Game.KeyManager.Instance;
             if (km != null)
             {
-                km.OnKeyCollected -= HandleKeyCollected;
-                km.OnKeyCollected += HandleKeyCollected;
+                km.OnKeyConsumed -= HandleKeyConsumed;
+                km.OnKeyConsumed += HandleKeyConsumed;
                 subscribedKeyManager = km;
             }
 
@@ -101,8 +101,8 @@ namespace PixelShoot.Grid
                 }
         }
 
-        /// <summary>Key banked → reveal all boxes it was covering so they become normal cells.</summary>
-        private void HandleKeyCollected(int keyId)
+        /// <summary>Key consumed (its lock opened) → reveal all boxes it was covering.</summary>
+        private void HandleKeyConsumed(int keyId)
         {
             if (boxes == null) return;
             for (int x = 0; x < size; x++)
@@ -210,7 +210,7 @@ namespace PixelShoot.Grid
         {
             if (subscribedKeyManager != null)
             {
-                subscribedKeyManager.OnKeyCollected -= HandleKeyCollected;
+                subscribedKeyManager.OnKeyConsumed -= HandleKeyConsumed;
                 subscribedKeyManager = null;
             }
             if (boxes != null)
@@ -436,6 +436,7 @@ namespace PixelShoot.Grid
                     if (x < 0 || x >= size || z < 0 || z >= size) continue;
                     var nb = boxes[x, z];
                     if (nb == null || !nb.IsAlive) continue;
+                    if (nb.IsHiddenByKey) continue;            // covered by a key — protected until its lock opens
                     if (nb.IsReserved) continue;               // someone else already promised this one
 
                     nb.ReserveHit();                           // lock immediately — guards against double-fire

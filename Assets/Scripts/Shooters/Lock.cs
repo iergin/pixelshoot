@@ -37,9 +37,30 @@ namespace PixelShoot.Shooters
         /// </summary>
         public bool TryOpen()
         {
+            // A lock needs a REAL, collected key. KeyId <= 0 is a misconfigured lock (KeyManager
+            // treats id ≤ 0 as "always available" for buses, which would open the lock instantly)
+            // — never auto-open it; the level editor flags such locks so they get a real key id.
+            if (KeyId <= 0)
+            {
+                Debug.Log($"[KEYLOCK] Lock '{name}' TryOpen → AÇILMADI: keyId={KeyId} (≤0, hatalı ayar — bu lock asla açılmaz). Editörde lock'a pozitif key id ver.", this);
+                return false;
+            }
             var km = PixelShoot.Game.KeyManager.Instance;
-            if (km == null || !km.IsCollected(KeyId)) return false;
+            if (km == null)
+            {
+                Debug.Log($"[KEYLOCK] Lock '{name}' (key={KeyId}) TryOpen → AÇILMADI: sahnede KeyManager yok.", this);
+                return false;
+            }
+            if (!km.IsCollected(KeyId))
+            {
+                Debug.Log($"[KEYLOCK] Lock '{name}' (key={KeyId}) TryOpen → BEKLİYOR: key {KeyId} henüz TOPLANMADI (bankalanmadı).", this);
+                return false;
+            }
 
+            Debug.Log($"[KEYLOCK] Lock '{name}' (key={KeyId}) TryOpen → AÇILIYOR: key toplanmıştı; key uçuruluyor + box'lar açılıyor + lock kaldırılıyor.", this);
+            // Reaching the top with the key banked is the moment the key is CONSUMED: it flies
+            // away and its covered boxes reveal. Do this BEFORE we remove/destroy ourselves.
+            km.ConsumeKey(KeyId);
             ShooterColumn.ColumnOf(this)?.RemoveShooter(this); // remove + restack the column
             if (Application.isPlaying)
                 transform.DOScale(Vector3.zero, 0.25f).SetEase(Ease.InBack)
