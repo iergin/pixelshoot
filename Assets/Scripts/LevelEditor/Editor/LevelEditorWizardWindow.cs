@@ -643,6 +643,13 @@ namespace PixelShoot.LevelEditor.EditorTools
                         shooters.Add(sd);
                         shooterCount++;
                     }
+                    // JSON sortColumns are listed TOP-to-bottom (first entry = the clickable top
+                    // bus), but ColumnData stores bottom-to-top (index 0 = bottom, last = top).
+                    // Reverse so a surprise/lock authored near the top actually lands near the top
+                    // — otherwise a surprise placed last in the JSON would sit on top and auto-
+                    // reveal at spawn (via RefreshTop).
+                    shooters.Reverse();
+
                     var cd = new ColumnData();
                     SetField(cd, "shooters", shooters);
                     newColumns.Add(cd);
