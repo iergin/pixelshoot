@@ -23,6 +23,12 @@ namespace PixelShoot.Ads
 
         public event Action OnInterstitialClosed;
 
+        /// <summary>Fired right before the player's VERY FIRST interstitial would show. A subscriber
+        /// (the No Ads promo) can present its offer first and MUST invoke the supplied callback when
+        /// the player dismisses it — that lets the ad proceed (or, if No Ads was bought meanwhile,
+        /// the ad is skipped). With no subscriber the ad shows immediately, as before.</summary>
+        public event Action<Action> OnBeforeFirstInterstitial;
+
         private static int LevelsSince
         {
             get => PlayerPrefs.GetInt(CounterKey, 0);
@@ -70,8 +76,39 @@ namespace PixelShoot.Ads
                 return;
             }
 
-            Debug.Log($"[Interstitial] Showing — {newCount} levels since last ad, interval={interval} at level {currentLevel}.");
             waitingForCurrentAdToClose = true;
+
+            // Before the VERY FIRST interstitial, let the No Ads promo have a turn. The subscriber
+            // shows its offer and calls ShowInterstitialNow when the player dismisses it (or buys
+            // No Ads, in which case the ad is skipped). No subscriber → show the ad right away.
+            if (!PlayerWallet.HasSeenFirstAd && OnBeforeFirstInterstitial != null)
+            {
+                Debug.Log("[Interstitial] First interstitial — offering the No Ads promo BEFORE the ad.");
+                OnBeforeFirstInterstitial.Invoke(ShowInterstitialNow);
+                return;
+            }
+
+            Debug.Log($"[Interstitial] Showing — {newCount} levels since last ad, interval={interval} at level {currentLevel}.");
+            ShowInterstitialNow();
+        }
+
+        /// <summary>Actually shows the interstitial — called directly, or via the pre-ad promo's
+        /// callback. Skips the ad if No Ads was purchased in the promo, or if the ad went unready.</summary>
+        private void ShowInterstitialNow()
+        {
+            if (PlayerWallet.HasNoAds)
+            {
+                Debug.Log("[Interstitial] No Ads bought in the promo — skipping the ad.");
+                LevelsSince = 0;
+                waitingForCurrentAdToClose = false;
+                return;
+            }
+            if (AdsManager.Service == null || !AdsManager.Service.IsInterstitialReady)
+            {
+                Debug.Log("[Interstitial] Ad no longer ready after the promo — keeping counter armed.");
+                waitingForCurrentAdToClose = false;
+                return;
+            }
             AdsManager.Service.ShowInterstitial(HandleInterstitialClosed);
         }
 

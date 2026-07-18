@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using PixelShoot.Ads;
 using PixelShoot.Data;
@@ -65,27 +66,68 @@ namespace PixelShoot.Shop
             if (starterPromoPanel != null) starterPromoPanel.SetActive(false);
         }
 
+        private Action pendingProceedToAd;
+
         private void OnEnable()
         {
-            if (interstitial != null) interstitial.OnInterstitialClosed += OnFirstAdSeenMaybe;
-            if (gameController != null) gameController.OnLevelWon       += OnLevelWonMaybe;
+            if (interstitial != null)
+            {
+                interstitial.OnBeforeFirstInterstitial += HandleBeforeFirstAd;
+                interstitial.OnInterstitialClosed      += OnFirstAdSeenMaybe; // fallback only
+            }
+            if (gameController != null) gameController.OnLevelWon += OnLevelWonMaybe;
         }
 
         private void OnDisable()
         {
-            if (interstitial != null) interstitial.OnInterstitialClosed -= OnFirstAdSeenMaybe;
-            if (gameController != null) gameController.OnLevelWon       -= OnLevelWonMaybe;
+            if (interstitial != null)
+            {
+                interstitial.OnBeforeFirstInterstitial -= HandleBeforeFirstAd;
+                interstitial.OnInterstitialClosed      -= OnFirstAdSeenMaybe;
+            }
+            if (gameController != null) gameController.OnLevelWon -= OnLevelWonMaybe;
+            if (noAdsUiPanel != null) noAdsUiPanel.OnClosed -= OnPreAdPromoClosed;
         }
 
         private bool NoAdsOwned => PlayerWallet.HasNoAds || PlayerWallet.HasPurchased(NoAdsOfferId);
 
-        // ─── Show 1: right after the FIRST interstitial closes ──────────────
+        // ─── Show 1: BEFORE the player's first interstitial ─────────────────
+        // The No Ads offer gets a turn ahead of the very first ad. When the player dismisses the
+        // promo we call proceed() to let the ad play; if they bought No Ads, the interstitial
+        // controller skips the ad. Needs a UiPanel (its OnClosed drives proceed) to gate the ad.
+        private void HandleBeforeFirstAd(Action proceed)
+        {
+            if (NoAdsOwned) { proceed?.Invoke(); return; }
+            if (noAdsUiPanel == null)
+            {
+                // Can't await a plain GameObject's close to re-trigger the ad → let the ad play
+                // now; the after-ad fallback still surfaces the promo so it isn't lost.
+                Debug.Log("[NoAdsPromo] No UiPanel to gate the pre-ad promo → ad plays, promo shown after.");
+                proceed?.Invoke();
+                return;
+            }
+            pendingProceedToAd = proceed;
+            noAdsUiPanel.OnClosed -= OnPreAdPromoClosed;
+            noAdsUiPanel.OnClosed += OnPreAdPromoClosed;
+            DoShowNoAds(PlayerWallet.SessionCount);
+            Debug.Log("[NoAdsPromo] Show 1 fired BEFORE the first ad → NoAds panel.");
+        }
+
+        private void OnPreAdPromoClosed()
+        {
+            if (noAdsUiPanel != null) noAdsUiPanel.OnClosed -= OnPreAdPromoClosed;
+            var proceed = pendingProceedToAd;
+            pendingProceedToAd = null;
+            proceed?.Invoke(); // promo dismissed → let the interstitial play (or be skipped if bought)
+        }
+
+        // ─── Fallback Show 1: after the first ad, only if the pre-ad hook didn't run ──
         private void OnFirstAdSeenMaybe()
         {
             if (NoAdsOwned) return;
-            if (noAdsShownCount >= 1) return; // the first-ad slot is show #1 only
+            if (noAdsShownCount >= 1) return; // pre-ad path already showed it → don't double up
             DoShowNoAds(PlayerWallet.SessionCount);
-            Debug.Log("[NoAdsPromo] Show 1 fired (first ad seen) → NoAds panel.");
+            Debug.Log("[NoAdsPromo] Show 1 fired (fallback, after first ad) → NoAds panel.");
         }
 
         // ─── Shows 2…N: once per new session, first level cleared ───────────
