@@ -21,6 +21,11 @@ namespace PixelShoot.Ads
         /// <summary>True while an interstitial we triggered is on-screen and not yet closed.</summary>
         private bool waitingForCurrentAdToClose;
 
+        /// <summary>Realtime (unscaled, ad-pause-proof) when the last interstitial CLOSED. -1 = none
+        /// yet this session. The time cooldown is measured from here so watching the ad doesn't
+        /// count toward it.</summary>
+        private float lastAdClosedRealtime = -1f;
+
         public event Action OnInterstitialClosed;
 
         /// <summary>Fired right before the player's VERY FIRST interstitial would show. A subscriber
@@ -70,6 +75,15 @@ namespace PixelShoot.Ads
                 return;
             }
 
+            // Time cooldown — measured from when the LAST ad CLOSED, so the seconds spent watching
+            // the ad don't count. Keep the counter armed and just wait: a later trigger once the
+            // cooldown has elapsed will show the ad.
+            if (CooldownActive(out float remaining))
+            {
+                Debug.Log($"[Interstitial] Skipped — cooldown active, {remaining:F0}s left since the last ad closed.");
+                return;
+            }
+
             if (AdsManager.Service == null || !AdsManager.Service.IsInterstitialReady)
             {
                 Debug.Log("[Interstitial] Threshold reached but no ad loaded; keeping counter armed.");
@@ -112,9 +126,21 @@ namespace PixelShoot.Ads
             AdsManager.Service.ShowInterstitial(HandleInterstitialClosed);
         }
 
+        /// <summary>True if the time cooldown since the last ad closed hasn't elapsed yet.</summary>
+        private bool CooldownActive(out float remaining)
+        {
+            remaining = 0f;
+            if (config == null || config.CooldownSeconds <= 0f) return false;
+            if (lastAdClosedRealtime < 0f) return false; // no ad has closed yet → no cooldown
+            remaining = config.CooldownSeconds - (Time.realtimeSinceStartup - lastAdClosedRealtime);
+            return remaining > 0f;
+        }
+
         private void HandleInterstitialClosed()
         {
-            Debug.Log("[Interstitial] Ad closed — cooldown counter reset, next cadence starts now.");
+            // Cooldown starts NOW (ad closed), not when it opened — time watching the ad is free.
+            lastAdClosedRealtime = Time.realtimeSinceStartup;
+            Debug.Log("[Interstitial] Ad closed — level counter reset + cooldown timer started now.");
             LevelsSince = 0;
             waitingForCurrentAdToClose = false;
             PlayerWallet.MarkFirstAdSeen();
