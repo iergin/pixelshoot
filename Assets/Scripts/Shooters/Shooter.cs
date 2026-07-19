@@ -65,8 +65,13 @@ namespace PixelShoot.Shooters
         [SerializeField] private GameObject surpriseVisual;
         [Tooltip("Material applied to the Color Renderers while the bus is a surprise (the mystery skin). Reverted to the real colour on reveal.")]
         [SerializeField] private Material surpriseMaterial;
-        [Tooltip("Punch scale applied to the body on surprise reveal for a little pop.")]
+        [Tooltip("Particle burst played when the surprise reveals.")]
+        [SerializeField] private ParticleSystem revealParticle;
+        [Tooltip("How much the bus body grows at the peak of the reveal pop (0.25 = +25%).")]
         [SerializeField] private float revealPunch = 0.25f;
+        [Tooltip("Seconds to grow to the peak, then to shrink back to normal.")]
+        [SerializeField] private float revealGrowUp = 0.12f;
+        [SerializeField] private float revealGrowDown = 0.18f;
 
         [Header("Link")]
         [Tooltip("Optional visual enabled only on linked buses (e.g. a tow hook / chain). Links are drawn with Obi rope (LinkRopeController).")]
@@ -235,12 +240,22 @@ namespace PixelShoot.Shooters
             IsSurprise = false;
             if (surpriseVisual != null) surpriseVisual.SetActive(false);
             ApplySurpriseSkin(false); // swap colour meshes back to the real colour + show the count
-            if (revealPunch > 0f && Application.isPlaying)
+
+            if (!Application.isPlaying) return;
+
+            // Particle burst.
+            if (revealParticle != null) revealParticle.Play(true);
+
+            // Grow → shrink pop on the bus body. Only on busVisualRoot (a child) — never the root,
+            // whose scale is owned by the column/conveyor transitions.
+            var t = busVisualRoot != null ? busVisualRoot.transform : null;
+            if (t != null && revealPunch > 0f)
             {
-                var t = busVisualRoot != null ? busVisualRoot.transform
-                      :null;
-                if (t != null && t != transform)
-                    t.DOPunchScale(t.localScale * revealPunch, 0.3f, 6, 0.6f);
+                t.DOKill();
+                Vector3 baseScl = t.localScale;
+                DOTween.Sequence().SetTarget(t)
+                    .Append(t.DOScale(baseScl * (1f + revealPunch), revealGrowUp).SetEase(Ease.OutQuad))
+                    .Append(t.DOScale(baseScl, revealGrowDown).SetEase(Ease.OutBack));
             }
         }
 
