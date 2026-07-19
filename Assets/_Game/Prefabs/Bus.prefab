@@ -1824,6 +1824,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ExhaustParticle
       objectReference: {fileID: 0}
+    - target: {fileID: 2890703956139618794, guid: 797b92c0fdb06447cb2b09d830558ff7, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
