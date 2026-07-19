@@ -50,8 +50,21 @@ namespace PixelShoot.Audio
         [SerializeField] private AudioClip blockedClip;
         [SerializeField, Range(0f, 1f)] private float blockedVolume = 1f;
 
+        [Header("Footsteps")]
+        [Tooltip("Single footstep clip played (throttled) as stickmen run. Many runners collapse into one steady patter.")]
+        [SerializeField] private AudioClip footstepClip;
+        [SerializeField, Range(0f, 1f)] private float footstepVolume = 0.5f;
+        [Tooltip("Minimum seconds between footstep sounds ACROSS ALL stickmen — the throttle that stops many runners from turning into machine-gun noise.")]
+        [SerializeField, Min(0f)] private float footstepMinInterval = 0.08f;
+        [Tooltip("Random pitch range per step, so repeats don't sound identical.")]
+        [SerializeField] private Vector2 footstepPitchRange = new Vector2(0.9f, 1.12f);
+        [Tooltip("Random ± volume jitter fraction per step (0.2 = ±20%).")]
+        [SerializeField, Range(0f, 1f)] private float footstepVolumeJitter = 0.2f;
+
         private float lastBoxHitTime = -999f;
         private float lastBoxBombTime = -999f;
+        private float lastFootstepTime = -999f;
+        private AudioSource footstepSource; // dedicated source so per-step pitch changes don't touch other SFX
 
         [System.Serializable]
         public class NamedClip
@@ -71,6 +84,10 @@ namespace PixelShoot.Audio
             clipMap = new Dictionary<string, NamedClip>();
             foreach (var c in clips)
                 if (c != null && !string.IsNullOrEmpty(c.id)) clipMap[c.id] = c;
+
+            // Dedicated source for footsteps so per-step pitch changes don't leak onto other SFX.
+            footstepSource = gameObject.AddComponent<AudioSource>();
+            footstepSource.playOnAwake = false;
         }
 
         private void OnEnable()
@@ -135,6 +152,25 @@ namespace PixelShoot.Audio
                 lastBoxBombTime = now;
             }
             PlaySfx(boxBombClip, boxBombVolume);
+        }
+
+        /// <summary>
+        /// A stickman footstep. GLOBALLY throttled — no matter how many stickmen are running, at
+        /// most one step sound plays per <see cref="footstepMinInterval"/>, so a crowd collapses
+        /// into a steady patter instead of machine-gun noise. Pitch/volume are jittered per step.
+        /// </summary>
+        public void PlayFootstep()
+        {
+            if (footstepClip == null || !PlayerWallet.SfxEnabled) return;
+
+            float now = Time.unscaledTime;
+            if (now - lastFootstepTime < footstepMinInterval) return; // throttle across ALL stickmen
+            lastFootstepTime = now;
+
+            if (footstepSource == null) { PlaySfx(footstepClip, footstepVolume); return; }
+            footstepSource.pitch = UnityEngine.Random.Range(footstepPitchRange.x, footstepPitchRange.y);
+            float vol = footstepVolume * (1f + UnityEngine.Random.Range(-footstepVolumeJitter, footstepVolumeJitter));
+            footstepSource.PlayOneShot(footstepClip, Mathf.Clamp01(vol));
         }
 
         private AudioSource GetFreeSfxSource()

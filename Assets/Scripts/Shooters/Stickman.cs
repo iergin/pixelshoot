@@ -33,12 +33,28 @@ namespace PixelShoot.Shooters
         [Tooltip("Spawn/run scale tuning for bus stickmen (spawn scale, run = box scale × mult, grow time).")]
         [SerializeField] private StickmanScaleConfig scaleConfig;
 
+        [Header("Footsteps")]
+        [Tooltip("Seconds between this stickman's own footstep attempts while running. The AudioManager throttles them GLOBALLY, so many runners still collapse into one clean patter. 0 = no footsteps.")]
+        [SerializeField, Min(0f)] private float footstepStride = 0.16f;
+
         private Tween flightTween;
         private Tween flightScaleTween;
+        private float footstepTimer;
 
         /// <summary>The prefab this instance was pooled from (set by <see cref="StickmanPool"/>).</summary>
         public Stickman SourcePrefab { get; private set; }
         public void SetSourcePrefab(Stickman prefab) => SourcePrefab = prefab;
+
+        // Emit a footstep every footstepStride seconds of the run. The AudioManager throttles them
+        // globally, so this stickman's steps blend with everyone else's into a single clean patter.
+        private void EmitFootstepTick()
+        {
+            if (footstepStride <= 0f) return;
+            footstepTimer -= Time.deltaTime;
+            if (footstepTimer > 0f) return;
+            footstepTimer = footstepStride;
+            PixelShoot.Audio.AudioManager.Instance?.PlayFootstep();
+        }
 
         // Cached easing curve built from startSpeed / endSpeed (rebuilt when they change).
         private AnimationCurve flightCurve;
@@ -117,8 +133,10 @@ namespace PixelShoot.Shooters
             Vector3 face = endPos - transform.position; face.y = 0f;
             if (face.sqrMagnitude > 0.0001f) transform.rotation = Quaternion.LookRotation(face.normalized, Vector3.up);
 
+            footstepTimer = 0f;
             flightTween = transform.DOMove(endPos, duration)
                 .SetEase(FlightCurve())
+                .OnUpdate(EmitFootstepTick)
                 .OnComplete(() =>
                 {
                     if (grid != null && target != null && target.IsAlive)
@@ -165,8 +183,10 @@ namespace PixelShoot.Shooters
 
             float distance = Vector3.Distance(transform.position, endPos);
             float duration = Mathf.Max(minDuration, distance / Mathf.Max(0.01f, speed));
+            footstepTimer = 0f;
             flightTween = transform.DOMove(endPos, duration)
                 .SetEase(ease)
+                .OnUpdate(EmitFootstepTick)
                 .OnComplete(() =>
                 {
                     if (grid != null && target != null && target.IsAlive) grid.NotifyBoxHit(target);
