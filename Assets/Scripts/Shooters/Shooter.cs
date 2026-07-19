@@ -67,6 +67,8 @@ namespace PixelShoot.Shooters
         [SerializeField] private Material surpriseMaterial;
         [Tooltip("Particle burst played when the surprise reveals.")]
         [SerializeField] private ParticleSystem revealParticle;
+        [Tooltip("Seconds to ease the colour meshes from the surprise colour to the real bus colour on reveal (no hard pop).")]
+        [SerializeField] private float revealColorFadeDuration = 0.4f;
         [Tooltip("How much the bus body grows at the peak of the reveal pop (0.25 = +25%).")]
         [SerializeField] private float revealPunch = 0.25f;
         [Tooltip("Seconds to grow to the peak, then to shrink back to normal.")]
@@ -220,13 +222,60 @@ namespace PixelShoot.Shooters
         /// </summary>
         private void ApplySurpriseSkin(bool on)
         {
-            Material mat = on ? surpriseMaterial
-                              : (color != null ? color.ShooterMaterial : null);
-            if (mat != null && colorRenderers != null)
+            // Only PAINT the mystery skin when turning surprise ON. Turning it OFF is done by the
+            // reveal colour-fade (see RevealColorFade) so the real colour eases in without a pop.
+            if (on && surpriseMaterial != null && colorRenderers != null)
                 foreach (var r in colorRenderers)
-                    ApplyColorMaterial(r, mat);
+                    ApplyColorMaterial(r, surpriseMaterial);
             // The count is part of the surprise — hidden while covered, shown on reveal.
             if (shotCountLabel != null) shotCountLabel.gameObject.SetActive(!on);
+        }
+
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static Color ReadBaseColor(Material m, Color fallback)
+        {
+            if (m == null) return fallback;
+            return m.HasProperty(BaseColorId) ? m.GetColor(BaseColorId) : m.color;
+        }
+
+        /// <summary>
+        /// Reveal colour transition: apply the REAL bus material to every colour mesh, but start
+        /// its tint at the surprise colour and ease it to the real colour — so the player never
+        /// sees the material "pop" from mystery to colour. Driven per-renderer via a
+        /// MaterialPropertyBlock so no material instance is cloned/leaked.
+        /// </summary>
+        private void RevealColorFade()
+        {
+            if (color == null || color.ShooterMaterial == null || colorRenderers == null) return;
+            Material real = color.ShooterMaterial;
+            foreach (var r in colorRenderers) if (r != null) ApplyColorMaterial(r, real);
+
+            if (!Application.isPlaying) return; // edit-mode preview: real colour instantly, no tween
+
+            Color realColor = ReadBaseColor(real, UnityEngine.Color.white);
+            Color surpColor = ReadBaseColor(surpriseMaterial, realColor);
+            if (revealColorFadeDuration <= 0f || realColor == surpColor) return;
+
+            var mpb = new MaterialPropertyBlock();
+            void Tint(Color c)
+            {
+                foreach (var r in colorRenderers)
+                {
+                    if (r == null) continue;
+                    r.GetPropertyBlock(mpb);
+                    mpb.SetColor(BaseColorId, c);
+                    r.SetPropertyBlock(mpb);
+                }
+            }
+
+            Tint(surpColor); // start at the surprise colour…
+            DOVirtual.Float(0f, 1f, revealColorFadeDuration, v => Tint(UnityEngine.Color.Lerp(surpColor, realColor, v)))
+                .OnComplete(() =>
+                {
+                    // Clear the per-renderer override so the shared material's own colour takes over.
+                    var empty = new MaterialPropertyBlock();
+                    foreach (var r in colorRenderers) if (r != null) r.SetPropertyBlock(empty);
+                });
         }
 
         /// <summary>
@@ -239,7 +288,8 @@ namespace PixelShoot.Shooters
             if (!IsSurprise) return;
             IsSurprise = false;
             if (surpriseVisual != null) surpriseVisual.SetActive(false);
-            ApplySurpriseSkin(false); // swap colour meshes back to the real colour + show the count
+            if (shotCountLabel != null) shotCountLabel.gameObject.SetActive(true); // count is revealed too
+            RevealColorFade(); // real material, tint eased from surprise colour → real colour
 
             if (!Application.isPlaying) return;
 
