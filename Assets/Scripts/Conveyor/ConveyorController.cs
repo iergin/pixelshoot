@@ -45,6 +45,11 @@ namespace PixelShoot.Conveyor
         /// <summary>Fired when a slot reservation is attempted while the conveyor is full
         /// (i.e. the player clicked a shooter that can't board). Drives the HUD shake.</summary>
         public event Action OnFullSlotAttempt;
+
+        /// <summary>Manually fire the "can't board" HUD cue (red flash + shake). Used when a LINKED
+        /// group needs more free slots than are available — even if the conveyor isn't fully full
+        /// (e.g. 4/5 with a 2-bus link). Single-bus boards already raise this via TryReserveSlot.</summary>
+        public void SignalFullSlotAttempt() => OnFullSlotAttempt?.Invoke();
         public float MaxPathProgress => cumulativeDistances.Count > 0 ? cumulativeDistances[cumulativeDistances.Count - 1] : 0f;
         public Vector3 EntryWorldPosition => nodes.Count > 0 ? nodes[0].Position : transform.position;
 

@@ -148,8 +148,9 @@ namespace PixelShoot.Game
                     if (!group.Contains(col.Shooters[i])) return RejectGroupTap();
             }
 
-            // 2) Need a free conveyor slot for every member.
-            if (conveyor.FreeCount < group.Count) return RejectGroupTap();
+            // 2) Need a free conveyor slot for every member. If there isn't room for the whole
+            //    group (even when the conveyor isn't completely full), flash the capacity HUD too.
+            if (conveyor.FreeCount < group.Count) { conveyor.SignalFullSlotAttempt(); return RejectGroupTap(); }
 
             // 3) Reveal surprises, then detach + board each. Snapshot first — boarding
             //    mutates columns and (on dissolve) the shared group list. Board LEFT→RIGHT
@@ -282,8 +283,8 @@ namespace PixelShoot.Game
             foreach (var m in group)
                 if (m == null || m.State != ShooterState.InReserve) { RejectGroupTap(); return; }
 
-            // Need a free conveyor slot for the whole group.
-            if (conveyor.FreeCount < group.Count) { RejectGroupTap(); return; }
+            // Need a free conveyor slot for the whole group — flash the capacity HUD if short.
+            if (conveyor.FreeCount < group.Count) { conveyor.SignalFullSlotAttempt(); RejectGroupTap(); return; }
 
             // Snapshot — boarding mutates reservoirs and (on dissolve) the shared group list.
             // Board LEFT→RIGHT so the leftmost bus reaches the conveyor first.

@@ -25,11 +25,14 @@ namespace PixelShoot.UI
         [SerializeField] private float shakeDuration = 0.3f;
         [SerializeField] private float shakeAmplitude = 0.15f;
         [SerializeField] private int shakeVibrato = 12;
+        [Tooltip("Seconds for the momentary red flash on a rejected board (fades back to the current colour).")]
+        [SerializeField] private float flashDuration = 0.25f;
 
         private int lastOcc = -1;
         private int lastCap = -1;
         private Vector3 baseLocalPos;
         private Tween shakeTween;
+        private Tween flashTween;
 
         private void Awake()
         {
@@ -45,6 +48,7 @@ namespace PixelShoot.UI
         {
             if (conveyor != null) conveyor.OnFullSlotAttempt -= Shake;
             shakeTween?.Kill();
+            flashTween?.Kill();
         }
 
         private void LateUpdate()
@@ -59,15 +63,26 @@ namespace PixelShoot.UI
             label.color = conveyor.IsFull ? fullColor : normalColor;
         }
 
-        // Small horizontal jitter, then settle back to the base position.
+        // Rejected board cue: a small horizontal jitter + a momentary red flash. The flash is the
+        // key cue when the conveyor ISN'T fully full (e.g. a 2-bus link tapped at 4/5), where the
+        // label wouldn't otherwise turn red.
         private void Shake()
         {
             if (label == null) return;
+
             shakeTween?.Kill();
             label.transform.localPosition = baseLocalPos;
             shakeTween = label.transform
                 .DOShakePosition(shakeDuration, new Vector3(shakeAmplitude, 0f, 0f), shakeVibrato, 90f, false, true)
                 .SetUpdate(true);
+
+            // Flash to fullColor, then fade back to whatever colour the state calls for (red if now
+            // full, white otherwise). LateUpdate only rewrites the colour when occ/cap change — a
+            // rejected board changes neither — so it won't stomp this flash mid-way.
+            flashTween?.Kill();
+            Color settle = conveyor != null && conveyor.IsFull ? fullColor : normalColor;
+            label.color = fullColor;
+            flashTween = DOTween.To(() => label.color, c => label.color = c, settle, flashDuration).SetUpdate(true);
         }
     }
 }
