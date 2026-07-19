@@ -203,7 +203,20 @@ namespace PixelShoot.UI
 
         private void OnRestart()
         {
-            if (gameController != null) gameController.ReloadScene();
+            if (gameController == null) return;
+
+            // A restart is a fresh attempt, so it costs a life.
+            if (PlayerLives.TryConsumeForLevelStart())
+            {
+                // Has a life → reopen the level directly, skipping the main menu.
+                MainMenuController.PendingAutoStart = true;
+            }
+            else
+            {
+                // No lives → go home and surface the out-of-lives popup there.
+                MainMenuController.PendingOutOfLives = true;
+            }
+            gameController.ReloadScene();
         }
 
         private void OnPlayOn()

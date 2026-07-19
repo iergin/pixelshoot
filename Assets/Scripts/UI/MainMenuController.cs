@@ -59,6 +59,13 @@ namespace PixelShoot.UI
 
         private bool starting;
 
+        // Cross-reload intents, set by Restart (LevelEndUIController) before ReloadScene():
+        //  • PendingAutoStart  → the life was already spent; skip the menu and drop straight into
+        //    gameplay on the reloaded scene.
+        //  • PendingOutOfLives → show the menu AND the out-of-lives popup on the reloaded scene.
+        public static bool PendingAutoStart;
+        public static bool PendingOutOfLives;
+
         private void Awake()
         {
             WireButtons();
@@ -75,7 +82,22 @@ namespace PixelShoot.UI
 
         private void Start()
         {
+            // Direct restart (life already spent) → jump straight into gameplay, no menu.
+            if (PendingAutoStart)
+            {
+                PendingAutoStart = false;
+                RevealGameplayInstant();
+                return;
+            }
+
             if (openOnStart) Open();
+
+            // Restart-with-no-lives sent us home → surface the out-of-lives popup over the menu.
+            if (PendingOutOfLives)
+            {
+                PendingOutOfLives = false;
+                if (outOfLives != null) outOfLives.Open();
+            }
         }
 
         private void WireButtons()
@@ -145,6 +167,13 @@ namespace PixelShoot.UI
                 return;
             }
 
+            RevealGameplay();
+        }
+
+        /// <summary>Play the menu-out animation, then hand off to gameplay. Assumes a life was
+        /// already spent by the caller.</summary>
+        private void RevealGameplay()
+        {
             starting = true;
 
             // Reveal the game panel underneath right away so the fade-out uncovers live gameplay.
@@ -163,6 +192,15 @@ namespace PixelShoot.UI
                 DG.Tweening.DOVirtual.DelayedCall(longest, FinishStart, ignoreTimeScale: true);
             else
                 FinishStart();
+        }
+
+        /// <summary>Skip the menu entirely and drop straight into gameplay (used by a direct
+        /// restart where the life was already spent and the menu was never shown).</summary>
+        private void RevealGameplayInstant()
+        {
+            starting = true;
+            if (gamePanel != null) gamePanel.SetActive(true);
+            FinishStart();
         }
 
         private void FinishStart()
