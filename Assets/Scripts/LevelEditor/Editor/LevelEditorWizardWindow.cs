@@ -1069,16 +1069,20 @@ namespace PixelShoot.LevelEditor.EditorTools
             return new Rect(px, py, cellPx, cellPx);
         }
 
+        // Matches the runtime GridController.RecomputeFrontier: a cell is shootable iff at least
+        // one of the 4 cardinal rays reaches the grid edge with no filled cell in the way (a
+        // straight lane). An interior empty pocket doesn't make a buried cell shootable.
         private bool IsCellOnSilhouette(int x, int z)
         {
-            (int dx, int dz)[] n4 = { (1, 0), (-1, 0), (0, 1), (0, -1) };
-            foreach (var n in n4)
-            {
-                int nx = x + n.dx, nz = z + n.dz;
-                if (nx < 0 || nx >= gridSize || nz < 0 || nz >= gridSize) return true;
-                if (cells[nz * gridSize + nx] < 0) return true;
-            }
-            return false;
+            return CellLaneClear(x, z, 1, 0) || CellLaneClear(x, z, -1, 0)
+                || CellLaneClear(x, z, 0, 1) || CellLaneClear(x, z, 0, -1);
+        }
+
+        private bool CellLaneClear(int x, int z, int dx, int dz)
+        {
+            for (int cx = x + dx, cz = z + dz; cx >= 0 && cx < gridSize && cz >= 0 && cz < gridSize; cx += dx, cz += dz)
+                if (cells[cz * gridSize + cx] >= 0) return false; // a filled cell blocks the lane
+            return true;
         }
 
         /// <summary>

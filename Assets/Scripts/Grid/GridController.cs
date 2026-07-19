@@ -30,7 +30,6 @@ namespace PixelShoot.Grid
         private Material unhitFallback;
         private readonly List<GameObject> keyVisuals = new List<GameObject>();
 
-        private static readonly (int dx, int dz)[] Neighbors4 = { (1, 0), (-1, 0), (0, 1), (0, -1) };
 
         public event Action OnGridCleared;
         public int Size => size;
@@ -84,7 +83,7 @@ namespace PixelShoot.Grid
                 subscribedKeyManager = km;
             }
 
-            ComputeInitialFrontier();
+            RecomputeFrontier();
         }
 
         private PixelShoot.Game.KeyManager subscribedKeyManager;
@@ -154,31 +153,45 @@ namespace PixelShoot.Grid
             if (b.KeyId > 0) PixelShoot.Game.KeyManager.Instance?.Collect(b.KeyId);
         }
 
-        // Any box adjacent to a grid edge OR to an empty cell starts on the frontier.
-        // Boxes fully surrounded by other boxes start locked.
-        private void ComputeInitialFrontier()
+        /// <summary>
+        /// Recompute which boxes are shootable, using the STRAIGHT-LANE (ray) model: a box is on
+        /// the frontier iff, in at least one of the 4 cardinal directions, every cell between it
+        /// and the grid edge is clear (empty or an already-hit box). If ALL four lanes are blocked
+        /// by another alive box, the box is buried and stays Locked — even if it has an empty
+        /// DIRECT neighbour (an interior pocket doesn't count; the projectile flies straight in).
+        ///
+        /// <para>Called at build and after every hit. Only promotes Locked→Frontier: clearing a
+        /// box never adds an obstacle, so a box that became shootable never becomes buried again.</para>
+        /// </summary>
+        private void RecomputeFrontier()
         {
             if (boxes == null) return;
             for (int x = 0; x < size; x++)
-            {
                 for (int z = 0; z < size; z++)
                 {
                     var b = boxes[x, z];
-                    if (b == null) continue;
-                    if (IsOnSilhouette(x, z)) PromoteToFrontier(b);
+                    if (b == null || !b.IsAlive) continue;          // skip empty cells + hit boxes
+                    if (b.State == BoxState.Frontier) continue;     // already shootable
+                    if (HasClearLaneToEdge(x, z)) PromoteToFrontier(b);
                 }
-            }
         }
 
-        private bool IsOnSilhouette(int x, int z)
+        // A box is shootable if any of the 4 cardinal rays reaches the grid edge without an alive box in it.
+        private bool HasClearLaneToEdge(int x, int z)
         {
-            foreach (var n in Neighbors4)
+            return LaneClear(x, z, 1, 0) || LaneClear(x, z, -1, 0)
+                || LaneClear(x, z, 0, 1) || LaneClear(x, z, 0, -1);
+        }
+
+        // Walk from (x,z) outward along (dx,dz); blocked if any cell on the way holds an ALIVE box.
+        private bool LaneClear(int x, int z, int dx, int dz)
+        {
+            for (int cx = x + dx, cz = z + dz; cx >= 0 && cx < size && cz >= 0 && cz < size; cx += dx, cz += dz)
             {
-                int nx = x + n.dx, nz = z + n.dz;
-                if (nx < 0 || nx >= size || nz < 0 || nz >= size) return true; // grid edge
-                if (boxes[nx, nz] == null) return true;                        // empty cell neighbor
+                var b = boxes[cx, cz];
+                if (b != null && b.IsAlive) return false; // an alive box (Locked or Frontier) blocks the lane
             }
-            return false;
+            return true; // reached the edge with a clear path
         }
 
         private Material GetLockedMaterial()
@@ -389,17 +402,12 @@ namespace PixelShoot.Grid
             b.TakeHit(fromBomb);
             aliveCount--;
 
-            // Promote any locked 4-neighbors to frontier — wave-front expansion.
-            foreach (var n in Neighbors4)
-            {
-                int nx = b.GridX + n.dx, nz = b.GridZ + n.dz;
-                if (nx < 0 || nx >= size || nz < 0 || nz >= size) continue;
-                var nb = boxes[nx, nz];
-                if (nb != null && nb.State == BoxState.Locked) PromoteToFrontier(nb);
-            }
+            // Clearing this box may open straight lanes to boxes behind it — recompute which
+            // boxes are now shootable (ray model, see RecomputeFrontier).
+            RecomputeFrontier();
 
             // Bomb side effect — runs AFTER the bomb cell itself is processed so the
-            // bomb's neighbours are already promoted before we walk the 5x5.
+            // bomb's neighbours are already opened before we walk the 5x5.
             if (wasBomb) TriggerBombExplosion(bombX, bombZ, bombParticle, bombWorldPos);
 
             if (aliveCount <= 0) OnGridCleared?.Invoke();
