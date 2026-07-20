@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 using PixelShoot.Data;
 using PixelShoot.Shooters;
 
@@ -270,6 +271,59 @@ namespace PixelShoot.Grid
 
         // ── Booster helpers (FillColor) ──────────────────────────────────────
         /// <summary>Box at a grid cell, or null if out of range / empty.</summary>
+        /// <summary>
+        /// Streak gift: convert up to <paramref name="count"/> random alive, non-bomb, non-hidden
+        /// cells into bombs, popping them in one after another for a "gift dropping in" feel. Call
+        /// this AFTER the level is visible so the player sees the bombs arrive.
+        /// </summary>
+        public void PlaceStreakBombs(int count)
+        {
+            if (boxes == null || count <= 0) return;
+
+            var candidates = new List<Box>();
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b != null && b.IsAlive && !b.IsBomb && !b.IsHiddenByKey) candidates.Add(b);
+                }
+
+            // Fisher–Yates shuffle, then take the first `count`.
+            for (int i = candidates.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                (candidates[i], candidates[j]) = (candidates[j], candidates[i]);
+            }
+
+            int n = Mathf.Min(count, candidates.Count);
+            for (int i = 0; i < n; i++)
+            {
+                var b = candidates[i];
+                DOVirtual.DelayedCall(i * 0.06f, () => { if (b != null) b.MakeBomb(); }); // staggered pops
+            }
+        }
+
+        /// <summary>Streak paint gift: up to <paramref name="count"/> random alive, non-bomb,
+        /// non-hidden, coloured boxes to paint (via stickman runners). Shuffled.</summary>
+        public List<Box> CollectRandomPaintTargets(int count)
+        {
+            var list = new List<Box>();
+            if (boxes == null || count <= 0) return list;
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b != null && b.IsAlive && !b.IsBomb && !b.IsHiddenByKey && b.Color != null) list.Add(b);
+                }
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                (list[i], list[j]) = (list[j], list[i]);
+            }
+            if (list.Count > count) list.RemoveRange(count, list.Count - count);
+            return list;
+        }
+
         public Box GetBox(int x, int z)
         {
             if (boxes == null || x < 0 || z < 0 || x >= size || z >= size) return null;

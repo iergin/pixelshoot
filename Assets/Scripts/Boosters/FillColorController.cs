@@ -161,6 +161,44 @@ namespace PixelShoot.Boosters
             EndMode(); // all boxes hit → resume the conveyor
         }
 
+        /// <summary>
+        /// Non-interactive fill used by the STREAK paint gift: run stickmen in from off-screen to
+        /// the given boxes (same runners as the booster), no camera / UI / conveyor-pause. Reserves
+        /// each box; if <paramref name="consumeShots"/>, the matching buses lose a shot per box so
+        /// the bullet budget stays balanced. Safe to call without <see cref="Begin"/>.
+        /// </summary>
+        public void FillBoxes(List<Box> targets, bool consumeShots = true)
+        {
+            if (grid == null || targets == null || targets.Count == 0) return;
+
+            foreach (var b in targets) if (b != null && b.IsAlive) b.ReserveHit();
+
+            if (consumeShots)
+            {
+                var byColor = new Dictionary<ColorData, int>();
+                foreach (var b in targets)
+                {
+                    var col = b != null && b.Color != null ? b.Color.GameplayColor : null;
+                    if (col == null) continue;
+                    byColor.TryGetValue(col, out int c); byColor[col] = c + 1;
+                }
+                foreach (var kv in byColor) ShooterColumn.ConsumeShotsForGameplayColor(kv.Key, kv.Value);
+            }
+
+            StartCoroutine(RunFillBoxes(new List<Box>(targets)));
+        }
+
+        // Like RunFill but WITHOUT EndMode() — the gift never entered interactive mode.
+        private IEnumerator RunFillBoxes(List<Box> targets)
+        {
+            var wait = config != null && config.spawnStagger > 0f ? new WaitForSeconds(config.spawnStagger) : null;
+            foreach (var box in targets)
+            {
+                if (box != null && box.IsAlive) SpawnRunner(box, null);
+                if (wait != null) yield return wait;
+            }
+        }
+
         private void SpawnRunner(Box box, System.Action onDone)
         {
             // No prefab configured → apply the hit instantly (still works, just no runner).

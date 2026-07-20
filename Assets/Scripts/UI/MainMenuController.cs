@@ -38,6 +38,9 @@ namespace PixelShoot.UI
         [SerializeField] private ShopManager shop;
         [SerializeField] private SettingsController settings;
         [SerializeField] private NoAdsPromoController noAdsPromo;
+        [Tooltip("Pre-level panel (level # + streak). If set, Start opens THIS instead of launching " +
+                 "the level directly; its Play button then calls StartGame. If null, Start launches directly.")]
+        [SerializeField] private PlayPanelController playPanel;
 
         [Header("Start transition")]
         [Tooltip("Open the menu automatically on scene start.")]
@@ -102,7 +105,7 @@ namespace PixelShoot.UI
 
         private void WireButtons()
         {
-            Hook(startButton, "Start", StartGame);
+            Hook(startButton, "Start", OnStartPressed);
             Hook(shopButton, "Shop", () =>
             {
                 Debug.Log($"[MainMenu] Shop button clicked. shop={(shop != null ? "set" : "<null>")}.");
@@ -142,7 +145,16 @@ namespace PixelShoot.UI
             }
         }
 
-        /// <summary>Player pressed Start: slide/fade the whole menu out, then hand off to gameplay.</summary>
+        /// <summary>Start button: open the pre-level PlayPanel (level # + streak). Its Play button
+        /// then calls <see cref="StartGame"/>. Falls back to launching directly if no panel is set.</summary>
+        private void OnStartPressed()
+        {
+            if (playPanel != null) playPanel.Open();
+            else StartGame();
+        }
+
+        /// <summary>Actually begin the level: spend a life, slide/fade the menu out, hand off to
+        /// gameplay. Called by the PlayPanel's Play button (or directly if no PlayPanel).</summary>
         public void StartGame()
         {
             if (starting) return;

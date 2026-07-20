@@ -218,6 +218,26 @@ namespace PixelShoot.Grid
             if (sheen != null && sheen.activeSelf) sheen.SetActive(false);
         }
 
+        /// <summary>Turn an already-spawned box into a BOMB at runtime (streak gift). Pops the bomb
+        /// model in. No-op if it's already a bomb or has been hit. Returns true if it became a bomb.</summary>
+        public bool MakeBomb()
+        {
+            if (isBomb || state == BoxState.Hit) return false;
+            isBomb = true;
+            if (bombVisual != null)
+            {
+                bombVisual.SetActive(true);
+                if (Application.isPlaying)
+                {
+                    var t = bombVisual.transform;
+                    Vector3 target = t.localScale;
+                    t.localScale = Vector3.zero;
+                    t.DOScale(target, 0.3f).SetEase(Ease.OutBack);
+                }
+            }
+            return true;
+        }
+
         private void ApplyStateTransforms()
         {
             ApplyHeightForState();

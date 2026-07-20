@@ -425,6 +425,7 @@ namespace PixelShoot.Game
             if (state != GameState.Playing) return;
             state = GameState.Won;
             Debug.Log("LEVEL WON: grid cleared.");
+            PlayerStreak.RegisterWin(); // clearing a level extends the streak
             OnLevelWon?.Invoke();
         }
 

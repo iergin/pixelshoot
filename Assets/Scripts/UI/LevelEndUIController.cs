@@ -49,6 +49,11 @@ namespace PixelShoot.UI
         [SerializeField] private TMP_Text playOnCostLabel;
         [Tooltip("Format for the revive-cost label. {0} = cost in coins.")]
         [SerializeField] private string playOnCostFormat = "Play On ({0})";
+        [Tooltip("Optional root shown on fail ONLY when the player has a streak at risk (hidden if streak is 0).")]
+        [SerializeField] private GameObject streakLossRoot;
+        [Tooltip("Optional label warning the streak will be lost. {0} = current streak count.")]
+        [SerializeField] private TMP_Text streakLossLabel;
+        [SerializeField] private string streakLossFormat = "You'll lose your {0} streak!";
 
         public void Bind(GameController gc)
         {
@@ -186,8 +191,19 @@ namespace PixelShoot.UI
             if (successPanel != null) successPanel.SetActive(false);
             if (failPanel != null) failPanel.SetActive(true);
             UpdatePlayOnButton();
+            ShowStreakAtRisk();
             // Interstitial counter ticks for losses too — the player saw a level result.
             if (interstitial != null) interstitial.NotifyLevelEnded();
+        }
+
+        // Warn (only if there's a streak to lose) that failing out will break it. The streak isn't
+        // reset here — it's only lost if the player leaves via Restart/Quit; Play On preserves it.
+        private void ShowStreakAtRisk()
+        {
+            int streak = PlayerStreak.Current;
+            if (streakLossLabel != null && streak > 0)
+                streakLossLabel.text = string.Format(streakLossFormat, streak);
+            if (streakLossRoot != null) streakLossRoot.SetActive(streak > 0);
         }
 
         public void HideAll()
@@ -204,6 +220,9 @@ namespace PixelShoot.UI
         private void OnRestart()
         {
             if (gameController == null) return;
+
+            // Restarting = abandoning this (failed) attempt → the streak is broken.
+            PlayerStreak.Reset();
 
             // A restart is a fresh attempt, so it costs a life.
             if (PlayerLives.TryConsumeForLevelStart())
