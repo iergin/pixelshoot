@@ -84,16 +84,24 @@ namespace PixelShoot.Shooters
             shooter.transform.SetParent(transform, false);
             shooters.Add(shooter);
             LayoutImmediate();
+            ConfigureClick(shooter);
+        }
 
-            // ShooterClickHandler [RequireComponent(Collider)] — AddComponent returns null on a
-            // prefab that has no Collider (a common mis-set on hand-made Lock prefabs). Guard it
-            // so one un-collidered item can't NullRef its way out of the whole column build.
-            var click = shooter.GetComponent<ShooterClickHandler>();
-            if (click == null && shooter.GetComponent<Collider>() != null)
-                click = shooter.gameObject.AddComponent<ShooterClickHandler>();
-            if (click != null) click.Configure(shooter, this, reserveClickHandler);
-            else Debug.LogWarning($"[ShooterColumn] '{shooter.name}' has no Collider — it won't be tappable. " +
-                                  "Add a Collider to the prefab (locks need one to block/receive taps).", shooter);
+        /// <summary>
+        /// Wire (or re-wire) a stack item's click handler. ShooterClickHandler is
+        /// [RequireComponent(Collider)], so AddComponent returns NULL on a prefab with no Collider
+        /// (a common mis-set on hand-made Lock prefabs) — guard it, or one un-collidered item
+        /// NullRefs its way out of the whole column build / shuffle.
+        /// </summary>
+        private void ConfigureClick(Shooter s)
+        {
+            if (s == null) return;
+            var click = s.GetComponent<ShooterClickHandler>();
+            if (click == null && s.GetComponent<Collider>() != null)
+                click = s.gameObject.AddComponent<ShooterClickHandler>();
+            if (click != null) click.Configure(s, this, reserveClickHandler);
+            else Debug.LogWarning($"[ShooterColumn] '{s.name}' has no Collider — it won't be tappable. " +
+                                  "Add a Collider to the prefab (locks need one to block/receive taps).", s);
         }
 
         // Top of column = last element (matches LevelData semantics: list order = bottom-to-top).
@@ -151,9 +159,7 @@ namespace PixelShoot.Shooters
             {
                 if (s == null) continue;
                 if (s.transform.parent != transform) s.transform.SetParent(transform, true); // keep world pose → slides in
-                var click = s.GetComponent<ShooterClickHandler>();
-                if (click == null) click = s.gameObject.AddComponent<ShooterClickHandler>();
-                click.Configure(s, this, reserveClickHandler);
+                ConfigureClick(s); // Collider-guarded (see ConfigureClick) — a lock without one used to NullRef here
             }
             RestackAnimated();
             RefreshTop();
