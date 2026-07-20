@@ -285,7 +285,11 @@ namespace PixelShoot.Grid
                 for (int z = 0; z < size; z++)
                 {
                     var b = boxes[x, z];
-                    if (b != null && b.IsAlive && !b.IsBomb && !b.IsHiddenByKey) candidates.Add(b);
+                    // Skip linked-colour cells (would strand a linked pair) and reserved cells
+                    // (already promised to an in-flight stickman).
+                    if (b != null && b.IsAlive && !b.IsBomb && !b.IsHiddenByKey && !b.IsReserved
+                        && !(b.Color != null && ShooterColumn.IsColorLinked(b.Color.GameplayColor)))
+                        candidates.Add(b);
                 }
 
             // Fisher–Yates shuffle, then take the first `count`.
@@ -313,7 +317,10 @@ namespace PixelShoot.Grid
                 for (int z = 0; z < size; z++)
                 {
                     var b = boxes[x, z];
-                    if (b != null && b.IsAlive && !b.IsBomb && !b.IsHiddenByKey && b.Color != null) list.Add(b);
+                    // IsReserved matters: a box already promised to an in-flight stickman has had
+                    // its shot spent. Painting it would spend a SECOND shot for one box → leftovers.
+                    if (b != null && b.IsAlive && !b.IsBomb && !b.IsHiddenByKey && !b.IsReserved && b.Color != null)
+                        list.Add(b);
                 }
             for (int i = list.Count - 1; i > 0; i--)
             {
@@ -449,6 +456,7 @@ namespace PixelShoot.Grid
         {
             if (b == null || !b.IsAlive) return;
             bool wasBomb = b.IsBomb;
+            bool wasStreakBomb = b.IsStreakBomb;
             int bombX = b.GridX, bombZ = b.GridZ;
             var bombParticle = b.ExplosionParticlePrefab;
             Vector3 bombWorldPos = b.transform.position;
@@ -462,7 +470,7 @@ namespace PixelShoot.Grid
 
             // Bomb side effect — runs AFTER the bomb cell itself is processed so the
             // bomb's neighbours are already opened before we walk the 5x5.
-            if (wasBomb) TriggerBombExplosion(bombX, bombZ, bombParticle, bombWorldPos);
+            if (wasBomb) TriggerBombExplosion(bombX, bombZ, bombParticle, bombWorldPos, wasStreakBomb);
 
             if (aliveCount <= 0) OnGridCleared?.Invoke();
         }
@@ -474,7 +482,7 @@ namespace PixelShoot.Grid
         /// the hits to ripple outward ring by ring: ring 1 (the 3×3 shell) opens after
         /// one <see cref="bombOpenDelay"/>, ring 2 (the 5×5 shell) one delay later, etc.
         /// </summary>
-        private void TriggerBombExplosion(int cx, int cz, GameObject particlePrefab, Vector3 worldPos)
+        private void TriggerBombExplosion(int cx, int cz, GameObject particlePrefab, Vector3 worldPos, bool streakBomb = false)
         {
             // Particle FX immediately at the bomb's last-known position.
             if (particlePrefab != null)
@@ -500,6 +508,9 @@ namespace PixelShoot.Grid
                     if (nb == null || !nb.IsAlive) continue;
                     if (nb.IsHiddenByKey) continue;            // covered by a key — protected until its lock opens
                     if (nb.IsReserved) continue;               // someone else already promised this one
+                    // Streak bombs leave linked-colour cells alone — clearing them + paying back the
+                    // shot would strand the linked pair. Those cells stay for their linked buses.
+                    if (streakBomb && nb.Color != null && ShooterColumn.IsColorLinked(nb.Color.GameplayColor)) continue;
 
                     nb.ReserveHit();                           // lock immediately — guards against double-fire
                     int ring = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dz)); // 1..bombRadius
@@ -516,8 +527,15 @@ namespace PixelShoot.Grid
 
             // Pay back the shooters NOW so the rest of the world (HUD, validation, etc.)
             // sees the deduction even before the delayed visual hit.
+            int cellsToClear = 0; foreach (var r in ringsAffected) cellsToClear += r.Count;
+            int wanted = 0, got = 0;
             foreach (var kvp in consumeByColor)
-                ShooterColumn.ConsumeShotsForGameplayColor(kvp.Key, kvp.Value);
+            {
+                wanted += kvp.Value;
+                got += ShooterColumn.ConsumeShotsForGameplayColor(kvp.Key, kvp.Value); // ACTUAL consumed
+            }
+            Debug.Log($"[STREAKBAL] {(streakBomb ? "STREAK" : "authored")} bomb at ({cx},{cz}) → clearing {cellsToClear} neighbour cell(s); " +
+                      $"payback wanted {wanted}, actually consumed {got}. Any shortfall = boxes cleared for free → leftover shots.");
 
             StartCoroutine(BombHitSequence(ringsAffected));
         }

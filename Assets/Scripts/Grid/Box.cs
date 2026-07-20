@@ -220,10 +220,15 @@ namespace PixelShoot.Grid
 
         /// <summary>Turn an already-spawned box into a BOMB at runtime (streak gift). Pops the bomb
         /// model in. No-op if it's already a bomb or has been hit. Returns true if it became a bomb.</summary>
+        /// <summary>True if this bomb was placed by the streak gift (vs authored). Streak bombs
+        /// skip linked-colour cells when they detonate so they can't strand a linked pair.</summary>
+        public bool IsStreakBomb { get; private set; }
+
         public bool MakeBomb()
         {
             if (isBomb || state == BoxState.Hit) return false;
             isBomb = true;
+            IsStreakBomb = true;
             if (bombVisual != null)
             {
                 bombVisual.SetActive(true);

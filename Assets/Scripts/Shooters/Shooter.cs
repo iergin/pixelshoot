@@ -126,6 +126,10 @@ namespace PixelShoot.Shooters
         // ── Alive-bus registry (drives the endgame "last N buses" mode) ──────
         private static readonly HashSet<Shooter> aliveBuses = new HashSet<Shooter>();
         public static int AliveCount => aliveBuses.Count;
+        /// <summary>Every live bus, wherever it is — in a column, riding the conveyor, parked in
+        /// reserve or play-on. Shot bookkeeping must use THIS, not just the column lists, or buses
+        /// that already left their column keep shots for boxes something else cleared.</summary>
+        public static IReadOnlyCollection<Shooter> AliveBuses => aliveBuses;
         public static event Action AliveCountChanged;
         public static void ClearAliveRegistry() => aliveBuses.Clear();
         private void RegisterAlive()   { if (aliveBuses.Add(this))    AliveCountChanged?.Invoke(); }

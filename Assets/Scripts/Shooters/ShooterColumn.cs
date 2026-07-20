@@ -179,19 +179,34 @@ namespace PixelShoot.Shooters
         public static Dictionary<PixelShoot.Data.ColorData, int> UnlinkedShotsByColor()
         {
             var map = new Dictionary<PixelShoot.Data.ColorData, int>();
-            foreach (var col in all)
+            foreach (var s in Shooter.AliveBuses) // column + conveyor + reserve + play-on
             {
-                if (col == null) continue;
-                foreach (var s in col.shooters)
-                {
-                    if (s == null || s.Color == null || s.IsLinked || s is Lock) continue;
-                    var gc = s.Color.GameplayColor;
-                    if (gc == null) continue;
-                    map.TryGetValue(gc, out int c);
-                    map[gc] = c + s.ShotsRemaining;
-                }
+                if (s == null || s.Color == null || s.IsLinked) continue;
+                var gc = s.Color.GameplayColor;
+                if (gc == null) continue;
+                map.TryGetValue(gc, out int c);
+                map[gc] = c + s.ShotsRemaining;
             }
             return map;
+        }
+
+        /// <summary>Total shots remaining across every bus in every column (diagnostics).</summary>
+        public static int TotalShots()
+        {
+            int total = 0;
+            foreach (var s in Shooter.AliveBuses) // every bus, wherever it is (column/conveyor/reserve)
+                if (s != null) total += s.ShotsRemaining;
+            return total;
+        }
+
+        /// <summary>True if any bus of this gameplay colour is part of a link group. Streak bombs
+        /// avoid such colours so their over-clear + payback can't strand a linked pair.</summary>
+        public static bool IsColorLinked(PixelShoot.Data.ColorData gameplayColor)
+        {
+            if (gameplayColor == null) return false;
+            foreach (var s in Shooter.AliveBuses) // column + conveyor + reserve + play-on
+                if (s != null && s.IsLinked && s.Color != null && s.Color.GameplayColor == gameplayColor) return true;
+            return false;
         }
 
         public static int ConsumeShotsForGameplayColor(PixelShoot.Data.ColorData gameplayColor, int amount, bool unlinkedOnly = false)
@@ -202,14 +217,16 @@ namespace PixelShoot.Shooters
             //   1) by within-column index ascending (back-of-queue first = "bottom-most")
             //   2) tiebreak: column instanceID for determinism
             var pool = new List<(ShooterColumn col, int idx, Shooter s)>();
+            var inColumn = new HashSet<Shooter>();
             foreach (var col in all)
             {
                 if (col == null) continue;
                 for (int i = 0; i < col.shooters.Count; i++)
                 {
                     var s = col.shooters[i];
-                    if (s == null || s.Color == null) continue;
-                    if (s.Color.GameplayColor != gameplayColor) continue;
+                    if (s == null) continue;
+                    inColumn.Add(s); // remember it so step 2 doesn't add it twice
+                    if (s.Color == null || s.Color.GameplayColor != gameplayColor) continue;
                     if (unlinkedOnly && s.IsLinked) continue; // never drain a linked bus (streak paint)
                     pool.Add((col, i, s));
                 }
@@ -221,11 +238,26 @@ namespace PixelShoot.Shooters
                 return a.col.GetInstanceID().CompareTo(b.col.GetInstanceID());
             });
 
+            var ordered = new List<Shooter>(pool.Count);
+            foreach (var e in pool) ordered.Add(e.s);
+
+            // Buses that already LEFT their column (riding the conveyor, parked in reserve or
+            // play-on) still hold shots for this colour. Without them the payback silently comes up
+            // short and those boxes get cleared for free → leftover shots at the end.
+            foreach (var s in Shooter.AliveBuses)
+            {
+                if (s == null || inColumn.Contains(s)) continue;
+                if (s.Color == null || s.Color.GameplayColor != gameplayColor) continue;
+                if (unlinkedOnly && s.IsLinked) continue;
+                ordered.Add(s);
+            }
+
             int consumed = 0;
-            foreach (var entry in pool)
+            foreach (var s in ordered)
             {
                 if (amount <= 0) break;
-                int took = entry.s.ConsumeShots(amount);
+                if (s == null) continue;
+                int took = s.ConsumeShots(amount);
                 amount   -= took;
                 consumed += took;
                 // Depleted buses that actually Expire remove themselves from the column
