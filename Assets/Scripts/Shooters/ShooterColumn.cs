@@ -173,7 +173,28 @@ namespace PixelShoot.Shooters
         /// A shooter whose shots reach 0 is Expired and removed from the column.
         /// Returns how many shots were actually consumed (could be &lt; amount if no more matches).
         /// </summary>
-        public static int ConsumeShotsForGameplayColor(PixelShoot.Data.ColorData gameplayColor, int amount)
+        /// <summary>Total shots held by UNLINKED buses of each gameplay colour (linked buses
+        /// excluded). Used by the streak paint so it only spends colours it can safely deplete
+        /// without stranding a linked pair.</summary>
+        public static Dictionary<PixelShoot.Data.ColorData, int> UnlinkedShotsByColor()
+        {
+            var map = new Dictionary<PixelShoot.Data.ColorData, int>();
+            foreach (var col in all)
+            {
+                if (col == null) continue;
+                foreach (var s in col.shooters)
+                {
+                    if (s == null || s.Color == null || s.IsLinked || s is Lock) continue;
+                    var gc = s.Color.GameplayColor;
+                    if (gc == null) continue;
+                    map.TryGetValue(gc, out int c);
+                    map[gc] = c + s.ShotsRemaining;
+                }
+            }
+            return map;
+        }
+
+        public static int ConsumeShotsForGameplayColor(PixelShoot.Data.ColorData gameplayColor, int amount, bool unlinkedOnly = false)
         {
             if (gameplayColor == null || amount <= 0) return 0;
 
@@ -189,6 +210,7 @@ namespace PixelShoot.Shooters
                     var s = col.shooters[i];
                     if (s == null || s.Color == null) continue;
                     if (s.Color.GameplayColor != gameplayColor) continue;
+                    if (unlinkedOnly && s.IsLinked) continue; // never drain a linked bus (streak paint)
                     pool.Add((col, i, s));
                 }
             }

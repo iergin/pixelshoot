@@ -36,12 +36,10 @@ namespace PixelShoot.UI
             if (bombs > 0 && grid != null)
                 DOVirtual.DelayedCall(bombDelay, () => { if (grid != null) grid.PlaceStreakBombs(bombs); });
 
-            if (paints > 0 && grid != null && fill != null)
+            if (paints > 0 && fill != null)
                 DOVirtual.DelayedCall(paintDelay, () =>
                 {
-                    if (grid == null || fill == null) return;
-                    var targets = grid.CollectRandomPaintTargets(paints); // skips bombs already placed
-                    fill.FillBoxes(targets, consumeShots: true);
+                    if (fill != null) fill.StreakPaint(paints); // unlinked-safe: never strands a linked bus
                 });
         }
     }

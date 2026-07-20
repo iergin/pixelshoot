@@ -188,6 +188,42 @@ namespace PixelShoot.Boosters
             StartCoroutine(RunFillBoxes(new List<Box>(targets)));
         }
 
+        /// <summary>
+        /// Streak paint gift: paint up to <paramref name="maxCount"/> random boxes, but ONLY colours
+        /// that UNLINKED buses can pay for (capped per colour by their remaining shots). Linked
+        /// buses are never touched, so a linked pair can't be stranded with a 0-shot member. Runs
+        /// the stickmen in from off-screen (same as the booster).
+        /// </summary>
+        public void StreakPaint(int maxCount)
+        {
+            if (grid == null || maxCount <= 0) return;
+
+            var budget = ShooterColumn.UnlinkedShotsByColor(); // unlinked shots left, per colour
+            var pool = grid.CollectRandomPaintTargets(int.MaxValue); // all paintable boxes, shuffled
+
+            var chosen = new List<Box>();
+            foreach (var b in pool)
+            {
+                if (chosen.Count >= maxCount) break;
+                var col = b != null && b.Color != null ? b.Color.GameplayColor : null;
+                if (col == null) continue;
+                if (budget.TryGetValue(col, out int left) && left > 0)
+                {
+                    chosen.Add(b);
+                    budget[col] = left - 1; // this box now "spends" one unlinked shot of its colour
+                }
+            }
+            if (chosen.Count == 0) return;
+
+            foreach (var b in chosen) if (b != null && b.IsAlive) b.ReserveHit();
+
+            var byColor = new Dictionary<ColorData, int>();
+            foreach (var b in chosen) { var c = b.Color.GameplayColor; byColor.TryGetValue(c, out int n); byColor[c] = n + 1; }
+            foreach (var kv in byColor) ShooterColumn.ConsumeShotsForGameplayColor(kv.Key, kv.Value, unlinkedOnly: true);
+
+            StartCoroutine(RunFillBoxes(chosen));
+        }
+
         // Like RunFill but WITHOUT EndMode() — the gift never entered interactive mode.
         private IEnumerator RunFillBoxes(List<Box> targets)
         {
