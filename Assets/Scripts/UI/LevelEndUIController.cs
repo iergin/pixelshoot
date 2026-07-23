@@ -39,7 +39,10 @@ namespace PixelShoot.UI
         [SerializeField] private float cameraTransitionDuration = 1f;
 
         [Header("Ads")]
+        [Tooltip("Optional same-scene reference; in the two-scene setup it lives in InitializeScene, " +
+                 "so we fall back to InterstitialController.Instance.")]
         [SerializeField] private InterstitialController interstitial;
+        private InterstitialController Interstitial => interstitial != null ? interstitial : InterstitialController.Instance;
         [SerializeField] private CoinsConfig coinsConfig;
         [Header("Fail panel")]
         [SerializeField] private GameObject failPanel;
@@ -183,7 +186,7 @@ namespace PixelShoot.UI
                 doubleCoinsLabel.text = string.Format(doubleCoinsFormat, coinsConfig.LevelWinReward * 2);
 
             // Fire the interstitial gate now (with the panel), not over the celebration.
-            if (interstitial != null) interstitial.NotifyLevelEnded();
+            Interstitial?.NotifyLevelEnded();
         }
 
         private void HandleFailed()
@@ -193,7 +196,7 @@ namespace PixelShoot.UI
             UpdatePlayOnButton();
             ShowStreakAtRisk();
             // Interstitial counter ticks for losses too — the player saw a level result.
-            if (interstitial != null) interstitial.NotifyLevelEnded();
+            Interstitial?.NotifyLevelEnded();
         }
 
         // Warn (only if there's a streak to lose) that failing out will break it. The streak isn't
@@ -227,15 +230,17 @@ namespace PixelShoot.UI
             // A restart is a fresh attempt, so it costs a life.
             if (PlayerLives.TryConsumeForLevelStart())
             {
-                // Has a life → reopen the level directly, skipping the main menu.
-                MainMenuController.PendingAutoStart = true;
+                // Has a life → replay the level directly. Two-scene: this reloads just the Game
+                // scene (SceneFlow.ReloadGame) — the menu is never involved, so no auto-start flag.
+                gameController.ReloadScene();
             }
             else
             {
                 // No lives → go home and surface the out-of-lives popup there.
                 MainMenuController.PendingOutOfLives = true;
+                if (SceneFlow.Instance != null) SceneFlow.Instance.LoadMainMenu();
+                else gameController.ReloadScene();
             }
-            gameController.ReloadScene();
         }
 
         private void OnPlayOn()
@@ -268,7 +273,7 @@ namespace PixelShoot.UI
                     PlayerWallet.Add(coinsConfig.LevelWinReward); // first reward already paid by LevelLoader
                     // Reflect the doubled total on the reward text.
                     if (rewardLabel != null) rewardLabel.text = string.Format(rewardFormat, coinsConfig.LevelWinReward * 2);
-                    if (interstitial != null) interstitial.NotifyRewardedWatched();
+                    Interstitial?.NotifyRewardedWatched();
                     Debug.Log($"[LevelEndUI] 2× reward claimed (+{coinsConfig.LevelWinReward}).");
                 },
                 onClosed: null);

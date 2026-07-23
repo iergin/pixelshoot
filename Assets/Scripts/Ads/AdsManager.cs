@@ -21,7 +21,7 @@ namespace PixelShoot.Ads
         {
             if (instance != null && instance != this) { Destroy(gameObject); return; }
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            // Persistence comes from living in the never-unloaded InitializeScene (no DontDestroyOnLoad).
 
 #if PIXELSHOOT_ADMOB
             Service = new AdMobAdsService();
@@ -43,13 +43,6 @@ namespace PixelShoot.Ads
             Debug.Log("[AdsManager] NoAds active — banner hidden.");
         }
 
-        /// <summary>Static auto-bootstrap so AdsManager exists even if no GameObject in the scene has it.</summary>
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void AutoBootstrap()
-        {
-            if (instance != null) return;
-            var go = new GameObject("[AdsManager]");
-            go.AddComponent<AdsManager>();
-        }
+        // (Auto-bootstrap removed — place an AdsManager in the InitializeScene instead.)
     }
 }

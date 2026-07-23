@@ -7,17 +7,18 @@ namespace PixelShoot.UI
 {
     /// <summary>
     /// Drives the main menu's flow: Start → PlayPanel/StartGame, lives gating, and handing off to
-    /// gameplay. The open/close ANIMATION is delegated to a <see cref="UiTransitionController"/> —
-    /// this class only decides WHEN to play in/out, not how. <see cref="OnGameStarted"/> lets other
-    /// systems react to the menu→game transition.
+    /// the Game scene. The open/close ANIMATION is delegated to a <see cref="UiTransitionController"/> —
+    /// this class only decides WHEN to play in/out, not how.
+    ///
+    /// <para>Two-scene setup: gameplay lives in its own <b>Game</b> scene. Start plays the menu-out
+    /// animation, then asks <see cref="SceneFlow"/> to swap the menu scene for the Game scene — there
+    /// is no in-scene "game panel" to reveal, so the menu never touches gameplay objects directly.</para>
     /// </summary>
     public class MainMenuController : MonoBehaviour
     {
         [Header("Roots")]
         [Tooltip("Whole menu canvas/root, deactivated after the start transition completes.")]
         [SerializeField] private GameObject menuRoot;
-        [Tooltip("Game HUD/world panel, activated when the player presses Start.")]
-        [SerializeField] private GameObject gamePanel;
 
         [Header("Transition")]
         [Tooltip("Owns the animated groups and plays them in/out. Assign the UiTransitionController " +
@@ -25,82 +26,63 @@ namespace PixelShoot.UI
         [SerializeField] private UiTransitionController transitions;
 
         [Header("Buttons")]
-        [Tooltip("Only the Start button lives here. Shop / Settings / No-Ads buttons are owned and " +
-                 "wired by their own controllers — do NOT reference them from the menu too.")]
+        [Tooltip("Starts the level flow.")]
         [SerializeField] private Button startButton;
+        [Tooltip("Opens the Settings popup (SettingsPopup via PopupService). Optional.")]
+        [SerializeField] private Button settingsButton;
 
-        [Header("Linked controllers (optional)")]
-        [Tooltip("Pre-level panel (level # + streak). If set, Start opens THIS instead of launching " +
-                 "the level directly; its Play button then calls StartGame. If null, Start launches directly.")]
-        [SerializeField] private PlayPanelController playPanel;
+        [Header("Pre-level popup")]
+        [Tooltip("If on, Start opens a PlayPopup (level # + streak) whose Play button then calls " +
+                 "StartGame. If off, Start launches the level directly.")]
+        [SerializeField] private bool showPlayPopup = true;
 
         [Header("Start transition")]
         [Tooltip("Open the menu automatically on scene start.")]
         [SerializeField] private bool openOnStart = true;
 
-        [Header("Lives")]
-        [Tooltip("Shown when Start is pressed with no lives left (refill with coins / rewarded ad).")]
-        [SerializeField] private OutOfLivesController outOfLives;
-
-        [Header("Gameplay input")]
-        [Tooltip("Behaviours that must NOT run while the menu is up (e.g. ClickInputRouter). " +
-                 "Disabled on Awake / when the menu opens, enabled only after Start begins gameplay.")]
-        [SerializeField] private Behaviour[] gameplayInput;
-
-        /// <summary>Fired the moment the start transition finishes and gameplay begins.</summary>
-        public event Action OnGameStarted;
         /// <summary>Fired when Start is pressed but the player has no lives left.</summary>
         public event Action OnOutOfLives;
 
         private bool starting;
 
-        // Cross-reload intents, set by Restart (LevelEndUIController) before ReloadScene():
-        //  • PendingAutoStart  → the life was already spent; skip the menu and drop straight into
-        //    gameplay on the reloaded scene.
-        //  • PendingOutOfLives → show the menu AND the out-of-lives popup on the reloaded scene.
-        public static bool PendingAutoStart;
+        // Cross-reload intent set by Restart-with-no-lives (LevelEndUIController) before it sends the
+        // player home: show the menu AND the out-of-lives popup once the MainMenu scene is back up.
         public static bool PendingOutOfLives;
 
         private void Awake()
         {
             WireButtons();
-            if (gamePanel != null) gamePanel.SetActive(false);
-            SetGameplayInput(false); // no bus clicks until the player presses Start
-        }
-
-        private void SetGameplayInput(bool enabled)
-        {
-            if (gameplayInput == null) return;
-            foreach (var b in gameplayInput)
-                if (b != null) b.enabled = enabled;
         }
 
         private void Start()
         {
-            // Direct restart (life already spent) → jump straight into gameplay, no menu.
-            if (PendingAutoStart)
-            {
-                PendingAutoStart = false;
-                RevealGameplayInstant();
-                return;
-            }
-
             if (openOnStart) Open();
 
             // Restart-with-no-lives sent us home → surface the out-of-lives popup over the menu.
             if (PendingOutOfLives)
             {
                 PendingOutOfLives = false;
-                if (outOfLives != null) outOfLives.Open();
+                OpenOutOfLives();
             }
+        }
+
+        private static void OpenOutOfLives()
+        {
+            if (PopupService.Instance != null) PopupService.Instance.Create<OutOfLivesPopup>();
+            else Debug.LogWarning("[MainMenu] No PopupService — cannot show the Out-Of-Lives popup.");
         }
 
         private void WireButtons()
         {
-            // Only the Start flow belongs to the menu. Shop / Settings / No-Ads each own and wire
-            // their OWN open button (ShopManager.openShopButton, SettingsController.openButton,
-            // NoAdsPromoController.openButton) — wiring them here too double-listened the same button.
             Hook(startButton, "Start", OnStartPressed);
+            Hook(settingsButton, "Settings", OpenSettings);
+        }
+
+        /// <summary>Open the Settings popup. Public so a NavigationBar / other button can call it too.</summary>
+        public void OpenSettings()
+        {
+            if (PopupService.Instance != null) PopupService.Instance.Create<SettingsPopup>();
+            else Debug.LogWarning("[MainMenu] No PopupService — cannot open the Settings popup.");
         }
 
         private static void Hook(Button b, string label, UnityEngine.Events.UnityAction action)
@@ -116,20 +98,22 @@ namespace PixelShoot.UI
         {
             if (menuRoot != null) menuRoot.SetActive(true);
             starting = false;
-            SetGameplayInput(false);  // menu is up → gameplay input off
             transitions?.PlayIn();
         }
 
-        /// <summary>Start button: open the pre-level PlayPanel (level # + streak). Its Play button
-        /// then calls <see cref="StartGame"/>. Falls back to launching directly if no panel is set.</summary>
+        /// <summary>Start button: open the pre-level PlayPopup (level # + streak) whose Play button
+        /// then calls <see cref="StartGame"/>. Falls back to launching directly if the popup is off
+        /// or no PopupService is present.</summary>
         private void OnStartPressed()
         {
-            if (playPanel != null) playPanel.Open();
-            else StartGame();
+            if (showPlayPopup && PopupService.Instance != null)
+                PopupService.Instance.Create<PlayPopup>(p => p.Bind(this));
+            else
+                StartGame();
         }
 
-        /// <summary>Actually begin the level: spend a life, slide/fade the menu out, hand off to
-        /// gameplay. Called by the PlayPanel's Play button (or directly if no PlayPanel).</summary>
+        /// <summary>Actually begin the level: spend a life, play the menu-out animation, then swap to
+        /// the Game scene. Called by the PlayPanel's Play button (or directly if no PlayPanel).</summary>
         public void StartGame()
         {
             if (starting) return;
@@ -139,52 +123,24 @@ namespace PixelShoot.UI
             // UI) when there are none left.
             if (!PlayerLives.TryConsumeForLevelStart())
             {
-                if (outOfLives != null)
-                {
-                    Debug.Log($"[MainMenu] Start blocked — out of lives. Opening '{outOfLives.name}'.");
-                    outOfLives.Open();
-                }
-                else
-                {
-                    Debug.LogWarning("[MainMenu] Start blocked — out of lives, but the 'Out Of Lives' " +
-                                     "reference is NOT assigned. Run Generator ▶ Create Out Of Lives Panel UI, " +
-                                     "or drag the OutOfLivesController onto MainMenuController.outOfLives.");
-                }
+                Debug.Log("[MainMenu] Start blocked — out of lives. Opening Out-Of-Lives popup.");
+                OpenOutOfLives();
                 OnOutOfLives?.Invoke();
                 return;
             }
 
-            RevealGameplay();
-        }
+            if (SceneFlow.Instance == null)
+            {
+                Debug.LogWarning("[MainMenu] SceneFlow.Instance is missing — is the InitializeScene loaded? " +
+                                 "Cannot hand off to the Game scene.");
+                return;
+            }
 
-        /// <summary>Play the menu-out animation, then hand off to gameplay. Assumes a life was
-        /// already spent by the caller.</summary>
-        private void RevealGameplay()
-        {
             starting = true;
-
-            // Reveal the game panel underneath right away so the fade-out uncovers live gameplay.
-            if (gamePanel != null) gamePanel.SetActive(true);
-
-            // Play the menu out; drop the menu + enable input once it finishes.
-            if (transitions != null) transitions.PlayOut(FinishStart);
-            else FinishStart();
-        }
-
-        /// <summary>Skip the menu entirely and drop straight into gameplay (used by a direct
-        /// restart where the life was already spent and the menu was never shown).</summary>
-        private void RevealGameplayInstant()
-        {
-            starting = true;
-            if (gamePanel != null) gamePanel.SetActive(true);
-            FinishStart();
-        }
-
-        private void FinishStart()
-        {
-            if (menuRoot != null) menuRoot.SetActive(false);
-            SetGameplayInput(true); // gameplay begins → allow bus clicks
-            OnGameStarted?.Invoke();
+            // Play the menu out, THEN swap the menu scene for the Game scene (SceneFlow unloads this
+            // whole scene once the animation finishes).
+            if (transitions != null) transitions.PlayOut(SceneFlow.Instance.LoadGame);
+            else SceneFlow.Instance.LoadGame();
         }
     }
 }

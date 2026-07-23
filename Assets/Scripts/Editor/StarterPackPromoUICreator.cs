@@ -12,9 +12,12 @@ namespace PixelShoot.EditorTools
     /// <summary>
     /// Spawns the "Starter Pack" promo panel that fires at Trigger 2 once
     /// NoAds has already been purchased. Auto-discovers the StarterOffer asset
-    /// under <c>Assets/_Game/SO/Shop</c>, wires up a <see cref="ShopOfferButton"/>,
-    /// and links the panel into <see cref="NoAdsPromoController.starterPromoPanel"/>
-    /// on the existing canvas / controller.
+    /// under <c>Assets/_Game/SO/Shop</c>, wires up a <see cref="ShopOfferButton"/>.
+    ///
+    /// <para><b>Obsolete under the popup architecture:</b> the Starter promo is now a
+    /// <c>StarterPopup</c> (BasePopup) prefab registered on PopupService. This generator still
+    /// builds the old-style SetActive panel and its final wiring into the removed
+    /// <c>starterPromoPanel</c> field is a no-op (logs a warning).</para>
     /// </summary>
     public static class StarterPackPromoUICreator
     {

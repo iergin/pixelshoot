@@ -82,8 +82,10 @@ namespace PixelShoot.UI
         {
             HideAll();
             PlayerStreak.Reset(); // quitting breaks the streak (the entered-level life is already spent)
-            if (gameController != null) gameController.ReloadScene(); // fresh scene → main menu
-            else Debug.LogWarning("[QuitFlow] GameController not assigned — can't return to the menu.");
+            // Two-scene: go to the menu scene. Single-scene fallback: reload → the menu comes back.
+            if (SceneFlow.Instance != null) SceneFlow.Instance.LoadMainMenu();
+            else if (gameController != null) gameController.ReloadScene();
+            else Debug.LogWarning("[QuitFlow] No SceneFlow and no GameController — can't return to the menu.");
         }
 
         /// <summary>Close the flow and stay in the level (wired to a Stay button / backdrop).</summary>

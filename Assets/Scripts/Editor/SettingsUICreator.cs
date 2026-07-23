@@ -4,114 +4,17 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using PixelShoot.UI;
 
 namespace PixelShoot.EditorTools
 {
     /// <summary>
-    /// One-click dummy Settings UI. Spawns a Screen-Space-Overlay canvas (or
-    /// reuses an existing one), drops a centered panel with a Sound toggle
-    /// and a Privacy Policy button, and a floating gear-style open button.
-    /// Hooks everything onto a <see cref="SettingsController"/> via SerializedObject.
+    /// Shared editor UI-building primitives (overlay canvas, panels, text, buttons, toggles,
+    /// SerializedObject ref wiring) used by the various "Generator/…" creators. The old
+    /// "Create Settings Panel UI" menu was removed when Settings became a <c>SettingsPopup</c>
+    /// (BasePopup) prefab wired through PopupService instead of a scene-panel controller.
     /// </summary>
     public static class SettingsUICreator
     {
-        private const string CanvasName = "[PixelShoot Settings Canvas]";
-        private const string PanelName  = "SettingsPanel";
-
-        [MenuItem("Generator/Create Settings Panel UI")]
-        public static void CreateSettingsUI()
-        {
-            var canvasGo = GetOrCreateOverlayCanvas(CanvasName, sortingOrder: 90);
-
-            // Wipe any old panel to keep the rebuild deterministic.
-            var existingPanel = canvasGo.transform.Find(PanelName);
-            if (existingPanel != null) Object.DestroyImmediate(existingPanel.gameObject);
-
-            // Dimmed full-screen wrapper.
-            var panel = CreateUI(PanelName, canvasGo.transform);
-            StretchToParent(panel);
-            var dim = panel.AddComponent<Image>();
-            dim.color = new Color(0f, 0f, 0f, 0.6f);
-
-            // Centered card.
-            var card = CreateUI("Card", panel.transform);
-            var cardRT = card.GetComponent<RectTransform>();
-            cardRT.anchorMin = cardRT.anchorMax = new Vector2(0.5f, 0.5f);
-            cardRT.pivot     = new Vector2(0.5f, 0.5f);
-            cardRT.sizeDelta = new Vector2(520f, 540f);
-            cardRT.anchoredPosition = Vector2.zero;
-            var cardImg = card.AddComponent<Image>();
-            cardImg.color = new Color(0.13f, 0.14f, 0.18f, 0.97f);
-
-            // Header: title + close.
-            var header = CreateUI("Header", card.transform);
-            var headerRT = header.GetComponent<RectTransform>();
-            headerRT.anchorMin = new Vector2(0, 1); headerRT.anchorMax = new Vector2(1, 1);
-            headerRT.pivot = new Vector2(0.5f, 1); headerRT.sizeDelta = new Vector2(0, 64f);
-
-            var title = CreateText("Title", header.transform, "SETTINGS", 26, TextAlignmentOptions.Center, FontStyles.Bold);
-            StretchToParent(title);
-
-            var closeGo = CreateButton("CloseButton", header.transform, "✕", 22);
-            var closeRT = closeGo.GetComponent<RectTransform>();
-            closeRT.anchorMin = closeRT.anchorMax = new Vector2(1, 0.5f);
-            closeRT.pivot     = new Vector2(1, 0.5f);
-            closeRT.sizeDelta = new Vector2(56f, 56f);
-            closeRT.anchoredPosition = new Vector2(-8f, 0f);
-            var closeBtn = closeGo.GetComponent<Button>();
-            closeBtn.onClick.AddListener(() => panel.SetActive(false));
-
-            // Body: vertical layout.
-            var body = CreateUI("Body", card.transform);
-            var bodyRT = body.GetComponent<RectTransform>();
-            bodyRT.anchorMin = new Vector2(0, 0); bodyRT.anchorMax = new Vector2(1, 1);
-            bodyRT.offsetMin = new Vector2(28, 28); bodyRT.offsetMax = new Vector2(-28, -76);
-            var vlg = body.AddComponent<VerticalLayoutGroup>();
-            vlg.spacing = 16; vlg.padding = new RectOffset(0, 0, 0, 0);
-            vlg.childControlWidth = true; vlg.childForceExpandWidth = true;
-            vlg.childControlHeight = false; vlg.childForceExpandHeight = false;
-
-            // Sound row: label + toggle.
-            var soundRow = CreateUI("SoundRow", body.transform);
-            soundRow.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 72f);
-            var soundRowImg = soundRow.AddComponent<Image>();
-            soundRowImg.color = new Color(1f, 1f, 1f, 0.06f);
-            var soundLabelGo = CreateText("SoundLabel", soundRow.transform, "Sound: ON", 20, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
-            var soundLabelRT = soundLabelGo.GetComponent<RectTransform>();
-            soundLabelRT.anchorMin = new Vector2(0, 0); soundLabelRT.anchorMax = new Vector2(0.6f, 1);
-            soundLabelRT.offsetMin = new Vector2(16, 0); soundLabelRT.offsetMax = Vector2.zero;
-            var soundToggleGo = CreateToggle("SoundToggle", soundRow.transform, true);
-            var soundToggleRT = soundToggleGo.GetComponent<RectTransform>();
-            soundToggleRT.anchorMin = soundToggleRT.anchorMax = new Vector2(1, 0.5f);
-            soundToggleRT.pivot = new Vector2(1, 0.5f);
-            soundToggleRT.sizeDelta = new Vector2(80f, 40f);
-            soundToggleRT.anchoredPosition = new Vector2(-16f, 0f);
-
-            // Privacy policy button.
-            var ppBtnGo = CreateButton("PrivacyPolicyButton", body.transform, "Privacy Policy", 18);
-            ppBtnGo.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 72f);
-
-            // Floating gear button outside the panel.
-            var gear = EnsureFloatingOpenButton(canvasGo, panel, "⚙ Settings", new Vector2(20f, 20f), TextAlignmentOptions.Center);
-
-            // SettingsController.
-            var settings = canvasGo.GetComponent<SettingsController>() ?? canvasGo.AddComponent<SettingsController>();
-            var so = new SerializedObject(settings);
-            SetRef(so, "panel", panel);
-            SetRef(so, "openButton", gear.GetComponent<Button>());
-            SetRef(so, "closeButton", closeBtn);
-            SetRef(so, "soundToggle", soundToggleGo.GetComponent<Toggle>());
-            SetRef(so, "soundLabel", soundLabelGo.GetComponent<TMP_Text>());
-            SetRef(so, "privacyPolicyButton", ppBtnGo.GetComponent<Button>());
-            so.ApplyModifiedProperties();
-
-            EditorUtility.SetDirty(canvasGo);
-            Selection.activeObject = canvasGo;
-            EditorGUIUtility.PingObject(canvasGo);
-            Debug.Log("[SettingsUICreator] Settings panel built and wired to SettingsController.");
-        }
-
         // ── Shared primitives below ─────────────────────────────────────────
         internal static GameObject GetOrCreateOverlayCanvas(string name, int sortingOrder)
         {

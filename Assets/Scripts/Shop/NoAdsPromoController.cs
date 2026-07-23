@@ -25,6 +25,10 @@ namespace PixelShoot.Shop
     /// </summary>
     public class NoAdsPromoController : MonoBehaviour
     {
+        /// <summary>The one persistent promo core (lives in InitializeScene). Per-scene
+        /// <see cref="NoAdsPromoTrigger"/>s (menu button, game win) call it through this.</summary>
+        public static NoAdsPromoController Instance { get; private set; }
+
         private const string NoAdsCountKey       = "PixelShoot.NoAdsPromo.ShownCount";
         private const string NoAdsLastSessionKey = "PixelShoot.NoAdsPromo.LastSession";
         private const string StarterShownKey     = "PixelShoot.StarterPromo.Shown";
@@ -33,30 +37,15 @@ namespace PixelShoot.Shop
         private const string NoAdsOfferId    = "no_ads";
         private const string StarterOfferId  = "coins_5000_starter";
 
-        [Header("Panels")]
-        [Tooltip("NoAds promo — shown after the first ad and then up to maxNoAdsShows-1 more times.")]
-        [SerializeField] private GameObject promoPanel;
-        [Tooltip("Starter Pack promo — shown once after NoAds has been bought.")]
-        [SerializeField] private GameObject starterPromoPanel;
-        [Header("Panel routing (optional)")]
-        [Tooltip("If set, promos open through the global UiPanelManager in QUEUE mode — they wait for any open panel to close instead of overlapping it.")]
-        [SerializeField] private PixelShoot.UI.UiPanel noAdsUiPanel;
-        [SerializeField] private PixelShoot.UI.UiPanel starterUiPanel;
-
         [Header("Tuning")]
         [Tooltip("Total number of times the NoAds promo is shown to a non-purchaser (1 = first ad only; 3 = first ad + 2 more).")]
         [SerializeField, Min(1)] private int maxNoAdsShows = 3;
 
-        [Header("Menu button")]
-        [Tooltip("The menu's 'No Ads' button. Owned + wired HERE (not by MainMenuController) so no " +
-                 "button is double-listened. Opens the No Ads promo panel on click.")]
-        [SerializeField] private UnityEngine.UI.Button openButton;
-
         [Header("Sources")]
-        [Tooltip("InterstitialController whose OnInterstitialClosed event we subscribe to for the first-ad trigger.")]
+        [Tooltip("InterstitialController (same InitializeScene) for the pre-/post-first-ad triggers. " +
+                 "Falls back to InterstitialController.Instance. The MENU BUTTON and the PER-SESSION " +
+                 "WIN trigger live on NoAdsPromoTrigger components in their own scenes.")]
         [SerializeField] private InterstitialController interstitial;
-        [Tooltip("GameController whose OnLevelWon we subscribe to for the per-session trigger.")]
-        [SerializeField] private GameController gameController;
 
         private int noAdsShownCount;
         private int noAdsLastSession;
@@ -64,73 +53,49 @@ namespace PixelShoot.Shop
 
         private void Awake()
         {
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
+
             noAdsShownCount  = PlayerPrefs.GetInt(NoAdsCountKey, 0);
             noAdsLastSession = PlayerPrefs.GetInt(NoAdsLastSessionKey, 0);
             starterShown     = PlayerPrefs.GetInt(StarterShownKey, 0) == 1;
-            if (promoPanel        != null) promoPanel.SetActive(false);
-            if (starterPromoPanel != null) starterPromoPanel.SetActive(false);
-
-            // Own our menu button (mirrors ShopManager / SettingsController).
-            if (openButton != null)
-            {
-                openButton.onClick.RemoveAllListeners();
-                openButton.onClick.AddListener(ShowNoAdsPanel);
-            }
         }
 
-        private Action pendingProceedToAd;
+        private void OnDestroy() { if (Instance == this) Instance = null; }
+
+        // Resolved once so subscribe/unsubscribe use the SAME instance. In the two-scene setup the
+        // InterstitialController lives in InitializeScene, so we fall back to its static Instance.
+        private InterstitialController itl;
 
         private void OnEnable()
         {
-            if (interstitial != null)
+            itl = interstitial != null ? interstitial : InterstitialController.Instance;
+            if (itl != null)
             {
-                interstitial.OnBeforeFirstInterstitial += HandleBeforeFirstAd;
-                interstitial.OnInterstitialClosed      += OnFirstAdSeenMaybe; // fallback only
+                itl.OnBeforeFirstInterstitial += HandleBeforeFirstAd;
+                itl.OnInterstitialClosed      += OnFirstAdSeenMaybe; // fallback only
             }
-            if (gameController != null) gameController.OnLevelWon += OnLevelWonMaybe;
         }
 
         private void OnDisable()
         {
-            if (interstitial != null)
+            if (itl != null)
             {
-                interstitial.OnBeforeFirstInterstitial -= HandleBeforeFirstAd;
-                interstitial.OnInterstitialClosed      -= OnFirstAdSeenMaybe;
+                itl.OnBeforeFirstInterstitial -= HandleBeforeFirstAd;
+                itl.OnInterstitialClosed      -= OnFirstAdSeenMaybe;
             }
-            if (gameController != null) gameController.OnLevelWon -= OnLevelWonMaybe;
-            if (noAdsUiPanel != null) noAdsUiPanel.OnClosed -= OnPreAdPromoClosed;
         }
 
         private bool NoAdsOwned => PlayerWallet.HasNoAds || PlayerWallet.HasPurchased(NoAdsOfferId);
 
         // ─── Show 1: BEFORE the player's first interstitial ─────────────────
-        // The No Ads offer gets a turn ahead of the very first ad. When the player dismisses the
-        // promo we call proceed() to let the ad play; if they bought No Ads, the interstitial
-        // controller skips the ad. Needs a UiPanel (its OnClosed drives proceed) to gate the ad.
+        // The No Ads offer would ideally get a turn ahead of the very first ad, but a plain
+        // GameObject panel can't be awaited to re-trigger the ad on close, so we let the ad play now
+        // and surface the promo right after (OnFirstAdSeenMaybe). When migrated to a MessagePopup,
+        // gate the ad by re-invoking proceed() from the popup's Closed event instead.
         private void HandleBeforeFirstAd(Action proceed)
         {
-            if (NoAdsOwned) { proceed?.Invoke(); return; }
-            if (noAdsUiPanel == null)
-            {
-                // Can't await a plain GameObject's close to re-trigger the ad → let the ad play
-                // now; the after-ad fallback still surfaces the promo so it isn't lost.
-                Debug.Log("[NoAdsPromo] No UiPanel to gate the pre-ad promo → ad plays, promo shown after.");
-                proceed?.Invoke();
-                return;
-            }
-            pendingProceedToAd = proceed;
-            noAdsUiPanel.OnClosed -= OnPreAdPromoClosed;
-            noAdsUiPanel.OnClosed += OnPreAdPromoClosed;
-            DoShowNoAds(PlayerWallet.SessionCount);
-            Debug.Log("[NoAdsPromo] Show 1 fired BEFORE the first ad → NoAds panel.");
-        }
-
-        private void OnPreAdPromoClosed()
-        {
-            if (noAdsUiPanel != null) noAdsUiPanel.OnClosed -= OnPreAdPromoClosed;
-            var proceed = pendingProceedToAd;
-            pendingProceedToAd = null;
-            proceed?.Invoke(); // promo dismissed → let the interstitial play (or be skipped if bought)
+            proceed?.Invoke();
         }
 
         // ─── Fallback Show 1: after the first ad, only if the pre-ad hook didn't run ──
@@ -143,7 +108,8 @@ namespace PixelShoot.Shop
         }
 
         // ─── Shows 2…N: once per new session, first level cleared ───────────
-        private void OnLevelWonMaybe()
+        // Called by a NoAdsPromoTrigger in the Game scene on GameController.OnLevelWon.
+        public void NotifyLevelWon()
         {
             int session = PlayerWallet.SessionCount;
 
@@ -179,29 +145,19 @@ namespace PixelShoot.Shop
             PlayerPrefs.Save();
         }
 
-        // ─── Show / close helpers ───────────────────────────────────────────
-        // Promos open in QUEUE mode (replaceCurrent: false): if a panel is already up,
-        // they wait for it to close instead of popping over it.
+        // ─── Show helpers (open the popups through PopupService) ─────────────
         public void ShowNoAdsPanel()
         {
-            if (noAdsUiPanel != null) { noAdsUiPanel.RequestOpen(replaceCurrent: false); return; }
-            if (promoPanel == null) { Debug.LogWarning("[NoAdsPromo] No NoAds panel assigned."); return; }
-            promoPanel.SetActive(true);
+            if (PixelShoot.UI.PopupService.Instance != null)
+                PixelShoot.UI.PopupService.Instance.Create<PixelShoot.UI.NoAdsPromoPopup>();
+            else Debug.LogWarning("[NoAdsPromo] No PopupService — cannot show the NoAds popup.");
         }
 
         public void ShowStarterPanel()
         {
-            if (starterUiPanel != null) { starterUiPanel.RequestOpen(replaceCurrent: false); return; }
-            if (starterPromoPanel == null) { Debug.LogWarning("[NoAdsPromo] No Starter panel assigned."); return; }
-            starterPromoPanel.SetActive(true);
-        }
-
-        public void ClosePanels()
-        {
-            if (noAdsUiPanel   != null) noAdsUiPanel.RequestClose();
-            if (starterUiPanel != null) starterUiPanel.RequestClose();
-            if (promoPanel        != null) promoPanel.SetActive(false);
-            if (starterPromoPanel != null) starterPromoPanel.SetActive(false);
+            if (PixelShoot.UI.PopupService.Instance != null)
+                PixelShoot.UI.PopupService.Instance.Create<PixelShoot.UI.StarterPopup>();
+            else Debug.LogWarning("[NoAdsPromo] No PopupService — cannot show the Starter popup.");
         }
     }
 }

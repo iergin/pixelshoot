@@ -14,6 +14,11 @@ namespace PixelShoot.Ads
     /// </summary>
     public class InterstitialController : MonoBehaviour
     {
+        /// <summary>Singleton so callers in OTHER scenes (Game's LevelEnd, Menu's No-Ads promo) can
+        /// reach the one instance living in the persistent InitializeScene — a serialized reference
+        /// can't cross scenes.</summary>
+        public static InterstitialController Instance { get; private set; }
+
         private const string CounterKey = "PixelShoot.LevelsSinceInterstitial";
 
         [SerializeField] private InterstitialConfig config;
@@ -33,6 +38,14 @@ namespace PixelShoot.Ads
         /// the player dismisses it — that lets the ad proceed (or, if No Ads was bought meanwhile,
         /// the ad is skipped). With no subscriber the ad shows immediately, as before.</summary>
         public event Action<Action> OnBeforeFirstInterstitial;
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this) { Destroy(this); return; }
+            Instance = this;
+        }
+
+        private void OnDestroy() { if (Instance == this) Instance = null; }
 
         private static int LevelsSince
         {

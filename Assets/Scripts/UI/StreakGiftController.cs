@@ -7,15 +7,17 @@ using PixelShoot.Boosters;
 namespace PixelShoot.UI
 {
     /// <summary>
-    /// Applies the start-of-level STREAK gifts the moment gameplay begins (subscribes to
-    /// <see cref="MainMenuController.OnGameStarted"/> so the gifts land AFTER the player is looking
-    /// at the grid, not while the menu is up). Gift size scales with <see cref="PlayerStreak"/>:
+    /// Applies the start-of-level STREAK gifts once the level is built (subscribes to
+    /// <see cref="GameController.OnLevelReady"/> — a GAME-scene signal, so it keeps working with the
+    /// menu in a separate scene). Gift size scales with <see cref="PlayerStreak"/>:
     ///   • bombs  = <see cref="PlayerStreak.RewardBombs"/> (0/3/6/9)
-    ///   • paints = <see cref="PlayerStreak.RewardPaints"/> (0/5/15/25) — wired in a later phase.
+    ///   • paints = <see cref="PlayerStreak.RewardPaints"/> (0/5/15/25)
     /// </summary>
     public class StreakGiftController : MonoBehaviour
     {
-        [SerializeField] private MainMenuController mainMenu;
+        [Tooltip("The Game scene's GameController — we trigger the gifts on its OnLevelReady (so this " +
+                 "works with the menu in a separate scene).")]
+        [SerializeField] private GameController gameController;
         [SerializeField] private GridController grid;
         [Tooltip("FillColor controller reused to run the paint stickmen in from off-screen.")]
         [SerializeField] private FillColorController fill;
@@ -29,20 +31,20 @@ namespace PixelShoot.UI
 
         private void OnEnable()
         {
-            if (mainMenu != null) mainMenu.OnGameStarted += HandleGameStarted;
+            if (gameController != null) gameController.OnLevelReady += HandleLevelReady;
             if (grid != null) grid.OnGridCleared += LogFinalBalance;
         }
 
         private void OnDisable()
         {
-            if (mainMenu != null) mainMenu.OnGameStarted -= HandleGameStarted;
+            if (gameController != null) gameController.OnLevelReady -= HandleLevelReady;
             if (grid != null) grid.OnGridCleared -= LogFinalBalance;
         }
 
         private void LogFinalBalance() =>
             Debug.Log($"[STREAKBAL] GRID CLEARED — leftover shots on shooters = {PixelShoot.Shooters.ShooterColumn.TotalShots()} (should be 0).");
 
-        private void HandleGameStarted()
+        private void HandleLevelReady()
         {
             int bombs  = PlayerStreak.RewardBombs;
             int paints = PlayerStreak.RewardPaints;

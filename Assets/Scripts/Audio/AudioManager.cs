@@ -32,6 +32,9 @@ namespace PixelShoot.Audio
         [Tooltip("Look up a clip by id with PlaySfx(\"id\"). Keeps callers from holding direct AudioClip references.")]
         [SerializeField] private List<NamedClip> clips = new List<NamedClip>();
 
+        // ══════════════════════════════════════════════════════════════════════════════════════
+        #region PixelShoot gameplay SFX — game-specific; swap/remove this whole region for another game
+        // ══════════════════════════════════════════════════════════════════════════════════════
         [Header("Common clips")]
         [Tooltip("Played by PlayShooterClick() when a column shooter is tapped.")]
         [SerializeField] private AudioClip shooterClickClip;
@@ -65,6 +68,7 @@ namespace PixelShoot.Audio
         private float lastBoxBombTime = -999f;
         private float lastFootstepTime = -999f;
         private AudioSource footstepSource; // dedicated source so per-step pitch changes don't touch other SFX
+        #endregion
 
         [System.Serializable]
         public class NamedClip
@@ -125,6 +129,9 @@ namespace PixelShoot.Audio
                 PlaySfx(nc.clip, nc.volume);
         }
 
+        // ══════════════════════════════════════════════════════════════════════════════════════
+        #region PixelShoot gameplay SFX — game-specific cues (shooter/box/bomb/blocked/footstep)
+        // ══════════════════════════════════════════════════════════════════════════════════════
         public void PlayShooterClick() => PlaySfx(shooterClickClip, shooterClickVolume);
 
         /// <summary>Negative cue when an action is rejected (e.g. a linked group can't board yet).</summary>
@@ -172,6 +179,7 @@ namespace PixelShoot.Audio
             float vol = footstepVolume * (1f + UnityEngine.Random.Range(-footstepVolumeJitter, footstepVolumeJitter));
             footstepSource.PlayOneShot(footstepClip, Mathf.Clamp01(vol));
         }
+        #endregion
 
         private AudioSource GetFreeSfxSource()
         {

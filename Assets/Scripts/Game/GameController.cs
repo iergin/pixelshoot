@@ -72,10 +72,16 @@ namespace PixelShoot.Game
         /// <summary>Called by the loader once every bus has spawned, so the count ramp-up
         /// during build can't trip the endgame. Also evaluates immediately (covers levels
         /// that already have ≤ threshold buses).</summary>
+        /// <summary>Fired once the level is built and all buses have spawned — the game-side
+        /// "level started" signal (streak gifts, etc. hook this instead of the menu's OnGameStarted,
+        /// so they keep working when the menu lives in a separate scene).</summary>
+        public event Action OnLevelReady;
+
         public void NotifyLevelReady()
         {
             levelReady = true;
             EvaluateEndgame();
+            OnLevelReady?.Invoke();
         }
 
         /// <summary>Enter endgame once only the last few buses remain: crank the conveyor and
@@ -416,6 +422,9 @@ namespace PixelShoot.Game
 
         public void ReloadScene()
         {
+            // Two-scene: reload just the Game scene (InitializeScene + menu untouched).
+            if (SceneFlow.Instance != null) { SceneFlow.Instance.ReloadGame(); return; }
+            // Fallback (single-scene / no SceneFlow): reload the whole active scene.
             var s = SceneManager.GetActiveScene();
             SceneManager.LoadScene(s.buildIndex >= 0 ? s.buildIndex : 0);
         }

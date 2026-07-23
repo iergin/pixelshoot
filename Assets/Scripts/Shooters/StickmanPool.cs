@@ -21,8 +21,8 @@ namespace PixelShoot.Shooters
             {
                 if (root == null)
                 {
+                    // Lives in the active (Game) scene — recreated per level, no DontDestroyOnLoad.
                     var go = new GameObject("StickmanPool");
-                    Object.DontDestroyOnLoad(go);
                     root = go.transform;
                 }
                 return root;

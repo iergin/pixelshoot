@@ -163,14 +163,20 @@ namespace PixelShoot.Game
             }
         }
 
-        // ── Music / Effects toggles (independent, both default ON) ────────────
-        private const string MusicKey = "PixelShoot.MusicEnabled";
-        private const string SfxKey   = "PixelShoot.SfxEnabled";
+        // ── Settings toggles (independent, all default ON) ────────────────────
+        private const string MusicKey        = "PixelShoot.MusicEnabled";
+        private const string SfxKey          = "PixelShoot.SfxEnabled";
+        private const string VibrationKey    = "PixelShoot.VibrationEnabled";
+        private const string NotificationsKey = "PixelShoot.NotificationsEnabled";
 
         /// <summary>Fired after the music flag changes. Payload = new enabled state.</summary>
         public static event Action<bool> OnMusicEnabledChanged;
-        /// <summary>Fired after the effects flag changes. Payload = new enabled state.</summary>
+        /// <summary>Fired after the effects (sound) flag changes. Payload = new enabled state.</summary>
         public static event Action<bool> OnSfxEnabledChanged;
+        /// <summary>Fired after the vibration/haptics flag changes. Payload = new enabled state.</summary>
+        public static event Action<bool> OnVibrationEnabledChanged;
+        /// <summary>Fired after the notifications flag changes. Payload = new enabled state.</summary>
+        public static event Action<bool> OnNotificationsEnabledChanged;
 
         public static bool MusicEnabled
         {
@@ -191,6 +197,32 @@ namespace PixelShoot.Game
                 PlayerPrefs.SetInt(SfxKey, value ? 1 : 0);
                 PlayerPrefs.Save();
                 OnSfxEnabledChanged?.Invoke(value);
+            }
+        }
+
+        /// <summary>Vibration / haptics toggle. Persisted; wire real haptics off
+        /// <see cref="OnVibrationEnabledChanged"/> when the feature lands.</summary>
+        public static bool VibrationEnabled
+        {
+            get => PlayerPrefs.GetInt(VibrationKey, 1) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(VibrationKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                OnVibrationEnabledChanged?.Invoke(value);
+            }
+        }
+
+        /// <summary>Notifications toggle. Persisted; wire real push-notification opt-in off
+        /// <see cref="OnNotificationsEnabledChanged"/> when the feature lands.</summary>
+        public static bool NotificationsEnabled
+        {
+            get => PlayerPrefs.GetInt(NotificationsKey, 1) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(NotificationsKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                OnNotificationsEnabledChanged?.Invoke(value);
             }
         }
 

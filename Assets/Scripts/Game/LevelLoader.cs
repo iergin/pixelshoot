@@ -39,12 +39,15 @@ namespace PixelShoot.Game
 
         private void Start()
         {
-            // First-run wallet seeding — does nothing if the player already has a saved balance.
-            if (coinsConfig != null) PlayerWallet.EnsureInitialized(coinsConfig.InitialBalance);
-            // Stamp the first-launch timestamp for time-limited offers (e.g. StarterOffer).
-            PlayerWallet.StampFirstLaunchIfMissing();
-            // Bump session counter once per app start; promo controllers key off this.
-            PlayerWallet.BeginSession();
+            // One-time app init lives in AppBootstrap (InitializeScene) for the two-scene setup —
+            // doing it here too would re-bump the session every Game-scene load. Single-scene
+            // fallback (no SceneFlow): run it here.
+            if (SceneFlow.Instance == null)
+            {
+                if (coinsConfig != null) PlayerWallet.EnsureInitialized(coinsConfig.InitialBalance);
+                PlayerWallet.StampFirstLaunchIfMissing();
+                PlayerWallet.BeginSession();
+            }
 
             // Resolve the level we'll actually play: explicit override beats the playlist.
             if (levelData == null) levelData = PickFromPlaylist();
