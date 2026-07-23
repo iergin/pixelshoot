@@ -47,6 +47,11 @@ namespace PixelShoot.Shop
         [Tooltip("Total number of times the NoAds promo is shown to a non-purchaser (1 = first ad only; 3 = first ad + 2 more).")]
         [SerializeField, Min(1)] private int maxNoAdsShows = 3;
 
+        [Header("Menu button")]
+        [Tooltip("The menu's 'No Ads' button. Owned + wired HERE (not by MainMenuController) so no " +
+                 "button is double-listened. Opens the No Ads promo panel on click.")]
+        [SerializeField] private UnityEngine.UI.Button openButton;
+
         [Header("Sources")]
         [Tooltip("InterstitialController whose OnInterstitialClosed event we subscribe to for the first-ad trigger.")]
         [SerializeField] private InterstitialController interstitial;
@@ -64,6 +69,13 @@ namespace PixelShoot.Shop
             starterShown     = PlayerPrefs.GetInt(StarterShownKey, 0) == 1;
             if (promoPanel        != null) promoPanel.SetActive(false);
             if (starterPromoPanel != null) starterPromoPanel.SetActive(false);
+
+            // Own our menu button (mirrors ShopManager / SettingsController).
+            if (openButton != null)
+            {
+                openButton.onClick.RemoveAllListeners();
+                openButton.onClick.AddListener(ShowNoAdsPanel);
+            }
         }
 
         private Action pendingProceedToAd;

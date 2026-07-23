@@ -1,21 +1,15 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using PixelShoot.Shop;
 using PixelShoot.Game;
 
 namespace PixelShoot.UI
 {
     /// <summary>
-    /// Drives the main menu: shows the coin balance, animates the menu open/closed via a
-    /// set of <see cref="UiTransition"/> groups (left / right / top / bottom button parents),
-    /// and on Start fades everything out, reveals the game panel, and enables gameplay input.
-    ///
-    /// <para><b>Extensible by design</b>: the animated groups are just a list of UiTransition —
-    /// add a new button parent, drop a UiTransition on it, and add it to <see cref="groups"/>.
-    /// The menu buttons (Shop / Settings / No-Ads) are wired to existing controllers; new
-    /// buttons follow the same pattern. <see cref="OnGameStarted"/> lets other systems react
-    /// to the menu→game transition.</para>
+    /// Drives the main menu's flow: Start → PlayPanel/StartGame, lives gating, and handing off to
+    /// gameplay. The open/close ANIMATION is delegated to a <see cref="UiTransitionController"/> —
+    /// this class only decides WHEN to play in/out, not how. <see cref="OnGameStarted"/> lets other
+    /// systems react to the menu→game transition.
     /// </summary>
     public class MainMenuController : MonoBehaviour
     {
@@ -24,20 +18,18 @@ namespace PixelShoot.UI
         [SerializeField] private GameObject menuRoot;
         [Tooltip("Game HUD/world panel, activated when the player presses Start.")]
         [SerializeField] private GameObject gamePanel;
-  
-        [Header("Animated groups (left / right / top / bottom button parents)")]
-        [SerializeField] private UiTransition[] groups;
+
+        [Header("Transition")]
+        [Tooltip("Owns the animated groups and plays them in/out. Assign the UiTransitionController " +
+                 "that holds the menu's button-parent groups.")]
+        [SerializeField] private UiTransitionController transitions;
 
         [Header("Buttons")]
+        [Tooltip("Only the Start button lives here. Shop / Settings / No-Ads buttons are owned and " +
+                 "wired by their own controllers — do NOT reference them from the menu too.")]
         [SerializeField] private Button startButton;
-        [SerializeField] private Button shopButton;
-        [SerializeField] private Button settingsButton;
-        [SerializeField] private Button noAdsButton;
 
         [Header("Linked controllers (optional)")]
-        [SerializeField] private ShopManager shop;
-        [SerializeField] private SettingsController settings;
-        [SerializeField] private NoAdsPromoController noAdsPromo;
         [Tooltip("Pre-level panel (level # + streak). If set, Start opens THIS instead of launching " +
                  "the level directly; its Play button then calls StartGame. If null, Start launches directly.")]
         [SerializeField] private PlayPanelController playPanel;
@@ -105,22 +97,10 @@ namespace PixelShoot.UI
 
         private void WireButtons()
         {
+            // Only the Start flow belongs to the menu. Shop / Settings / No-Ads each own and wire
+            // their OWN open button (ShopManager.openShopButton, SettingsController.openButton,
+            // NoAdsPromoController.openButton) — wiring them here too double-listened the same button.
             Hook(startButton, "Start", OnStartPressed);
-            Hook(shopButton, "Shop", () =>
-            {
-                Debug.Log($"[MainMenu] Shop button clicked. shop={(shop != null ? "set" : "<null>")}.");
-                shop?.OpenShop();
-            });
-            Hook(settingsButton, "Settings", () =>
-            {
-                Debug.Log($"[MainMenu] Settings button clicked. settings={(settings != null ? "set" : "<null>")}.");
-                settings?.OpenPanel();
-            });
-            Hook(noAdsButton, "NoAds", () =>
-            {
-                Debug.Log($"[MainMenu] NoAds button clicked. noAdsPromo={(noAdsPromo != null ? "set" : "<null>")}.");
-                noAdsPromo?.ShowNoAdsPanel();
-            });
         }
 
         private static void Hook(Button b, string label, UnityEngine.Events.UnityAction action)
@@ -136,13 +116,8 @@ namespace PixelShoot.UI
         {
             if (menuRoot != null) menuRoot.SetActive(true);
             starting = false;
-            SetGameplayInput(false); // menu is up → gameplay input off
-            foreach (var g in groups)
-            {
-                if (g == null) continue;
-                g.SetHidden();
-                g.PlayIn();
-            }
+            SetGameplayInput(false);  // menu is up → gameplay input off
+            transitions?.PlayIn();
         }
 
         /// <summary>Start button: open the pre-level PlayPanel (level # + streak). Its Play button
@@ -191,19 +166,9 @@ namespace PixelShoot.UI
             // Reveal the game panel underneath right away so the fade-out uncovers live gameplay.
             if (gamePanel != null) gamePanel.SetActive(true);
 
-            float longest = 0f;
-            foreach (var g in groups)
-            {
-                if (g == null) continue;
-                g.PlayOut();
-                longest = Mathf.Max(longest, g.OutTime);
-            }
-
-            // After the out animation finishes, drop the menu and enable input.
-            if (longest > 0f)
-                DG.Tweening.DOVirtual.DelayedCall(longest, FinishStart, ignoreTimeScale: true);
-            else
-                FinishStart();
+            // Play the menu out; drop the menu + enable input once it finishes.
+            if (transitions != null) transitions.PlayOut(FinishStart);
+            else FinishStart();
         }
 
         /// <summary>Skip the menu entirely and drop straight into gameplay (used by a direct
