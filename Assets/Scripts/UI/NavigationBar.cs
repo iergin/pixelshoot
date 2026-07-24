@@ -80,13 +80,23 @@ namespace PixelShoot.UI
             if (tabs[index]?.notification != null) tabs[index].notification.SetActive(on);
         }
 
-        /// <summary>Select the tab at <paramref name="index"/>: instantly set its selected image to
-        /// full alpha and the others' to 0. Safe to call from code or a Button OnClick.</summary>
+        /// <summary>Select the tab at <paramref name="index"/> as a USER action: update the highlight
+        /// AND fire <see cref="OnTabSelected"/> (e.g. a pager listens and scrolls to that page). Safe
+        /// to call from code or a Button OnClick.</summary>
         public void Select(int index)
         {
             if (tabs == null || index < 0 || index >= tabs.Length) return;
             Debug.Log($"[NavBar] Select({index}) — '{tabs[index]?.name}'.", this);
+            SetHighlight(index);
+            OnTabSelected?.Invoke(index);
+        }
 
+        /// <summary>Set which tab reads as selected WITHOUT firing <see cref="OnTabSelected"/>. Use this
+        /// to reflect state driven elsewhere (e.g. a swipe pager settling on a page) so the highlight
+        /// follows the page without looping back into a navigation request.</summary>
+        public void SetHighlight(int index)
+        {
+            if (tabs == null || index < 0 || index >= tabs.Length) return;
             for (int i = 0; i < tabs.Length; i++)
             {
                 var img = tabs[i]?.highlightImage;
@@ -95,9 +105,7 @@ namespace PixelShoot.UI
                 c.a = (i == index) ? 1f : 0f; // instant, no fade
                 img.color = c;
             }
-
             Current = index;
-            OnTabSelected?.Invoke(index);
         }
     }
 }

@@ -90,6 +90,17 @@ namespace PixelShoot.UI
         }
 
         // ── Public API ──────────────────────────────────────────────────────
+        /// <summary>Snap to the shown pose immediately (no animation) — for a popup used as a static
+        /// embedded page.</summary>
+        public void SetShown()
+        {
+            Capture();
+            if (target == null) return;
+            moveTween?.Kill(); fadeTween?.Kill();
+            target.anchoredPosition = shownPos;
+            if (cg != null) { cg.alpha = 1f; cg.interactable = true; cg.blocksRaycasts = true; }
+        }
+
         /// <summary>Snap to the hidden pose immediately (call before the first PlayIn).</summary>
         public void SetHidden()
         {

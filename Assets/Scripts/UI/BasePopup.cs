@@ -32,6 +32,18 @@ namespace PixelShoot.UI
         [SerializeField] private float fadeDuration = 0.25f;
         [Tooltip("Buttons that close this popup (the X / 'No thanks' etc.). Wired automatically.")]
         [SerializeField] private Button[] closeButtons;
+        [Tooltip("Optional canvas sorting order for this popup. 0 = inherit the PopupService root canvas " +
+                 "(default; renders above the menu chrome — use for full modals like Settings). Set a value " +
+                 "BELOW the menu chrome's canvas order (e.g. 50) for a popup that must sit UNDER the nav bar " +
+                 "+ HUD, like the Shop. When non-zero, a dedicated Canvas + GraphicRaycaster is added so this " +
+                 "order is absolute across all canvases.")]
+        [SerializeField] private int sortingOrder = 0;
+        [Tooltip("EMBEDDED MODE: tick when this popup is dropped into the scene as a static PAGE (e.g. the " +
+                 "Shop inside the menu swipe pager) instead of being spawned by PopupService. It then shows " +
+                 "itself instantly with no animation, ignores the sorting override, hides its close buttons " +
+                 "(a page has no X — you swipe away), and Close() does nothing. The SAME prefab still works " +
+                 "as a normal popup when spawned by PopupService (leave this off for that copy / instance).")]
+        [SerializeField] private bool embedded = false;
 
         /// <summary>Raised after the close animation finishes, right before the popup is destroyed.</summary>
         public event Action Closed;
@@ -56,6 +68,17 @@ namespace PixelShoot.UI
         /// <summary>Called the moment a close is requested, before the close animation plays.</summary>
         protected virtual void OnPopupClosing() { }
 
+        // Embedded page: no PopupService owner — set up + show instantly on scene load.
+        private void Awake()
+        {
+            if (!embedded) return;
+            EnsureWired();
+            ShowInstant();
+            IsOpen = true;
+            OnPopupOpened();     // page is "open" for its lifetime (state subscriptions, etc.)
+            Opened?.Invoke();
+        }
+
         // ── Wiring called by PopupService ────────────────────────────────────
         internal void Bind(PopupService service)
         {
@@ -67,15 +90,30 @@ namespace PixelShoot.UI
         {
             if (wired) return;
             wired = true;
+            if (!embedded) ApplySortingOverride(); // a page inherits the pager's canvas
             if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
             if (closeButtons != null)
                 foreach (var b in closeButtons)
                 {
                     if (b == null) continue;
+                    if (embedded) { b.gameObject.SetActive(false); continue; } // no X on a page
                     b.onClick.RemoveAllListeners();
                     b.onClick.AddListener(Close);
                 }
             OnInit();
+        }
+
+        // Snap straight to the shown state (embedded page — no open animation).
+        private void ShowInstant()
+        {
+            if (transitions != null) foreach (var t in transitions) if (t != null) t.SetShown();
+            if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+            }
         }
 
         internal void PlayOpen(Action onComplete)
@@ -137,6 +175,18 @@ namespace PixelShoot.UI
             Finish(dur, () => { Closed?.Invoke(); onComplete?.Invoke(); });
         }
 
+        // Give this popup its own Canvas at an absolute sorting order so it can sit ABOVE or BELOW the
+        // menu chrome regardless of the shared PopupService root order (e.g. Shop below the nav bar).
+        private void ApplySortingOverride()
+        {
+            if (sortingOrder == 0) return;
+            var canvas = GetComponent<Canvas>();
+            if (canvas == null) canvas = gameObject.AddComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = sortingOrder;
+            if (GetComponent<GraphicRaycaster>() == null) gameObject.AddComponent<GraphicRaycaster>();
+        }
+
         private void SetHidden()
         {
             if (transitions != null) foreach (var t in transitions) if (t != null) t.SetHidden();
@@ -149,19 +199,24 @@ namespace PixelShoot.UI
         }
 
         // ── Public API for popups / callers ──────────────────────────────────
-        /// <summary>Close this popup. Routed through the service so the stack/queue stays consistent.</summary>
+        /// <summary>Close this popup. Routed through the service so the stack/queue stays consistent.
+        /// No-op in embedded mode — a page doesn't close itself (you swipe away).</summary>
         public void Close()
         {
+            if (embedded) return;
             if (owner != null) owner.Close(this);
             else PlayClose(() => Destroy(gameObject)); // safety net if spawned without a service
         }
 
-        /// <summary>Open another popup IMMEDIATELY on top of this one (does not wait for this popup
-        /// to close). Use this for popup-drives-popup flows (e.g. Settings → Message).</summary>
+        /// <summary>Open another popup on top. From a real popup this stacks immediately over it
+        /// (popup-drives-popup, e.g. Settings → Message). From an embedded page it opens a normal
+        /// top-level popup via PopupService.</summary>
         protected T CreatePopup<T>(Action<T> configure = null) where T : BasePopup
         {
-            if (owner == null) { Debug.LogWarning($"[{name}] No PopupService — cannot open a child popup."); return null; }
-            return owner.Push(configure);
+            if (owner != null) return owner.Push(configure);
+            if (PopupService.Instance != null) return PopupService.Instance.Create(configure);
+            Debug.LogWarning($"[{name}] No PopupService — cannot open a child popup.");
+            return null;
         }
 
         private static void Finish(float delay, Action done)
@@ -170,6 +225,10 @@ namespace PixelShoot.UI
             else done();
         }
 
-        protected virtual void OnDestroy() => fadeTween?.Kill();
+        protected virtual void OnDestroy()
+        {
+            if (embedded && IsOpen) OnPopupClosing(); // balance the Awake OnPopupOpened (unsubscribe, etc.)
+            fadeTween?.Kill();
+        }
     }
 }

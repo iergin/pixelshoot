@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using PixelShoot.Data;
 using PixelShoot.UI;
 
@@ -11,8 +10,10 @@ namespace PixelShoot.Shop
     /// purchases to <see cref="ShopOffer.OnPurchased"/>. This is the persistent catalog/IAP manager;
     /// the shop UI itself is a <see cref="ShopPopup"/> opened through <see cref="PopupService"/>.
     ///
-    /// <para>Lives in the MainMenu scene. Shop state is in PlayerPrefs, so a fresh instance each time
-    /// the menu loads is fine.</para>
+    /// <para>Lives in the persistent <b>InitializeScene</b> so the shop can be opened AND purchases
+    /// made from BOTH the MainMenu and the Game scene (e.g. when a booster runs out mid-level). Reach
+    /// it from anywhere via <see cref="Instance"/>.OpenShop() — a serialized cross-scene button ref
+    /// would not survive, so opener buttons in each scene call OpenShop() themselves.</para>
     /// </summary>
     [DefaultExecutionOrder(-900)]
     public class ShopManager : MonoBehaviour
@@ -21,11 +22,6 @@ namespace PixelShoot.Shop
 
         [Header("Catalog")]
         [SerializeField] private List<ShopOffer> offers = new List<ShopOffer>();
-
-        [Header("UI")]
-        [Tooltip("Optional convenience button that opens the shop popup. Wired automatically in Awake. " +
-                 "You can also open the shop from anywhere via ShopManager.Instance.OpenShop().")]
-        [SerializeField] private Button openShopButton;
 
         private IIAPService iap;
 
@@ -54,12 +50,6 @@ namespace PixelShoot.Shop
                 if (o != null && !string.IsNullOrEmpty(o.ProductId))
                     products.Add(new ProductRegistration(o.ProductId, o.ProductType));
             iap.Initialize(products);
-
-            if (openShopButton != null)
-            {
-                openShopButton.onClick.RemoveAllListeners();
-                openShopButton.onClick.AddListener(OpenShop);
-            }
         }
 
         private void OnDestroy() { if (Instance == this) Instance = null; }

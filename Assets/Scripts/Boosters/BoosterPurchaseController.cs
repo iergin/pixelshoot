@@ -37,9 +37,12 @@ namespace PixelShoot.Boosters
 
         [Header("Links")]
         [SerializeField] private BoosterManager manager;
-        [SerializeField] private ShopManager shop;
         [Tooltip("Conveyor paused while the popup is open.")]
         [SerializeField] private ConveyorController conveyor;
+
+        // ShopManager lives in the persistent InitializeScene, so reach it via its static Instance
+        // (a serialized cross-scene reference wouldn't survive).
+        private static ShopManager Shop => ShopManager.Instance;
 
         private BoosterData current;
         private bool wired;
@@ -107,8 +110,8 @@ namespace PixelShoot.Boosters
                 waitingForShop = true;
                 sawShopOpen = false;
                 if (panel != null) panel.SetActive(false); // NOT Close() — don't resume the conveyor
-                var s = shop != null ? shop : ShopManager.Instance;
-                if (s != null) s.OpenShop();
+                if (Shop != null) Shop.OpenShop();
+                else Debug.LogWarning("[BoosterPurchase] No ShopManager (is InitializeScene loaded?).");
             }
         }
 
@@ -127,10 +130,9 @@ namespace PixelShoot.Boosters
         private void Update()
         {
             if (!waitingForShop) return;
-            var s = shop != null ? shop : ShopManager.Instance;
-            if (s == null) { waitingForShop = false; return; }
+            if (Shop == null) { waitingForShop = false; return; }
 
-            if (s.IsOpen) { sawShopOpen = true; return; }
+            if (Shop.IsOpen) { sawShopOpen = true; return; }
             if (sawShopOpen) // shop was opened and is now closed → reopen the booster popup
             {
                 waitingForShop = false;

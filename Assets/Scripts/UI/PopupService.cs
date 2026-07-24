@@ -158,6 +158,7 @@ namespace PixelShoot.UI
             }
             var parent = popupRoot != null ? popupRoot : transform;
             var inst = Instantiate(prefab, parent);
+            inst.transform.SetAsLastSibling(); // top of the shared canvas (newest popup draws on top)
             inst.Bind(this);
             return inst;
         }
