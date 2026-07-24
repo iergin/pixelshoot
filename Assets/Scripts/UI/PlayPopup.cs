@@ -24,11 +24,25 @@ namespace PixelShoot.UI
         [SerializeField] private TMP_Text levelLabel;
         [SerializeField] private string levelFormat = "Level {0}";
 
-        [Header("Streak")]
-        [Tooltip("Optional root hidden when the streak is 0 (nothing to brag about yet).")]
-        [SerializeField] private GameObject streakRoot;
-        [SerializeField] private TMP_Text streakLabel;
-        [SerializeField] private string streakFormat = "Streak: {0}";
+        [Header("Streak fill bar")]
+        [Tooltip("Continuous streak bar. Set its Image Type to Filled (Horizontal); " +
+                 "fillAmount = currentStreak / MaxRewardStreak.")]
+        [SerializeField] private Image barFill;
+
+        [Header("Streak gift preview (display only)")]
+        [Tooltip("Optional root shown only when the streak grants a gift this run. The gifts themselves " +
+                 "are applied in the GAME scene by StreakGiftController on level start — this is just the " +
+                 "preview of what the current streak will grant, read from PlayerStreak.")]
+        [SerializeField] private GameObject giftRoot;
+        [Tooltip("Bomb reward count label. {0} = number of streak bombs.")]
+        [SerializeField] private TMP_Text bombRewardLabel;
+        [SerializeField] private string bombRewardFormat = "x{0}";
+        [Tooltip("Paint reward count label. {0} = number of streak paints.")]
+        [SerializeField] private TMP_Text paintRewardLabel;
+        [SerializeField] private string paintRewardFormat = "x{0}";
+        [Tooltip("Optional per-reward roots hidden when that reward is 0.")]
+        [SerializeField] private GameObject bombRewardRoot;
+        [SerializeField] private GameObject paintRewardRoot;
 
         private MainMenuController menu;
 
@@ -41,9 +55,32 @@ namespace PixelShoot.UI
 
             if (levelLabel != null) levelLabel.text = string.Format(levelFormat, PlayerProgress.DisplayLevel);
 
-            int streak = PlayerStreak.Current;
-            if (streakLabel != null) streakLabel.text = string.Format(streakFormat, streak);
-            if (streakRoot != null) streakRoot.SetActive(streak > 0);
+            ShowStreakBar();
+            ShowGiftPreview();
+        }
+
+        // Fill the bar to currentStreak / MaxRewardStreak (capped full past the max).
+        private void ShowStreakBar()
+        {
+            if (barFill == null) return;
+            int max = PlayerStreak.MaxRewardStreak;
+            int filled = Mathf.Clamp(PlayerStreak.Current, 0, max);
+            barFill.fillAmount = max > 0 ? (float)filled / max : 0f;
+        }
+
+        // Preview what the current streak will grant when the level starts. The actual bombs/paint are
+        // placed in the Game scene by StreakGiftController — here we only read the same PlayerStreak
+        // values so the player sees their reward before pressing Play.
+        private void ShowGiftPreview()
+        {
+            int bombs  = PlayerStreak.RewardBombs;
+            int paints = PlayerStreak.RewardPaints;
+
+            if (bombRewardLabel != null) bombRewardLabel.text = string.Format(bombRewardFormat, bombs);
+            if (paintRewardLabel != null) paintRewardLabel.text = string.Format(paintRewardFormat, paints);
+            if (bombRewardRoot != null) bombRewardRoot.SetActive(bombs > 0);
+            if (paintRewardRoot != null) paintRewardRoot.SetActive(paints > 0);
+            if (giftRoot != null) giftRoot.SetActive(bombs > 0 || paints > 0);
         }
 
         private void OnPlay()

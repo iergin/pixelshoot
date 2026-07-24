@@ -15,6 +15,14 @@ namespace PixelShoot.Game
     {
         [Tooltip("Coins config used to seed the starting balance on a fresh save.")]
         [SerializeField] private CoinsConfig coinsConfig;
+        [Tooltip("Optional. Streak reward tuning. If assigned, injected into PlayerStreak so you don't " +
+                 "need a Resources/StreakConfig asset.")]
+        [SerializeField] private StreakConfig streakConfig;
+
+        private void Awake()
+        {
+            if (streakConfig != null) PlayerStreak.Configure(streakConfig);
+        }
 
         private void Start()
         {

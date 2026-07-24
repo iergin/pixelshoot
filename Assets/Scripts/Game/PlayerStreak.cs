@@ -16,8 +16,36 @@ namespace PixelShoot.Game
     {
         private const string StreakKey = "PixelShoot.Streak";
 
-        /// <summary>Reward stops scaling past this streak (streak 3 = the top tier).</summary>
-        public const int MaxRewardStreak = 3;
+        // ─────────────────────────────────────────────────────────────────────
+        //  STREAK TUNING lives in a StreakConfig ScriptableObject (edit it in the Inspector).
+        //  Resolved lazily: an explicitly-injected config (see Configure) wins; else a
+        //  Resources/StreakConfig asset is auto-loaded; else built-in defaults are used.
+        // ─────────────────────────────────────────────────────────────────────
+        private static StreakConfig config;
+
+        private static StreakConfig Cfg
+        {
+            get
+            {
+                if (config != null) return config;
+                config = Resources.Load<StreakConfig>("StreakConfig");
+                if (config == null)
+                {
+                    Debug.LogWarning("[PlayerStreak] No StreakConfig found (put one in a Resources folder " +
+                                     "named 'StreakConfig', or inject via PlayerStreak.Configure / AppBootstrap). " +
+                                     "Using built-in defaults for now.");
+                    config = ScriptableObject.CreateInstance<StreakConfig>(); // fields already hold defaults
+                }
+                return config;
+            }
+        }
+
+        /// <summary>Inject the streak config explicitly (e.g. from AppBootstrap) instead of relying on
+        /// the Resources auto-load.</summary>
+        public static void Configure(StreakConfig cfg) { if (cfg != null) config = cfg; }
+
+        /// <summary>Number of streak steps (fill-bar length). Reward + bar cap here.</summary>
+        public static int MaxRewardStreak => Cfg.MaxRewardStreak;
 
         /// <summary>Fired whenever the streak value changes (win / reset).</summary>
         public static event Action<int> OnChanged;
@@ -34,14 +62,14 @@ namespace PixelShoot.Game
             }
         }
 
-        /// <summary>Streak clamped to the reward cap — the tier the start-of-level gift uses.</summary>
+        /// <summary>Streak clamped to the reward cap — the step the start-of-level gift uses.</summary>
         public static int RewardTier => Mathf.Clamp(Current, 0, MaxRewardStreak);
 
-        /// <summary>Streak bombs to drop this level: 3 per tier (0/3/6/9).</summary>
-        public static int RewardBombs => RewardTier * 3;
+        /// <summary>Streak bombs to drop this level — from the config at the current step.</summary>
+        public static int RewardBombs => Cfg.Bombs(RewardTier);
 
-        /// <summary>Free painted pixels this level: 0/5/15/25 by tier.</summary>
-        public static int RewardPaints => RewardTier == 0 ? 0 : RewardTier * 10 - 5;
+        /// <summary>Free painted pixels this level — from the config at the current step.</summary>
+        public static int RewardPaints => Cfg.Paints(RewardTier);
 
         /// <summary>A level was cleared → extend the streak.</summary>
         public static void RegisterWin() => Current = Current + 1;

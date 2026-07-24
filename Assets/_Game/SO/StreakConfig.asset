@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9e1c0496c53446bcbdb09cb33865bc6, type: 3}
+  m_Name: StreakConfig
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Game.StreakConfig
+  maxRewardStreak: 5
+  bombsByStreak: 000000000300000006000000090000000c0000000f000000
+  paintsByStreak: 00000000050000000a0000000f0000001400000019000000
