@@ -193,6 +193,7 @@ MonoBehaviour:
   - {fileID: 3670076330598602689, guid: 66f50702e157b4ae4a255212d1f9e27b, type: 3}
   - {fileID: 8859342850856229077, guid: 0bc4d1b79f6cc48b1a98ddde7b2ae234, type: 3}
   - {fileID: 4790466644298984400, guid: f5950ba8dd9c44bf594aafccef04b261, type: 3}
+  - {fileID: 8910579388793387814, guid: 8ad2571e9b4c4469d919d7cf78c4febb, type: 3}
 --- !u!4 &386698091
 Transform:
   m_ObjectHideFlags: 0
@@ -525,7 +526,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62bafb5f222aa488a9050a18764e835d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Shop.ShopManager
-  offers: []
+  offers:
+  - {fileID: 11400000, guid: cd1000a000010000beef0000face0000, type: 2}
+  - {fileID: 11400000, guid: cd5000a000050000beef0000face0000, type: 2}
+  - {fileID: 11400000, guid: cd5005ba00050000beefcafe000057a4, type: 2}
+  - {fileID: 11400000, guid: cd1000ba00100000beef0000face0000, type: 2}
+  - {fileID: 11400000, guid: cd2500ca00250000beef0000face0000, type: 2}
+  - {fileID: 11400000, guid: cd5000ca00500000beef0000face0000, type: 2}
+  - {fileID: 11400000, guid: cd0001ea01000000beef0000face0000, type: 2}
+  - {fileID: 11400000, guid: cdadcdadcdadcdadcdadcdadcdadcdad, type: 2}
 --- !u!4 &2028689572
 Transform:
   m_ObjectHideFlags: 0
@@ -703,6 +712,7 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 79279333}
   - {fileID: 1589617347}
   - {fileID: 2012050787}
   - {fileID: 871115601}
@@ -711,5 +721,4 @@ SceneRoots:
   - {fileID: 464252368}
   - {fileID: 515959798}
   - {fileID: 2028689572}
-  - {fileID: 79279333}
   - {fileID: 386698091}

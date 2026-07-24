@@ -2520,7 +2520,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcfa63ebcc39e491fb1f001f1f38cbb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Shop.NoAdsPromoTrigger
-  openButton: {fileID: 0}
+  openButton: {fileID: 788691587}
   gameController: {fileID: 0}
 --- !u!1 &468958196
 GameObject:
@@ -8886,7 +8886,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1787611798
 RectTransform:
   m_ObjectHideFlags: 0
