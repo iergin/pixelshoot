@@ -51,6 +51,24 @@ namespace PixelShoot.UI
         /// <summary>The topmost visible popup, or null.</summary>
         public BasePopup Top => activeStack.Count > 0 ? activeStack[activeStack.Count - 1] : null;
 
+        /// <summary>True whenever ANY popup is on screen. Goes true the instant the first popup starts
+        /// opening and false only after the LAST one has fully closed — so it stays true across the
+        /// whole stack and through open/close animations. Gameplay guards (pause the conveyor, block
+        /// bus taps) listen to <see cref="AnyOpenChanged"/>.</summary>
+        public static bool AnyOpen { get; private set; }
+
+        /// <summary>Fired when <see cref="AnyOpen"/> flips (true = a popup appeared, false = all gone).</summary>
+        public static event System.Action<bool> AnyOpenChanged;
+
+        // Recompute AnyOpen from the live stack and fire on change. Called right after any add/remove.
+        private void RefreshAnyOpen()
+        {
+            bool now = activeStack.Count > 0;
+            if (now == AnyOpen) return;
+            AnyOpen = now;
+            AnyOpenChanged?.Invoke(now);
+        }
+
         /// <summary>True if a popup of type <typeparamref name="T"/> is currently on screen.</summary>
         public bool IsOpen<T>() where T : BasePopup
         {
@@ -104,6 +122,7 @@ namespace PixelShoot.UI
             var p = Spawn(typeof(T));
             if (p == null) return null;
             activeStack.Add(p);
+            RefreshAnyOpen();
             var wrapped = Wrap(configure);
             wrapped?.Invoke(p);
             Debug.Log($"[PopupService] Pushed {typeof(T).Name} on top (stack={activeStack.Count}).");
@@ -122,7 +141,8 @@ namespace PixelShoot.UI
                 activeStack.Remove(popup);
                 Destroy(popup.gameObject);
                 Debug.Log($"[PopupService] Closed {popup.GetType().Name} (stack={activeStack.Count}, queue={queue.Count}).");
-                if (activeStack.Count == 0) Pump();
+                if (activeStack.Count == 0) Pump();  // a queued popup may open here (keeps the stack non-empty)
+                RefreshAnyOpen();                    // fires AnyOpen=false only when nothing is left / queued
             });
         }
 
@@ -133,6 +153,7 @@ namespace PixelShoot.UI
             if (p == null) return null;
             transitioning = true;
             activeStack.Add(p);
+            RefreshAnyOpen(); // fires AnyOpen=true the instant the first popup starts opening
             configure?.Invoke(p);
             Debug.Log($"[PopupService] Opening {type.Name} (top-level).");
             p.PlayOpen(() => { transitioning = false; Pump(); });
