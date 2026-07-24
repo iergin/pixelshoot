@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9e1c0496c53446bcbdb09cb33865bc6, type: 3}
   m_Name: StreakConfig
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Game.StreakConfig
-  maxRewardStreak: 5
-  bombsByStreak: 000000000300000006000000090000000c0000000f000000
-  paintsByStreak: 00000000050000000a0000000f0000001400000019000000
+  maxRewardStreak: 3
+  bombsByStreak: 00000000030000000600000009000000
+  paintsByStreak: 00000000050000000a0000000f000000
