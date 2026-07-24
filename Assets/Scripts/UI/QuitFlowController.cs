@@ -20,6 +20,10 @@ namespace PixelShoot.UI
     /// </summary>
     public class QuitFlowController : MonoBehaviour
     {
+        /// <summary>The Game-scene quit flow, so cross-scene callers (e.g. the in-game settings popup
+        /// spawned by PopupService) can start it via <see cref="BeginQuitFlow"/>.</summary>
+        public static QuitFlowController Instance { get; private set; }
+
         [Header("Wiring")]
         [SerializeField] private GameController gameController;
         [Tooltip("Quit button in the level HUD — opens the flow.")]
@@ -43,6 +47,7 @@ namespace PixelShoot.UI
 
         private void Awake()
         {
+            Instance = this;
             if (quitButton != null)       { quitButton.onClick.RemoveAllListeners();       quitButton.onClick.AddListener(BeginQuitFlow); }
             if (streakPopupClose != null) { streakPopupClose.onClick.RemoveAllListeners(); streakPopupClose.onClick.AddListener(OnStreakClosed); }
             if (lifePopupClose != null)   { lifePopupClose.onClick.RemoveAllListeners();   lifePopupClose.onClick.AddListener(OnLifeClosed); }
@@ -96,5 +101,7 @@ namespace PixelShoot.UI
             if (streakPopup != null) streakPopup.SetActive(false);
             if (lifePopup != null) lifePopup.SetActive(false);
         }
+
+        private void OnDestroy() { if (Instance == this) Instance = null; }
     }
 }

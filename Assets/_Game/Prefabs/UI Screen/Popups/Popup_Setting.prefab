@@ -708,6 +708,7 @@ MonoBehaviour:
   closeButtons:
   - {fileID: 6841419963457855849}
   sortingOrder: 0
+  embedded: 0
   notifications:
     button: {fileID: 4683706450238812950}
     icon: {fileID: 8251693060973377259}
@@ -720,34 +721,34 @@ MonoBehaviour:
     offVisual: {fileID: 0}
   sound:
     button: {fileID: 717897157962509372}
-    icon: {fileID: 1084473145272616908}
-    onSprite: {fileID: 21300000, guid: e22217fcb49eb4297b69ef13dc363a53, type: 3}
-    offSprite: {fileID: 21300000, guid: d40655d9f3a1a412cbfd8c2c503d096e, type: 3}
+    icon: {fileID: 8465822504546162458}
+    onSprite: {fileID: 21300000, guid: 32a2847850f304abcb94281cf509a1e4, type: 3}
+    offSprite: {fileID: -4453409750272279191, guid: 7bd8b00073a911a4aaf53dad1fa23073, type: 3}
     useColor: 0
     onColor: {r: 1, g: 1, b: 1, a: 1}
     offColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
-    onVisual: {fileID: 0}
-    offVisual: {fileID: 0}
+    onVisual: {fileID: 5573039809108424474}
+    offVisual: {fileID: 8746257153801613490}
   music:
     button: {fileID: 7031898697658743700}
-    icon: {fileID: 4791144150147401064}
-    onSprite: {fileID: 21300000, guid: 314422c9abf5b4ddf8a193c65ae9460e, type: 3}
-    offSprite: {fileID: 21300000, guid: 51fb4e2c86ba8476cbc200b0f1487e54, type: 3}
+    icon: {fileID: 1527272419138857693}
+    onSprite: {fileID: 21300000, guid: 32a2847850f304abcb94281cf509a1e4, type: 3}
+    offSprite: {fileID: -4453409750272279191, guid: 7bd8b00073a911a4aaf53dad1fa23073, type: 3}
     useColor: 0
     onColor: {r: 1, g: 1, b: 1, a: 1}
     offColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
-    onVisual: {fileID: 0}
-    offVisual: {fileID: 0}
+    onVisual: {fileID: 8710297450046259106}
+    offVisual: {fileID: 6351525838156342156}
   vibration:
     button: {fileID: 6585659655263054317}
-    icon: {fileID: 7887589074652137568}
-    onSprite: {fileID: 21300000, guid: edc63f1db9c054780bcff69beddf3233, type: 3}
-    offSprite: {fileID: 21300000, guid: cd4f26f82de5941a3b19acd1dec0ab26, type: 3}
+    icon: {fileID: 8897048908735017007}
+    onSprite: {fileID: 21300000, guid: 32a2847850f304abcb94281cf509a1e4, type: 3}
+    offSprite: {fileID: -4453409750272279191, guid: 7bd8b00073a911a4aaf53dad1fa23073, type: 3}
     useColor: 0
     onColor: {r: 1, g: 1, b: 1, a: 1}
     offColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
-    onVisual: {fileID: 0}
-    offVisual: {fileID: 0}
+    onVisual: {fileID: 6125775298828885674}
+    offVisual: {fileID: 6047658384139581750}
   privacyButton: {fileID: 9093413733094903245}
   privacyUrl: https://example.com/privacy
   termsButton: {fileID: 5085214540192827558}

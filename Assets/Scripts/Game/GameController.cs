@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using PixelShoot.Conveyor;
 using PixelShoot.Data;
 using PixelShoot.Grid;
@@ -17,6 +18,10 @@ namespace PixelShoot.Game
         [SerializeField] private ConveyorController conveyor;
         [SerializeField] private ReserveController reserve;
         [SerializeField] private PlayOnReserveController playOnReserve;
+
+        [Header("HUD")]
+        [Tooltip("In-game settings (gear) button. Opens the IngameSettingsPopup via PopupService.")]
+        [SerializeField] private Button settingsButton;
 
         [Header("Endgame (last buses)")]
         [Tooltip("Fallback threshold used only if no conveyor is bound. Normally the endgame triggers when alive buses <= the conveyor's CAPACITY (so a capacity booster raises the threshold too).")]
@@ -40,6 +45,24 @@ namespace PixelShoot.Game
         public bool CanAffordRevive => PlayerWallet.CanAfford(ReviveCost);
 
         public void SetCoinsConfig(CoinsConfig cfg) => coinsConfig = cfg;
+
+        private void Awake()
+        {
+            if (settingsButton != null)
+            {
+                settingsButton.onClick.RemoveAllListeners();
+                settingsButton.onClick.AddListener(OpenIngameSettings);
+            }
+        }
+
+        /// <summary>Open the in-game settings popup (gear button). Public so a HUD button can call it too.</summary>
+        public void OpenIngameSettings()
+        {
+            if (PixelShoot.UI.PopupService.Instance != null)
+                PixelShoot.UI.PopupService.Instance.Create<PixelShoot.UI.IngameSettingsPopup>();
+            else
+                Debug.LogWarning("[GameController] No PopupService — can't open in-game settings.");
+        }
 
         public void Bind(GridController g, ConveyorController c, ReserveController r, PlayOnReserveController p = null)
         {
