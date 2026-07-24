@@ -20,6 +20,12 @@ namespace PixelShoot.Boosters
         [SerializeField] private BoosterTutorialController tutorial;
         [SerializeField] private Button button;
         [SerializeField] private Image iconImage;
+        [Tooltip("Icon sprite when the booster is ACTIVE (unlocked AND owned count > 0). " +
+                 "Optional — falls back to the BoosterData icon if empty.")]
+        [SerializeField] private Sprite activeIcon;
+        [Tooltip("Icon sprite when the booster is INACTIVE (locked, or owned count = 0). " +
+                 "Optional — falls back to the BoosterData icon if empty.")]
+        [SerializeField] private Sprite inactiveIcon;
         [Tooltip("Shows the owned count (e.g. 'x3'). {0} = count.")]
         [SerializeField] private TMP_Text countLabel;
         [SerializeField] private string countFormat = "x{0}";
@@ -56,7 +62,6 @@ namespace PixelShoot.Boosters
         {
             if (button == null) button = GetComponent<Button>();
             if (button != null) { button.onClick.RemoveAllListeners(); button.onClick.AddListener(OnClick); }
-            if (booster != null && iconImage != null && booster.Icon != null) iconImage.sprite = booster.Icon;
             // Grant the one-time free boosters the very first time this booster is seen.
             if (booster != null) PlayerBoosters.GrantDefaultOnce(booster.Id, booster.DefaultFreeAmount);
         }
@@ -101,6 +106,16 @@ namespace PixelShoot.Boosters
             else          manager.RequestBooster(booster, flyStartPoint);
         }
 
+        // Swap the icon between the active / inactive sprite. Each falls back to the BoosterData icon
+        // if not assigned in the inspector.
+        private void SetIcon(bool active)
+        {
+            if (iconImage == null) return;
+            Sprite s = active ? activeIcon : inactiveIcon;
+            if (s == null) s = booster != null ? booster.Icon : null;
+            if (s != null) iconImage.sprite = s;
+        }
+
         /// <summary>Show/hide this button's "unlocks at level N" object (driven by the manager).</summary>
         public void SetUnlockInfoVisible(bool visible)
         {
@@ -113,8 +128,18 @@ namespace PixelShoot.Boosters
             bool locked = IsLocked;
             int count = PlayerBoosters.Count(booster.Id);
 
+            // Active icon when the booster is usable (unlocked + owned), inactive otherwise.
+            SetIcon(!locked && count > 0);
+
             if (lockIcon != null) lockIcon.SetActive(locked);
-            if (countLabel != null) { countLabel.gameObject.SetActive(!locked); countLabel.text = string.Format(countFormat, count); }
+            if (countLabel != null)
+            {
+                countLabel.text = string.Format(countFormat, count);
+                // Locked → hide the count label's PARENT (the whole count container), not just the label.
+                var parent = countLabel.transform.parent;
+                if (parent != null) parent.gameObject.SetActive(!locked);
+                else countLabel.gameObject.SetActive(!locked);
+            }
             if (buyBadge != null) buyBadge.SetActive(!locked && count <= 0);
             if (unlockLevelLabel != null) unlockLevelLabel.text = string.Format(unlockLevelFormat, booster.UnlockLevel);
 
