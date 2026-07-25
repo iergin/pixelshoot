@@ -17,6 +17,8 @@ namespace PixelShoot.UI
         [SerializeField] private string livesFormat = "{0}";
         [Tooltip("Shown on the timer label while at the cap.")]
         [SerializeField] private string fullText = "FULL";
+        [Tooltip("Shown as the life COUNT while unlimited lives are active (default = infinity sign).")]
+        [SerializeField] private string unlimitedText = "∞";
 
         private float pollTimer;
 
@@ -39,6 +41,14 @@ namespace PixelShoot.UI
 
         private void Refresh()
         {
+            // Unlimited period → show ∞ as the count and the remaining time on the timer.
+            if (PlayerLives.IsUnlimited)
+            {
+                if (livesLabel != null) livesLabel.text = unlimitedText;
+                if (timerLabel != null) timerLabel.text = FormatDuration(PlayerLives.SecondsUntilUnlimitedEnds());
+                return;
+            }
+
             int lives = PlayerLives.Lives;
             if (livesLabel != null) livesLabel.text = string.Format(livesFormat, lives, PlayerLives.MaxLives);
             if (timerLabel == null) return;
@@ -48,10 +58,17 @@ namespace PixelShoot.UI
                 timerLabel.text = fullText;
                 return;
             }
-            float s = PlayerLives.SecondsUntilNextLife();
-            int m = Mathf.FloorToInt(s / 60f);
-            int sec = Mathf.FloorToInt(s % 60f);
-            timerLabel.text = $"{m:00}:{sec:00}";
+            timerLabel.text = FormatDuration(PlayerLives.SecondsUntilNextLife());
+        }
+
+        // mm:ss, or h:mm:ss once there's an hour or more left (for the unlimited countdown).
+        private static string FormatDuration(float seconds)
+        {
+            int total = Mathf.CeilToInt(seconds);
+            int h = total / 3600;
+            int m = (total % 3600) / 60;
+            int s = total % 60;
+            return h > 0 ? $"{h}:{m:00}:{s:00}" : $"{m:00}:{s:00}";
         }
     }
 }

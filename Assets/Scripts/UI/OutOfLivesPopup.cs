@@ -38,7 +38,9 @@ namespace PixelShoot.UI
 
         [Header("Readouts (optional)")]
         [SerializeField] private TMP_Text balanceLabel;
+        [Tooltip("Shows the current life count (or ∞ during an unlimited period).")]
         [SerializeField] private TMP_Text livesLabel;
+        [SerializeField] private string unlimitedText = "∞";
 
         protected override void OnInit()
         {
@@ -59,7 +61,7 @@ namespace PixelShoot.UI
 
         private void OnLivesChanged(int lives)
         {
-            if (lives > 0) Close(); // got a life → let them start again
+            if (lives > 0 || PlayerLives.IsUnlimited) Close(); // can play again → dismiss
             else Refresh();
         }
 
@@ -68,7 +70,7 @@ namespace PixelShoot.UI
         private void Refresh()
         {
             if (balanceLabel != null) balanceLabel.text = PlayerWallet.Balance.ToString();
-            if (livesLabel != null)   livesLabel.text = PlayerLives.Lives.ToString();
+            if (livesLabel != null)   livesLabel.text = PlayerLives.IsUnlimited ? unlimitedText : PlayerLives.Lives.ToString();
 
             bool adReady = AdsManager.Service != null && AdsManager.Service.IsRewardedReady;
             if (adButton != null) adButton.interactable = adReady;

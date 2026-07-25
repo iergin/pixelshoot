@@ -2041,7 +2041,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3886276689124374780}
   - component: {fileID: 8859342850856229077}
-  - component: {fileID: 1379078309650421418}
   m_Layer: 5
   m_Name: Popup_Play
   m_TagString: Untagged
@@ -2082,7 +2081,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8e3bfbfa8bc34b61ac1a5ace99b6a6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.PlayPopup
-  canvasGroup: {fileID: 1379078309650421418}
+  canvasGroup: {fileID: 0}
   transitions: []
   fadeDuration: 0.25
   closeButtons:
@@ -2101,18 +2100,6 @@ MonoBehaviour:
   paintRewardFormat: x{0}
   bombRewardRoot: {fileID: 0}
   paintRewardRoot: {fileID: 0}
---- !u!225 &1379078309650421418
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4794444711288351789}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!1 &4997711657510669732
 GameObject:
   m_ObjectHideFlags: 0

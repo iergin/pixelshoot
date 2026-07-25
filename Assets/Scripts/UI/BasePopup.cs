@@ -26,10 +26,9 @@ namespace PixelShoot.UI
         [Header("Base popup")]
         [Tooltip("CanvasGroup used for the fallback fade (auto-added if missing and no transitions are set).")]
         [SerializeField] private CanvasGroup canvasGroup;
-        [Tooltip("Optional content groups animated on open/close (slide + fade). If empty, the popup fades via the CanvasGroup.")]
+        [Tooltip("Optional content groups animated on open/close (slide + fade). If empty, the popup " +
+                 "shows/hides INSTANTLY via the CanvasGroup (no fade).")]
         [SerializeField] private UiTransition[] transitions;
-        [Tooltip("Fade duration when falling back to the CanvasGroup (no transitions).")]
-        [SerializeField] private float fadeDuration = 0.25f;
         [Tooltip("Buttons that close this popup (the X / 'No thanks' etc.). Wired automatically.")]
         [SerializeField] private Button[] closeButtons;
         [Tooltip("Optional canvas sorting order for this popup. 0 = inherit the PopupService root canvas " +
@@ -53,7 +52,6 @@ namespace PixelShoot.UI
         public bool IsOpen { get; private set; }
 
         private PopupService owner;
-        private Tween fadeTween;
         private bool wired;
 
         /// <summary>The service that spawned this popup (for subclasses that need it directly).</summary>
@@ -121,14 +119,11 @@ namespace PixelShoot.UI
             EnsureWired();
             gameObject.SetActive(true);
             IsOpen = true;
-            fadeTween?.Kill();
-
-            // Start from hidden so the open always animates in cleanly.
-            SetHidden();
 
             float dur = 0f;
             if (transitions != null && transitions.Length > 0)
             {
+                // Only animate when UiTransition groups are assigned.
                 foreach (var t in transitions)
                 {
                     if (t == null) continue;
@@ -139,10 +134,10 @@ namespace PixelShoot.UI
             }
             else if (canvasGroup != null)
             {
+                // No fade — show instantly.
+                canvasGroup.alpha = 1f;
                 canvasGroup.interactable = true;
                 canvasGroup.blocksRaycasts = true;
-                fadeTween = canvasGroup.DOFade(1f, fadeDuration).SetEase(Ease.OutQuad).SetUpdate(true);
-                dur = fadeDuration;
             }
 
             Finish(dur, () => { OnPopupOpened(); Opened?.Invoke(); onComplete?.Invoke(); });
@@ -152,7 +147,6 @@ namespace PixelShoot.UI
         {
             IsOpen = false;
             OnPopupClosing();
-            fadeTween?.Kill();
 
             float dur = 0f;
             if (transitions != null && transitions.Length > 0)
@@ -166,10 +160,10 @@ namespace PixelShoot.UI
             }
             else if (canvasGroup != null)
             {
+                // No fade — hide instantly.
                 canvasGroup.interactable = false;
                 canvasGroup.blocksRaycasts = false;
-                fadeTween = canvasGroup.DOFade(0f, fadeDuration).SetEase(Ease.InQuad).SetUpdate(true);
-                dur = fadeDuration;
+                canvasGroup.alpha = 0f;
             }
 
             Finish(dur, () => { Closed?.Invoke(); onComplete?.Invoke(); });
@@ -185,17 +179,6 @@ namespace PixelShoot.UI
             canvas.overrideSorting = true;
             canvas.sortingOrder = sortingOrder;
             if (GetComponent<GraphicRaycaster>() == null) gameObject.AddComponent<GraphicRaycaster>();
-        }
-
-        private void SetHidden()
-        {
-            if (transitions != null) foreach (var t in transitions) if (t != null) t.SetHidden();
-            if (canvasGroup != null)
-            {
-                canvasGroup.alpha = 0f;
-                canvasGroup.interactable = false;
-                canvasGroup.blocksRaycasts = false;
-            }
         }
 
         // ── Public API for popups / callers ──────────────────────────────────
@@ -228,7 +211,6 @@ namespace PixelShoot.UI
         protected virtual void OnDestroy()
         {
             if (embedded && IsOpen) OnPopupClosing(); // balance the Awake OnPopupOpened (unsubscribe, etc.)
-            fadeTween?.Kill();
         }
     }
 }

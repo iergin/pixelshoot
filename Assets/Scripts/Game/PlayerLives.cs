@@ -21,10 +21,11 @@ namespace PixelShoot.Game
         public const int MaxLives = 5;
         public const double RegenIntervalMinutes = 30.0;
 
-        private const string LivesKey  = "PixelShoot.Lives";
-        private const string AnchorKey = "PixelShoot.LivesRegenAnchorUtc"; // ISO-8601 UTC
+        private const string LivesKey     = "PixelShoot.Lives";
+        private const string AnchorKey    = "PixelShoot.LivesRegenAnchorUtc";   // ISO-8601 UTC
+        private const string UnlimitedKey = "PixelShoot.UnlimitedLivesUntilUtc"; // ISO-8601 UTC
 
-        /// <summary>Fired after lives change (spend / regen / add). Payload = current lives.</summary>
+        /// <summary>Fired after lives change (spend / regen / add / unlimited granted). Payload = current lives.</summary>
         public static event Action<int> OnChanged;
 
         /// <summary>Current lives, after applying any regen that has accrued since the last check.</summary>
@@ -32,12 +33,54 @@ namespace PixelShoot.Game
 
         public static bool IsFull => Lives >= MaxLives;
 
+        // ── Unlimited (timed) lives ──────────────────────────────────────────
+        /// <summary>True while a timed "unlimited lives" period is active — levels don't cost a life.</summary>
+        public static bool IsUnlimited => UnlimitedUntil() > DateTime.UtcNow;
+
+        /// <summary>Seconds left on the unlimited-lives period, or 0 when inactive.</summary>
+        public static float SecondsUntilUnlimitedEnds()
+        {
+            double rem = (UnlimitedUntil() - DateTime.UtcNow).TotalSeconds;
+            return rem > 0 ? (float)rem : 0f;
+        }
+
+        /// <summary>Grant (or extend) unlimited lives for <paramref name="minutes"/> minutes. If a
+        /// period is already running the time is ADDED on top. Call from an IAP / rewarded reward.</summary>
+        public static void GrantUnlimited(double minutes)
+        {
+            if (minutes <= 0) return;
+            DateTime baseTime = IsUnlimited ? UnlimitedUntil() : DateTime.UtcNow;
+            PlayerPrefs.SetString(UnlimitedKey, baseTime.AddMinutes(minutes).ToString("o"));
+            PlayerPrefs.Save();
+            OnChanged?.Invoke(Recompute()); // refresh HUD (∞)
+        }
+
+        /// <summary>End the unlimited period immediately (debug).</summary>
+        public static void ClearUnlimited()
+        {
+            PlayerPrefs.DeleteKey(UnlimitedKey);
+            PlayerPrefs.Save();
+            OnChanged?.Invoke(Recompute());
+        }
+
+        private static DateTime UnlimitedUntil()
+        {
+            string s = PlayerPrefs.GetString(UnlimitedKey, "");
+            if (!string.IsNullOrEmpty(s) &&
+                DateTime.TryParse(s, null, System.Globalization.DateTimeStyles.RoundtripKind, out var dt))
+                return dt;
+            return DateTime.MinValue;
+        }
+
         /// <summary>
         /// Spend one life for starting a level. Returns false (and changes nothing) when the
         /// player is out of lives — callers should block the level and show a wait/refill UI.
         /// </summary>
         public static bool TryConsumeForLevelStart()
         {
+            // Unlimited period → free to start, no life spent (and nothing to refund on win).
+            if (IsUnlimited) return true;
+
             int lives = Recompute();
             if (lives <= 0) return false;
 
