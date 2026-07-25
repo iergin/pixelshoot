@@ -15,12 +15,13 @@ MonoBehaviour:
   id: conveyor_capacity
   displayName: Extra Lane
   description: Adds one extra slot to the conveyor for this level.
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: c2e0488b504ee4c6bbfeddd66fef12e3, type: 3}
   type: 0
   amount: 1
   unlockLevel: 1
   defaultFreeAmount: 3
   hasTutorial: 1
+  tutorialStyle: 0
   tutorialText: Tap the booster to add an extra conveyor lane!
   coinCost: 500
   coinPurchaseEnabled: 1

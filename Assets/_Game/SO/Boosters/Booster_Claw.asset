@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Claw
   description: Tap the Claw, then pick any bus from the columns to pull it straight
     onto the conveyor.
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: f4809b0da078f4aebb0aff3eb28cd0de, type: 3}
   type: 1
   amount: 1
   unlockLevel: 2

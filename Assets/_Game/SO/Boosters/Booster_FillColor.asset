@@ -15,7 +15,7 @@ MonoBehaviour:
   id: fill_color
   displayName: Fill Color
   description: Tap a box to clear every box of that color at once.
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: c4aef7b9bc78042eeb10d7fb3db41393, type: 3}
   type: 3
   amount: 1
   unlockLevel: 6

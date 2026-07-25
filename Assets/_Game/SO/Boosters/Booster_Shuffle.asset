@@ -15,7 +15,7 @@ MonoBehaviour:
   id: shuffle
   displayName: Shuffle
   description: Randomly rearranges the buses in the front rows of the columns.
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 0de9dfd5c0dca40c3a24f86547d07342, type: 3}
   type: 2
   amount: 1
   unlockLevel: 4
