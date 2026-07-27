@@ -535,12 +535,18 @@ MonoBehaviour:
   offers:
   - {fileID: 11400000, guid: cd1000a000010000beef0000face0000, type: 2}
   - {fileID: 11400000, guid: cd5000a000050000beef0000face0000, type: 2}
-  - {fileID: 11400000, guid: cd5005ba00050000beefcafe000057a4, type: 2}
   - {fileID: 11400000, guid: cd1000ba00100000beef0000face0000, type: 2}
   - {fileID: 11400000, guid: cd2500ca00250000beef0000face0000, type: 2}
   - {fileID: 11400000, guid: cd5000ca00500000beef0000face0000, type: 2}
   - {fileID: 11400000, guid: cd0001ea01000000beef0000face0000, type: 2}
+  - {fileID: 11400000, guid: 2467a10653ebe41c7835accd5503b375, type: 2}
   - {fileID: 11400000, guid: cdadcdadcdadcdadcdadcdadcdadcdad, type: 2}
+  - {fileID: 11400000, guid: 7624ac485ff954a1e8692aba5813ba68, type: 2}
+  - {fileID: 11400000, guid: 17f1b06ad3972474aaf498b93fd926a9, type: 2}
+  - {fileID: 11400000, guid: f35e4e1b415c1471ea5da931ab37aa1a, type: 2}
+  - {fileID: 11400000, guid: 3896987a418114e55a817e6363cd4a4e, type: 2}
+  - {fileID: 11400000, guid: 4b0aa47df555d4022aaf47d6253123c7, type: 2}
+  - {fileID: 11400000, guid: dc8094ab436d64738808fc1efdbf87c1, type: 2}
 --- !u!4 &2028689572
 Transform:
   m_ObjectHideFlags: 0

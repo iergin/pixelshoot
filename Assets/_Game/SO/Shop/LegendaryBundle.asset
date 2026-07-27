@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27d72b82e040a4e35b554b648e748a3a, type: 3}
+  m_Name: LegendaryBundle
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Data.BundleOffer
+  offerId: legendary_bundle
+  productId: legendary_bundle
+  displayName: Legendary Bundle
+  grantedCoins: 70000
+  productType: 0
+  grantNoAds: 0
+  unlimitedMinutes: 1440
+  boosters:
+  - booster: {fileID: 11400000, guid: c1a2b3c4d5e6f70819202122232425c1, type: 2}
+    amount: 10
+  - booster: {fileID: 11400000, guid: 568cfae5fa2404806aa3b52f8cb7c1be, type: 2}
+    amount: 10
+  - booster: {fileID: 11400000, guid: c1a2b3c4d5e6f70819202122232428c4, type: 2}
+    amount: 10
+  - booster: {fileID: 11400000, guid: c1a2b3c4d5e6f70819202122232426c2, type: 2}
+    amount: 10
+  bombPowerups: 12
+  paintPowerups: 12
+  repeatable: 0

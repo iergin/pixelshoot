@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27d72b82e040a4e35b554b648e748a3a, type: 3}
+  m_Name: StarterBundleOffer
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Data.BundleOffer
+  offerId: starter_bundle
+  productId: starter_bundle
+  displayName: Starter Bundle
+  grantedCoins: 5000
+  productType: 0
+  grantNoAds: 0
+  unlimitedMinutes: 0
+  boosters: []
+  bombPowerups: 1
+  paintPowerups: 1
+  repeatable: 0
