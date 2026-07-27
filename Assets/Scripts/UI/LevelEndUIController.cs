@@ -47,19 +47,7 @@ namespace PixelShoot.UI
         [SerializeField] private InterstitialController interstitial;
         private InterstitialController Interstitial => interstitial != null ? interstitial : InterstitialController.Instance;
         [SerializeField] private CoinsConfig coinsConfig;
-        [Header("Fail panel")]
-        [SerializeField] private GameObject failPanel;
-        [SerializeField] private Button restartButton;
-        [SerializeField] private Button playOnButton;
-        [Tooltip("Optional. If set, shows the revive cost as 'Play On (N)' so the player knows the price.")]
-        [SerializeField] private TMP_Text playOnCostLabel;
-        [Tooltip("Format for the revive-cost label. {0} = cost in coins.")]
-        [SerializeField] private string playOnCostFormat = "Play On ({0})";
-        [Tooltip("Optional root shown on fail ONLY when the player has a streak at risk (hidden if streak is 0).")]
-        [SerializeField] private GameObject streakLossRoot;
-        [Tooltip("Optional label warning the streak will be lost. {0} = current streak count.")]
-        [SerializeField] private TMP_Text streakLossLabel;
-        [SerializeField] private string streakLossFormat = "You'll lose your {0} streak!";
+  
 
         public void Bind(GameController gc)
         {
@@ -112,12 +100,7 @@ namespace PixelShoot.UI
 
         private void UpdatePlayOnButton()
         {
-            if (gameController == null) return;
-            int cost = gameController.ReviveCost;
-            bool canAfford = gameController.CanAffordRevive;
 
-            if (playOnButton != null) playOnButton.interactable = canAfford;
-            if (playOnCostLabel != null) playOnCostLabel.text = string.Format(playOnCostFormat, cost);
         }
 
         private void HookButtons()
@@ -126,16 +109,6 @@ namespace PixelShoot.UI
             {
                 nextLevelButton.onClick.RemoveAllListeners();
                 nextLevelButton.onClick.AddListener(OnNextLevel);
-            }
-            if (restartButton != null)
-            {
-                restartButton.onClick.RemoveAllListeners();
-                restartButton.onClick.AddListener(OnRestart);
-            }
-            if (playOnButton != null)
-            {
-                playOnButton.onClick.RemoveAllListeners();
-                playOnButton.onClick.AddListener(OnPlayOn);
             }
             if (doubleCoinsButton != null)
             {
@@ -148,8 +121,6 @@ namespace PixelShoot.UI
 
         private void HandleWon()
         {
-            if (failPanel != null) failPanel.SetActive(false);
-            // Don't pop the panel yet — play the celebration first, THEN show it.
             StopAllCoroutines();
             StartCoroutine(SuccessSequence());
         }
@@ -199,24 +170,10 @@ namespace PixelShoot.UI
             // triggered at the END of the fail chain (FailFlowPopup.Finish, after all X taps).
             if (PopupService.Instance != null)
                 PopupService.Instance.Create<FailFlowPopup>(p => p.SetMode(FailFlowPopup.Mode.Fail));
-            else if (failPanel != null)
-                failPanel.SetActive(true); // single-scene fallback: old panel
         }
-
-        // Warn (only if there's a streak to lose) that failing out will break it. The streak isn't
-        // reset here — it's only lost if the player leaves via Restart/Quit; Play On preserves it.
-        private void ShowStreakAtRisk()
-        {
-            int streak = PlayerStreak.Current;
-            if (streakLossLabel != null && streak > 0)
-                streakLossLabel.text = string.Format(streakLossFormat, streak);
-            if (streakLossRoot != null) streakLossRoot.SetActive(streak > 0);
-        }
-
         public void HideAll()
         {
             if (successPanel != null) successPanel.SetActive(false);
-            if (failPanel != null) failPanel.SetActive(false);
         }
 
         private void OnNextLevel()
@@ -254,15 +211,7 @@ namespace PixelShoot.UI
                 else gameController.ReloadScene();
             }
         }
-
-        private void OnPlayOn()
-        {
-            if (gameController == null) return;
-            // PlayOn now spends coins and returns false if the player can't afford it.
-            // Only hide the fail panel when it actually succeeded.
-            if (gameController.PlayOn() && failPanel != null) failPanel.SetActive(false);
-        }
-
+        
         /// <summary>
         /// "Watch ad for 2× coins" handler. On rewarded success, grants ONE additional
         /// reward on top of the one LevelLoader already paid out, so total = 2×.
