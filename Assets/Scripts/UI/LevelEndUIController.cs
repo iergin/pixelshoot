@@ -19,6 +19,9 @@ namespace PixelShoot.UI
         [Header("Success panel")]
         [SerializeField] private GameObject successPanel;
         [SerializeField] private Button nextLevelButton;
+        [Tooltip("Every Nth completed level, the Next Level button returns to the MENU instead of " +
+                 "loading the next level directly (the next level still resumes from the menu). 0 = never.")]
+        [SerializeField, Min(0)] private int menuEveryLevels = 3;
         [Tooltip("Optional. Shows the coins earned this level, e.g. '+20'. {0} = amount. Updates to the doubled value if the 2× ad is watched.")]
         [SerializeField] private TMP_Text rewardLabel;
         [SerializeField] private string rewardFormat = "+{0}";
@@ -219,6 +222,14 @@ namespace PixelShoot.UI
 
         private void OnNextLevel()
         {
+            // Every Nth completed level, Next Level returns to the menu instead of loading the next
+            // level directly. PlayerProgress already advanced on the win, so LevelIndex == the 1-based
+            // number of the level just completed.
+            int completed = PlayerProgress.LevelIndex;
+            if (menuEveryLevels > 0 && completed > 0 && completed % menuEveryLevels == 0)
+            {
+                if (SceneFlow.Instance != null) { SceneFlow.Instance.LoadMainMenu(); return; }
+            }
             if (gameController != null) gameController.ReloadScene();
         }
 
