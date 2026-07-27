@@ -21,6 +21,9 @@ namespace PixelShoot.UI
         [SerializeField] private GridController grid;
         [Tooltip("FillColor controller reused to run the paint stickmen in from off-screen.")]
         [SerializeField] private FillColorController fill;
+        [Tooltip("Fixed amounts one purchased powerup grants (bombs / paints). Used when the player " +
+                 "selected a powerup for this level in the PlayPopup.")]
+        [SerializeField] private PowerupsConfig powerupsConfig;
         [Tooltip("Delay after gameplay begins before the streak bombs pop in.")]
         [SerializeField, Min(0f)] private float bombDelay = 0.4f;
         [Tooltip("Delay before the paint runners start — set past the bombs so paint skips the just-placed bombs.")]
@@ -48,6 +51,18 @@ namespace PixelShoot.UI
         {
             int bombs  = PlayerStreak.RewardBombs;
             int paints = PlayerStreak.RewardPaints;
+
+            // Purchased powerups the player selected in the PlayPopup for THIS level: consume + add on
+            // top of the streak gift, then clear the selections so they don't carry over.
+            if (powerupsConfig != null)
+            {
+                if (PlayerPowerups.IsSelected(PowerupType.Bomb) && PlayerPowerups.TryConsume(PowerupType.Bomb))
+                    bombs += powerupsConfig.bombsPerPowerup;
+                if (PlayerPowerups.IsSelected(PowerupType.Paint) && PlayerPowerups.TryConsume(PowerupType.Paint))
+                    paints += powerupsConfig.paintsPerPowerup;
+            }
+            PlayerPowerups.ClearSelections();
+
             Debug.Log($"[STREAKBAL] Level started — streak {PlayerStreak.Current} → {bombs} bomb(s), {paints} paint(s). " +
                       $"aliveBoxes={(grid != null ? grid.AliveCount : -1)}, totalShots={PixelShoot.Shooters.ShooterColumn.TotalShots()} (should be equal).");
 

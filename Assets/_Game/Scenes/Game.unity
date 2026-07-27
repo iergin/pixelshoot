@@ -5734,6 +5734,7 @@ MonoBehaviour:
   gameController: {fileID: 448307441}
   grid: {fileID: 1908823581}
   fill: {fileID: 2073169641}
+  powerupsConfig: {fileID: 11400000, guid: 76ec7d7f47f914263ac9c8cd8fa2b873, type: 2}
   bombDelay: 0.4
   paintDelay: 1.2
   paintSettleLog: 4
