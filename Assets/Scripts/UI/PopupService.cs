@@ -114,6 +114,12 @@ namespace PixelShoot.UI
             return null;
         }
 
+        // ── Immediate / stacked open for non-popup callers ───────────────────
+        /// <summary>Open a popup IMMEDIATELY on top of whatever is showing (never queued). Use from
+        /// non-popup code (e.g. ShopManager's purchase waiting / result popups) that must appear over
+        /// the current popup right away. From inside a popup, prefer <see cref="BasePopup.CreatePopup{T}"/>.</summary>
+        public T CreateOnTop<T>(Action<T> configure = null) where T : BasePopup => Push(configure);
+
         // ── Nested request (IMMEDIATE / STACKED) ─────────────────────────────
         /// <summary>Open a popup immediately on top of whatever is showing. Reached from
         /// <see cref="BasePopup.CreatePopup{T}"/>; the current popup stays underneath.</summary>

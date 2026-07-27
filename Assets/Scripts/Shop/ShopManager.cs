@@ -76,14 +76,31 @@ namespace PixelShoot.Shop
             if (iap == null || !iap.IsReady)
             {
                 Debug.LogWarning("[Shop] IAP service not ready.");
+                ShowResult(false);
                 onComplete?.Invoke(false);
                 return;
             }
+
+            // Store round-trip can take a moment → show a waiting popup over the shop until it returns.
+            var waiting = PopupService.Instance != null
+                ? PopupService.Instance.CreateOnTop<PurchaseWaitingPopup>()
+                : null;
+
             iap.Purchase(offer.ProductId, success =>
             {
                 if (success) offer.OnPurchased();
+                if (waiting != null) waiting.Close(); // dismiss the waiting popup (no user close button)
+                ShowResult(success);                       // success → Success popup, fail/cancel → Fail popup
                 onComplete?.Invoke(success);
             });
+        }
+
+        // Close the waiting popup (if any) then stack the success / fail popup over the shop.
+        private static void ShowResult(bool success)
+        {
+            if (PopupService.Instance == null) return;
+            if (success) PopupService.Instance.CreateOnTop<PurchaseSuccessPopup>();
+            else         PopupService.Instance.CreateOnTop<PurchaseFailPopup>();
         }
     }
 }
