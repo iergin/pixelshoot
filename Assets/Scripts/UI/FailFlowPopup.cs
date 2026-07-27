@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using PixelShoot.Ads;
+using PixelShoot.Data;
 using PixelShoot.Game;
 
 namespace PixelShoot.UI
@@ -62,6 +63,17 @@ namespace PixelShoot.UI
         [SerializeField] private GameObject costRoot;
         [SerializeField] private TMP_Text costLabel;
         [SerializeField] private string costFormat = "x{0}";
+        [Tooltip("Current coin balance readout (shown in Fail/Play On mode). Updates live when coins " +
+                 "change (e.g. after buying from the shop). {0} = balance.")]
+        [SerializeField] private TMP_Text balanceLabel;
+        [SerializeField] private string balanceFormat = "{0}";
+
+        [Header("Level reward")]
+        [Tooltip("Coins config (SO asset) — used to read this level's win reward.")]
+        [SerializeField] private CoinsConfig coinsConfig;
+        [Tooltip("Shows how many coins completing the level grants. {0} = reward.")]
+        [SerializeField] private TMP_Text rewardLabel;
+        [SerializeField] private string rewardFormat = "x{0}";
 
         private Mode mode = Mode.Fail;
         private readonly List<Step> steps = new List<Step>();
@@ -92,6 +104,21 @@ namespace PixelShoot.UI
                 int cost = GameController.Instance != null ? GameController.Instance.ReviveCost : 0;
                 costLabel.text = string.Format(costFormat, cost);
             }
+
+            // Current coin balance (Play On mode) — live so buying coins in the shop updates it.
+            if (balanceLabel != null)
+            {
+                balanceLabel.gameObject.SetActive(isFail);
+                if (isFail)
+                {
+                    RefreshBalance(PlayerWallet.Balance);
+                    PlayerWallet.OnBalanceChanged += RefreshBalance;
+                }
+            }
+
+            // Reward this level grants on completion (motivation to continue / retry).
+            if (rewardLabel != null && coinsConfig != null)
+                rewardLabel.text = string.Format(rewardFormat, coinsConfig.LevelWinReward);
 
             index = 0;
             ShowStep();
@@ -169,8 +196,14 @@ namespace PixelShoot.UI
             Close();
         }
 
+        private void RefreshBalance(int balance)
+        {
+            if (balanceLabel != null) balanceLabel.text = string.Format(balanceFormat, balance);
+        }
+
         protected override void OnDestroy()
         {
+            PlayerWallet.OnBalanceChanged -= RefreshBalance;
             streakTween?.Kill();
             base.OnDestroy();
         }
