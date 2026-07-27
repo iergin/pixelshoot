@@ -159,8 +159,8 @@ namespace PixelShoot.UI
             if (doubleCoinsLabel != null && coinsConfig != null)
                 doubleCoinsLabel.text = string.Format(doubleCoinsFormat, coinsConfig.LevelWinReward * 2);
 
-            // Fire the interstitial gate now (with the panel), not over the celebration.
-            Interstitial?.NotifyLevelEnded();
+            // NOTE: the interstitial no longer fires here — it would cover the success panel. It's now
+            // triggered when the player presses Next Level (OnNextLevel), like the fail flow.
         }
 
         private void HandleFailed()
@@ -178,6 +178,10 @@ namespace PixelShoot.UI
 
         private void OnNextLevel()
         {
+            // Interstitial trigger point: only after the player taps Next Level (not while the success
+            // panel is up, which would cover it) — matching the fail flow.
+            Interstitial?.NotifyLevelEnded();
+
             // Every Nth completed level, Next Level returns to the menu instead of loading the next
             // level directly. PlayerProgress already advanced on the win, so LevelIndex == the 1-based
             // number of the level just completed.
