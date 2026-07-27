@@ -68,12 +68,14 @@ namespace PixelShoot.UI
         // Resume → just close the popup and keep playing.
         private void OnResume() => Close();
 
-        // Quit → close, then hand off to the Game-scene quit flow (streak-loss → life → menu).
+        // Quit → close, then open the shared FailFlowPopup in Quit mode (streak-loss → life warnings
+        // → PlayPopup/menu). No continue step in Quit mode.
         private void OnQuit()
         {
             Close();
-            if (QuitFlowController.Instance != null) QuitFlowController.Instance.BeginQuitFlow();
-            else Debug.LogWarning("[IngameSettings] No QuitFlowController in the Game scene — can't quit.");
+            if (PopupService.Instance != null)
+                PopupService.Instance.Create<FailFlowPopup>(p => p.SetMode(FailFlowPopup.Mode.Quit));
+            else Debug.LogWarning("[IngameSettings] No PopupService — can't open the quit flow.");
         }
     }
 }

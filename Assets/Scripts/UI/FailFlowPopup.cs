@@ -51,13 +51,13 @@ namespace PixelShoot.UI
         [Header("Shared controls")]
         [Tooltip("The X button — ADVANCES the chain (does NOT close). Do NOT also add it to Close Buttons.")]
         [SerializeField] private Button advanceButton;
-        [Tooltip("The SINGLE shared green button (not inside any step). Its label + cost live on it.")]
+        [Tooltip("The SINGLE shared green button (not inside any step). Its label objects + cost live on it.")]
         [SerializeField] private Button greenButton;
-        [Tooltip("Green-button text child. Set to 'Play On' — swapped to the resume text in Quit mode.")]
-        [SerializeField] private TMP_Text greenLabel;
-        [SerializeField] private string continueButtonText = "Play On";     // Fail mode (PlayOn)
-        [SerializeField] private string resumeButtonText = "Keep Playing";  // Quit mode (just resume)
-        [Tooltip("Coin-cost readout child of the green button (hidden in Quit mode). {0} = cost.")]
+        [Tooltip("Label object shown in FAIL mode (e.g. the 'Play On' graphic). Hidden in Quit mode.")]
+        [SerializeField] private GameObject continueLabelObject;
+        [Tooltip("Label object shown in QUIT mode (e.g. the 'Keep Playing' graphic). Hidden in Fail mode.")]
+        [SerializeField] private GameObject resumeLabelObject;
+        [Tooltip("Coin-cost readout child of the green button (shown in Fail mode only). {0} = cost.")]
         [SerializeField] private GameObject costRoot;
         [SerializeField] private TMP_Text costLabel;
         [SerializeField] private string costFormat = "x{0}";
@@ -81,9 +81,10 @@ namespace PixelShoot.UI
             if (PlayerStreak.Current > 0) steps.Add(Step.StreakWarn);
             steps.Add(Step.LifeWarn);
 
-            // Green button: Fail = PlayOn (with coin cost), Quit = just resume (no cost).
+            // Green button content: Fail = "Play On" label + coin cost, Quit = "Keep Playing" label.
             bool isFail = mode == Mode.Fail;
-            if (greenLabel != null) greenLabel.text = isFail ? continueButtonText : resumeButtonText;
+            if (continueLabelObject != null) continueLabelObject.SetActive(isFail);
+            if (resumeLabelObject != null)   resumeLabelObject.SetActive(!isFail);
             if (costRoot != null) costRoot.SetActive(isFail);
             if (isFail && costLabel != null)
             {
