@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
+using PixelShoot.Ads;
 using PixelShoot.Game;
 
 namespace PixelShoot.UI
@@ -158,6 +159,11 @@ namespace PixelShoot.UI
         private void Finish()
         {
             PlayerStreak.Reset(); // declined to continue → the streak is lost (as warned)
+
+            // Interstitial trigger point: only now, after ALL the X taps (not on fail, which would
+            // cover the popups). Fail counts as a level result; quitting doesn't tick the counter.
+            if (mode == Mode.Fail) InterstitialController.Instance?.NotifyLevelEnded();
+
             // Reuse the PlayPopup (unbound = in-game retry mode: Play restarts the level, X → menu).
             if (PopupService.Instance != null) PopupService.Instance.Create<PlayPopup>();
             Close();

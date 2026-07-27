@@ -195,9 +195,8 @@ namespace PixelShoot.UI
         private void HandleFailed()
         {
             if (successPanel != null) successPanel.SetActive(false);
-            // Interstitial counter ticks for losses too — the player saw a level result.
-            Interstitial?.NotifyLevelEnded();
-            // Fail now runs through the chained FailFlowPopup (continue → streak/life warnings → try again).
+            // NOTE: the interstitial no longer fires here — it would cover the fail popup. It's now
+            // triggered at the END of the fail chain (FailFlowPopup.Finish, after all X taps).
             if (PopupService.Instance != null)
                 PopupService.Instance.Create<FailFlowPopup>(p => p.SetMode(FailFlowPopup.Mode.Fail));
             else if (failPanel != null)
