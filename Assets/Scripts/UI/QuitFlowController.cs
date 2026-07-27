@@ -57,13 +57,20 @@ namespace PixelShoot.UI
             HideAll();
         }
 
-        /// <summary>Start the quit acknowledgement chain (skip the streak popup if there's none).
-        /// PUBLIC so it can be triggered from the HUD Quit button OR the fail panel's exit button —
-        /// wire either one to this (via the button's OnClick, or an assigned quitButton).</summary>
+        /// <summary>Start the quit acknowledgement chain. Now routes through the shared
+        /// <see cref="FailFlowPopup"/> in <b>Quit</b> mode — which skips the "continue" step and shows
+        /// the streak / life warnings, then the TryAgain popup. PUBLIC so the in-game settings Quit
+        /// button (or a HUD Quit button) can call it.</summary>
         public void BeginQuitFlow()
         {
-            if (PlayerStreak.Current > 0) ShowStreakPopup();
-            else ShowLifePopup();
+            if (PopupService.Instance != null)
+                PopupService.Instance.Create<FailFlowPopup>(p => p.SetMode(FailFlowPopup.Mode.Quit));
+            else
+            {
+                // Single-scene fallback: the old inline popups.
+                if (PlayerStreak.Current > 0) ShowStreakPopup();
+                else ShowLifePopup();
+            }
         }
 
         private void ShowStreakPopup()

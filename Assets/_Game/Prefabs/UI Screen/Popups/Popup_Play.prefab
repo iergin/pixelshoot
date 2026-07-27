@@ -2083,13 +2083,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.PlayPopup
   canvasGroup: {fileID: 0}
   transitions: []
-  fadeDuration: 0.25
-  closeButtons:
-  - {fileID: 5843197440342129167}
-  - {fileID: 2355080527388076038}
+  closeButtons: []
   sortingOrder: 0
   embedded: 0
   playButton: {fileID: 8323471601694434767}
+  playLabel: {fileID: 224314526176392630}
+  playText: Play
+  retryText: Try Again
+  closeButton: {fileID: 2355080527388076038}
   levelLabel: {fileID: 9095799335001180140}
   levelFormat: Level {0}
   barFill: {fileID: 2742778434550463624}

@@ -80,8 +80,10 @@ namespace PixelShoot.UI
         // ── Wiring called by PopupService ────────────────────────────────────
         internal void Bind(PopupService service)
         {
+            // Just record the owner here. EnsureWired() (→ OnInit) is deferred to PlayOpen so it runs
+            // AFTER the Create(...) configure callback (e.g. PlayPopup.Bind / FailFlowPopup.SetMode),
+            // letting OnInit read the mode/refs the caller set up.
             owner = service;
-            EnsureWired();
         }
 
         private void EnsureWired()

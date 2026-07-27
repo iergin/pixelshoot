@@ -6,19 +6,26 @@ using PixelShoot.Game;
 namespace PixelShoot.UI
 {
     /// <summary>
-    /// Pre-level popup shown when the player presses Start on the main menu: which level they're
-    /// about to play and their current streak. Its Play button begins the level via
-    /// <see cref="MainMenuController.StartGame"/> (which spends the life + hands off to the Game
-    /// scene). Closing returns to the menu without starting.
-    ///
-    /// <para>Opened with <c>PopupService.Instance.Create&lt;PlayPopup&gt;(p =&gt; p.Bind(menu))</c> —
-    /// the <see cref="Bind"/> callback supplies the menu reference, which a serialized field could
-    /// not (the popup is spawned in the persistent InitializeScene, the menu lives in MenuScene).</para>
+    /// Pre-level popup (level # + streak + gift preview) used in BOTH contexts:
+    /// <list type="bullet">
+    /// <item><b>Menu</b> — opened via <c>Create&lt;PlayPopup&gt;(p =&gt; p.Bind(menu))</c>. Play calls
+    /// <see cref="MainMenuController.StartGame"/>; X just closes back to the menu.</item>
+    /// <item><b>In-game retry</b> — opened by <see cref="FailFlowPopup"/> at the end of the fail/quit
+    /// chain, WITHOUT Bind. Play restarts the level (spend a life → reload; out of lives → OutOfLives);
+    /// X leaves to the main menu.</item>
+    /// </list>
+    /// The mode is auto-detected: bound to a menu = menu mode, otherwise = retry mode.
     /// </summary>
     public class PlayPopup : BasePopup
     {
         [Header("Play")]
         [SerializeField] private Button playButton;
+        [Tooltip("Optional label on the play button — swapped to Retry Text in in-game retry mode.")]
+        [SerializeField] private TMP_Text playLabel;
+        [SerializeField] private string playText = "Play";
+        [SerializeField] private string retryText = "Try Again";
+        [Tooltip("Optional X / close button. In retry mode it leaves to the main menu; in menu mode it just closes.")]
+        [SerializeField] private Button closeButton;
 
         [Header("Level")]
         [SerializeField] private TMP_Text levelLabel;
@@ -46,13 +53,18 @@ namespace PixelShoot.UI
 
         private MainMenuController menu;
 
-        /// <summary>Supply the menu controller whose StartGame() begins the level.</summary>
+        // No menu bound → we're the in-game retry popup (opened by FailFlowPopup).
+        private bool IsRetry => menu == null;
+
+        /// <summary>Supply the menu controller whose StartGame() begins the level (menu mode).</summary>
         public void Bind(MainMenuController menuController) => menu = menuController;
 
         protected override void OnInit()
         {
-            if (playButton != null) { playButton.onClick.RemoveAllListeners(); playButton.onClick.AddListener(OnPlay); }
+            if (playButton != null)  { playButton.onClick.RemoveAllListeners();  playButton.onClick.AddListener(OnPlay); }
+            if (closeButton != null) { closeButton.onClick.RemoveAllListeners(); closeButton.onClick.AddListener(OnClose); }
 
+            if (playLabel != null) playLabel.text = IsRetry ? retryText : playText;
             if (levelLabel != null) levelLabel.text = string.Format(levelFormat, PlayerProgress.DisplayLevel);
 
             ShowStreakBar();
@@ -85,11 +97,28 @@ namespace PixelShoot.UI
 
         private void OnPlay()
         {
-            // Close ourselves first; StartGame then spends the life and either hands off to the Game
-            // scene, or (out of lives) queues the Out-Of-Lives popup, which opens once we've closed.
             Close();
-            if (menu != null) menu.StartGame();
-            else Debug.LogWarning("[PlayPopup] Not bound to a MainMenuController — can't start the level.");
+
+            // Menu mode: spend a life + hand off to the Game scene (or the out-of-lives popup).
+            if (menu != null) { menu.StartGame(); return; }
+
+            // In-game retry: a fresh attempt costs a life (free while unlimited).
+            if (PlayerLives.TryConsumeForLevelStart())
+            {
+                if (GameController.Instance != null) GameController.Instance.ReloadScene();
+                else if (SceneFlow.Instance != null) SceneFlow.Instance.ReloadGame();
+            }
+            else if (PopupService.Instance != null)
+            {
+                PopupService.Instance.Create<OutOfLivesPopup>();
+            }
+        }
+
+        private void OnClose()
+        {
+            Close();
+            // In-game retry: X leaves to the main menu. Menu mode: X just closes (already home).
+            if (IsRetry && SceneFlow.Instance != null) SceneFlow.Instance.LoadMainMenu();
         }
     }
 }

@@ -35,6 +35,10 @@ namespace PixelShoot.Game
         private GameState state = GameState.Playing;
         private CoinsConfig coinsConfig;
 
+        /// <summary>The Game-scene controller, so cross-scene popups (fail / quit flow, spawned by
+        /// PopupService in the InitializeScene) can reach PlayOn / ReloadScene / revive cost.</summary>
+        public static GameController Instance { get; private set; }
+
         public GameState State => state;
         public event Action OnLevelWon;
         public event Action OnLevelFailed;
@@ -48,6 +52,7 @@ namespace PixelShoot.Game
 
         private void Awake()
         {
+            Instance = this;
             if (settingsButton != null)
             {
                 settingsButton.onClick.RemoveAllListeners();
@@ -478,6 +483,7 @@ namespace PixelShoot.Game
 
         private void OnDestroy()
         {
+            if (Instance == this) Instance = null;
             if (grid != null) grid.OnGridCleared -= HandleGridCleared;
         }
     }

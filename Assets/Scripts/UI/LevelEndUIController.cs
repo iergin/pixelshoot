@@ -192,11 +192,13 @@ namespace PixelShoot.UI
         private void HandleFailed()
         {
             if (successPanel != null) successPanel.SetActive(false);
-            if (failPanel != null) failPanel.SetActive(true);
-            UpdatePlayOnButton();
-            ShowStreakAtRisk();
             // Interstitial counter ticks for losses too — the player saw a level result.
             Interstitial?.NotifyLevelEnded();
+            // Fail now runs through the chained FailFlowPopup (continue → streak/life warnings → try again).
+            if (PopupService.Instance != null)
+                PopupService.Instance.Create<FailFlowPopup>(p => p.SetMode(FailFlowPopup.Mode.Fail));
+            else if (failPanel != null)
+                failPanel.SetActive(true); // single-scene fallback: old panel
         }
 
         // Warn (only if there's a streak to lose) that failing out will break it. The streak isn't

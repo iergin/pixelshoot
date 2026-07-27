@@ -1,0 +1,171 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using DG.Tweening;
+using PixelShoot.Game;
+
+namespace PixelShoot.UI
+{
+    /// <summary>
+    /// The chained fail / quit acknowledgement popup. ONE popup with a separate child GameObject per
+    /// step — you build each step's icon / message / art yourself in the inspector, and this script
+    /// just activates the current step and hides the others as the player taps X to advance. The green
+    /// button (shared, always visible) offers to keep playing throughout.
+    ///
+    /// <para><b>Steps</b> (X advances, green keeps playing):</para>
+    /// <list type="number">
+    /// <item><b>Continue</b> (Fail mode only) — "move the buses aside and keep going"; green = PlayOn
+    /// (pay <see cref="GameController.ReviveCost"/>; can't afford → Shop opens on top).</item>
+    /// <item><b>Streak warning</b> (only if streak &gt; 0) — "you'll lose your N streak".</item>
+    /// <item><b>Life warning</b> — "you'll lose a life".</item>
+    /// </list>
+    /// Past the last step the streak is reset (declined to continue) and the <see cref="PlayPopup"/>
+    /// opens in its in-game retry mode. In <b>Quit</b> mode the Continue step is skipped and the green
+    /// button simply resumes play.
+    /// </summary>
+    public class FailFlowPopup : BasePopup
+    {
+        public enum Mode { Fail, Quit }
+        private enum Step { Continue, StreakWarn, LifeWarn }
+
+        [Header("Step objects (build each one's icon / text yourself)")]
+        [Tooltip("Shown for step A — Continue (Fail mode only).")]
+        [SerializeField] private GameObject continueStep;
+        [Tooltip("Shown for step B — Streak warning (only when streak > 0).")]
+        [SerializeField] private GameObject streakStep;
+        [Tooltip("Shown for step C — Life warning.")]
+        [SerializeField] private GameObject lifeStep;
+        [Tooltip("Optional label INSIDE the streak step that shows the streak number. {0} = streak.")]
+        [SerializeField] private TMP_Text streakCountLabel;
+        [SerializeField] private string streakFormat = "{0}";
+        [Header("Streak fill bar (inside the streak step)")]
+        [Tooltip("Filled (Horizontal) Image. Fills to current streak, then drains to 0 to show the loss.")]
+        [SerializeField] private Image streakFillBar;
+        [Tooltip("Seconds to hold the full bar before it drains to 0.")]
+        [SerializeField, Min(0f)] private float streakDrainDelay = 0.6f;
+        [Tooltip("Seconds the drain-to-0 takes.")]
+        [SerializeField, Min(0f)] private float streakDrainDuration = 0.5f;
+        [SerializeField] private Ease streakDrainEase = Ease.InQuad;
+
+        [Header("Shared controls")]
+        [Tooltip("The X button — ADVANCES the chain (does NOT close). Do NOT also add it to Close Buttons.")]
+        [SerializeField] private Button advanceButton;
+        [Tooltip("The SINGLE shared green button (not inside any step). Its label + cost live on it.")]
+        [SerializeField] private Button greenButton;
+        [Tooltip("Green-button text child. Set to 'Play On' — swapped to the resume text in Quit mode.")]
+        [SerializeField] private TMP_Text greenLabel;
+        [SerializeField] private string continueButtonText = "Play On";     // Fail mode (PlayOn)
+        [SerializeField] private string resumeButtonText = "Keep Playing";  // Quit mode (just resume)
+        [Tooltip("Coin-cost readout child of the green button (hidden in Quit mode). {0} = cost.")]
+        [SerializeField] private GameObject costRoot;
+        [SerializeField] private TMP_Text costLabel;
+        [SerializeField] private string costFormat = "x{0}";
+
+        private Mode mode = Mode.Fail;
+        private readonly List<Step> steps = new List<Step>();
+        private int index;
+        private Tween streakTween;
+
+        /// <summary>Set BEFORE the popup opens (via the Create configure callback).</summary>
+        public void SetMode(Mode m) => mode = m;
+
+        protected override void OnInit()
+        {
+            if (advanceButton != null) { advanceButton.onClick.RemoveAllListeners(); advanceButton.onClick.AddListener(Advance); }
+            if (greenButton   != null) { greenButton.onClick.RemoveAllListeners();   greenButton.onClick.AddListener(OnGreen); }
+
+            // Build the step list for this mode (Continue only on Fail; Streak only if there's one).
+            steps.Clear();
+            if (mode == Mode.Fail) steps.Add(Step.Continue);
+            if (PlayerStreak.Current > 0) steps.Add(Step.StreakWarn);
+            steps.Add(Step.LifeWarn);
+
+            // Green button: Fail = PlayOn (with coin cost), Quit = just resume (no cost).
+            bool isFail = mode == Mode.Fail;
+            if (greenLabel != null) greenLabel.text = isFail ? continueButtonText : resumeButtonText;
+            if (costRoot != null) costRoot.SetActive(isFail);
+            if (isFail && costLabel != null)
+            {
+                int cost = GameController.Instance != null ? GameController.Instance.ReviveCost : 0;
+                costLabel.text = string.Format(costFormat, cost);
+            }
+
+            index = 0;
+            ShowStep();
+        }
+
+        private void ShowStep()
+        {
+            streakTween?.Kill();
+            // Hide all, then activate the current step's object.
+            if (continueStep != null) continueStep.SetActive(false);
+            if (streakStep != null)   streakStep.SetActive(false);
+            if (lifeStep != null)     lifeStep.SetActive(false);
+            if (index < 0 || index >= steps.Count) return;
+
+            switch (steps[index])
+            {
+                case Step.Continue:
+                    if (continueStep != null) continueStep.SetActive(true);
+                    break;
+                case Step.StreakWarn:
+                    if (streakCountLabel != null) streakCountLabel.text = string.Format(streakFormat, PlayerStreak.Current);
+                    if (streakStep != null) streakStep.SetActive(true);
+                    PlayStreakDrain();
+                    break;
+                case Step.LifeWarn:
+                    if (lifeStep != null) lifeStep.SetActive(true);
+                    break;
+            }
+        }
+
+        // Fill to the current streak, hold, then drain to 0 to show the streak being lost.
+        private void PlayStreakDrain()
+        {
+            if (streakFillBar == null) return;
+            streakTween?.Kill();
+            int max = PlayerStreak.MaxRewardStreak;
+            streakFillBar.fillAmount = max > 0 ? Mathf.Clamp01((float)PlayerStreak.Current / max) : 0f;
+            streakTween = DOTween.To(() => streakFillBar.fillAmount, x => streakFillBar.fillAmount = x, 0f, streakDrainDuration)
+                .SetEase(streakDrainEase)
+                .SetDelay(streakDrainDelay)
+                .SetUpdate(true); // unscaled — the game is frozen while the popup is up
+        }
+
+        // X → next step; past the last step → abandon (reset streak) and go to the TryAgain popup.
+        private void Advance()
+        {
+            index++;
+            if (index < steps.Count) ShowStep();
+            else Finish();
+        }
+
+        // Green → Fail: PlayOn (pay coins, keep playing); can't afford → Shop stacked on top.
+        //         Quit: just resume (cancel the quit).
+        private void OnGreen()
+        {
+            if (mode == Mode.Quit) { Close(); return; } // resume play
+
+            var gc = GameController.Instance;
+            if (gc != null && gc.PlayOn()) { Close(); return; } // revived → back to play
+
+            // Couldn't afford the revive → open the shop ON TOP (nested), so they can buy and come back.
+            CreatePopup<ShopPopup>();
+        }
+
+        private void Finish()
+        {
+            PlayerStreak.Reset(); // declined to continue → the streak is lost (as warned)
+            // Reuse the PlayPopup (unbound = in-game retry mode: Play restarts the level, X → menu).
+            if (PopupService.Instance != null) PopupService.Instance.Create<PlayPopup>();
+            Close();
+        }
+
+        protected override void OnDestroy()
+        {
+            streakTween?.Kill();
+            base.OnDestroy();
+        }
+    }
+}
