@@ -155,7 +155,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6137505701122768730
 RectTransform:
   m_ObjectHideFlags: 0
@@ -394,14 +394,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7543ede74d2f7448eac991286f0186b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.PowerupSelectSlot
-  type: 0
+  type: 1
   button: {fileID: 8154597046578713263}
   backgroundImage: {fileID: 5387166277417222862}
   selectedSprite: {fileID: 21300000, guid: 2ba6d8f521c034a18ab0dc23d52101b2, type: 3}
   unselectedSprite: {fileID: 21300000, guid: 71f7e65cca9844dfca0a60ffecf271b5, type: 3}
-  countBadge: {fileID: 9002074832756368297}
-  countLabel: {fileID: 7204734235141908828}
-  addBadge: {fileID: 328474154561783125}
+  countBadge: {fileID: 2117361599126881556}
+  countLabel: {fileID: 3441549413885407983}
+  addBadge: {fileID: 7098684238015300379}
 --- !u!1 &723861671973955876
 GameObject:
   m_ObjectHideFlags: 0
@@ -946,7 +946,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7393467676507726793
 RectTransform:
   m_ObjectHideFlags: 0

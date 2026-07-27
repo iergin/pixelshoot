@@ -31,6 +31,23 @@ public partial class SROptions
         gc.DebugForceFail();
     }
 
+    // ── Powerups (debug grant to test the PlayPopup selector) ───────────
+    [Category("PixelShoot — Powerups")]
+    [DisplayName("Owned Bomb")]
+    public int PowerupBombOwned => PlayerPowerups.Owned(PowerupType.Bomb);
+
+    [Category("PixelShoot — Powerups")]
+    [DisplayName("Owned Paint")]
+    public int PowerupPaintOwned => PlayerPowerups.Owned(PowerupType.Paint);
+
+    [Category("PixelShoot — Powerups")]
+    [DisplayName("Add 5 Bomb Powerups")]
+    public void DebugAddBombPowerups() => PlayerPowerups.Add(PowerupType.Bomb, 5);
+
+    [Category("PixelShoot — Powerups")]
+    [DisplayName("Add 5 Paint Powerups")]
+    public void DebugAddPaintPowerups() => PlayerPowerups.Add(PowerupType.Paint, 5);
+
     // ── Wallet ──────────────────────────────────────────────────────────
     private int _addCoinAmount = 100;
 
