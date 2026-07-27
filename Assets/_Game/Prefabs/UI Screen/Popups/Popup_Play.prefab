@@ -270,6 +270,7 @@ GameObject:
   - component: {fileID: 1767605817616067617}
   - component: {fileID: 5387166277417222862}
   - component: {fileID: 8154597046578713263}
+  - component: {fileID: 3516801716340457678}
   m_Layer: 5
   m_Name: BTN_btn2
   m_TagString: Untagged
@@ -381,6 +382,26 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3516801716340457678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 370043900168643179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7543ede74d2f7448eac991286f0186b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.PowerupSelectSlot
+  type: 0
+  button: {fileID: 8154597046578713263}
+  backgroundImage: {fileID: 5387166277417222862}
+  selectedSprite: {fileID: 21300000, guid: 2ba6d8f521c034a18ab0dc23d52101b2, type: 3}
+  unselectedSprite: {fileID: 21300000, guid: 71f7e65cca9844dfca0a60ffecf271b5, type: 3}
+  countBadge: {fileID: 9002074832756368297}
+  countLabel: {fileID: 7204734235141908828}
+  addBadge: {fileID: 328474154561783125}
 --- !u!1 &723861671973955876
 GameObject:
   m_ObjectHideFlags: 0
@@ -708,7 +729,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3057648639880827423
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1077,7 +1098,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4546630061066321984
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1534,7 +1555,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: SELECT BOOSTERS
+  m_text: SELECT POWERUPS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3f3ed0e143b454b268fcb604c597cce0, type: 2}
   m_sharedMaterial: {fileID: 1711768205443791933, guid: 3f3ed0e143b454b268fcb604c597cce0, type: 2}
@@ -1699,7 +1720,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7503847527537421568
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2256,8 +2277,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 185, y: 196}
+  m_AnchoredPosition: {x: 7.4, y: 2.6}
+  m_SizeDelta: {x: 250, y: 240}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8523321264861463484
 CanvasRenderer:
@@ -2287,7 +2308,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 479c8f5a5b8034c93bf9e642dc9d3d5e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 521cd91ac18ba47e49e81ac9aea88684, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3435,7 +3456,7 @@ RectTransform:
   m_GameObject: {fileID: 7603974964199702386}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.21333535, y: 0.21333535, z: 0.4266707}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 777299499824005391}
@@ -3443,7 +3464,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 178, y: 166}
+  m_SizeDelta: {x: 1024, y: 1024}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2537957125831455797
 CanvasRenderer:
@@ -3473,7 +3494,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b2e4a79b5adb74e7a92a31c850027e43, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 667481b2773ec45919859fa73a1a4e7f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3981,6 +4002,7 @@ GameObject:
   - component: {fileID: 158352297674271225}
   - component: {fileID: 2494069560984771432}
   - component: {fileID: 2710049340065661167}
+  - component: {fileID: 8993114514142260353}
   m_Layer: 5
   m_Name: BTN_btn3
   m_TagString: Untagged
@@ -4092,6 +4114,26 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8993114514142260353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8706624400101266488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7543ede74d2f7448eac991286f0186b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.PowerupSelectSlot
+  type: 0
+  button: {fileID: 2710049340065661167}
+  backgroundImage: {fileID: 2494069560984771432}
+  selectedSprite: {fileID: 21300000, guid: 2ba6d8f521c034a18ab0dc23d52101b2, type: 3}
+  unselectedSprite: {fileID: 21300000, guid: 71f7e65cca9844dfca0a60ffecf271b5, type: 3}
+  countBadge: {fileID: 9002074832756368297}
+  countLabel: {fileID: 7204734235141908828}
+  addBadge: {fileID: 328474154561783125}
 --- !u!1 &8874671807053521832
 GameObject:
   m_ObjectHideFlags: 0

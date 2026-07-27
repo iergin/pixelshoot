@@ -28,9 +28,9 @@ namespace PixelShoot.UI
         [SerializeField, Min(0f)] private float bombDelay = 0.4f;
         [Tooltip("Delay before the paint runners start — set past the bombs so paint skips the just-placed bombs.")]
         [SerializeField, Min(0f)] private float paintDelay = 1.2f;
-
-        [Tooltip("Extra seconds after the paint before logging the settled balance (runners must land first).")]
-        [SerializeField, Min(0f)] private float paintSettleLog = 4f;
+        [Tooltip("Extra delay before the PURCHASED-POWERUP bombs/paint activate, so they read as a " +
+                 "separate second beat AFTER the streak gift (not applied together).")]
+        [SerializeField, Min(0f)] private float powerupDelay = 1.0f;
 
         private void OnEnable()
         {
@@ -49,45 +49,38 @@ namespace PixelShoot.UI
 
         private void HandleLevelReady()
         {
-            int bombs  = PlayerStreak.RewardBombs;
-            int paints = PlayerStreak.RewardPaints;
+            // Streak gift (from StreakConfig) and purchased powerups (from PowerupsConfig) are separate
+            // effects with separate amounts, applied on their own timing with a delay between them.
+            int streakBombs  = PlayerStreak.RewardBombs;
+            int streakPaints = PlayerStreak.RewardPaints;
 
-            // Purchased powerups the player selected in the PlayPopup for THIS level: consume + add on
-            // top of the streak gift, then clear the selections so they don't carry over.
+            int puBombs = 0, puPaints = 0;
             if (powerupsConfig != null)
             {
                 if (PlayerPowerups.IsSelected(PowerupType.Bomb) && PlayerPowerups.TryConsume(PowerupType.Bomb))
-                    bombs += powerupsConfig.bombsPerPowerup;
+                    puBombs = powerupsConfig.bombsPerPowerup;
                 if (PlayerPowerups.IsSelected(PowerupType.Paint) && PlayerPowerups.TryConsume(PowerupType.Paint))
-                    paints += powerupsConfig.paintsPerPowerup;
+                    puPaints = powerupsConfig.paintsPerPowerup;
             }
             PlayerPowerups.ClearSelections();
 
-            Debug.Log($"[STREAKBAL] Level started — streak {PlayerStreak.Current} → {bombs} bomb(s), {paints} paint(s). " +
-                      $"aliveBoxes={(grid != null ? grid.AliveCount : -1)}, totalShots={PixelShoot.Shooters.ShooterColumn.TotalShots()} (should be equal).");
+            Debug.Log($"[StreakGift] streak → {streakBombs} bomb / {streakPaints} paint; " +
+                      $"powerups → {puBombs} bomb / {puPaints} paint (delay {powerupDelay}s).");
 
+            // 1) Streak gift first.
+            ApplyGift(streakBombs, streakPaints, bombDelay, paintDelay);
+            // 2) Purchased powerups a beat later, as a separate activation.
+            ApplyGift(puBombs, puPaints, bombDelay + powerupDelay, paintDelay + powerupDelay);
+        }
+
+        // Place bombs + run paint with the given start delays (bombs before paint so paint skips them).
+        private void ApplyGift(int bombs, int paints, float bombAt, float paintAt)
+        {
             if (bombs > 0 && grid != null)
-                DOVirtual.DelayedCall(bombDelay, () =>
-                {
-                    if (grid == null) return;
-                    grid.PlaceStreakBombs(bombs);
-                    Debug.Log($"[STREAKBAL] After bombs placed — aliveBoxes={grid.AliveCount}, totalShots={PixelShoot.Shooters.ShooterColumn.TotalShots()} (bombs don't change counts until detonated).");
-                });
+                DOVirtual.DelayedCall(bombAt, () => { if (grid != null) grid.PlaceStreakBombs(bombs); });
 
             if (paints > 0 && fill != null)
-                DOVirtual.DelayedCall(paintDelay, () =>
-                {
-                    if (fill == null) return;
-                    fill.StreakPaint(paints); // unlinked-safe: never strands a linked bus
-                    Debug.Log($"[STREAKBAL] Paint fired — aliveBoxes={(grid != null ? grid.AliveCount : -1)}, totalShots={PixelShoot.Shooters.ShooterColumn.TotalShots()} " +
-                              "(shots drop NOW, boxes clear when the runners land — see the settled line next).");
-
-                    // The runners land over the next second or two; log the SETTLED numbers, which
-                    // are the ones that must match.
-                    DOVirtual.DelayedCall(paintSettleLog, () =>
-                        Debug.Log($"[STREAKBAL] Paint settled — aliveBoxes={(grid != null ? grid.AliveCount : -1)}, " +
-                                  $"totalShots={PixelShoot.Shooters.ShooterColumn.TotalShots()} (THESE must be EQUAL)."));
-                });
+                DOVirtual.DelayedCall(paintAt, () => { if (fill != null) fill.StreakPaint(paints); }); // unlinked-safe
         }
     }
 }
