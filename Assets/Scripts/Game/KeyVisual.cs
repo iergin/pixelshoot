@@ -24,6 +24,11 @@ namespace PixelShoot.Game
         [SerializeField] private int jumpCount = 1;
         [SerializeField] private float jumpDuration = 0.5f;
 
+        [Header("Particle")]
+        [Tooltip("Looping idle particle (sparkle). Plays while the key waits; stops emitting the moment " +
+                 "the key starts flying to its lock.")]
+        [SerializeField] private ParticleSystem idleParticle;
+
         private int keyId;
         private Vector3 baseScale;
         private bool leaving;
@@ -35,6 +40,7 @@ namespace PixelShoot.Game
             baseScale = transform.localScale;
             if (KeyManager.Instance != null) KeyManager.Instance.RegisterKeyVisual(id, this);
             StartIdlePulse();
+            if (idleParticle != null) idleParticle.Play();
         }
 
         private void StartIdlePulse()
@@ -52,6 +58,8 @@ namespace PixelShoot.Game
             if (leaving || target == null) { onLanded?.Invoke(); return; }
             leaving = true;
             idleTween?.Kill();
+            // Key starts flying → stop the sparkle (existing particles fade out naturally).
+            if (idleParticle != null) idleParticle.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             transform.DOScale(baseScale, 0.1f); // settle back from the pulse
 
             transform.DOJump(target.position, jumpPower, jumpCount, jumpDuration).SetEase(Ease.OutQuad);
