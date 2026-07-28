@@ -11422,6 +11422,7 @@ GameObject:
   - component: {fileID: 3422368225156897020}
   - component: {fileID: 7973605780678560072}
   - component: {fileID: 1380978732259896200}
+  - component: {fileID: 7973605780678560073}
   m_Layer: 5
   m_Name: BTN_Play
   m_TagString: Untagged
@@ -11596,7 +11597,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: bf96c56159b7241829b3002198097861, type: 3}
+  m_Sprite: {fileID: -3851579819015100914, guid: 99f2e17b35750a540aa1bf07f35663dd, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -11606,6 +11607,24 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7973605780678560073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5306374625538236166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94f3df6b64cca4ef8ae16be791e9f3be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.DifficultyThemed
+  spriteTargets:
+  - image: {fileID: 7973605780678560072}
+    normal: {fileID: -3851579819015100914, guid: 99f2e17b35750a540aa1bf07f35663dd, type: 3}
+    hard: {fileID: -3186459864055362378, guid: 37139ab188caef84dac81c913749c3bc, type: 3}
+    superHard: {fileID: -5409618154424833346, guid: 152224e6e2e143549acad355f429e0fa, type: 3}
+  colorTargets: []
 --- !u!224 &8238866422632000168
 RectTransform:
   m_ObjectHideFlags: 0

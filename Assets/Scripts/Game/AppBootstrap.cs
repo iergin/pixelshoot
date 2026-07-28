@@ -18,10 +18,13 @@ namespace PixelShoot.Game
         [Tooltip("Optional. Streak reward tuning. If assigned, injected into PlayerStreak so you don't " +
                  "need a Resources/StreakConfig asset.")]
         [SerializeField] private StreakConfig streakConfig;
+        [Tooltip("Difficulty colours + reward multipliers + the level-table JSON (id → difficulty).")]
+        [SerializeField] private DifficultyConfig difficultyConfig;
 
         private void Awake()
         {
             if (streakConfig != null) PlayerStreak.Configure(streakConfig);
+            DifficultyProvider.Configure(difficultyConfig);
         }
 
         private void Start()

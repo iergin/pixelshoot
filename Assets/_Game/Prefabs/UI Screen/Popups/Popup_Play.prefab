@@ -2062,6 +2062,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3886276689124374780}
   - component: {fileID: 8859342850856229077}
+  - component: {fileID: 9078238464305407797}
   m_Layer: 5
   m_Name: Popup_Play
   m_TagString: Untagged
@@ -2122,6 +2123,28 @@ MonoBehaviour:
   paintRewardFormat: x{0}
   bombRewardRoot: {fileID: 0}
   paintRewardRoot: {fileID: 0}
+--- !u!114 &9078238464305407797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4794444711288351789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94f3df6b64cca4ef8ae16be791e9f3be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.DifficultyThemed
+  spriteTargets:
+  - image: {fileID: 3019990481382984617}
+    normal: {fileID: 21300000, guid: e3a8f0d5c52b1484f9eb329fb8d0f9bb, type: 3}
+    hard: {fileID: 21300000, guid: 4d3f10e3ff585434ea75592d4dd7cbb9, type: 3}
+    superHard: {fileID: 21300000, guid: 20792db253451f946a8c4f19d3c6dc62, type: 3}
+  - image: {fileID: 6982029316401288343}
+    normal: {fileID: 21300000, guid: 9a5dd37a64a5b174eaa7965e3360a3f4, type: 3}
+    hard: {fileID: 21300000, guid: 1717d43f7c437d24eac99cbcee481a7d, type: 3}
+    superHard: {fileID: 21300000, guid: ac11d927040515f4eaeeb1e96230aa65, type: 3}
+  colorTargets: []
 --- !u!1 &4997711657510669732
 GameObject:
   m_ObjectHideFlags: 0
@@ -2813,8 +2836,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9256e3cc740244d5e940a47bf305b056, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 1717d43f7c437d24eac99cbcee481a7d, type: 3}
+  m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4

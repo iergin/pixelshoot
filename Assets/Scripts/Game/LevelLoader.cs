@@ -8,6 +8,11 @@ namespace PixelShoot.Game
 {
     public class LevelLoader : MonoBehaviour
     {
+        /// <summary>Coins actually paid for the most recent win (base × difficulty multiplier). The
+        /// success panel reads this so its readout matches what was granted, without re-deriving the
+        /// difficulty (which would race with PlayerProgress advancing on the win).</summary>
+        public static int LastWinReward { get; private set; }
+
         [Header("Data")]
          private LevelData levelData;
         [Tooltip("Ordered playlist consulted when no explicit LevelData override is assigned. " +
@@ -231,8 +236,14 @@ namespace PixelShoot.Game
             // hooking up the full playlist asset.
             if (coinsConfig != null && coinsConfig.LevelWinReward > 0)
             {
-                PlayerWallet.Add(coinsConfig.LevelWinReward);
-                Debug.Log($"LevelLoader: paid +{coinsConfig.LevelWinReward} coins on level win. " +
+                // Difficulty (from the JSON table, by current DisplayLevel) multiplies the win reward
+                // — Normal x1, Hard x3, Super Hard x5. PlayerProgress hasn't advanced yet here, so
+                // DifficultyProvider.Current reflects the level just won.
+                int mult = Mathf.Max(1, DifficultyProvider.CurrentRewardMultiplier);
+                int reward = coinsConfig.LevelWinReward * mult;
+                LastWinReward = reward; // exact amount paid this win (for the success panel to display)
+                PlayerWallet.Add(reward);
+                Debug.Log($"LevelLoader: paid +{reward} coins on level win (x{mult} for {DifficultyProvider.Current}). " +
                           $"Balance now {PlayerWallet.Balance}.");
             }
 

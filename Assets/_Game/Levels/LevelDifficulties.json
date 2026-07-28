@@ -1,0 +1,404 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 2,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 3,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 4,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 5,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 6,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 7,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 8,
+      "difficulty": "Hard"
+    },
+    {
+      "id": 9,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 10,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 11,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 12,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 13,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 14,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 15,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 16,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 17,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 18,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 19,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 20,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 21,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 22,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 23,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 24,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 25,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 26,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 27,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 28,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 29,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 30,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 31,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 32,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 33,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 34,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 35,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 36,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 37,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 38,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 39,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 40,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 41,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 42,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 43,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 44,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 45,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 46,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 47,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 48,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 49,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 50,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 51,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 52,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 53,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 54,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 55,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 56,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 57,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 58,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 59,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 60,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 61,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 62,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 63,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 64,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 65,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 66,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 67,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 68,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 69,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 70,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 71,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 72,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 73,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 74,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 75,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 76,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 77,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 78,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 79,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 80,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 81,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 82,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 83,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 84,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 85,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 86,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 87,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 88,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 89,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 90,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 91,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 92,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 93,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 94,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 95,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 96,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 97,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 98,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 99,
+      "difficulty": "Normal"
+    },
+    {
+      "id": 100,
+      "difficulty": "Normal"
+    }
+  ]
+}

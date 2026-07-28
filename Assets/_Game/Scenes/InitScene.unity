@@ -384,6 +384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Game.AppBootstrap
   coinsConfig: {fileID: 11400000, guid: 577c3c529cf76468086cddd026d1b29d, type: 2}
   streakConfig: {fileID: 11400000, guid: e552c3d55c9cb4f5ab9bdb98ced68912, type: 2}
+  difficultyConfig: {fileID: 11400000, guid: 0e155d9ba73a64f618bada844c412222, type: 2}
 --- !u!4 &871115601
 Transform:
   m_ObjectHideFlags: 0

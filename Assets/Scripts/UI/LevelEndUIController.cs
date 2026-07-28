@@ -150,15 +150,15 @@ namespace PixelShoot.UI
         {
             if (successPanel != null) successPanel.SetActive(true);
 
-            // "You earned" text — the base win reward (matches what LevelLoader paid).
-            int reward = coinsConfig != null ? coinsConfig.LevelWinReward : 0;
+            // "You earned" text — the actual reward paid (base × difficulty multiplier).
+            int reward = LevelLoader.LastWinReward;
             if (rewardLabel != null) rewardLabel.text = string.Format(rewardFormat, reward);
 
             // Set up the 2× button. Re-enabled each win in case the previous win consumed it.
             doubleCoinsClaimed = false;
             if (doubleCoinsButton != null) doubleCoinsButton.interactable = true;
-            if (doubleCoinsLabel != null && coinsConfig != null)
-                doubleCoinsLabel.text = string.Format(doubleCoinsFormat, coinsConfig.LevelWinReward * 2);
+            if (doubleCoinsLabel != null)
+                doubleCoinsLabel.text = string.Format(doubleCoinsFormat, reward * 2);
 
             // NOTE: the interstitial no longer fires here — it would cover the success panel. It's now
             // triggered when the player presses Next Level (OnNextLevel), like the fail flow.
@@ -241,11 +241,11 @@ namespace PixelShoot.UI
                 {
                     doubleCoinsClaimed = true;
                     if (doubleCoinsButton != null) doubleCoinsButton.interactable = false;
-                    PlayerWallet.Add(coinsConfig.LevelWinReward); // first reward already paid by LevelLoader
-                    // Reflect the doubled total on the reward text.
-                    if (rewardLabel != null) rewardLabel.text = string.Format(rewardFormat, coinsConfig.LevelWinReward * 2);
+                    int reward = LevelLoader.LastWinReward; // the actual paid amount (× difficulty)
+                    PlayerWallet.Add(reward); // grant the same again → total 2× (first was paid by LevelLoader)
+                    if (rewardLabel != null) rewardLabel.text = string.Format(rewardFormat, reward * 2);
                     Interstitial?.NotifyRewardedWatched();
-                    Debug.Log($"[LevelEndUI] 2× reward claimed (+{coinsConfig.LevelWinReward}).");
+                    Debug.Log($"[LevelEndUI] 2× reward claimed (+{reward}).");
                 },
                 onClosed: null);
         }
