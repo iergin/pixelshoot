@@ -4597,12 +4597,6 @@ MonoBehaviour:
       linkGroupId: 0
       isLock: 0
       keyId: 0
-    - color: {fileID: 0}
-      shotCount: 1
-      isSurprise: 0
-      linkGroupId: 0
-      isLock: 0
-      keyId: 0
     - color: {fileID: 11400000, guid: 9e73225d80428de41b03c7dc73451967, type: 2}
       shotCount: 34
       isSurprise: 0
