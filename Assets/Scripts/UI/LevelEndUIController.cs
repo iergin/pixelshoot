@@ -178,13 +178,17 @@ namespace PixelShoot.UI
 
         private void OnNextLevel()
         {
-            // Interstitial trigger point: only after the player taps Next Level (not while the success
-            // panel is up, which would cover it) — matching the fail flow.
-            Interstitial?.NotifyLevelEnded();
+            // Interstitial fires now (after Next Level, not over the success panel). The reload runs
+            // in the callback — ONLY after the ad closes — so the level never rebuilds under the ad
+            // (which left buses unclickable).
+            if (Interstitial != null) Interstitial.NotifyLevelEnded(ProceedToNext);
+            else ProceedToNext();
+        }
 
-            // Every Nth completed level, Next Level returns to the menu instead of loading the next
-            // level directly. PlayerProgress already advanced on the win, so LevelIndex == the 1-based
-            // number of the level just completed.
+        private void ProceedToNext()
+        {
+            // Every Nth completed level, return to the menu instead of loading the next level directly.
+            // PlayerProgress already advanced on the win, so LevelIndex == the level just completed.
             int completed = PlayerProgress.LevelIndex;
             if (menuEveryLevels > 0 && completed > 0 && completed % menuEveryLevels == 0)
             {

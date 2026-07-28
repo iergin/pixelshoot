@@ -89,13 +89,26 @@ namespace PixelShoot.Shop
         private bool NoAdsOwned => PlayerWallet.HasNoAds || PlayerWallet.HasPurchased(NoAdsOfferId);
 
         // ─── Show 1: BEFORE the player's first interstitial ─────────────────
-        // The No Ads offer would ideally get a turn ahead of the very first ad, but a plain
-        // GameObject panel can't be awaited to re-trigger the ad on close, so we let the ad play now
-        // and surface the promo right after (OnFirstAdSeenMaybe). When migrated to a MessagePopup,
-        // gate the ad by re-invoking proceed() from the popup's Closed event instead.
+        // Open the No Ads promo popup ON TOP right before the ad; when the player dismisses it we call
+        // proceed() so the interstitial plays (or is skipped if they bought No Ads in the popup).
         private void HandleBeforeFirstAd(Action proceed)
         {
-            proceed?.Invoke();
+            if (NoAdsOwned) { proceed?.Invoke(); return; }
+
+            var svc = PixelShoot.UI.PopupService.Instance;
+            var popup = svc != null ? svc.CreateOnTop<PixelShoot.UI.NoAdsPromoPopup>() : null;
+            if (popup == null) { proceed?.Invoke(); return; } // no popup service → just play the ad
+
+            // Count it as NoAds promo show #1 so the after-ad fallback doesn't double it.
+            noAdsShownCount++;
+            noAdsLastSession = PlayerWallet.SessionCount;
+            PlayerPrefs.SetInt(NoAdsCountKey, noAdsShownCount);
+            PlayerPrefs.SetInt(NoAdsLastSessionKey, noAdsLastSession);
+            PlayerPrefs.Save();
+
+            // Dismissing the promo lets the ad proceed.
+            popup.Closed += () => proceed?.Invoke();
+            Debug.Log("[NoAdsPromo] Shown BEFORE the first interstitial; ad proceeds on dismiss.");
         }
 
         // ─── Fallback Show 1: after the first ad, only if the pre-ad hook didn't run ──

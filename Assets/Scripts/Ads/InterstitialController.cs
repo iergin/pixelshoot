@@ -53,29 +53,32 @@ namespace PixelShoot.Ads
             set { PlayerPrefs.SetInt(CounterKey, Mathf.Max(0, value)); PlayerPrefs.Save(); }
         }
 
-        /// <summary>Call when ANY level ends (win or lose).</summary>
-        public void NotifyLevelEnded()
+        // Fired when the current NotifyLevelEnded resolves (ad closed, or no ad shown). Lets callers
+        // (e.g. the next-level reload) run AFTER the ad instead of underneath it.
+        private Action pendingResolved;
+        private void ResolvePending()
+        {
+            var cb = pendingResolved;
+            pendingResolved = null;
+            cb?.Invoke();
+        }
+
+        /// <summary>Call when ANY level ends (win or lose). <paramref name="onResolved"/> is invoked
+        /// when it's safe to continue — immediately if no ad shows, or after the interstitial (and any
+        /// pre-ad promo) closes. Pass the next-level reload here so it never runs under the ad.</summary>
+        public void NotifyLevelEnded(Action onResolved = null)
         {
             // NoAds purchase suppresses interstitials entirely.
-            if (PlayerWallet.HasNoAds)
-            {
-                Debug.Log("[Interstitial] Skipped — NoAds purchased.");
-                return;
-            }
+            if (PlayerWallet.HasNoAds)      { Debug.Log("[Interstitial] Skipped — NoAds purchased."); onResolved?.Invoke(); return; }
             // An ad is still on-screen → don't count this end event toward the next show.
-            if (waitingForCurrentAdToClose)
-            {
-                Debug.Log("[Interstitial] Skipped — previous ad still open.");
-                return;
-            }
-
-            if (config == null) return;
+            if (waitingForCurrentAdToClose) { Debug.Log("[Interstitial] Skipped — previous ad still open."); onResolved?.Invoke(); return; }
+            if (config == null)             { onResolved?.Invoke(); return; }
 
             int currentLevel = PlayerProgress.DisplayLevel;
             if (currentLevel < config.StartLevel)
             {
                 Debug.Log($"[Interstitial] Skipped — current level {currentLevel} below startLevel {config.StartLevel}.");
-                return;
+                onResolved?.Invoke(); return;
             }
 
             int interval = Mathf.Max(1, config.LevelsBetweenAds);
@@ -85,25 +88,24 @@ namespace PixelShoot.Ads
             if (newCount < interval)
             {
                 Debug.Log($"[Interstitial] {newCount}/{interval} levels until next ad.");
-                return;
+                onResolved?.Invoke(); return;
             }
 
-            // Time cooldown — measured from when the LAST ad CLOSED, so the seconds spent watching
-            // the ad don't count. Keep the counter armed and just wait: a later trigger once the
-            // cooldown has elapsed will show the ad.
+            // Time cooldown — measured from when the LAST ad CLOSED.
             if (CooldownActive(out float remaining))
             {
                 Debug.Log($"[Interstitial] Skipped — cooldown active, {remaining:F0}s left since the last ad closed.");
-                return;
+                onResolved?.Invoke(); return;
             }
 
             if (AdsManager.Service == null || !AdsManager.Service.IsInterstitialReady)
             {
                 Debug.Log("[Interstitial] Threshold reached but no ad loaded; keeping counter armed.");
-                return;
+                onResolved?.Invoke(); return;
             }
 
             waitingForCurrentAdToClose = true;
+            pendingResolved = onResolved; // resolved when the ad closes / is skipped
 
             // Before the VERY FIRST interstitial, let the No Ads promo have a turn. The subscriber
             // shows its offer and calls ShowInterstitialNow when the player dismisses it (or buys
@@ -128,12 +130,14 @@ namespace PixelShoot.Ads
                 Debug.Log("[Interstitial] No Ads bought in the promo — skipping the ad.");
                 LevelsSince = 0;
                 waitingForCurrentAdToClose = false;
+                ResolvePending();
                 return;
             }
             if (AdsManager.Service == null || !AdsManager.Service.IsInterstitialReady)
             {
                 Debug.Log("[Interstitial] Ad no longer ready after the promo — keeping counter armed.");
                 waitingForCurrentAdToClose = false;
+                ResolvePending();
                 return;
             }
             AdsManager.Service.ShowInterstitial(HandleInterstitialClosed);
@@ -158,6 +162,7 @@ namespace PixelShoot.Ads
             waitingForCurrentAdToClose = false;
             PlayerWallet.MarkFirstAdSeen();
             OnInterstitialClosed?.Invoke();
+            ResolvePending(); // now safe to continue (e.g. reload the next level)
         }
 
         public void NotifyRewardedWatched()
