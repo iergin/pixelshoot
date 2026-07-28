@@ -37,6 +37,7 @@ namespace PixelShoot.UI
         [SerializeField] private Image iconImage;
         [Tooltip("Button covering the panel — a tap anywhere on it closes the tutorial.")]
         [SerializeField] private Button closeButton;
+        [SerializeField] private Button BGcloseButton;
 
         private readonly Queue<SpecialItem> queue = new Queue<SpecialItem>();
         private SpecialItem current;
@@ -54,6 +55,8 @@ namespace PixelShoot.UI
             if (wired) return;
             wired = true;
             if (closeButton != null) { closeButton.onClick.RemoveAllListeners(); closeButton.onClick.AddListener(Advance); }
+            if (BGcloseButton != null) { BGcloseButton.onClick.RemoveAllListeners(); BGcloseButton.onClick.AddListener(Advance); }
+
         }
 
         /// <summary>Scan a freshly-built level and queue a tutorial for each special item the
