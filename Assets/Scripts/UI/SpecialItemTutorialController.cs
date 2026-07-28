@@ -37,7 +37,7 @@ namespace PixelShoot.UI
         [SerializeField] private Image iconImage;
         [Tooltip("Button covering the panel — a tap anywhere on it closes the tutorial.")]
         [SerializeField] private Button closeButton;
-        [SerializeField] private Button BGcloseButton;
+        [SerializeField] private Button BgCloseButton;
 
         private readonly Queue<SpecialItem> queue = new Queue<SpecialItem>();
         private SpecialItem current;
@@ -55,7 +55,7 @@ namespace PixelShoot.UI
             if (wired) return;
             wired = true;
             if (closeButton != null) { closeButton.onClick.RemoveAllListeners(); closeButton.onClick.AddListener(Advance); }
-            if (BGcloseButton != null) { BGcloseButton.onClick.RemoveAllListeners(); BGcloseButton.onClick.AddListener(Advance); }
+            if (BgCloseButton != null) { BgCloseButton.onClick.RemoveAllListeners(); BgCloseButton.onClick.AddListener(Advance); }
 
         }
 
