@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using PixelShoot.Game;
 
 namespace PixelShoot.UI
@@ -35,6 +36,11 @@ namespace PixelShoot.UI
         [Tooltip("If on, Start opens a PlayPopup (level # + streak) whose Play button then calls " +
                  "StartGame. If off, Start launches the level directly.")]
         [SerializeField] private bool showPlayPopup = true;
+
+        [Header("Level readout")]
+        [Tooltip("Optional text showing the current level. {0} = level number.")]
+        [SerializeField] private TMP_Text currentLevelLabel;
+        [SerializeField] private string currentLevelFormat = "Level {0}";
 
         [Header("Start transition")]
         [Tooltip("Open the menu automatically on scene start.")]
@@ -98,6 +104,8 @@ namespace PixelShoot.UI
         {
             if (menuRoot != null) menuRoot.SetActive(true);
             starting = false;
+            if (currentLevelLabel != null)
+                currentLevelLabel.text = string.Format(currentLevelFormat, PlayerProgress.DisplayLevel);
             transitions?.PlayIn();
         }
 

@@ -718,11 +718,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 723131048646275478, guid: f5950ba8dd9c44bf594aafccef04b261, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 1835.73
+      value: 1581.7
       objectReference: {fileID: 0}
     - target: {fileID: 723131048646275478, guid: f5950ba8dd9c44bf594aafccef04b261, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 21.1825
+      value: -105.84
       objectReference: {fileID: 0}
     - target: {fileID: 3592506249385177730, guid: f5950ba8dd9c44bf594aafccef04b261, type: 3}
       propertyPath: m_Camera
@@ -9241,6 +9241,8 @@ MonoBehaviour:
   startButton: {fileID: 1380978732259896200}
   settingsButton: {fileID: 151918787}
   showPlayPopup: 1
+  currentLevelLabel: {fileID: 2085916303}
+  currentLevelFormat: Level {0}
   openOnStart: 1
 --- !u!114 &1856195690 stripped
 MonoBehaviour:
