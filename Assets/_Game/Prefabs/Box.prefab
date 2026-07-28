@@ -81,6 +81,7 @@ MonoBehaviour:
   colorDot: {fileID: 384555966877513184}
   stroke: {fileID: 5547521540205398337}
   bombVisual: {fileID: 2015209383702167541}
+  bombVisualFrontierY: 1.1
   outline: {fileID: 8579136077059425433}
   sheen: {fileID: 7190066132976189804}
   explosionParticlePrefab: {fileID: 0}
@@ -533,7 +534,7 @@ Transform:
   m_GameObject: {fileID: 5989151630776139497}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.49999994, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1412,7 +1413,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 45
+      scalar: 35
       minScalar: 10
       maxCurve:
         serializedVersion: 2

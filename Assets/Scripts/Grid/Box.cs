@@ -24,6 +24,9 @@ namespace PixelShoot.Grid
         [SerializeField] private MeshRenderer stroke;
         [Tooltip("Optional visual (e.g. bomb mesh) toggled on for bomb cells.")]
         [SerializeField] private GameObject bombVisual;
+        [Tooltip("Local Y the bomb model is lifted to ONLY while the box is Frontier (outermost, " +
+                 "shootable). In other states it keeps its prefab-authored default Y.")]
+        [SerializeField] private float bombVisualFrontierY = 1.1f;
         [Tooltip("Optional outline child (stencil-mask + BoxOutline materials) enabled ONLY while the box is Hit. Outlines clip against neighbouring hit boxes so shared edges don't double up.")]
         [SerializeField] private GameObject outline;
         [Tooltip("Optional sheen overlay child (BoxSheen additive material) enabled ONLY while the box is Hit, so the looping screen-space shine sweep shimmers across the painted picture.")]
@@ -129,7 +132,7 @@ namespace PixelShoot.Grid
             tone = cellTone;
             isBomb = bomb;
             KeyId = keyId;
-            if (bombVisual != null) bombVisual.SetActive(bomb);
+            ShowBombVisual(bomb);
             // The dot reveals the real color of a locked box — use the per-color Hit material
             // (the only remaining color-tinted material on ColorData).
             if (colorDot != null && c != null && c.BoxHitMaterial != null)
@@ -161,11 +164,7 @@ namespace PixelShoot.Grid
                 if (stroke != null && stroke.gameObject.activeSelf != (newState == BoxState.Frontier))
                     stroke.gameObject.SetActive(newState == BoxState.Frontier);
                 // Bomb model: on for bomb cells until they detonate (state == Hit).
-                if (bombVisual != null)
-                {
-                    bool shouldShow = isBomb && newState != BoxState.Hit;
-                    if (bombVisual.activeSelf != shouldShow) bombVisual.SetActive(shouldShow);
-                }
+                ShowBombVisual(isBomb && newState != BoxState.Hit);
                 // Outline turns OFF immediately for any non-Hit state. For Hit it is revealed
                 // only AFTER the hit scale movements (punch + height + mesh shrink) settle —
                 // see ScheduleOutlineReveal.
@@ -231,7 +230,7 @@ namespace PixelShoot.Grid
             IsStreakBomb = true;
             if (bombVisual != null)
             {
-                bombVisual.SetActive(true);
+                ShowBombVisual(true);
                 if (Application.isPlaying)
                 {
                     var t = bombVisual.transform;
@@ -241,6 +240,24 @@ namespace PixelShoot.Grid
                 }
             }
             return true;
+        }
+
+        private bool bombBaseYCaptured;
+        private float bombBaseY; // prefab-authored default Y, used in every state except Frontier
+
+        // Show/hide the bomb model. When shown, lift it to bombVisualFrontierY ONLY while Frontier
+        // (outermost / shootable); otherwise sit it at its default authored Y.
+        private void ShowBombVisual(bool show)
+        {
+            if (bombVisual == null) return;
+            if (!bombBaseYCaptured) { bombBaseY = bombVisual.transform.localPosition.y; bombBaseYCaptured = true; }
+            if (show)
+            {
+                float y = state == BoxState.Frontier ? bombVisualFrontierY : bombBaseY;
+                var p = bombVisual.transform.localPosition;
+                bombVisual.transform.localPosition = new Vector3(p.x, y, p.z);
+            }
+            if (bombVisual.activeSelf != show) bombVisual.SetActive(show);
         }
 
         private void ApplyStateTransforms()
