@@ -194,6 +194,19 @@ MonoBehaviour:
   shooterClickVolume: 1
   boxHitClip: {fileID: 8300000, guid: d58f8153623544044ac2822c7ad7efa6, type: 3}
   boxHitVolume: 1
+  boxHitMinInterval: 0.1
+  boxBombClip: {fileID: 0}
+  boxBombVolume: 1
+  boxBombMinInterval: 0.1
+  blockedClip: {fileID: 0}
+  blockedVolume: 1
+  lockOpenClip: {fileID: 8300000, guid: 7fbffcac6c9a4425db7ed6a45bee0c25, type: 3}
+  lockOpenVolume: 1
+  footstepClip: {fileID: 0}
+  footstepVolume: 0.5
+  footstepMinInterval: 0.08
+  footstepPitchRange: {x: 0.9, y: 1.12}
+  footstepVolumeJitter: 0.2
 --- !u!1 &5505097005529517983
 GameObject:
   m_ObjectHideFlags: 0

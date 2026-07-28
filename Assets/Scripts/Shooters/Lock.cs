@@ -85,6 +85,7 @@ namespace PixelShoot.Shooters
         private void BeginOpenAnimation()
         {
             PixelShoot.Game.KeyManager.Instance?.ConsumeKey(KeyId); // reveal the key's covered boxes
+            PixelShoot.Audio.AudioManager.Instance?.PlayLockOpen(); // unlock SFX
 
             if (Application.isPlaying && animator != null && !string.IsNullOrEmpty(openTrigger))
             {

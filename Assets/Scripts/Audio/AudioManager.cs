@@ -52,6 +52,9 @@ namespace PixelShoot.Audio
         [Tooltip("Negative 'can't do that' cue — e.g. tapping a linked group that can't board yet because a member hasn't surfaced.")]
         [SerializeField] private AudioClip blockedClip;
         [SerializeField, Range(0f, 1f)] private float blockedVolume = 1f;
+        [Tooltip("Played by PlayLockOpen() when a lock is unlocked (its key was collected).")]
+        [SerializeField] private AudioClip lockOpenClip;
+        [SerializeField, Range(0f, 1f)] private float lockOpenVolume = 1f;
 
         [Header("Footsteps")]
         [Tooltip("Single footstep clip played (throttled) as stickmen run. Many runners collapse into one steady patter.")]
@@ -136,6 +139,9 @@ namespace PixelShoot.Audio
 
         /// <summary>Negative cue when an action is rejected (e.g. a linked group can't board yet).</summary>
         public void PlayBlocked() => PlaySfx(blockedClip, blockedVolume);
+
+        /// <summary>Played when a lock unlocks (its key was collected).</summary>
+        public void PlayLockOpen() => PlaySfx(lockOpenClip, lockOpenVolume);
 
         public void PlayBoxHit()
         {
