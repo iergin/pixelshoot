@@ -108,7 +108,7 @@ namespace PixelShoot.UI
             // Current coin balance (Play On mode) — live so buying coins in the shop updates it.
             if (balanceLabel != null)
             {
-                balanceLabel.gameObject.SetActive(isFail);
+                balanceLabel.transform.parent.gameObject.SetActive(isFail);
                 if (isFail)
                 {
                     RefreshBalance(PlayerWallet.Balance);
