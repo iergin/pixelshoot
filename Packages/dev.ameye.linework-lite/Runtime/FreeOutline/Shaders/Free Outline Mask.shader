@@ -9,6 +9,7 @@ Shader "Hidden/Outlines/Free Outline/Mask"
 
         ColorMask 0
         ZWrite Off
+        ZTest Always   // mark the FULL silhouette (incl. occluded parts) so the outline can render on top
 
         Pass // 0: MASK
         {

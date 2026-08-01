@@ -25,7 +25,7 @@ Shader "Hidden/Outlines/Free Outline/Outline"
 
         ZWrite Off
         Cull [_Cull]
-        ZTest [_ZTest]
+        ZTest Always   // force outline ON TOP (ignore scene depth) — overrides the Render dropdown
         Blend [_SrcBlend] [_DstBlend]
 
         HLSLINCLUDE

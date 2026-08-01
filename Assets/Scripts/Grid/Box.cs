@@ -247,6 +247,22 @@ namespace PixelShoot.Grid
             return true;
         }
 
+        /// <summary>Temporarily hide (or restore) the Hit-state outline. The idle hint hides all Hit
+        /// outlines while it is up so the two outline systems don't overlap / fight (the Hit outline's
+        /// stencil mask otherwise blocks the Free Outline). Restoring only re-shows it if still Hit.</summary>
+        public void SetHitOutlineVisible(bool visible)
+        {
+            if (outline == null) return;
+            if (visible)
+            {
+                if (state == BoxState.Hit && !hiddenByKey && !outline.activeSelf) outline.SetActive(true);
+            }
+            else if (outline.activeSelf)
+            {
+                outline.SetActive(false);
+            }
+        }
+
         // ── Idle hint outline (Free Outline layer, same trick as the shooter claw highlight) ──
         private int hintLayerIdx = -2;
         private Renderer[] hintRends;

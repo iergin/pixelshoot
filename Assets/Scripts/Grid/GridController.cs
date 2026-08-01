@@ -99,6 +99,9 @@ namespace PixelShoot.Grid
             {
                 if (b == null) continue;
                 b.SetHintOutline(on && b.IsShootable);
+                // While the hint is up, hide the Hit outlines so the two outline systems don't clash;
+                // restore them when the hint clears.
+                b.SetHitOutlineVisible(!on);
             }
         }
 
