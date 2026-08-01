@@ -90,6 +90,18 @@ namespace PixelShoot.Grid
         private PixelShoot.Game.KeyManager subscribedKeyManager;
 
         /// <summary>Hide every box that carries a key id — the key visual stands in for them.</summary>
+        /// <summary>Light (or clear) the outline hint on every shootable / outermost box — used by the
+        /// idle hint. When <paramref name="on"/> is false all hints clear.</summary>
+        public void SetShootableHint(bool on)
+        {
+            if (boxes == null) return;
+            foreach (var b in boxes)
+            {
+                if (b == null) continue;
+                b.SetHintOutline(on && b.IsShootable);
+            }
+        }
+
         private void HideKeyCoveredBoxes()
         {
             if (boxes == null) return;

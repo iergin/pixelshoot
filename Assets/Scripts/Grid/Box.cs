@@ -29,6 +29,11 @@ namespace PixelShoot.Grid
         [SerializeField] private float bombVisualFrontierY = 1.1f;
         [Tooltip("Optional outline child (stencil-mask + BoxOutline materials) enabled ONLY while the box is Hit. Outlines clip against neighbouring hit boxes so shared edges don't double up.")]
         [SerializeField] private GameObject outline;
+        [Tooltip("Layer the Free Outline feature filters. SetHintOutline() moves the hint renderers onto " +
+                 "this layer to light their outline (idle 'you can shoot here' hint), then restores them.")]
+        [SerializeField] private string hintOutlineLayer = "Outline";
+        [Tooltip("Renderers whose layer is switched to light the idle-hint outline. Empty = just the box mesh.")]
+        [SerializeField] private Renderer[] hintOutlineRenderers;
         [Tooltip("Optional sheen overlay child (BoxSheen additive material) enabled ONLY while the box is Hit, so the looping screen-space shine sweep shimmers across the painted picture.")]
         [SerializeField] private GameObject sheen;
         [Tooltip("Optional particle that plays when this bomb explodes. Instantiated at the bomb position and auto-destroyed by its own ParticleSystem.")]
@@ -240,6 +245,39 @@ namespace PixelShoot.Grid
                 }
             }
             return true;
+        }
+
+        // ── Idle hint outline (Free Outline layer, same trick as the shooter claw highlight) ──
+        private int hintLayerIdx = -2;
+        private Renderer[] hintRends;
+        private int[] hintOrigLayers;
+
+        /// <summary>Light the box's outline (idle hint) by moving the hint renderers onto the Free
+        /// Outline layer; restore their original layers when off.</summary>
+        public void SetHintOutline(bool on)
+        {
+            if (hintLayerIdx == -2) hintLayerIdx = LayerMask.NameToLayer(hintOutlineLayer);
+            if (hintLayerIdx < 0) return; // layer doesn't exist
+
+            if (hintRends == null)
+            {
+                if (hintOutlineRenderers != null && hintOutlineRenderers.Length > 0)
+                    hintRends = hintOutlineRenderers;
+                else
+                {
+                    if (boxMesh == null) boxMesh = GetComponent<MeshRenderer>();
+                    hintRends = boxMesh != null ? new Renderer[] { boxMesh } : new Renderer[0];
+                }
+                hintOrigLayers = new int[hintRends.Length];
+                for (int i = 0; i < hintRends.Length; i++)
+                    if (hintRends[i] != null) hintOrigLayers[i] = hintRends[i].gameObject.layer;
+            }
+
+            for (int i = 0; i < hintRends.Length; i++)
+            {
+                if (hintRends[i] == null) continue;
+                hintRends[i].gameObject.layer = on ? hintLayerIdx : hintOrigLayers[i];
+            }
         }
 
         private bool bombBaseYCaptured;

@@ -21,7 +21,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   renderQueue: 0
-  occlusion: 2
+  occlusion: 0
   maskingStrategy: 0
   color: {r: 0, g: 1, b: 0, a: 1}
   enableOcclusion: 0
