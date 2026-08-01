@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using PixelShoot.Conveyor;
 using PixelShoot.Grid;
 using PixelShoot.Shooters;
 
@@ -14,6 +15,9 @@ namespace PixelShoot.Game
     public class IdleHintController : MonoBehaviour
     {
         [SerializeField] private GridController grid;
+        [Tooltip("If a bus is riding / boarding the conveyor, the hint stays hidden (the player has " +
+                 "something to act on already). Assign the level's ConveyorController.")]
+        [SerializeField] private ConveyorController conveyor;
         [Tooltip("Seconds of no input before the shootable-box outline hint appears.")]
         [SerializeField, Min(0f)] private float idleSeconds = 2f;
 
@@ -24,8 +28,9 @@ namespace PixelShoot.Game
 
         private void Update()
         {
-            // Any press, or a modal/booster suspend, resets the timer and clears the hint.
-            if (AnyPress() || ClickInputRouter.Suspended)
+            // Any press, a modal/booster suspend, OR a bus on the conveyor → reset the timer + clear
+            // the hint (no hint needed while there's something riding the conveyor to act on).
+            if (AnyPress() || ClickInputRouter.Suspended || ConveyorHasBus())
             {
                 idle = 0f;
                 Clear();
@@ -46,6 +51,8 @@ namespace PixelShoot.Game
             shown = false;
             if (grid != null) grid.SetShootableHint(false);
         }
+
+        private bool ConveyorHasBus() => conveyor != null && conveyor.OccupiedCount > 0;
 
         private static bool AnyPress()
         {

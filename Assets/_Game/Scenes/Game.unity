@@ -13815,6 +13815,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Game.IdleHintController
   grid: {fileID: 1908823581}
+  conveyor: {fileID: 627407848}
   idleSeconds: 2
 --- !u!1 &1854841041
 GameObject:
