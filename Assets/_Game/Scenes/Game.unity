@@ -13817,6 +13817,11 @@ MonoBehaviour:
   grid: {fileID: 1908823581}
   conveyor: {fileID: 627407848}
   idleSeconds: 2
+  outlineSettings: {fileID: 11400000, guid: 8d061aab896594f8b96f7a48131c026f, type: 2}
+  hintOutlineIndex: 1
+  hintAlpha: 0.3
+  fadeDuration: 0.3
+  fadeEase: 6
 --- !u!1 &1854841041
 GameObject:
   m_ObjectHideFlags: 0
