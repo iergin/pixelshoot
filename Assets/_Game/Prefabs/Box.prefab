@@ -83,7 +83,7 @@ MonoBehaviour:
   bombVisual: {fileID: 2015209383702167541}
   bombVisualFrontierY: 1.1
   outline: {fileID: 8579136077059425433}
-  hintOutlineLayer: Outline
+  hintOutlineLayer: HintOutline
   hintOutlineRenderers:
   - {fileID: 3236284648211771158}
   sheen: {fileID: 7190066132976189804}

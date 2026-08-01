@@ -29,9 +29,10 @@ namespace PixelShoot.Grid
         [SerializeField] private float bombVisualFrontierY = 1.1f;
         [Tooltip("Optional outline child (stencil-mask + BoxOutline materials) enabled ONLY while the box is Hit. Outlines clip against neighbouring hit boxes so shared edges don't double up.")]
         [SerializeField] private GameObject outline;
-        [Tooltip("Layer the Free Outline feature filters. SetHintOutline() moves the hint renderers onto " +
-                 "this layer to light their outline (idle 'you can shoot here' hint), then restores them.")]
-        [SerializeField] private string hintOutlineLayer = "Outline";
+        [Tooltip("Layer the HINT Free Outline (index 1 in Free Outline Settings) filters. Separate from " +
+                 "the shooter/booster outline layer so the two use different Outline entries/colours. " +
+                 "SetHintOutline() moves the hint renderers here, then restores them.")]
+        [SerializeField] private string hintOutlineLayer = "HintOutline";
         [Tooltip("Renderers whose layer is switched to light the idle-hint outline. Empty = just the box mesh.")]
         [SerializeField] private Renderer[] hintOutlineRenderers;
         [Tooltip("Optional sheen overlay child (BoxSheen additive material) enabled ONLY while the box is Hit, so the looping screen-space shine sweep shimmers across the painted picture.")]
