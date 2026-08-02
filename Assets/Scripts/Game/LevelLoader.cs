@@ -76,20 +76,20 @@ namespace PixelShoot.Game
         }
 
         /// <summary>
-        /// Picks a level out of the playlist using PlayerProgress.LevelIndex.
-        /// If the player has exhausted the playlist, returns a random entry instead.
+        /// Picks a level out of the playlist using PlayerProgress.LevelIndex. Once the player runs
+        /// past the last entry, play LOOPS from the playlist's configured Loop Start Level and repeats
+        /// (instead of a random pick).
         /// </summary>
         private LevelData PickFromPlaylist()
         {
             if (allLevels == null || allLevels.Count == 0) return null;
-            int idx = PlayerProgress.LevelIndex;
-            if (idx < allLevels.Count)
+            var chosen = allLevels.GetLooping(PlayerProgress.LevelIndex);
+            if (chosen == null)
             {
-                var chosen = allLevels.Get(idx);
-                if (chosen != null) return chosen;
-                Debug.LogWarning($"LevelLoader: AllLevels[{idx}] is null; falling back to a random pick.");
+                Debug.LogWarning($"LevelLoader: no level for index {PlayerProgress.LevelIndex}; falling back to a random pick.");
+                return allLevels.GetRandom();
             }
-            return allLevels.GetRandom();
+            return chosen;
         }
 
         public void Build()
