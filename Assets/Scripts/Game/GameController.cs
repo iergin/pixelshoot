@@ -79,6 +79,7 @@ namespace PixelShoot.Game
 
             // Fresh level → reset endgame and re-arm the alive-bus watcher.
             endgameActive = false;
+            Stickman.SpeedMultiplier = 1f; // undo any endgame sprint from the previous level
             levelReady = false;
             Shooter.ClearAliveRegistry();
             Shooter.AliveCountChanged -= EvaluateEndgame;
@@ -121,6 +122,7 @@ namespace PixelShoot.Game
             int threshold = conveyor != null ? conveyor.Capacity : lastBusesThreshold;
             if (Shooter.AliveCount > threshold) return;
             endgameActive = true;
+            Stickman.SpeedMultiplier = endgameSpeedMultiplier; // stickmen sprint x2 too
             if (conveyor != null)
             {
                 conveyor.SpeedMultiplier = endgameSpeedMultiplier;

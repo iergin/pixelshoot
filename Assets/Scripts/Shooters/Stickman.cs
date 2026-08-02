@@ -37,6 +37,10 @@ namespace PixelShoot.Shooters
         [Tooltip("Seconds between this stickman's own footstep attempts while running. The AudioManager throttles them GLOBALLY, so many runners still collapse into one clean patter. 0 = no footsteps.")]
         [SerializeField, Min(0f)] private float footstepStride = 0.16f;
 
+        /// <summary>Global run-speed multiplier — 1 normally, raised (e.g. x2) during the endgame so
+        /// stickmen sprint to their boxes as fast as the sped-up conveyor. Set by GameController.</summary>
+        public static float SpeedMultiplier = 1f;
+
         private Tween flightTween;
         private Tween flightScaleTween;
         private float footstepTimer;
@@ -127,12 +131,14 @@ namespace PixelShoot.Shooters
             }
 
             float distance = Vector3.Distance(transform.position, endPos);
-            float duration = Mathf.Max(minFlightDuration, distance / Mathf.Max(0.01f, flightSpeed));
+            float duration = Mathf.Max(minFlightDuration, distance / Mathf.Max(0.01f, flightSpeed * SpeedMultiplier));
 
             // Face the run direction, yaw-only (stay upright), then run straight in.
             Vector3 face = endPos - transform.position; face.y = 0f;
             if (face.sqrMagnitude > 0.0001f) transform.rotation = Quaternion.LookRotation(face.normalized, Vector3.up);
 
+            // Run animation plays at the same multiplier so it doesn't look like sliding.
+            if (animator != null) animator.speed = Mathf.Max(0.01f, SpeedMultiplier);
             footstepTimer = 0f;
             flightTween = transform.DOMove(endPos, duration)
                 .SetEase(FlightCurve())
@@ -182,7 +188,8 @@ namespace PixelShoot.Shooters
             }
 
             float distance = Vector3.Distance(transform.position, endPos);
-            float duration = Mathf.Max(minDuration, distance / Mathf.Max(0.01f, speed));
+            float duration = Mathf.Max(minDuration, distance / Mathf.Max(0.01f, speed * SpeedMultiplier));
+            if (animator != null) animator.speed = Mathf.Max(0.01f, SpeedMultiplier);
             footstepTimer = 0f;
             flightTween = transform.DOMove(endPos, duration)
                 .SetEase(ease)
