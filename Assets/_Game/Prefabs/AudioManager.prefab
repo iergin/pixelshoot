@@ -195,7 +195,7 @@ MonoBehaviour:
   boxHitClip: {fileID: 8300000, guid: d58f8153623544044ac2822c7ad7efa6, type: 3}
   boxHitVolume: 1
   boxHitMinInterval: 0.1
-  boxBombClip: {fileID: 0}
+  boxBombClip: {fileID: 8300000, guid: 0eb870038af240449b6140ebeda2d8d4, type: 3}
   boxBombVolume: 1
   boxBombMinInterval: 0.1
   blockedClip: {fileID: 0}
