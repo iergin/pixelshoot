@@ -38,6 +38,10 @@ namespace PixelShoot.UI
             public GameObject onVisual;
             [Tooltip("Optional child shown only when OFF (e.g. the crossed-out overlay).")]
             public GameObject offVisual;
+            [Tooltip("Optional button-sprite object shown only when ON (e.g. the ON button background).")]
+            public GameObject onButtonVisual;
+            [Tooltip("Optional button-sprite object shown only when OFF (e.g. the OFF button background).")]
+            public GameObject offButtonVisual;
 
             public void Apply(bool on)
             {
@@ -49,6 +53,8 @@ namespace PixelShoot.UI
                 }
                 if (onVisual != null) onVisual.SetActive(on);
                 if (offVisual != null) offVisual.SetActive(!on);
+                if (onButtonVisual != null) onButtonVisual.SetActive(on);
+                if (offButtonVisual != null) offButtonVisual.SetActive(!on);
             }
 
             public void Wire(UnityEngine.Events.UnityAction onClick)

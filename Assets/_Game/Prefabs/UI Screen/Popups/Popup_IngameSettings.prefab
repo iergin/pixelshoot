@@ -874,6 +874,8 @@ MonoBehaviour:
     offColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
     onVisual: {fileID: 3638421021759231214}
     offVisual: {fileID: 6197521503441499153}
+    onButtonVisual: {fileID: 5234019626989090912}
+    offButtonVisual: {fileID: 3935202238956902197}
   music:
     button: {fileID: 7786379999851540753}
     icon: {fileID: 861619505299695652}
@@ -884,6 +886,8 @@ MonoBehaviour:
     offColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
     onVisual: {fileID: 4740215245396914647}
     offVisual: {fileID: 8379458912414376732}
+    onButtonVisual: {fileID: 4196829613775455143}
+    offButtonVisual: {fileID: 5734619171807614511}
   vibration:
     button: {fileID: 4320195158963542847}
     icon: {fileID: 6452835896951186039}
@@ -894,6 +898,8 @@ MonoBehaviour:
     offColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
     onVisual: {fileID: 2305961779092921143}
     offVisual: {fileID: 5534893827099260201}
+    onButtonVisual: {fileID: 2557490506255908754}
+    offButtonVisual: {fileID: 1779275988617326643}
   quitButton: {fileID: 5117957726783778005}
   resumeButton: {fileID: 1509995300100558244}
 --- !u!1 &3638421021759231214
