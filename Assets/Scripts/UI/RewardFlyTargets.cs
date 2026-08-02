@@ -32,6 +32,13 @@ namespace PixelShoot.UI
         [Tooltip("The menu life widget. Frozen during a claim, then refreshed when the life lands.")]
         [SerializeField] private LivesHud livesHud;
 
+        [Header("Menu navigation")]
+        [Tooltip("Optional bottom NavigationBar. Before the claim popup shows, we switch it to Home so " +
+                 "the reward flies to the Home page's HUD / Play button (the shop may be a different page).")]
+        [SerializeField] private NavigationBar navBar;
+        [Tooltip("Home tab index on the NavigationBar.")]
+        [SerializeField] private int homeTabIndex = 1;
+
         [Header("Fly destinations (RectTransforms)")]
         [Tooltip("Coins fly here (the coin icon in the HUD).")]
         [SerializeField] private RectTransform coinTarget;
@@ -100,6 +107,13 @@ namespace PixelShoot.UI
         }
 
         // ── HUD freeze / release ─────────────────────────────────────────────
+        /// <summary>Switch the bottom nav to the Home tab (as if the player tapped Home), so the reward
+        /// flies to Home's HUD / Play button. Called right before the claim popup opens.</summary>
+        public void FocusHome()
+        {
+            if (navBar != null) navBar.Select(homeTabIndex);
+        }
+
         /// <summary>Freeze the coin + life HUD at their current values (called just before the grant).</summary>
         public void BeginHold()
         {

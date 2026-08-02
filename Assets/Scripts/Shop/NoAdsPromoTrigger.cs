@@ -33,8 +33,24 @@ namespace PixelShoot.Shop
             }
         }
 
-        private void OnEnable()  { if (gameController != null) gameController.OnLevelWon += NotifyWin; }
-        private void OnDisable() { if (gameController != null) gameController.OnLevelWon -= NotifyWin; }
+        private void OnEnable()
+        {
+            if (gameController != null) gameController.OnLevelWon += NotifyWin;
+            PlayerWallet.OnNoAdsChanged += RefreshButton;
+            RefreshButton(); // hide immediately if No-Ads is already owned
+        }
+
+        private void OnDisable()
+        {
+            if (gameController != null) gameController.OnLevelWon -= NotifyWin;
+            PlayerWallet.OnNoAdsChanged -= RefreshButton;
+        }
+
+        // Once No-Ads is owned there's nothing to promote → hide the menu button.
+        private void RefreshButton()
+        {
+            if (openButton != null) openButton.gameObject.SetActive(!PlayerWallet.HasNoAds);
+        }
 
         private void OpenPromo() => NoAdsPromoController.Instance?.ShowNoAdsPanel();
         private void NotifyWin() => NoAdsPromoController.Instance?.NotifyLevelWon();

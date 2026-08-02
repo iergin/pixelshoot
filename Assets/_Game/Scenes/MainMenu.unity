@@ -8434,6 +8434,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.RewardFlyTargets
   coinLabel: {fileID: 590788321255757641}
   livesHud: {fileID: 1866396119422033760}
+  navBar: {fileID: 2108777192}
+  homeTabIndex: 1
   coinTarget: {fileID: 590788321255757642}
   playButtonTarget: {fileID: 3535932992907605947}
   lifeTarget: {fileID: 1866396119422033761}
@@ -10808,7 +10810,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2108777191}
   - component: {fileID: 2108777192}
-  - component: {fileID: 2108777193}
   m_Layer: 0
   m_Name: '[NavigationBar]'
   m_TagString: Untagged
@@ -10857,26 +10858,6 @@ MonoBehaviour:
     highlightImage: {fileID: 563239814}
     notification: {fileID: 2121821334}
   defaultTab: 1
---- !u!114 &2108777193
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108777190}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a93a45b1c58c4a9ea43f90fb6ce639d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.MenuNavigator
-  navBar: {fileID: 2108777192}
-  cameraRig: {fileID: 330585546}
-  targets: []
-  panDuration: 0.35
-  panEase: 9
-  shopTabIndex: -1
-  lastCameraTab: 0
-  shop: {fileID: 0}
 --- !u!1 &2121821334 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8123201468020509361, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}

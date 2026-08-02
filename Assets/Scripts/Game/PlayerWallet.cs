@@ -143,11 +143,16 @@ namespace PixelShoot.Game
             PlayerPrefs.Save();
         }
 
+        /// <summary>Fired after No-Ads is bought (the flag flips to owned). UI listens to hide the
+        /// "No Ads" button and close the promo popup.</summary>
+        public static event Action OnNoAdsChanged;
+
         public static bool HasNoAds => PlayerPrefs.GetInt(NoAdsKey, 0) == 1;
         public static void MarkNoAdsBought()
         {
             PlayerPrefs.SetInt(NoAdsKey, 1);
             PlayerPrefs.Save();
+            OnNoAdsChanged?.Invoke();
         }
 
         // ── Sound mute (Settings) ────────────────────────────────────────────

@@ -44,6 +44,8 @@ namespace PixelShoot.UI
             if (bundle == null) return;
 
             var targets = RewardFlyTargets.Instance;
+            targets?.FocusHome(); // return to the Home tab BEFORE the claim, so the reward flies there
+
             var popup = PopupService.Instance != null
                 ? PopupService.Instance.CreateOnTop<RewardClaimPopup>(p => p.Setup(bundle, targets))
                 : null;
