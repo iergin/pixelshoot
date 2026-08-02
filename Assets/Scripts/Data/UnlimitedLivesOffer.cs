@@ -1,5 +1,6 @@
 using UnityEngine;
 using PixelShoot.Game;
+using PixelShoot.UI;
 
 namespace PixelShoot.Data
 {
@@ -20,8 +21,9 @@ namespace PixelShoot.Data
         public override void OnPurchased()
         {
             PlayerWallet.MarkAnyPurchaseMade();
-            PlayerLives.GrantUnlimited(unlimitedMinutes);
-            if (GrantedCoins > 0) PlayerWallet.Add(GrantedCoins); // optional bundled coins
+            RewardFlow.Grant(new RewardBundle()
+                .AddUnlimited(unlimitedMinutes)
+                .AddCoins(GrantedCoins)); // optional bundled coins
             Debug.Log($"[Shop] Unlimited lives offer '{OfferId}' purchased. +{unlimitedMinutes} min unlimited.");
         }
     }

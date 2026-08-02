@@ -76,7 +76,7 @@ namespace PixelShoot.Shop
             if (iap == null || !iap.IsReady)
             {
                 Debug.LogWarning("[Shop] IAP service not ready.");
-                ShowResult(false);
+                ShowFail();
                 onComplete?.Invoke(false);
                 return;
             }
@@ -88,19 +88,36 @@ namespace PixelShoot.Shop
 
             iap.Purchase(offer.ProductId, success =>
             {
-                if (success) offer.OnPurchased();
                 if (waiting != null) waiting.Close(); // dismiss the waiting popup (no user close button)
-                ShowResult(success);                       // success → Success popup, fail/cancel → Fail popup
+
+                if (success)
+                {
+                    // Grant the reward NOW (OnPurchased → RewardFlow.Grant writes it to disk immediately,
+                    // so it's saved even if the player never sees the claim). Then show the Success popup;
+                    // once THAT closes, open the RewardClaimPopup (success → claim order).
+                    offer.OnPurchased();
+                    ShowSuccessThenClaim();
+                }
+                else ShowFail();
+
                 onComplete?.Invoke(success);
             });
         }
 
-        // Close the waiting popup (if any) then stack the success / fail popup over the shop.
-        private static void ShowResult(bool success)
+        // Stack the Success popup over the shop; when it closes, open the reward claim (fly).
+        private static void ShowSuccessThenClaim()
+        {
+            if (PopupService.Instance == null) { RewardFlow.ShowClaim(); return; }
+            var success = PopupService.Instance.CreateOnTop<PurchaseSuccessPopup>();
+            if (success != null) success.Closed += RewardFlow.ShowClaim;
+            else RewardFlow.ShowClaim();
+        }
+
+        // Stack the fail / cancel popup over the shop.
+        private static void ShowFail()
         {
             if (PopupService.Instance == null) return;
-            if (success) PopupService.Instance.CreateOnTop<PurchaseSuccessPopup>();
-            else         PopupService.Instance.CreateOnTop<PurchaseFailPopup>();
+            PopupService.Instance.CreateOnTop<PurchaseFailPopup>();
         }
     }
 }

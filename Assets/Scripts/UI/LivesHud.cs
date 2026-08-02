@@ -21,16 +21,25 @@ namespace PixelShoot.UI
         [SerializeField] private string unlimitedText = "∞";
 
         private float pollTimer;
+        private bool held;
 
         private void OnEnable()
         {
             PlayerLives.OnChanged += OnLivesChanged;
+            held = false;
             Refresh();
         }
 
         private void OnDisable() => PlayerLives.OnChanged -= OnLivesChanged;
 
         private void OnLivesChanged(int _) => Refresh();
+
+        // ── Reward-claim hold / release ──────────────────────────────────────
+        /// <summary>Freeze the widget at its current text while a reward claim's life flies in.</summary>
+        public void BeginHold() => held = true;
+
+        /// <summary>Resume live updates and refresh (call when the flying life lands, or as a safety net).</summary>
+        public void ReleaseHold() { held = false; Refresh(); }
 
         private void Update()
         {
@@ -41,6 +50,7 @@ namespace PixelShoot.UI
 
         private void Refresh()
         {
+            if (held) return; // frozen during a claim — ReleaseHold() refreshes when the life lands
             // Unlimited period → show ∞ as the count and the remaining time on the timer.
             if (PlayerLives.IsUnlimited)
             {

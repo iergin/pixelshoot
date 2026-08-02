@@ -1,6 +1,6 @@
 using UnityEngine;
-using PixelShoot.Ads;
 using PixelShoot.Game;
+using PixelShoot.UI;
 
 namespace PixelShoot.Data
 {
@@ -47,22 +47,16 @@ namespace PixelShoot.Data
             PlayerWallet.MarkAnyPurchaseMade();
             if (!repeatable) PlayerWallet.MarkPurchased(OfferId);
 
-            if (GrantedCoins > 0) PlayerWallet.Add(GrantedCoins);
-
-            if (grantNoAds && !PlayerWallet.HasNoAds)
-            {
-                PlayerWallet.MarkNoAdsBought();
-                AdsManager.SuppressAdsAfterNoAdsPurchase();
-            }
-
-            if (unlimitedMinutes > 0) PlayerLives.GrantUnlimited(unlimitedMinutes);
-
+            var bundle = new RewardBundle().AddCoins(GrantedCoins);
+            if (grantNoAds) bundle.AddNoAds();                      // Apply() no-ops if already owned
+            if (unlimitedMinutes > 0) bundle.AddUnlimited(unlimitedMinutes);
             if (boosters != null)
                 foreach (var g in boosters)
-                    if (g.booster != null && g.amount > 0) PlayerBoosters.Add(g.booster.Id, g.amount);
+                    bundle.AddBooster(g.booster, g.amount);         // guards null / amount<=0
+            bundle.AddBomb(bombPowerups);
+            bundle.AddPaint(paintPowerups);
 
-            if (bombPowerups > 0)  PlayerPowerups.Add(PowerupType.Bomb, bombPowerups);
-            if (paintPowerups > 0) PlayerPowerups.Add(PowerupType.Paint, paintPowerups);
+            RewardFlow.Grant(bundle);
 
             Debug.Log($"[Shop] Bundle '{OfferId}' purchased — +{GrantedCoins} coins" +
                       $"{(grantNoAds ? ", NoAds" : "")}" +

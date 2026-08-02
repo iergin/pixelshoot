@@ -5009,6 +5009,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 788691585}
   m_CullTransparentMesh: 1
+--- !u!1 &819195169
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 819195170}
+  m_Layer: 5
+  m_Name: Parent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &819195170
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 819195169}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1616373586}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &833719634
 GameObject:
   m_ObjectHideFlags: 0
@@ -5720,6 +5755,7 @@ Transform:
   - {fileID: 214618213}
   - {fileID: 2108777191}
   - {fileID: 877462925}
+  - {fileID: 1584106896}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &995792153
@@ -8352,6 +8388,73 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1584106895
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1584106896}
+  - component: {fileID: 1584106897}
+  m_Layer: 0
+  m_Name: '[RewardFlyTargets]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1584106896
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584106895}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 971397077}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1584106897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584106895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dca0a77c047604bb6b43f801e2601c7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.RewardFlyTargets
+  coinLabel: {fileID: 590788321255757641}
+  livesHud: {fileID: 1866396119422033760}
+  coinTarget: {fileID: 590788321255757642}
+  playButtonTarget: {fileID: 3535932992907605947}
+  lifeTarget: {fileID: 1866396119422033761}
+  flyLayer: {fileID: 819195170}
+  uiCamera: {fileID: 330585545}
+  flyItemPrefab: {fileID: 205249458991751249, guid: 77e82bfcfdabd43ac99309070f2d0dcb, type: 3}
+  flyIconSize: {x: 90, y: 90}
+  coinBurstCount: 10
+  coinFlyDuration: 0.55
+  coinStagger: 0.05
+  coinScatter: 120
+  coinCountUpDuration: 0.4
+  itemFlyDuration: 0.5
+  itemStagger: 0.08
+  lifeFlyDuration: 0.55
+  landVfxPrefab: {fileID: 0}
+  landPunch: 0.25
+  coinLandSfx: {fileID: 0}
+  itemLandSfx: {fileID: 0}
+  sfxVolume: 1
+  sfxThrottle: 0.05
 --- !u!1 &1585999648
 GameObject:
   m_ObjectHideFlags: 0
@@ -8605,6 +8708,108 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1603579724}
   m_CullTransparentMesh: 1
+--- !u!1 &1616373582
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1616373586}
+  - component: {fileID: 1616373585}
+  - component: {fileID: 1616373584}
+  - component: {fileID: 1616373583}
+  m_Layer: 5
+  m_Name: Canvas_Fly
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1616373583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616373582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &1616373584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616373582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UiScaleMode: 1
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 1080, y: 1920}
+  m_ScreenMatchMode: 1
+  m_MatchWidthOrHeight: 1
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!223 &1616373585
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616373582}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 330585545}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 100
+  m_TargetDisplay: 0
+--- !u!224 &1616373586
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616373582}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 819195170}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
 --- !u!1 &1662156128
 GameObject:
   m_ObjectHideFlags: 0
@@ -10992,6 +11197,22 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5128e285fa9bf4a27ac3775ea02777fd, type: 3}
+--- !u!114 &590788321255757641 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 586891634770108644, guid: 5128e285fa9bf4a27ac3775ea02777fd, type: 3}
+  m_PrefabInstance: {fileID: 590788321255757640}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2133255d04cb54641b83a936150a9526, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.CoinLabel
+--- !u!224 &590788321255757642 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 948451733849447672, guid: 5128e285fa9bf4a27ac3775ea02777fd, type: 3}
+  m_PrefabInstance: {fileID: 590788321255757640}
+  m_PrefabAsset: {fileID: 0}
 --- !u!222 &614676724385075657
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11300,6 +11521,22 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad0ddf03e670b4324b2c87bbb14798d1, type: 3}
+--- !u!114 &1866396119422033760 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6313998296096699109, guid: ad0ddf03e670b4324b2c87bbb14798d1, type: 3}
+  m_PrefabInstance: {fileID: 1866396119422033759}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d1b36fc622584ad9b1f244099c803bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.LivesHud
+--- !u!224 &1866396119422033761 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8407526850509244810, guid: ad0ddf03e670b4324b2c87bbb14798d1, type: 3}
+  m_PrefabInstance: {fileID: 1866396119422033759}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2898528896648425559
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11673,3 +11910,4 @@ SceneRoots:
   - {fileID: 3081174}
   - {fileID: 330585546}
   - {fileID: 8238866422632000168}
+  - {fileID: 1616373586}
