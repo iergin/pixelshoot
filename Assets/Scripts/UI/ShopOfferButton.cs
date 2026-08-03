@@ -35,6 +35,14 @@ namespace PixelShoot.UI
         [SerializeField] private TMP_Text priceLabel;
         [Tooltip("Shown over the button when the offer has already been purchased.")]
         [SerializeField] private GameObject ownedOverlay;
+        [Tooltip("Object disabled when this offer is hidden (locked / bought-and-Hide-When-Purchased). " +
+                 "Assign the WHOLE CARD root so the entire card disappears, not just the button. If empty, " +
+                 "this GameObject is used. NOTE: for the shop to close the gap, the card must sit under a " +
+                 "LayoutGroup (see below).")]
+        [SerializeField] private GameObject hideTarget;
+
+        // What actually gets shown/hidden — the assigned card root, or this object as a fallback.
+        private GameObject HideRoot => hideTarget != null ? hideTarget : gameObject;
 
         private float retryCooldown;
         private bool lastPriceKnown;
@@ -84,10 +92,10 @@ namespace PixelShoot.UI
             //      so it disappears from the shop instead of lingering as an OWNED row.
             if ((!isPurchased && !isAvailable) || (isPurchased && offer.HideWhenPurchased))
             {
-                gameObject.SetActive(false);
+                HideRoot.SetActive(false);
                 return;
             }
-            if (!gameObject.activeSelf) gameObject.SetActive(true);
+            if (!HideRoot.activeSelf) HideRoot.SetActive(true);
 
             if (titleLabel != null) titleLabel.text = offer.DisplayName;
 

@@ -688,6 +688,7 @@ MonoBehaviour:
   titleLabel: {fileID: 0}
   priceLabel: {fileID: 8449090208074400452}
   ownedOverlay: {fileID: 0}
+  hideTarget: {fileID: 6425285529100681445}
 --- !u!1 &7766873979829798935
 GameObject:
   m_ObjectHideFlags: 0
