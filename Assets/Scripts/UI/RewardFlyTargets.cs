@@ -87,6 +87,8 @@ namespace PixelShoot.UI
         [Header("Feedback (optional)")]
         [Tooltip("Spawned at a fly icon's landing spot (coin sparkle / pop). Optional.")]
         [SerializeField] private GameObject landVfxPrefab;
+        [Tooltip("Seconds before a spawned land VFX auto-destroys.")]
+        [SerializeField, Min(0f)] private float vfxLifetime = 2f;
         [Tooltip("Scale punch applied to the target when an icon lands.")]
         [SerializeField] private float landPunch = 0.25f;
         [Tooltip("Played (via AudioManager) when a coin lands.")]
@@ -304,7 +306,13 @@ namespace PixelShoot.UI
             if (target != null)
             {
                 Punch(target);
-                if (landVfxPrefab != null) Instantiate(landVfxPrefab, target.position, Quaternion.identity, flyLayer);
+                if (landVfxPrefab != null)
+                {
+                    var vfx = Instantiate(landVfxPrefab, target.position, Quaternion.identity, flyLayer);
+                    // Auto-cleanup after vfxLifetime. Safe if the scene unloads first — the instance is
+                    // destroyed with the scene and the scheduled Destroy simply has nothing left to do.
+                    Destroy(vfx, vfxLifetime);
+                }
             }
             PlaySfx(clip);
         }

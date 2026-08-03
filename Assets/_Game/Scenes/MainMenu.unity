@@ -8454,10 +8454,10 @@ MonoBehaviour:
   itemEndScale: 0.8
   lifeFlyDuration: 0.55
   lifeEndScale: 0.4206628
-  landVfxPrefab: {fileID: 0}
+  landVfxPrefab: {fileID: 6716699438987570615, guid: 4ac7bb46462e27849b330a69ff025185, type: 3}
   landPunch: 0.25
-  coinLandSfx: {fileID: 0}
-  itemLandSfx: {fileID: 0}
+  coinLandSfx: {fileID: 8300000, guid: 22d67702a2d0a414fb560fdd170bde97, type: 3}
+  itemLandSfx: {fileID: 8300000, guid: 22d67702a2d0a414fb560fdd170bde97, type: 3}
   sfxVolume: 1
   sfxThrottle: 0.05
 --- !u!1 &1585999648
