@@ -465,6 +465,7 @@ namespace PixelShoot.Game
             state = GameState.Won;
             Debug.Log("LEVEL WON: grid cleared.");
             PlayerStreak.RegisterWin(); // clearing a level extends the streak
+            PixelShoot.Audio.AudioManager.Instance?.PlayWin();
             OnLevelWon?.Invoke();
         }
 
@@ -474,6 +475,7 @@ namespace PixelShoot.Game
             state = GameState.Failed;
             if (conveyor != null) conveyor.IsPaused = true;
             Debug.Log("LEVEL FAILED: a returning shooter still had shots but reserve was full.");
+            PixelShoot.Audio.AudioManager.Instance?.PlayLose();
             OnLevelFailed?.Invoke();
         }
 

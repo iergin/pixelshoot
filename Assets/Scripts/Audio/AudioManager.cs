@@ -55,6 +55,12 @@ namespace PixelShoot.Audio
         [Tooltip("Played by PlayLockOpen() when a lock is unlocked (its key was collected).")]
         [SerializeField] private AudioClip lockOpenClip;
         [SerializeField, Range(0f, 1f)] private float lockOpenVolume = 1f;
+        [Tooltip("Played by PlayWin() when a level is cleared.")]
+        [SerializeField] private AudioClip winClip;
+        [SerializeField, Range(0f, 1f)] private float winVolume = 1f;
+        [Tooltip("Played by PlayLose() when a level is failed.")]
+        [SerializeField] private AudioClip failClip;
+        [SerializeField, Range(0f, 1f)] private float failVolume = 1f;
 
         [Header("Footsteps")]
         [Tooltip("Single footstep clip played (throttled) as stickmen run. Many runners collapse into one steady patter.")]
@@ -142,6 +148,12 @@ namespace PixelShoot.Audio
 
         /// <summary>Played when a lock unlocks (its key was collected).</summary>
         public void PlayLockOpen() => PlaySfx(lockOpenClip, lockOpenVolume);
+
+        /// <summary>Played when a level is won (grid cleared).</summary>
+        public void PlayWin() => PlaySfx(winClip, winVolume);
+
+        /// <summary>Played when a level is failed.</summary>
+        public void PlayLose() => PlaySfx(failClip, failVolume);
 
         public void PlayBoxHit()
         {

@@ -205,6 +205,10 @@ MonoBehaviour:
   blockedVolume: 1
   lockOpenClip: {fileID: 8300000, guid: 7fbffcac6c9a4425db7ed6a45bee0c25, type: 3}
   lockOpenVolume: 1
+  winClip: {fileID: 8300000, guid: a2f26a7a553f14483ac695e5ab2b84ba, type: 3}
+  winVolume: 1
+  failClip: {fileID: 8300000, guid: 1e0d10c8fedd64205a3a457536c0a043, type: 3}
+  failVolume: 1
   footstepClip: {fileID: 0}
   footstepVolume: 0.5
   footstepMinInterval: 0.08
