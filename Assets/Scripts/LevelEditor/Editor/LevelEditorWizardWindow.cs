@@ -1874,7 +1874,8 @@ namespace PixelShoot.LevelEditor.EditorTools
         }
 
         // ─── ColorData / Material factories ───────────────────────────
-        private static ColorData GetOrCreateColorData(string hex, Color baseColor)
+        // internal so the Bulk Level Importer reuses the exact same colour-asset creation.
+        internal static ColorData GetOrCreateColorData(string hex, Color baseColor)
         {
             string colorDir = $"{ColorsDir}/{hex}";
             EnsureDir(colorDir);
@@ -1922,7 +1923,8 @@ namespace PixelShoot.LevelEditor.EditorTools
             AssetDatabase.CreateFolder(parent, name);
         }
 
-        private static void SetField(object target, string fieldName, object value)
+        // internal so the Bulk Level Importer writes the same private serialized fields.
+        internal static void SetField(object target, string fieldName, object value)
         {
             var t = target.GetType();
             while (t != null)
