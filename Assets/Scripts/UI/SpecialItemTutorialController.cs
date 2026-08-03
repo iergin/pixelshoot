@@ -63,6 +63,9 @@ namespace PixelShoot.UI
         /// player is seeing for the first time.</summary>
         public void CheckLevel(LevelData data)
         {
+            // Runtime only — the Level Editor Wizard builds a scene preview in edit mode via
+            // LevelLoader.Build, which also calls this; the tutorial panel must never pop up there.
+            if (!Application.isPlaying) return;
             if (data == null || config == null) return;
             Wire();
 
