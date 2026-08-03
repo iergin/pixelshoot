@@ -18,3 +18,4 @@ MonoBehaviour:
   grantedCoins: 0
   productType: 1
   hideWhenPurchased: 1
+  hideWhenNoAdsOwned: 1

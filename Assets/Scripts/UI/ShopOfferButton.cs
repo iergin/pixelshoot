@@ -89,8 +89,12 @@ namespace PixelShoot.UI
             // Hide the whole row when:
             //  (a) locked — not bought AND not available yet (e.g. Starter Pack before NoAds), or
             //  (b) bought AND the offer is flagged Hide-When-Purchased (one-time bundle / No-Ads) —
-            //      so it disappears from the shop instead of lingering as an OWNED row.
-            if ((!isPurchased && !isAvailable) || (isPurchased && offer.HideWhenPurchased))
+            //      so it disappears from the shop instead of lingering as an OWNED row, or
+            //  (c) the offer is flagged Hide-When-No-Ads-Owned and No-Ads is now owned (a No-Ads
+            //      bundle is pointless once No-Ads is already owned — even if bought elsewhere).
+            if ((!isPurchased && !isAvailable)
+                || (isPurchased && offer.HideWhenPurchased)
+                || (offer.HideWhenNoAdsOwned && PlayerWallet.HasNoAds))
             {
                 HideRoot.SetActive(false);
                 return;

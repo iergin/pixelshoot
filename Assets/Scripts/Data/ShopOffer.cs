@@ -35,6 +35,10 @@ namespace PixelShoot.Data
                  "opened AND immediately if it's open). Use for one-time bundles / No-Ads. Leave OFF to keep " +
                  "the row with an 'OWNED' overlay. No effect on repeatable offers (they're never 'purchased').")]
         [SerializeField] private bool hideWhenPurchased = false;
+        [Tooltip("Hide this offer once the player OWNS No-Ads (even if THIS offer wasn't the one bought). " +
+                 "Tick for bundles that include No-Ads — pointless to sell once No-Ads is already owned. " +
+                 "Hides immediately if the shop is open, and on next open.")]
+        [SerializeField] private bool hideWhenNoAdsOwned = false;
 
         public string OfferId => offerId;
         public string ProductId => productId;
@@ -42,6 +46,7 @@ namespace PixelShoot.Data
         public int GrantedCoins => grantedCoins;
         public ShopProductType ProductType => productType;
         public bool HideWhenPurchased => hideWhenPurchased;
+        public bool HideWhenNoAdsOwned => hideWhenNoAdsOwned;
 
         /// <summary>True if the player can purchase this offer right now. Override for one-time / cooldown rules.</summary>
         public abstract bool IsAvailable { get; }
