@@ -308,7 +308,16 @@ namespace PixelShoot.UI
                 Punch(target);
                 if (landVfxPrefab != null)
                 {
-                    var vfx = Instantiate(landVfxPrefab, target.position, Quaternion.identity, flyLayer);
+                    // Spawned UNDER the fly layer (a UI canvas). The prefab must have a UIParticle
+                    // component (Coffee "UI Particle" package) so the ParticleSystem renders inside the
+                    // Overlay canvas. Positioned at the target via the fly layer's local space.
+                    var vfx = Instantiate(landVfxPrefab, flyLayer);
+                    if (vfx.transform is RectTransform vrt)
+                    {
+                        vrt.anchoredPosition = LocalOf(target);
+                        vrt.localScale = Vector3.one;
+                    }
+                    else vfx.transform.position = target.position;
                     // Auto-cleanup after vfxLifetime. Safe if the scene unloads first — the instance is
                     // destroyed with the scene and the scheduled Destroy simply has nothing left to do.
                     Destroy(vfx, vfxLifetime);
