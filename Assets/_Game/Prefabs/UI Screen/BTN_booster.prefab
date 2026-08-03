@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 3944148104991605332}
   - component: {fileID: 1654915168564294744}
   - component: {fileID: 3902931911998625750}
+  - component: {fileID: 8164276477205479219}
   m_Layer: 5
   m_Name: BTN_Plus
   m_TagString: Untagged
@@ -196,6 +197,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8164276477205479219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4966343335565659712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &5526324414091449798
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,6 +588,7 @@ GameObject:
   - component: {fileID: 1220400526615560494}
   - component: {fileID: 1399016557543493973}
   - component: {fileID: 9086304538601205898}
+  - component: {fileID: 6957630233692464567}
   m_Layer: 5
   m_Name: BTN_booster
   m_TagString: Untagged
@@ -713,6 +730,21 @@ MonoBehaviour:
   unlockLevelLabel: {fileID: 220721874801687902}
   unlockLevelFormat: Lv {0}
   tutorialGlow: {fileID: 0}
+--- !u!114 &6957630233692464567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8851021987645429839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1001 &1880971050172897989
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -206,6 +206,7 @@ GameObject:
   - component: {fileID: 16570932}
   - component: {fileID: 16570931}
   - component: {fileID: 16570930}
+  - component: {fileID: 16570933}
   m_Layer: 5
   m_Name: BTN_Setting
   m_TagString: Untagged
@@ -315,6 +316,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 16570928}
   m_CullTransparentMesh: 1
+--- !u!114 &16570933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 16570928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &28793127
 GameObject:
   m_ObjectHideFlags: 0
@@ -659,6 +675,7 @@ GameObject:
   - component: {fileID: 100458328}
   - component: {fileID: 100458327}
   - component: {fileID: 100458326}
+  - component: {fileID: 100458329}
   m_Layer: 5
   m_Name: BTN_Close
   m_TagString: Untagged
@@ -768,6 +785,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 100458324}
   m_CullTransparentMesh: 1
+--- !u!114 &100458329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100458324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &111183648
 GameObject:
   m_ObjectHideFlags: 0
@@ -1645,6 +1677,7 @@ GameObject:
   - component: {fileID: 272147308}
   - component: {fileID: 272147307}
   - component: {fileID: 272147306}
+  - component: {fileID: 272147309}
   m_Layer: 5
   m_Name: BTN_Close
   m_TagString: Untagged
@@ -1754,6 +1787,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 272147304}
   m_CullTransparentMesh: 1
+--- !u!114 &272147309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 272147304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &286392734
 GameObject:
   m_ObjectHideFlags: 0
@@ -2597,6 +2645,7 @@ GameObject:
   - component: {fileID: 335321871}
   - component: {fileID: 335321870}
   - component: {fileID: 335321869}
+  - component: {fileID: 335321872}
   m_Layer: 5
   m_Name: BTN_Close
   m_TagString: Untagged
@@ -2706,6 +2755,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335321867}
   m_CullTransparentMesh: 1
+--- !u!114 &335321872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335321867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1001 &368830493
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5235,6 +5299,7 @@ GameObject:
   - component: {fileID: 771041096}
   - component: {fileID: 771041095}
   - component: {fileID: 771041094}
+  - component: {fileID: 771041097}
   m_Layer: 5
   m_Name: BTN_Claim
   m_TagString: Untagged
@@ -5344,6 +5409,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 771041092}
   m_CullTransparentMesh: 1
+--- !u!114 &771041097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 771041092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &777249685
 GameObject:
   m_ObjectHideFlags: 0
@@ -5955,6 +6035,7 @@ GameObject:
   - component: {fileID: 883378499}
   - component: {fileID: 883378498}
   - component: {fileID: 883378497}
+  - component: {fileID: 883378500}
   m_Layer: 5
   m_Name: BTN_Close
   m_TagString: Untagged
@@ -6064,6 +6145,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 883378495}
   m_CullTransparentMesh: 1
+--- !u!114 &883378500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 883378495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1001 &889504652
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6443,6 +6539,7 @@ GameObject:
   - component: {fileID: 950923860}
   - component: {fileID: 950923859}
   - component: {fileID: 950923861}
+  - component: {fileID: 950923862}
   m_Layer: 5
   m_Name: IMG_DimOverlay
   m_TagString: Untagged
@@ -6551,6 +6648,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &950923862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950923857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &952713676
 GameObject:
   m_ObjectHideFlags: 0
@@ -6868,6 +6980,7 @@ GameObject:
   - component: {fileID: 992240141}
   - component: {fileID: 992240140}
   - component: {fileID: 992240139}
+  - component: {fileID: 992240142}
   m_Layer: 5
   m_Name: BTN_Close
   m_TagString: Untagged
@@ -6977,6 +7090,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 992240137}
   m_CullTransparentMesh: 1
+--- !u!114 &992240142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 992240137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &993336141
 GameObject:
   m_ObjectHideFlags: 0
@@ -8254,6 +8382,7 @@ GameObject:
   - component: {fileID: 1145203591}
   - component: {fileID: 1145203590}
   - component: {fileID: 1145203589}
+  - component: {fileID: 1145203592}
   m_Layer: 5
   m_Name: BTN_Use
   m_TagString: Untagged
@@ -8363,6 +8492,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1145203587}
   m_CullTransparentMesh: 1
+--- !u!114 &1145203592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1145203587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &1145876091
 GameObject:
   m_ObjectHideFlags: 0
@@ -8577,6 +8721,7 @@ GameObject:
   - component: {fileID: 1166254482}
   - component: {fileID: 1166254481}
   - component: {fileID: 1166254480}
+  - component: {fileID: 1166254483}
   m_Layer: 5
   m_Name: ShopButton
   m_TagString: Untagged
@@ -8685,6 +8830,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1166254478}
   m_CullTransparentMesh: 1
+--- !u!114 &1166254483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1166254478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1001 &1184992459
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10282,6 +10442,7 @@ GameObject:
   - component: {fileID: 1376032829}
   - component: {fileID: 1376032828}
   - component: {fileID: 1376032830}
+  - component: {fileID: 1376032831}
   m_Layer: 5
   m_Name: IMG_DimOverlay
   m_TagString: Untagged
@@ -10390,6 +10551,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1376032831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1376032826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &1402156683
 GameObject:
   m_ObjectHideFlags: 0
@@ -14323,6 +14499,7 @@ GameObject:
   - component: {fileID: 1892132116}
   - component: {fileID: 1892132115}
   - component: {fileID: 1892132114}
+  - component: {fileID: 1892132117}
   m_Layer: 5
   m_Name: BTN_ClaimWithAd
   m_TagString: Untagged
@@ -14433,6 +14610,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1892132112}
   m_CullTransparentMesh: 1
+--- !u!114 &1892132117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1892132112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &1905714478
 GameObject:
   m_ObjectHideFlags: 0
