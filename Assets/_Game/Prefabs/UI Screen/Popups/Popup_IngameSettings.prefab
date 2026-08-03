@@ -163,6 +163,7 @@ GameObject:
   - component: {fileID: 8898032254769106514}
   - component: {fileID: 189859754060445621}
   - component: {fileID: 2829936878280861628}
+  - component: {fileID: 6434221230748099020}
   m_Layer: 5
   m_Name: BTN_Sound
   m_TagString: Untagged
@@ -275,6 +276,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6434221230748099020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1291723792094510457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &1395245544526956037
 GameObject:
   m_ObjectHideFlags: 0
@@ -2353,6 +2369,7 @@ GameObject:
   - component: {fileID: 4421033960045215693}
   - component: {fileID: 4056020338925089135}
   - component: {fileID: 5117957726783778005}
+  - component: {fileID: 6536637503616689215}
   m_Layer: 5
   m_Name: BTN_Quit
   m_TagString: Untagged
@@ -2462,6 +2479,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6536637503616689215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6216817962966309843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &6232652976237105195
 GameObject:
   m_ObjectHideFlags: 0
@@ -2474,6 +2506,7 @@ GameObject:
   - component: {fileID: 2565330504932531024}
   - component: {fileID: 861619505299695652}
   - component: {fileID: 7786379999851540753}
+  - component: {fileID: 7516205163165383559}
   m_Layer: 5
   m_Name: BTN_Music
   m_TagString: Untagged
@@ -2586,6 +2619,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7516205163165383559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6232652976237105195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &6659908636378358588
 GameObject:
   m_ObjectHideFlags: 0
@@ -2735,6 +2783,7 @@ GameObject:
   - component: {fileID: 6157892917453488451}
   - component: {fileID: 6452835896951186039}
   - component: {fileID: 4320195158963542847}
+  - component: {fileID: 8626993314744314252}
   m_Layer: 5
   m_Name: BTN_Vibration
   m_TagString: Untagged
@@ -2847,6 +2896,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8626993314744314252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6663525268300044727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &7048623619178355063
 GameObject:
   m_ObjectHideFlags: 0
@@ -3211,6 +3275,7 @@ GameObject:
   - component: {fileID: 604557132332767765}
   - component: {fileID: 5364355399842104077}
   - component: {fileID: 2193460136305775286}
+  - component: {fileID: 4978593622467387507}
   m_Layer: 5
   m_Name: BTN_Close
   m_TagString: Untagged
@@ -3320,6 +3385,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4978593622467387507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7876931215998570906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &8056245896444893167
 GameObject:
   m_ObjectHideFlags: 0
@@ -3546,6 +3626,7 @@ GameObject:
   - component: {fileID: 6438950840014717083}
   - component: {fileID: 3421061362730069952}
   - component: {fileID: 1509995300100558244}
+  - component: {fileID: 8283102228214085388}
   m_Layer: 5
   m_Name: BTN_Resume
   m_TagString: Untagged
@@ -3655,6 +3736,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8283102228214085388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8706473535537514548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &8868307891934014308
 GameObject:
   m_ObjectHideFlags: 0
