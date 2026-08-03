@@ -8451,7 +8451,7 @@ MonoBehaviour:
   coinEndScale: 0.35481
   itemFlyDuration: 0.5
   itemStagger: 0.08
-  itemEndScale: 1
+  itemEndScale: 0.8
   lifeFlyDuration: 0.55
   lifeEndScale: 0.4206628
   landVfxPrefab: {fileID: 0}

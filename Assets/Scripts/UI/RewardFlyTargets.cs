@@ -155,31 +155,43 @@ namespace PixelShoot.UI
 
         private IEnumerator FlyRoutine(List<FlyRequest> requests, Action onComplete)
         {
-            bool hasCoins = false, hasLife = false;
+            // 1) SPAWN EVERYTHING AT ONCE — the instant the popup closes, all reward icons appear at
+            //    their popup-row positions (coins as a stacked burst). They just sit there until flown.
+            var coinIcons = new List<RectTransform>();
+            var itemIcons = new List<RectTransform>();
+            var lifeIcons = new List<RectTransform>();
 
-            // 1) Coins first — a burst that homes in on the coin HUD, then the counter counts up.
             foreach (var r in requests)
             {
-                if (r.kind != RewardFlyKind.Coin) continue;
-                hasCoins = true;
-                yield return StartCoroutine(FlyCoinBurst(r));
+                Vector2 start = LocalOfWorld(r.startWorld);
+                switch (r.kind)
+                {
+                    case RewardFlyKind.Coin:
+                        for (int i = 0; i < coinBurstCount; i++) coinIcons.Add(SpawnIcon(r.sprite, start));
+                        break;
+                    case RewardFlyKind.PlayButton:
+                        itemIcons.Add(SpawnIcon(r.sprite, start));
+                        break;
+                    case RewardFlyKind.Life:
+                        lifeIcons.Add(SpawnIcon(r.sprite, start));
+                        break;
+                }
             }
 
-            // 2) Booster / powerup / no-ads → Play button (no count-up).
-            foreach (var r in requests)
+            bool hasCoins = coinIcons.Count > 0;
+            bool hasLife = lifeIcons.Count > 0;
+
+            // 2) FLY THEM OUT, one group at a time: coins → Play-button items → life.
+            if (hasCoins) yield return StartCoroutine(FlyCoins(coinIcons));
+
+            foreach (var icon in itemIcons)
             {
-                if (r.kind != RewardFlyKind.PlayButton) continue;
-                StartCoroutine(FlyOne(r.sprite, r.startWorld, playButtonTarget, itemFlyDuration, RewardFlyKind.PlayButton, itemEndScale));
+                StartCoroutine(FlyOne(icon, playButtonTarget, itemFlyDuration, RewardFlyKind.PlayButton, itemEndScale));
                 yield return WaitUnscaled(itemStagger);
             }
 
-            // 3) Life last → life HUD, then refresh it.
-            foreach (var r in requests)
-            {
-                if (r.kind != RewardFlyKind.Life) continue;
-                hasLife = true;
-                yield return StartCoroutine(FlyOne(r.sprite, r.startWorld, lifeTarget, lifeFlyDuration, RewardFlyKind.Life, lifeEndScale));
-            }
+            foreach (var icon in lifeIcons)
+                yield return StartCoroutine(FlyOne(icon, lifeTarget, lifeFlyDuration, RewardFlyKind.Life, lifeEndScale));
 
             // Release anything that had no reward of its kind (so nothing stays frozen).
             if (!hasCoins) coinLabel?.EndClaimImmediate();
@@ -188,15 +200,16 @@ namespace PixelShoot.UI
             onComplete?.Invoke();
         }
 
-        private IEnumerator FlyCoinBurst(FlyRequest coin)
+        // Fly a batch of already-spawned coin icons to the coin HUD (scatter → home in), then count up.
+        private IEnumerator FlyCoins(List<RectTransform> icons)
         {
-            Vector2 start = LocalOfWorld(coin.startWorld);
             Vector2 dest = LocalOf(coinTarget);
+            int total = icons.Count;
             int landed = 0;
 
-            for (int i = 0; i < coinBurstCount; i++)
+            foreach (var icon in icons)
             {
-                var icon = SpawnIcon(coin.sprite, start);
+                Vector2 start = icon.anchoredPosition;
                 Vector2 scatter = start + UnityEngine.Random.insideUnitCircle * coinScatter;
 
                 var seq = DOTween.Sequence().SetUpdate(true);
@@ -209,7 +222,7 @@ namespace PixelShoot.UI
                     icon.GetComponent<RewardFlyItem>()?.OnLanded();
                     Destroy(icon.gameObject);
                     landed++;
-                    if (landed >= coinBurstCount)
+                    if (landed >= total)
                         coinLabel?.ReleaseClaimTo(PlayerWallet.Balance, coinCountUpDuration);
                 });
 
@@ -220,10 +233,12 @@ namespace PixelShoot.UI
             yield return WaitUnscaled(coinFlyDuration + coinCountUpDuration);
         }
 
-        private IEnumerator FlyOne(Sprite sprite, Vector3 fromWorld, RectTransform to, float dur, RewardFlyKind kind, float endScale)
+        // Fly a single already-spawned icon to its target.
+        private IEnumerator FlyOne(RectTransform icon, RectTransform to, float dur, RewardFlyKind kind, float endScale)
         {
-            if (to == null) yield break;
-            var icon = SpawnIcon(sprite, LocalOfWorld(fromWorld));
+            if (icon == null) yield break;
+            if (to == null) { Destroy(icon.gameObject); yield break; }
+
             bool done = false;
             icon.DOScale(icon.localScale * endScale, dur).SetEase(Ease.InQuad).SetUpdate(true); // reach the target scale as it lands
             icon.DOAnchorPos(LocalOf(to), dur).SetEase(Ease.InBack).SetUpdate(true)
