@@ -181,23 +181,30 @@ namespace PixelShoot.UI
             bool hasCoins = coinIcons.Count > 0;
             bool hasLife = lifeIcons.Count > 0;
 
-            // 2) FLY THEM OUT, one group at a time: coins → Play-button items → life.
-            if (hasCoins) yield return StartCoroutine(FlyCoins(coinIcons));
-
+            // 2) FLY THEM ALL OUT AT ONCE — coins, items and life launch together, no group waits.
+            int running = 0;
+            if (hasCoins) { running++; StartCoroutine(RunThen(FlyCoins(coinIcons), () => running--)); }
             foreach (var icon in itemIcons)
-            {
-                StartCoroutine(FlyOne(icon, playButtonTarget, itemFlyDuration, RewardFlyKind.PlayButton, itemEndScale));
-                yield return WaitUnscaled(itemStagger);
-            }
-
+            { running++; StartCoroutine(RunThen(FlyOne(icon, playButtonTarget, itemFlyDuration, RewardFlyKind.PlayButton, itemEndScale), () => running--)); }
             foreach (var icon in lifeIcons)
-                yield return StartCoroutine(FlyOne(icon, lifeTarget, lifeFlyDuration, RewardFlyKind.Life, lifeEndScale));
+            { running++; StartCoroutine(RunThen(FlyOne(icon, lifeTarget, lifeFlyDuration, RewardFlyKind.Life, lifeEndScale), () => running--)); }
+
+            // Wait for every flight to settle.
+            while (running > 0) yield return null;
 
             // Release anything that had no reward of its kind (so nothing stays frozen).
             if (!hasCoins) coinLabel?.EndClaimImmediate();
             if (!hasLife)  livesHud?.ReleaseHold();
             holding = false;
             onComplete?.Invoke();
+        }
+
+        // Run a sub-flight coroutine to completion, then signal via the callback (so the parent can
+        // launch several in parallel and wait for the whole set).
+        private IEnumerator RunThen(IEnumerator inner, Action done)
+        {
+            yield return StartCoroutine(inner);
+            done?.Invoke();
         }
 
         // Fly a batch of already-spawned coin icons to the coin HUD (scatter → home in), then count up.
