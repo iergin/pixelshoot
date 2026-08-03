@@ -2398,6 +2398,7 @@ GameObject:
   - component: {fileID: 8752240777665520946}
   - component: {fileID: 8523988401665717449}
   - component: {fileID: 1064899893987684604}
+  - component: {fileID: 2201388045181214727}
   m_Layer: 5
   m_Name: BTN_Bundle
   m_TagString: Untagged
@@ -2525,6 +2526,21 @@ MonoBehaviour:
   priceLabel: {fileID: 809083538491775735}
   ownedOverlay: {fileID: 0}
   hideTarget: {fileID: 8585635052474746131}
+--- !u!114 &2201388045181214727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5901634636439439111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
 --- !u!1 &6332502039825598069
 GameObject:
   m_ObjectHideFlags: 0

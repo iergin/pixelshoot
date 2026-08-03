@@ -189,7 +189,10 @@ MonoBehaviour:
   - {fileID: 2513494443176504293}
   musicSource: {fileID: 7085554152433615255}
   defaultMusic: {fileID: 0}
-  clips: []
+  clips:
+  - id: button
+    clip: {fileID: 8300000, guid: 47b4f6cf1a9244597af93dd4569be541, type: 3}
+    volume: 1
   shooterClickClip: {fileID: 8300000, guid: 5f01bf7fdeae74d5a9e53c216f26f14f, type: 3}
   shooterClickVolume: 1
   boxHitClip: {fileID: 8300000, guid: d58f8153623544044ac2822c7ad7efa6, type: 3}
