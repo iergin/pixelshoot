@@ -70,13 +70,19 @@ namespace PixelShoot.UI
         [SerializeField, Min(0f)] private float coinScatter = 120f;
         [Tooltip("Seconds the coin counter takes to count up once the coins land.")]
         [SerializeField, Min(0f)] private float coinCountUpDuration = 0.4f;
+        [Tooltip("Uniform localScale a coin reaches as it lands on the coin HUD (1 = the flyer's native size).")]
+        [SerializeField, Min(0f)] private float coinEndScale = 1f;
 
         [Header("Items (booster / powerup / no-ads → Play button)")]
         [SerializeField, Min(0.05f)] private float itemFlyDuration = 0.5f;
         [SerializeField, Min(0f)] private float itemStagger = 0.08f;
+        [Tooltip("Uniform localScale an item reaches as it lands on the Play button (1 = the flyer's native size).")]
+        [SerializeField, Min(0f)] private float itemEndScale = 1f;
 
         [Header("Life")]
         [SerializeField, Min(0.05f)] private float lifeFlyDuration = 0.55f;
+        [Tooltip("Uniform localScale the life icon reaches as it lands on the life widget (1 = the flyer's native size).")]
+        [SerializeField, Min(0f)] private float lifeEndScale = 1f;
 
         [Header("Feedback (optional)")]
         [Tooltip("Spawned at a fly icon's landing spot (coin sparkle / pop). Optional.")]
@@ -163,7 +169,7 @@ namespace PixelShoot.UI
             foreach (var r in requests)
             {
                 if (r.kind != RewardFlyKind.PlayButton) continue;
-                StartCoroutine(FlyOne(r.sprite, r.startWorld, playButtonTarget, itemFlyDuration, RewardFlyKind.PlayButton));
+                StartCoroutine(FlyOne(r.sprite, r.startWorld, playButtonTarget, itemFlyDuration, RewardFlyKind.PlayButton, itemEndScale));
                 yield return WaitUnscaled(itemStagger);
             }
 
@@ -172,7 +178,7 @@ namespace PixelShoot.UI
             {
                 if (r.kind != RewardFlyKind.Life) continue;
                 hasLife = true;
-                yield return StartCoroutine(FlyOne(r.sprite, r.startWorld, lifeTarget, lifeFlyDuration, RewardFlyKind.Life));
+                yield return StartCoroutine(FlyOne(r.sprite, r.startWorld, lifeTarget, lifeFlyDuration, RewardFlyKind.Life, lifeEndScale));
             }
 
             // Release anything that had no reward of its kind (so nothing stays frozen).
@@ -196,6 +202,7 @@ namespace PixelShoot.UI
                 var seq = DOTween.Sequence().SetUpdate(true);
                 seq.Append(icon.DOAnchorPos(scatter, coinFlyDuration * 0.35f).SetEase(Ease.OutQuad));
                 seq.Append(icon.DOAnchorPos(dest, coinFlyDuration * 0.65f).SetEase(Ease.InBack));
+                seq.Insert(0f, icon.DOScale(icon.localScale * coinEndScale, coinFlyDuration).SetEase(Ease.InQuad)); // reach the target scale as it lands
                 seq.OnComplete(() =>
                 {
                     OnLand(coinTarget, coinLandSfx);
@@ -213,11 +220,12 @@ namespace PixelShoot.UI
             yield return WaitUnscaled(coinFlyDuration + coinCountUpDuration);
         }
 
-        private IEnumerator FlyOne(Sprite sprite, Vector3 fromWorld, RectTransform to, float dur, RewardFlyKind kind)
+        private IEnumerator FlyOne(Sprite sprite, Vector3 fromWorld, RectTransform to, float dur, RewardFlyKind kind, float endScale)
         {
             if (to == null) yield break;
             var icon = SpawnIcon(sprite, LocalOfWorld(fromWorld));
             bool done = false;
+            icon.DOScale(icon.localScale * endScale, dur).SetEase(Ease.InQuad).SetUpdate(true); // reach the target scale as it lands
             icon.DOAnchorPos(LocalOf(to), dur).SetEase(Ease.InBack).SetUpdate(true)
                 .OnComplete(() =>
                 {
