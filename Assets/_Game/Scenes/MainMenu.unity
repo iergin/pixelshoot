@@ -8441,7 +8441,7 @@ MonoBehaviour:
   lifeTarget: {fileID: 1866396119422033761}
   flyLayer: {fileID: 819195170}
   uiCamera: {fileID: 330585545}
-  flyItemPrefab: {fileID: 205249458991751249, guid: 77e82bfcfdabd43ac99309070f2d0dcb, type: 3}
+  flyItemPrefab: {fileID: 4161975187436640738, guid: 752c94bc94443490681ac1959139ec0d, type: 3}
   flyIconSize: {x: 90, y: 90}
   coinBurstCount: 10
   coinFlyDuration: 0.55
