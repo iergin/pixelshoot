@@ -17,6 +17,7 @@ MonoBehaviour:
   displayName: Premium Bundle
   grantedCoins: 25000
   productType: 0
+  hideWhenPurchased: 0
   grantNoAds: 0
   unlimitedMinutes: 360
   boosters:
@@ -30,4 +31,4 @@ MonoBehaviour:
     amount: 2
   bombPowerups: 4
   paintPowerups: 4
-  repeatable: 0
+  repeatable: 1

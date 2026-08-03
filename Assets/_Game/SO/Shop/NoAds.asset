@@ -17,3 +17,4 @@ MonoBehaviour:
   displayName: Remove Ads
   grantedCoins: 0
   productType: 1
+  hideWhenPurchased: 1

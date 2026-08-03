@@ -42,6 +42,7 @@ namespace PixelShoot.UI
         private void OnEnable()
         {
             PlayerWallet.OnBalanceChanged += OnBalance;
+            PlayerWallet.OnNoAdsChanged += Refresh; // hide the No-Ads row the instant it's bought elsewhere
             if (buyButton != null)
             {
                 buyButton.onClick.RemoveAllListeners();
@@ -55,6 +56,7 @@ namespace PixelShoot.UI
         private void OnDisable()
         {
             PlayerWallet.OnBalanceChanged -= OnBalance;
+            PlayerWallet.OnNoAdsChanged -= Refresh;
         }
 
         private void Update()
@@ -76,9 +78,11 @@ namespace PixelShoot.UI
             bool isPurchased = PlayerWallet.HasPurchased(offer.OfferId);
             bool isAvailable = offer.IsAvailable;
 
-            // Locked: not bought AND not currently available (e.g. Starter Pack before
-            // the NoAds prerequisite is met). Hide the whole row so it doesn't show as OWNED.
-            if (!isPurchased && !isAvailable)
+            // Hide the whole row when:
+            //  (a) locked — not bought AND not available yet (e.g. Starter Pack before NoAds), or
+            //  (b) bought AND the offer is flagged Hide-When-Purchased (one-time bundle / No-Ads) —
+            //      so it disappears from the shop instead of lingering as an OWNED row.
+            if ((!isPurchased && !isAvailable) || (isPurchased && offer.HideWhenPurchased))
             {
                 gameObject.SetActive(false);
                 return;

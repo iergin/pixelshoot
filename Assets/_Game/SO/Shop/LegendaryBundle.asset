@@ -17,6 +17,7 @@ MonoBehaviour:
   displayName: Legendary Bundle
   grantedCoins: 70000
   productType: 0
+  hideWhenPurchased: 0
   grantNoAds: 0
   unlimitedMinutes: 1440
   boosters:
@@ -30,4 +31,4 @@ MonoBehaviour:
     amount: 10
   bombPowerups: 12
   paintPowerups: 12
-  repeatable: 0
+  repeatable: 1

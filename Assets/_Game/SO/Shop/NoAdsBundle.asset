@@ -17,6 +17,7 @@ MonoBehaviour:
   displayName: No Ads Bundle
   grantedCoins: 5000
   productType: 0
+  hideWhenPurchased: 1
   grantNoAds: 1
   unlimitedMinutes: 720
   boosters: []

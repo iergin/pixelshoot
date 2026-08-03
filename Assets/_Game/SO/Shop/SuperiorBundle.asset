@@ -17,9 +17,10 @@ MonoBehaviour:
   displayName: Superior Bundle
   grantedCoins: 10000
   productType: 0
+  hideWhenPurchased: 0
   grantNoAds: 0
   unlimitedMinutes: 0
   boosters: []
   bombPowerups: 2
   paintPowerups: 2
-  repeatable: 0
+  repeatable: 1

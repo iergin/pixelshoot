@@ -17,6 +17,7 @@ MonoBehaviour:
   displayName: Ultimate Bundle
   grantedCoins: 50000
   productType: 0
+  hideWhenPurchased: 0
   grantNoAds: 0
   unlimitedMinutes: 720
   boosters:
@@ -30,4 +31,4 @@ MonoBehaviour:
     amount: 4
   bombPowerups: 8
   paintPowerups: 8
-  repeatable: 0
+  repeatable: 1

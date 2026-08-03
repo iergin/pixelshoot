@@ -17,9 +17,10 @@ MonoBehaviour:
   displayName: Starter Bundle
   grantedCoins: 5000
   productType: 0
+  hideWhenPurchased: 0
   grantNoAds: 0
   unlimitedMinutes: 0
   boosters: []
   bombPowerups: 1
   paintPowerups: 1
-  repeatable: 0
+  repeatable: 1

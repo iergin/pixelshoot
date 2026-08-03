@@ -17,6 +17,7 @@ MonoBehaviour:
   displayName: Special Bundle
   grantedCoins: 5000
   productType: 0
+  hideWhenPurchased: 1
   grantNoAds: 0
   unlimitedMinutes: 60
   boosters: []
