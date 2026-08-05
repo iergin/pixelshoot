@@ -1881,7 +1881,15 @@ namespace PixelShoot.LevelEditor.EditorTools
             EnsureDir(colorDir);
             string path = $"{colorDir}/Color_{hex}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<ColorData>(path);
-            if (existing != null) return existing;
+            if (existing != null)
+            {
+                // Self-heal: an older/partial run may have left a ColorData whose material references
+                // point to .mat files that don't exist (missing → resolves to null). That makes boxes
+                // render in the grey 'unhit' material in the normal preview while 'Show final state'
+                // (which falls back to DisplayColor) looks right. Recreate any missing materials.
+                RepairColorMaterials(existing, hex, baseColor);
+                return existing;
+            }
 
             // Hit material is the only per-color box material now; the shared "unhit"
             // material lives on GridController and is the same for every color.
@@ -1897,6 +1905,47 @@ namespace PixelShoot.LevelEditor.EditorTools
             SetField(cd, "bulletMaterial", bulletMat);
             AssetDatabase.CreateAsset(cd, path);
             return cd;
+        }
+
+        /// <summary>Recreate any of a ColorData's three materials whose reference is missing (the .mat
+        /// was deleted / never created → resolves to null). Returns true if anything was fixed.</summary>
+        internal static bool RepairColorMaterials(ColorData cd, string hex, Color baseColor)
+        {
+            if (cd == null || string.IsNullOrEmpty(hex)) return false;
+            bool changed = false;
+            if (cd.BoxHitMaterial == null)  { SetField(cd, "boxHitMaterial",  CreateMaterial(MatBoxesDir,    hex, "Hit",     baseColor)); changed = true; }
+            if (cd.ShooterMaterial == null) { SetField(cd, "shooterMaterial", CreateMaterial(MatShootersDir, hex, "Shooter", baseColor)); changed = true; }
+            if (cd.BulletMaterial == null)  { SetField(cd, "bulletMaterial",  CreateMaterial(MatBulletsDir,  hex, "Bullet",  baseColor)); changed = true; }
+            if (changed) EditorUtility.SetDirty(cd);
+            return changed;
+        }
+
+        /// <summary>Scan every ColorData asset and rebuild missing materials. Fixes levels that show the
+        /// grey 'unhit' colour in the preview (materials lost from a partial import).</summary>
+        [MenuItem("PixelShoot/Repair Missing Color Materials")]
+        private static void RepairAllColorMaterials()
+        {
+            var guids = AssetDatabase.FindAssets("t:ColorData");
+            int scanned = 0, repaired = 0;
+            try
+            {
+                for (int i = 0; i < guids.Length; i++)
+                {
+                    string p = AssetDatabase.GUIDToAssetPath(guids[i]);
+                    var cd = AssetDatabase.LoadAssetAtPath<ColorData>(p);
+                    if (cd == null || string.IsNullOrEmpty(cd.ColorId)) continue;
+                    scanned++;
+                    EditorUtility.DisplayProgressBar("Repair Color Materials", cd.name, (float)i / Mathf.Max(1, guids.Length));
+                    if (RepairColorMaterials(cd, cd.ColorId, cd.DisplayColor)) repaired++;
+                }
+            }
+            finally { EditorUtility.ClearProgressBar(); }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[Repair] Scanned {scanned} ColorData — repaired {repaired} with missing materials.");
+            EditorUtility.DisplayDialog("Repair Color Materials",
+                $"Scanned {scanned} colours.\nRepaired {repaired} that had missing materials.", "OK");
         }
 
         private static Material CreateMaterial(string baseDir, string hex, string name, Color color)

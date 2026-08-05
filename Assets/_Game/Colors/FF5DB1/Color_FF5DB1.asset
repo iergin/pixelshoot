@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Data.ColorData
   colorId: FF5DB1
   displayColor: {r: 1, g: 0.3647059, b: 0.69411767, a: 1}
-  boxHitMaterial: {fileID: 2100000, guid: 1463668c137c4a6459db9007e44f83f9, type: 2}
-  shooterMaterial: {fileID: 2100000, guid: 22f04e4eef130aa4c9e260d1b0b265cf, type: 2}
-  bulletMaterial: {fileID: 2100000, guid: e17500de8d1857a45aa683a8f540a642, type: 2}
+  boxHitMaterial: {fileID: 2100000, guid: 8e71606c7a01d40039428535ee75dbe7, type: 2}
+  shooterMaterial: {fileID: 2100000, guid: 6a86ab89d3edb40f7aec0e67f1c41cdf, type: 2}
+  bulletMaterial: {fileID: 2100000, guid: 3071cda4758064230a3d848ec9f45fcd, type: 2}
   mainColor: {fileID: 0}
