@@ -33,6 +33,11 @@ namespace PixelShoot.LevelEditor.EditorTools
         [SerializeField] private string gridAreaName = "GridArea";
         [SerializeField] private float autoFitFill = 1f;
 
+        [Header("Tones (like the Wizard's 'Recalculate tones (random)')")]
+        [SerializeField] private bool randomizeTones = true;
+        [SerializeField, Range(0f, 1f)] private float toneNormalRatio = ToneDistributor.DefaultNormalRatio;
+        [SerializeField, Range(0f, 1f)] private float toneDarkRatio = ToneDistributor.DefaultDarkRatio;
+
         private Vector2 scroll;
         private string log = "";
         private AutoFitContext autoFitCtx; // scene lookups resolved once per import run
@@ -91,6 +96,17 @@ namespace PixelShoot.LevelEditor.EditorTools
                             : $"'{gridAreaName}' (or a GridController) NOT found in the open scene. Open the Game scene first, or auto-fit will fall back to scale 1 / position 0.",
                         "OK");
                 }
+            }
+
+            EditorGUILayout.Space(4);
+            randomizeTones = EditorGUILayout.Toggle(
+                new GUIContent("Randomize tones", "Assign random Normal/Dark/Light tones per level — same as clicking the Wizard's 'Recalculate tones (random)' once. Off = all Normal."),
+                randomizeTones);
+            using (new EditorGUI.DisabledScope(!randomizeTones))
+            {
+                toneNormalRatio = EditorGUILayout.Slider("Normal ratio", toneNormalRatio, 0f, 1f);
+                toneDarkRatio = EditorGUILayout.Slider("Dark ratio", toneDarkRatio, 0f, Mathf.Max(0f, 1f - toneNormalRatio));
+                EditorGUILayout.LabelField($"Light ratio (remainder): {Mathf.Clamp01(1f - toneNormalRatio - toneDarkRatio):0.##}", EditorStyles.miniLabel);
             }
 
             EditorGUILayout.LabelField($"Output → {LevelsDir}/<filename>.asset", EditorStyles.miniLabel);
@@ -211,6 +227,22 @@ namespace PixelShoot.LevelEditor.EditorTools
             LevelEditorWizardWindow.SetField(grid, "rootPosition", rootPos);
             LevelEditorWizardWindow.SetField(grid, "rootScale", rootScale);
 
+            // Tones: random Normal/Dark/Light per colour group — same as one click of the Wizard's
+            // 'Recalculate tones (random)'. All-Normal when the toggle is off.
+            var toneArr = new Tone[gridSize * gridSize]; // defaults to Tone.Normal (0)
+            if (randomizeTones)
+            {
+                var byColor = new Dictionary<int, List<int>>();
+                for (int i = 0; i < cells.Length; i++)
+                {
+                    int c = cells[i];
+                    if (c < 0) continue;
+                    if (!byColor.TryGetValue(c, out var lst)) { lst = new List<int>(); byColor[c] = lst; }
+                    lst.Add(i);
+                }
+                ToneDistributor.Distribute(byColor, toneArr, toneNormalRatio, toneDarkRatio, null); // null seed = random
+            }
+
             var boxCells = new List<BoxCellData>();
             for (int z = 0; z < gridSize; z++)
             {
@@ -224,13 +256,14 @@ namespace PixelShoot.LevelEditor.EditorTools
                     LevelEditorWizardWindow.SetField(bc, "gridZ", z);
                     LevelEditorWizardWindow.SetField(bc, "isEmpty", false);
                     LevelEditorWizardWindow.SetField(bc, "color", palette[colorIdx]);
-                    LevelEditorWizardWindow.SetField(bc, "tone", Tone.Normal); // matches a fresh Wizard import
+                    LevelEditorWizardWindow.SetField(bc, "tone", toneArr[flat]); // randomized (or Normal if toggle off)
                     LevelEditorWizardWindow.SetField(bc, "isBomb", bombSet.Contains(flat));
                     LevelEditorWizardWindow.SetField(bc, "keyId", keyMap.TryGetValue(flat, out var k) ? k : 0);
                     boxCells.Add(bc);
                 }
             }
             LevelEditorWizardWindow.SetField(grid, "cells", boxCells);
+            // (toneArr is filled just above the boxCells loop; nothing to do here.)
 
             // ── Columns (sortColumns → buses). JSON lists top→bottom; ColumnData stores bottom→top. ──
             var columns = new List<ColumnData>();
