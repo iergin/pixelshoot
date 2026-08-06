@@ -44,8 +44,12 @@ namespace PixelShoot.Data
             public List<List<ColumnShooter>> Columns = new List<List<ColumnShooter>>();
             /// <summary>Bomb cells as [x, y] image coordinates (y = row from the top).</summary>
             public List<(int x, int y)> Bombs = new List<(int x, int y)>();
-            /// <summary>Key cells as [x, y] image coordinates. The i-th key gets key id i+1.</summary>
+            /// <summary>ALL key cells flattened as [x, y] image coordinates (for counting / legacy use).</summary>
             public List<(int x, int y)> Keys = new List<(int x, int y)>();
+            /// <summary>Key cells grouped: each inner list is one KEY (all its pixels share key id
+            /// groupIndex+1). Supports both the grouped form <c>[[[x,y],...],[[x,y],...]]</c> and the old
+            /// flat form <c>[[x,y],[x,y]]</c> (where each pair is its own 1-cell key).</summary>
+            public List<List<(int x, int y)>> KeyGroups = new List<List<(int x, int y)>>();
         }
 
         public static bool LooksLikeJson(string text)
@@ -88,9 +92,12 @@ namespace PixelShoot.Data
             if (!string.IsNullOrEmpty(colsSection))
                 result.Columns = ParseSortColumns(colsSection);
 
-            // bombs / keys — arrays of [x, y] image coordinates.
+            // bombs — flat array of [x, y] image coordinates.
             result.Bombs = ParseCoordPairs(ExtractJsonValue(text, "bombs"));
-            result.Keys  = ParseCoordPairs(ExtractJsonValue(text, "keys"));
+            // keys — grouped (each key = a set of pixels) OR the old flat form. KeyGroups keeps the
+            // grouping; Keys is the flattened list (all key cells) for counting.
+            result.KeyGroups = ParseKeyGroups(ExtractJsonValue(text, "keys"));
+            foreach (var g in result.KeyGroups) result.Keys.AddRange(g);
 
             result.Ok = true;
             return result;
@@ -205,6 +212,51 @@ namespace PixelShoot.Data
             foreach (Match m in RxCoordPair.Matches(section))
                 list.Add((int.Parse(m.Groups[1].Value), int.Parse(m.Groups[2].Value)));
             return list;
+        }
+
+        /// <summary>
+        /// Parses the "keys" section into KEY GROUPS. Handles two shapes:
+        /// <list type="bullet">
+        /// <item><b>Grouped</b> — <c>[ [[x,y],[x,y],...], [[x,y],...] ]</c>: each outer element is one
+        /// key made of many pixels.</item>
+        /// <item><b>Flat</b> (legacy) — <c>[ [x,y], [x,y] ]</c>: each pair is its own 1-pixel key.</item>
+        /// </list>
+        /// It decides per top-level element: an element that itself contains a nested '[' is a group of
+        /// pairs; otherwise the element IS a single pair (a 1-cell key).
+        /// </summary>
+        private static List<List<(int x, int y)>> ParseKeyGroups(string section)
+        {
+            var groups = new List<List<(int x, int y)>>();
+            if (string.IsNullOrEmpty(section)) return groups;
+
+            int i = section.IndexOf('[');
+            int end = section.LastIndexOf(']');
+            if (i < 0 || end <= i) return groups;
+            i++; // step past the outer '['
+
+            while (i < end)
+            {
+                while (i < end && (char.IsWhiteSpace(section[i]) || section[i] == ',')) i++;
+                if (i >= end || section[i] != '[') { i++; continue; }
+
+                // Capture this bracket-balanced top-level element.
+                int elemStart = i, depth = 0;
+                for (; i <= end; i++)
+                {
+                    char c = section[i];
+                    if (c == '[') depth++;
+                    else if (c == ']') { depth--; if (depth == 0) { i++; break; } }
+                }
+                string elem = section.Substring(elemStart, i - elemStart);
+                var pairs = ParseCoordPairs(elem);
+                if (pairs.Count == 0) continue;
+
+                // A nested '[' after the first char means this element is an ARRAY OF PAIRS (one key
+                // group). Otherwise the element is a single "[x,y]" pair = a 1-cell key.
+                bool grouped = elem.IndexOf('[', 1) >= 0;
+                groups.Add(grouped ? pairs : new List<(int x, int y)> { pairs[0] });
+            }
+            return groups;
         }
 
         private static List<ColumnShooter> ParseShootersInColumn(string colText)

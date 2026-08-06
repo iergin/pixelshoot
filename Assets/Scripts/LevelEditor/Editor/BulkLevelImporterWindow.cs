@@ -201,11 +201,12 @@ namespace PixelShoot.LevelEditor.EditorTools
                 if (idx >= 0) bombSet.Add(idx);
             }
             var keyMap = new Dictionary<int, int>();
-            for (int i = 0; i < parsed.Keys.Count; i++)
-            {
-                int idx = CoordToFlat(parsed.Keys[i].x, parsed.Keys[i].y, gridSize);
-                if (idx >= 0) keyMap[idx] = i + 1; // i-th key → key id i+1 (a lock's "lock":N references it)
-            }
+            for (int g = 0; g < parsed.KeyGroups.Count; g++)
+                foreach (var (kx, ky) in parsed.KeyGroups[g])
+                {
+                    int idx = CoordToFlat(kx, ky, gridSize);
+                    if (idx >= 0) keyMap[idx] = g + 1; // whole group shares key id g+1 (a lock's "lock":N references it)
+                }
 
             // Create / load the asset.
             string path = $"{LevelsDir}/{name}.asset";

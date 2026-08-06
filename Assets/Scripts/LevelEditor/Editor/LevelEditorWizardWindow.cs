@@ -604,12 +604,14 @@ namespace PixelShoot.LevelEditor.EditorTools
                         int idx = CoordToFlat(bx, by);
                         if (idx >= 0) bombs[idx] = true;
                     }
-                    // The i-th key cell gets key id i+1; a lock's "lock": N references that id.
-                    for (int i = 0; i < parsed.Keys.Count; i++)
-                    {
-                        int idx = CoordToFlat(parsed.Keys[i].x, parsed.Keys[i].y);
-                        if (idx >= 0) keys[idx] = i + 1;
-                    }
+                    // Each KEY GROUP gets one id (groupIndex+1); ALL its pixels share it. A lock's
+                    // "lock": N references that id. (Grouped keys = 6-ish pixels hidden until unlocked.)
+                    for (int g = 0; g < parsed.KeyGroups.Count; g++)
+                        foreach (var (kx, ky) in parsed.KeyGroups[g])
+                        {
+                            int idx = CoordToFlat(kx, ky);
+                            if (idx >= 0) keys[idx] = g + 1;
+                        }
                 }
             }
 
@@ -664,7 +666,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             if (filledCells > 0) parts.Add($"{filledCells} filled cells");
             if (columnsCount > 0) parts.Add($"{columnsCount} columns / {shooterCount} shooters");
             if (parsed != null && parsed.Bombs.Count > 0) parts.Add($"{parsed.Bombs.Count} bombs");
-            if (parsed != null && parsed.Keys.Count > 0)  parts.Add($"{parsed.Keys.Count} keys");
+            if (parsed != null && parsed.KeyGroups.Count > 0) parts.Add($"{parsed.KeyGroups.Count} keys ({parsed.Keys.Count} cells)");
             lastImportStatus = parts.Count == 0
                 ? "Nothing detected in the pasted text — paste the JSON export from the level designer tool."
                 : "Imported: " + string.Join(", ", parts) + ". (Press Save to persist to disk.)";
