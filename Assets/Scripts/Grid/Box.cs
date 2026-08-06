@@ -78,12 +78,30 @@ namespace PixelShoot.Grid
         [Tooltip("Seconds to tween the mesh shrink between states. 0 = snap.")]
         [SerializeField, Min(0f)] private float hitMeshScaleDuration = 0.2f;
 
+        [Header("Shootable pulse")]
+        [Tooltip("Gently pulse (grow/shrink) shootable Frontier boxes so they read as tappable. Only " +
+                 "Frontier boxes pulse; the tween stops the instant a box is locked / hit / key-hidden.")]
+        [SerializeField] private bool pulseEnabled = true;
+        [Tooltip("Transform the pulse scales. Null = this box's transform.")]
+        [SerializeField] private Transform pulseTarget;
+        [Tooltip("Scale at the SMALL end of the pulse (e.g. 0.95 = 95%).")]
+        [SerializeField, Min(0.01f)] private float pulseScaleMin = 0.95f;
+        [Tooltip("Scale at the BIG end of the pulse (e.g. 1.05 = 105%).")]
+        [SerializeField, Min(0.01f)] private float pulseScaleMax = 1.05f;
+        [Tooltip("Seconds for ONE full grow+shrink cycle (min → max → min).")]
+        [SerializeField, Min(0.05f)] private float pulsePeriod = 2f;
+        [Tooltip("Easing of the pulse. InOutSine = smooth breathing.")]
+        [SerializeField] private Ease pulseEase = Ease.InOutSine;
+
         private Tween heightTween;
         private Tween anchorTween;
         private Tween positionTween;
         private Tween punchTween;
         private Tween meshScaleTween;
         private Tween outlineRevealTween;
+        private Tween pulseTween;
+        private Vector3 pulseBaseScale = Vector3.one;
+        private bool pulseBaseCaptured;
         private Vector3 punchBaseScale;
         private bool punchBaseCaptured;
         private Vector3 meshBaseScale = Vector3.one;
@@ -185,6 +203,9 @@ namespace PixelShoot.Grid
             }
 
             // (Hit sound is played in TakeHit, which knows whether a bomb opened it.)
+
+            // Shootable pulse: on only while this box is a live Frontier target.
+            UpdatePulse();
 
             // On hit: punch FIRST, then apply height + mesh scale, then reveal the
             // outline once those tweens finish. Other transitions apply immediately.
@@ -551,6 +572,39 @@ namespace PixelShoot.Grid
             punchTween?.Kill();
             meshScaleTween?.Kill();
             outlineRevealTween?.Kill();
+            pulseTween?.Kill();
+        }
+
+        // ── Shootable pulse ──────────────────────────────────────────────────
+        // Gentle breathing scale on Frontier (shootable) boxes. Started/stopped by SetState via
+        // UpdatePulse(); only live on the moving frontier, so at most a few dozen tweens run at once.
+        private void UpdatePulse()
+        {
+            if (pulseEnabled && state == BoxState.Frontier && !hiddenByKey) StartPulse();
+            else StopPulse();
+        }
+
+        private void StartPulse()
+        {
+            var t = pulseTarget != null ? pulseTarget : transform;
+            if (!pulseBaseCaptured) { pulseBaseScale = t.localScale; pulseBaseCaptured = true; }
+            if (pulseTween != null && pulseTween.IsActive()) return; // already breathing — don't reset its phase
+
+            float leg = Mathf.Max(0.01f, pulsePeriod * 0.5f); // min→max is half a full cycle
+            t.localScale = pulseBaseScale * pulseScaleMin;
+            pulseTween = t.DOScale(pulseBaseScale * pulseScaleMax, leg)
+                .SetEase(pulseEase)
+                .SetLoops(-1, LoopType.Yoyo);
+        }
+
+        private void StopPulse()
+        {
+            if (pulseTween != null) { pulseTween.Kill(); pulseTween = null; }
+            if (pulseBaseCaptured)
+            {
+                var t = pulseTarget != null ? pulseTarget : transform;
+                t.localScale = pulseBaseScale; // snap back to the exact base scale
+            }
         }
 
         private static Color ReadColor(Material m)
