@@ -88,10 +88,10 @@ namespace PixelShoot.Grid
         [SerializeField, Min(0.01f)] private float pulseScaleMin = 0.95f;
         [Tooltip("Scale at the BIG end of the pulse (e.g. 1.05 = 105%).")]
         [SerializeField, Min(0.01f)] private float pulseScaleMax = 1.05f;
-        [Tooltip("Seconds for ONE full grow+shrink cycle (min → max → min).")]
+        [Tooltip("Seconds for ONE full grow+shrink cycle (min → max → min). ALL boxes share one central " +
+                 "clock, so same-period boxes breathe perfectly in sync regardless of when they became " +
+                 "shootable.")]
         [SerializeField, Min(0.05f)] private float pulsePeriod = 2f;
-        [Tooltip("Easing of the pulse. InOutSine = smooth breathing.")]
-        [SerializeField] private Ease pulseEase = Ease.InOutSine;
 
         private Tween heightTween;
         private Tween anchorTween;
@@ -99,9 +99,9 @@ namespace PixelShoot.Grid
         private Tween punchTween;
         private Tween meshScaleTween;
         private Tween outlineRevealTween;
-        private Tween pulseTween;
         private Vector3 pulseBaseScale = Vector3.one;
         private bool pulseBaseCaptured;
+        private bool pulsing;
         private Vector3 punchBaseScale;
         private bool punchBaseCaptured;
         private Vector3 meshBaseScale = Vector3.one;
@@ -572,7 +572,7 @@ namespace PixelShoot.Grid
             punchTween?.Kill();
             meshScaleTween?.Kill();
             outlineRevealTween?.Kill();
-            pulseTween?.Kill();
+            if (pulsing) BoxPulseDriver.Remove(this);
         }
 
         // ── Shootable pulse ──────────────────────────────────────────────────
@@ -586,20 +586,18 @@ namespace PixelShoot.Grid
 
         private void StartPulse()
         {
+            if (pulsing) return;
             var t = pulseTarget != null ? pulseTarget : transform;
             if (!pulseBaseCaptured) { pulseBaseScale = t.localScale; pulseBaseCaptured = true; }
-            if (pulseTween != null && pulseTween.IsActive()) return; // already breathing — don't reset its phase
-
-            float leg = Mathf.Max(0.01f, pulsePeriod * 0.5f); // min→max is half a full cycle
-            t.localScale = pulseBaseScale * pulseScaleMin;
-            pulseTween = t.DOScale(pulseBaseScale * pulseScaleMax, leg)
-                .SetEase(pulseEase)
-                .SetLoops(-1, LoopType.Yoyo);
+            pulsing = true;
+            BoxPulseDriver.Add(this); // one central clock drives every pulsing box in sync
         }
 
         private void StopPulse()
         {
-            if (pulseTween != null) { pulseTween.Kill(); pulseTween = null; }
+            if (!pulsing) return;
+            pulsing = false;
+            BoxPulseDriver.Remove(this);
             if (pulseBaseCaptured)
             {
                 var t = pulseTarget != null ? pulseTarget : transform;
@@ -607,11 +605,58 @@ namespace PixelShoot.Grid
             }
         }
 
+        /// <summary>Called every frame by the shared <see cref="BoxPulseDriver"/> while this box is a live
+        /// Frontier target. Scale is derived from ABSOLUTE time, so all same-period boxes are in phase.</summary>
+        internal void PulseTick()
+        {
+            if (!pulsing) return;
+            var t = pulseTarget != null ? pulseTarget : transform;
+            // Sinusoidal 0..1 from absolute time → shared phase across all boxes (starts at 0 = min).
+            float phase = Time.time * (Mathf.PI * 2f / Mathf.Max(0.05f, pulsePeriod)) - Mathf.PI * 0.5f;
+            float t01 = (Mathf.Sin(phase) + 1f) * 0.5f;
+            t.localScale = pulseBaseScale * Mathf.Lerp(pulseScaleMin, pulseScaleMax, t01);
+        }
+
         private static Color ReadColor(Material m)
         {
             if (m.HasProperty(BaseColorId)) return m.GetColor(BaseColorId);
             if (m.HasProperty(ColorId)) return m.GetColor(ColorId);
             return m.color;
+        }
+    }
+
+    /// <summary>
+    /// One shared driver that ticks EVERY pulsing (Frontier) box each frame from a single clock, so
+    /// their grow/shrink stays perfectly in phase — instead of each box running its own loop from its
+    /// own start time. Lazily spawns a hidden updater; iterates only the active (frontier) boxes.
+    /// </summary>
+    internal sealed class BoxPulseDriver : MonoBehaviour
+    {
+        private static BoxPulseDriver instance;
+        private static readonly System.Collections.Generic.List<Box> active = new System.Collections.Generic.List<Box>();
+
+        internal static void Add(Box b)
+        {
+            if (b == null || active.Contains(b)) return;
+            active.Add(b);
+            if (instance == null)
+            {
+                var go = new GameObject("[BoxPulseDriver]") { hideFlags = HideFlags.HideAndDontSave };
+                instance = go.AddComponent<BoxPulseDriver>();
+            }
+        }
+
+        internal static void Remove(Box b) => active.Remove(b);
+
+        private void LateUpdate()
+        {
+            // Iterate backwards so a null/destroyed entry can be pruned safely.
+            for (int i = active.Count - 1; i >= 0; i--)
+            {
+                var b = active[i];
+                if (b == null) { active.RemoveAt(i); continue; }
+                b.PulseTick();
+            }
         }
     }
 }
