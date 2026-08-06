@@ -62,6 +62,8 @@ namespace PixelShoot.Game
                 Debug.LogError("LevelLoader: no LevelData and no AllLevelsData entries to fall back on.");
                 return;
             }
+            Debug.Log($"[LevelLoader] Entering level with SO '{levelData.name}' " +
+                      $"(LevelIndex={PlayerProgress.LevelIndex}, Level {PlayerProgress.DisplayLevel}).", levelData);
             Build();
 
             // Subscribe AFTER Build so the GameController is bound.
