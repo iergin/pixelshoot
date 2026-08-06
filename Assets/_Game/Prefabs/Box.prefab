@@ -96,7 +96,7 @@ MonoBehaviour:
   hitHeight: 0.02
   heightTweenDuration: 0.2
   scaleFromBottom: 1
-  meshUnitHeight: 1
+  meshUnitHeight: 2.02
   punchTarget: {fileID: 1328583009216109609}
   hitPunchScale: 0.6
   hitPunchDuration: 0.4
@@ -428,9 +428,9 @@ Transform:
   m_GameObject: {fileID: 4377538645588625691}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.63761014, y: 0.63761014, z: 0.63761014}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 0.14, z: 0}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4785304815429601508}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5613,7 +5613,7 @@ Transform:
   m_GameObject: {fileID: 9217713573042972426}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.126, z: 0}
+  m_LocalPosition: {x: 0, y: 0.83, z: 0}
   m_LocalScale: {x: 0.59861803, y: 0.59861803, z: 0.59861803}
   m_ConstrainProportionsScale: 0
   m_Children:
