@@ -104,6 +104,12 @@ MonoBehaviour:
   hitPunchElasticity: 0.5
   hitMeshScaleMultiplier: 1.05
   hitMeshScaleDuration: 0.2
+  pulseEnabled: 1
+  pulseTarget: {fileID: 0}
+  pulseScaleMin: 0.95
+  pulseScaleMax: 1.3
+  pulsePeriod: 3.5
+  pulseEase: 4
 --- !u!1 &681223077695429011
 GameObject:
   m_ObjectHideFlags: 0
