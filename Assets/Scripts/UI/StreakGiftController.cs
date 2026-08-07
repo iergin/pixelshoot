@@ -82,9 +82,14 @@ namespace PixelShoot.UI
                 // cannons lob them after the delay — paint via Cannon, bombs via BombCannon (→ MakeBomb).
                 var paintTargets = (totalPaints > 0 && fill != null) ? fill.PickStreakPaintTargets(totalPaints) : null;
                 var bombTargets  = (totalBombs  > 0 && grid != null) ? grid.CollectRandomBombTargets(totalBombs)  : null;
+
+                // Block gameplay input for the WHOLE powerup delivery (until every cannon finishes), so
+                // the player can't tap buses mid-cannon. Counted suspend → balanced by the onDone pop.
+                PixelShoot.Shooters.ClickInputRouter.PushSuspend();
                 DOVirtual.DelayedCall(bombDelay, () =>
                     cannons.FireBoth(paintTargets, bombTargets, grid,
-                        onBombLanded: b => { if (b != null) b.MakeBomb(); }));
+                        onBombLanded: b => { if (b != null) b.MakeBomb(); },
+                        onDone: () => PixelShoot.Shooters.ClickInputRouter.PopSuspend()));
             }
             else
             {
