@@ -20,6 +20,8 @@ namespace PixelShoot.Shooters
         [Header("Animation states")]
         [SerializeField] private string idleState = "Idle";
         [SerializeField] private string fallingTrigger = "Falling";
+        [Tooltip("Animator trigger fired when the stickman is LAUNCHED from a Cannon (DOJump). Configurable.")]
+        [SerializeField] private string jumpTrigger = "Jump";
 
         [Header("Flight")]
         [Tooltip("World units per second of travel toward the target box. Duration = distance / speed, so far targets take longer than near ones.")]
@@ -194,6 +196,38 @@ namespace PixelShoot.Shooters
             flightTween = transform.DOMove(endPos, duration)
                 .SetEase(ease)
                 .OnUpdate(EmitFootstepTick)
+                .OnComplete(() =>
+                {
+                    if (grid != null && target != null && target.IsAlive) grid.NotifyBoxHit(target);
+                    onDone?.Invoke();
+                    StickmanPool.Release(this);
+                });
+        }
+
+        /// <summary>
+        /// Cannon launch: teleport to <paramref name="fromPoint"/> (the cannon's shoot point), play the
+        /// jump animation, and DOJump to the target box's cell. Applies the hit on landing, invokes
+        /// <paramref name="onDone"/>, then returns to the pool. Used by <see cref="PixelShoot.Boosters.Cannon"/>.
+        /// </summary>
+        public void LaunchJump(Vector3 fromPoint, Box target, GridController grid,
+            float jumpPower, float jumpDuration, Ease ease, System.Action onDone = null)
+        {
+            flightTween?.Kill();
+            transform.SetParent(null, true);
+            transform.position = fromPoint;
+
+            if (animator != null && !string.IsNullOrEmpty(jumpTrigger))
+                animator.SetTrigger(jumpTrigger);
+
+            Vector3 endPos = grid != null && target != null
+                ? grid.GetCellWorldPosition(target.GridX, target.GridZ)
+                : fromPoint;
+
+            Vector3 face = endPos - fromPoint; face.y = 0f;
+            if (face.sqrMagnitude > 0.0001f) transform.rotation = Quaternion.LookRotation(face.normalized, Vector3.up);
+
+            flightTween = transform.DOJump(endPos, jumpPower, 1, Mathf.Max(0.05f, jumpDuration))
+                .SetEase(ease)
                 .OnComplete(() =>
                 {
                     if (grid != null && target != null && target.IsAlive) grid.NotifyBoxHit(target);

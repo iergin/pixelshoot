@@ -322,6 +322,30 @@ namespace PixelShoot.Grid
             }
         }
 
+        /// <summary>Random boxes eligible to BECOME bombs — same filter as <see cref="PlaceStreakBombs"/>
+        /// (alive, not already a bomb, not key-hidden, not reserved, not a linked colour). Shuffled, up
+        /// to <paramref name="count"/>. Used by the BombCannon to lob bombs onto these cells.</summary>
+        public List<Box> CollectRandomBombTargets(int count)
+        {
+            var candidates = new List<Box>();
+            if (boxes == null || count <= 0) return candidates;
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b != null && b.IsAlive && !b.IsBomb && !b.IsHiddenByKey && !b.IsReserved
+                        && !(b.Color != null && ShooterColumn.IsColorLinked(b.Color.GameplayColor)))
+                        candidates.Add(b);
+                }
+            for (int i = candidates.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                (candidates[i], candidates[j]) = (candidates[j], candidates[i]);
+            }
+            if (candidates.Count > count) candidates.RemoveRange(count, candidates.Count - count);
+            return candidates;
+        }
+
         /// <summary>Streak paint gift: up to <paramref name="count"/> random alive, non-bomb,
         /// non-hidden, coloured boxes to paint (via stickman runners). Shuffled.</summary>
         public List<Box> CollectRandomPaintTargets(int count)

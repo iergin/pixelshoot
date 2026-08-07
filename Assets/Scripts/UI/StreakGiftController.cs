@@ -21,6 +21,10 @@ namespace PixelShoot.UI
         [SerializeField] private GridController grid;
         [Tooltip("FillColor controller reused to run the paint stickmen in from off-screen.")]
         [SerializeField] private FillColorController fill;
+        [Tooltip("Optional cannons for PURCHASED powerups: Cannon lobs paint stickmen, BombCannon lobs " +
+                 "bombs (DOJump). If assigned, the purchased powerups are DELIVERED by the cannons instead " +
+                 "of the off-screen run / instant pop. Leave empty to keep the old delivery.")]
+        [SerializeField] private PixelShoot.Boosters.PowerupCannonCoordinator cannons;
         [Tooltip("Fixed amounts one purchased powerup grants (bombs / paints). Used when the player " +
                  "selected a powerup for this level in the PlayPopup.")]
         [SerializeField] private PowerupsConfig powerupsConfig;
@@ -65,12 +69,29 @@ namespace PixelShoot.UI
             PlayerPowerups.ClearSelections();
 
             Debug.Log($"[StreakGift] streak → {streakBombs} bomb / {streakPaints} paint; " +
-                      $"powerups → {puBombs} bomb / {puPaints} paint (delay {powerupDelay}s).");
+                      $"powerups → {puBombs} bomb / {puPaints} paint (delay {powerupDelay}s). " +
+                      $"cannons={(cannons != null ? "ASSIGNED → cannon delivery" : "NULL → OLD delivery (off-screen run / pop)")}.");
 
-            // 1) Streak gift first.
-            ApplyGift(streakBombs, streakPaints, bombDelay, paintDelay);
-            // 2) Purchased powerups a beat later, as a separate activation.
-            ApplyGift(puBombs, puPaints, bombDelay + powerupDelay, paintDelay + powerupDelay);
+            int totalBombs  = streakBombs + puBombs;
+            int totalPaints = streakPaints + puPaints;
+
+            if (cannons != null && (totalBombs > 0 || totalPaints > 0))
+            {
+                // CANNON delivery for the WHOLE gift (streak + purchased powerups). Pick targets NOW
+                // (reserves paint boxes + spends their shots so the bullet budget stays balanced); the
+                // cannons lob them after the delay — paint via Cannon, bombs via BombCannon (→ MakeBomb).
+                var paintTargets = (totalPaints > 0 && fill != null) ? fill.PickStreakPaintTargets(totalPaints) : null;
+                var bombTargets  = (totalBombs  > 0 && grid != null) ? grid.CollectRandomBombTargets(totalBombs)  : null;
+                DOVirtual.DelayedCall(bombDelay, () =>
+                    cannons.FireBoth(paintTargets, bombTargets, grid,
+                        onBombLanded: b => { if (b != null) b.MakeBomb(); }));
+            }
+            else
+            {
+                // Classic delivery: streak gift first, purchased powerups a beat later.
+                ApplyGift(streakBombs, streakPaints, bombDelay, paintDelay);
+                ApplyGift(puBombs, puPaints, bombDelay + powerupDelay, paintDelay + powerupDelay);
+            }
         }
 
         // Place bombs + run paint with the given start delays (bombs before paint so paint skips them).

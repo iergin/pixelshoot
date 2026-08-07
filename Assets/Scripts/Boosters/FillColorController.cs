@@ -196,12 +196,24 @@ namespace PixelShoot.Boosters
         /// </summary>
         public void StreakPaint(int maxCount)
         {
-            if (grid == null || maxCount <= 0) return;
+            var chosen = PickStreakPaintTargets(maxCount);
+            if (chosen.Count > 0) StartCoroutine(RunFillBoxes(chosen)); // deliver with off-screen runners
+        }
+
+        /// <summary>
+        /// Selects up to <paramref name="maxCount"/> paint targets with the SAME rules as the streak
+        /// paint gift (only colours unlinked buses can pay for), RESERVES each and spends the matching
+        /// shots, then RETURNS them — so a <see cref="Cannon"/> can deliver them instead of the
+        /// off-screen runners. Reserving + spending happens here so the bullet budget stays balanced
+        /// regardless of who does the delivery. Empty list = nothing paintable.
+        /// </summary>
+        public List<Box> PickStreakPaintTargets(int maxCount)
+        {
+            var chosen = new List<Box>();
+            if (grid == null || maxCount <= 0) return chosen;
 
             var budget = ShooterColumn.UnlinkedShotsByColor(); // unlinked shots left, per colour
             var pool = grid.CollectRandomPaintTargets(int.MaxValue); // all paintable boxes, shuffled
-
-            var chosen = new List<Box>();
             foreach (var b in pool)
             {
                 if (chosen.Count >= maxCount) break;
@@ -213,7 +225,7 @@ namespace PixelShoot.Boosters
                     budget[col] = left - 1; // this box now "spends" one unlinked shot of its colour
                 }
             }
-            if (chosen.Count == 0) return;
+            if (chosen.Count == 0) return chosen;
 
             foreach (var b in chosen) if (b != null && b.IsAlive) b.ReserveHit();
 
@@ -221,7 +233,7 @@ namespace PixelShoot.Boosters
             foreach (var b in chosen) { var c = b.Color.GameplayColor; byColor.TryGetValue(c, out int n); byColor[c] = n + 1; }
             foreach (var kv in byColor) ShooterColumn.ConsumeShotsForGameplayColor(kv.Key, kv.Value, unlinkedOnly: true);
 
-            StartCoroutine(RunFillBoxes(chosen));
+            return chosen;
         }
 
         // Like RunFill but WITHOUT EndMode() — the gift never entered interactive mode.

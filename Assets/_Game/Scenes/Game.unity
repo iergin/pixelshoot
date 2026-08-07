@@ -5559,6 +5559,7 @@ GameObject:
   m_Component:
   - component: {fileID: 777249686}
   - component: {fileID: 777249687}
+  - component: {fileID: 777249688}
   m_Layer: 0
   m_Name: StreakGiftController
   m_TagString: Untagged
@@ -5596,10 +5597,27 @@ MonoBehaviour:
   gameController: {fileID: 448307441}
   grid: {fileID: 1908823581}
   fill: {fileID: 2073169641}
+  cannons: {fileID: 777249688}
   powerupsConfig: {fileID: 11400000, guid: 76ec7d7f47f914263ac9c8cd8fa2b873, type: 2}
   bombDelay: 0.4
   paintDelay: 1.2
   powerupDelay: 1
+--- !u!114 &777249688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777249685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3357f2a412d124f3389784e171f03e48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Boosters.PowerupCannonCoordinator
+  stickmanCannon: {fileID: 1819724974}
+  bombCannon: {fileID: 9095494855086656786}
+  secondStartDelay: 0.4
+  stickmanFirst: 1
 --- !u!1 &782813337
 GameObject:
   m_ObjectHideFlags: 0
@@ -14038,6 +14056,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1817427680}
   m_CullTransparentMesh: 1
+--- !u!114 &1819724974 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 637241721442198771, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+  m_PrefabInstance: {fileID: 9214338910153542805}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7faa741c931384e46b3fcbd28c3d05f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Boosters.Cannon
 --- !u!1001 &1825391814
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21289,6 +21318,78 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1001 &9095494855086656785
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4408114811592704374, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_Name
+      value: BombCannon
+      objectReference: {fileID: 0}
+    - target: {fileID: 4408114811592704374, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842892667422534938, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4.44
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842892667422534938, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.55
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842892667422534938, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.19
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842892667422534938, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842892667422534938, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842892667422534938, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842892667422534938, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842892667422534938, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842892667422534938, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842892667422534938, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+--- !u!114 &9095494855086656786 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6173095339837723379, guid: 433a20caed53e44e8bf6a9385dba7b9f, type: 3}
+  m_PrefabInstance: {fileID: 9095494855086656785}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f8a4e0f23c0b4b1a961cbd3be80cadf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Boosters.BombCannon
 --- !u!23 &9104787174167960557
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -21477,6 +21578,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 38348767515344878}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!1001 &9214338910153542805
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2737283707416661641, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3.71
+      objectReference: {fileID: 0}
+    - target: {fileID: 2737283707416661641, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.55
+      objectReference: {fileID: 0}
+    - target: {fileID: 2737283707416661641, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.19
+      objectReference: {fileID: 0}
+    - target: {fileID: 2737283707416661641, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2737283707416661641, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2737283707416661641, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2737283707416661641, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2737283707416661641, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2737283707416661641, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2737283707416661641, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9029856058258022768, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_Name
+      value: StickmanCannon
+      objectReference: {fileID: 0}
+    - target: {fileID: 9029856058258022768, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8b762aae9db7045c2988a3168e176f8c, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -21496,3 +21658,5 @@ SceneRoots:
   - {fileID: 646519351}
   - {fileID: 438894340}
   - {fileID: 1547472264}
+  - {fileID: 9214338910153542805}
+  - {fileID: 9095494855086656785}
