@@ -175,9 +175,9 @@ MonoBehaviour:
   growEase: 27
   shrinkDuration: 0.25
   shrinkEase: 26
-  shotInterval: 0.15
-  jumpPower: 2
-  jumpDuration: 0.6
+  shotInterval: 0.09
+  jumpPower: 0.75
+  jumpDuration: 1.65
   jumpEase: 6
   stickmanScale: 1
   shootPunch: 0.15

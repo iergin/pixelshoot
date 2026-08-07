@@ -176,8 +176,8 @@ MonoBehaviour:
   shrinkDuration: 0.25
   shrinkEase: 26
   shotInterval: 0.15
-  jumpPower: 2.5
-  jumpDuration: 0.6
+  jumpPower: 1
+  jumpDuration: 1.5
   jumpEase: 6
   bombScale: 0.5
   bombSpinDegPerSec: 360
