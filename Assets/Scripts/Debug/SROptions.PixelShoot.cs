@@ -31,6 +31,30 @@ public partial class SROptions
         gc.DebugForceFail();
     }
 
+    // ── Level ───────────────────────────────────────────────────────────
+    private int _levelToSet = 1;
+
+    [Category("PixelShoot — Level"), Sort(0)]
+    [DisplayName("Current Level")]
+    public int CurrentDisplayLevel => PlayerProgress.DisplayLevel;
+
+    [Category("PixelShoot — Level"), Sort(1)]
+    [DisplayName("Level to set")]
+    public int LevelToSet
+    {
+        get => _levelToSet;
+        set { _levelToSet = Mathf.Max(1, value); OnPropertyChanged(nameof(LevelToSet)); }
+    }
+
+    [Category("PixelShoot — Level"), Sort(2)]
+    [DisplayName("Set Level")]
+    public void DebugSetLevel()
+    {
+        PlayerProgress.LevelIndex = Mathf.Max(0, _levelToSet - 1); // DisplayLevel = LevelIndex + 1
+        Debug.Log($"[SRDebug] Level set → DisplayLevel {PlayerProgress.DisplayLevel} (index {PlayerProgress.LevelIndex}).");
+        OnPropertyChanged(nameof(CurrentDisplayLevel));
+    }
+
     // ── Powerups (debug grant to test the PlayPopup selector) ───────────
     [Category("PixelShoot — Powerups")]
     [DisplayName("Owned Bomb")]
