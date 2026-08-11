@@ -51,6 +51,25 @@ namespace PixelShoot.UI
         [SerializeField] private GameObject bombRewardRoot;
         [SerializeField] private GameObject paintRewardRoot;
 
+        [Header("Streak lock (feature gated by level)")]
+        [Tooltip("The streak feature is LOCKED until the player reaches this DisplayLevel (1-based).")]
+        [SerializeField] private int streakUnlockLevel = 18;
+        [Tooltip("Whole streak UI (bar + gift preview). Shown only once the streak is unlocked.")]
+        [SerializeField] private GameObject streakRoot;
+        [Tooltip("Lock overlay shown while the streak is still locked.")]
+        [SerializeField] private GameObject streakLockRoot;
+        [Tooltip("Label on the lock showing the unlock level. {0} = the level number.")]
+        [SerializeField] private TMP_Text streakUnlockLabel;
+        [SerializeField] private string streakUnlockFormat = "Level {0}";
+
+        [Header("Streak tutorial (first unlock)")]
+        [Tooltip("Shown ONCE — the first time this popup opens with the streak just unlocked. Tap anywhere to close.")]
+        [SerializeField] private GameObject streakTutorial;
+        [Tooltip("Full-screen (transparent) button over everything that catches a tap ANYWHERE to dismiss the tutorial.")]
+        [SerializeField] private Button streakTutorialTapCatcher;
+
+        private const string StreakTutorialShownKey = "PixelShoot.StreakTutorialShown";
+
         private MainMenuController menu;
 
         // No menu bound → we're the in-game retry popup (opened by FailFlowPopup).
@@ -67,8 +86,31 @@ namespace PixelShoot.UI
             if (playLabel != null) playLabel.text = IsRetry ? retryText : playText;
             if (levelLabel != null) levelLabel.text = string.Format(levelFormat, PlayerProgress.DisplayLevel);
 
-            ShowStreakBar();
-            ShowGiftPreview();
+            ApplyStreakLock();
+        }
+
+        // Streak feature is gated until streakUnlockLevel: below it, show the lock (with the unlock level)
+        // and hide the streak UI; at/after it, show the streak and — the FIRST time — the tutorial.
+        private void ApplyStreakLock()
+        {
+            bool unlocked = PlayerProgress.DisplayLevel >= streakUnlockLevel;
+
+            if (streakRoot != null) streakRoot.SetActive(unlocked);
+            if (streakLockRoot != null) streakLockRoot.SetActive(!unlocked);
+
+            if (unlocked)
+            {
+                ShowStreakBar();
+                ShowGiftPreview();
+                MaybeShowStreakTutorial();
+            }
+            else
+            {
+                if (streakUnlockLabel != null) streakUnlockLabel.text = string.Format(streakUnlockFormat, streakUnlockLevel);
+                if (giftRoot != null) giftRoot.SetActive(false);              // no gift preview while locked
+                if (streakTutorial != null) streakTutorial.SetActive(false);
+                if (streakTutorialTapCatcher != null) streakTutorialTapCatcher.gameObject.SetActive(false);
+            }
         }
 
         // Fill the bar to currentStreak / MaxRewardStreak (capped full past the max).
@@ -93,6 +135,36 @@ namespace PixelShoot.UI
             if (bombRewardRoot != null) bombRewardRoot.SetActive(bombs > 0);
             if (paintRewardRoot != null) paintRewardRoot.SetActive(paints > 0);
             if (giftRoot != null) giftRoot.SetActive(bombs > 0 || paints > 0);
+        }
+
+        // Show the streak tutorial the FIRST time the streak is unlocked; a tap anywhere (the full-screen
+        // catcher) dismisses it and marks it seen so it never shows again.
+        private void MaybeShowStreakTutorial()
+        {
+            if (streakTutorial == null) return;
+
+            if (PlayerPrefs.GetInt(StreakTutorialShownKey, 0) == 1)
+            {
+                streakTutorial.SetActive(false);
+                if (streakTutorialTapCatcher != null) streakTutorialTapCatcher.gameObject.SetActive(false);
+                return;
+            }
+
+            streakTutorial.SetActive(true);
+            if (streakTutorialTapCatcher != null)
+            {
+                streakTutorialTapCatcher.gameObject.SetActive(true);
+                streakTutorialTapCatcher.onClick.RemoveAllListeners();
+                streakTutorialTapCatcher.onClick.AddListener(DismissStreakTutorial);
+            }
+        }
+
+        private void DismissStreakTutorial()
+        {
+            PlayerPrefs.SetInt(StreakTutorialShownKey, 1);
+            PlayerPrefs.Save();
+            if (streakTutorial != null) streakTutorial.SetActive(false);
+            if (streakTutorialTapCatcher != null) streakTutorialTapCatcher.gameObject.SetActive(false);
         }
 
         private void OnPlay()
