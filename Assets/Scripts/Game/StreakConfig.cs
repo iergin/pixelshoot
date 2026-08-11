@@ -13,6 +13,10 @@ namespace PixelShoot.Game
     [CreateAssetMenu(fileName = "StreakConfig", menuName = "PixelShoot/Streak Config")]
     public class StreakConfig : ScriptableObject
     {
+        [Tooltip("The streak feature is LOCKED until the player reaches this level (1-based). Counting " +
+                 "begins on the win of the level BEFORE this, so the streak reads 1 the instant it unlocks.")]
+        [Min(1)] public int unlockLevel = 18;
+
         [Tooltip("Number of streak steps = fill-bar length. Rewards + bar cap here (streak keeps counting).")]
         [Min(1)] public int maxRewardStreak = 5;
 
@@ -22,6 +26,7 @@ namespace PixelShoot.Game
         [Tooltip("Free painted pixels, per streak step. Index 0 = no streak. Needs maxRewardStreak + 1 entries.")]
         public int[] paintsByStreak = { 0, 5, 10, 15, 20, 25 };
 
+        public int UnlockLevel => Mathf.Max(1, unlockLevel);
         public int MaxRewardStreak => Mathf.Max(1, maxRewardStreak);
         public int Bombs(int step)  => Read(bombsByStreak, step);
         public int Paints(int step) => Read(paintsByStreak, step);

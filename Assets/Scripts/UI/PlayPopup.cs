@@ -52,9 +52,8 @@ namespace PixelShoot.UI
         [SerializeField] private GameObject paintRewardRoot;
 
         [Header("Streak lock (feature gated by level)")]
-        [Tooltip("The streak feature is LOCKED until the player reaches this DisplayLevel (1-based).")]
-        [SerializeField] private int streakUnlockLevel = 18;
-        [Tooltip("Whole streak UI (bar + gift preview). Shown only once the streak is unlocked.")]
+        [Tooltip("Unlock level comes from StreakConfig.unlockLevel (single source of truth). Whole streak " +
+                 "UI (bar + gift preview) — shown only once the streak is unlocked.")]
         [SerializeField] private GameObject streakRoot;
         [Tooltip("Lock overlay shown while the streak is still locked.")]
         [SerializeField] private GameObject streakLockRoot;
@@ -93,7 +92,8 @@ namespace PixelShoot.UI
         // and hide the streak UI; at/after it, show the streak and — the FIRST time — the tutorial.
         private void ApplyStreakLock()
         {
-            bool unlocked = PlayerProgress.DisplayLevel >= streakUnlockLevel;
+            int unlockLevel = PlayerStreak.UnlockLevel; // from StreakConfig
+            bool unlocked = PlayerProgress.DisplayLevel >= unlockLevel;
 
             if (streakRoot != null) streakRoot.SetActive(unlocked);
             if (streakLockRoot != null) streakLockRoot.SetActive(!unlocked);
@@ -106,7 +106,7 @@ namespace PixelShoot.UI
             }
             else
             {
-                if (streakUnlockLabel != null) streakUnlockLabel.text = string.Format(streakUnlockFormat, streakUnlockLevel);
+                if (streakUnlockLabel != null) streakUnlockLabel.text = string.Format(streakUnlockFormat, unlockLevel);
                 if (giftRoot != null) giftRoot.SetActive(false);              // no gift preview while locked
                 if (streakTutorial != null) streakTutorial.SetActive(false);
                 if (streakTutorialTapCatcher != null) streakTutorialTapCatcher.gameObject.SetActive(false);

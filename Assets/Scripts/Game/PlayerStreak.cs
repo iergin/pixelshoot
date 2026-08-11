@@ -47,6 +47,12 @@ namespace PixelShoot.Game
         /// <summary>Number of streak steps (fill-bar length). Reward + bar cap here.</summary>
         public static int MaxRewardStreak => Cfg.MaxRewardStreak;
 
+        /// <summary>Level (1-based) at which the streak feature unlocks. Below it the UI shows a lock.</summary>
+        public static int UnlockLevel => Cfg.UnlockLevel;
+
+        /// <summary>True once the player has reached <see cref="UnlockLevel"/>.</summary>
+        public static bool IsUnlocked => PlayerProgress.DisplayLevel >= UnlockLevel;
+
         /// <summary>Fired whenever the streak value changes (win / reset).</summary>
         public static event Action<int> OnChanged;
 
@@ -71,8 +77,15 @@ namespace PixelShoot.Game
         /// <summary>Free painted pixels this level — from the config at the current step.</summary>
         public static int RewardPaints => Cfg.Paints(RewardTier);
 
-        /// <summary>A level was cleared → extend the streak.</summary>
-        public static void RegisterWin() => Current = Current + 1;
+        /// <summary>A level was cleared → extend the streak. Counting only STARTS on the win of the
+        /// level right before unlock (UnlockLevel - 1), so the streak reads 1 the moment it unlocks;
+        /// earlier wins don't build it. (Called before PlayerProgress advances, so DisplayLevel is the
+        /// level just won.)</summary>
+        public static void RegisterWin()
+        {
+            if (PlayerProgress.DisplayLevel < UnlockLevel - 1) return; // too early — streak stays 0
+            Current = Current + 1;
+        }
 
         /// <summary>The streak is broken (final fail or quit).</summary>
         public static void Reset() => Current = 0;
