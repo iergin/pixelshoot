@@ -10,6 +10,13 @@
       },
       "hash": "51a4708b7ba4daa8483a4936eae9bffe15d0bfd0"
     },
+    "com.coffee.unmask": {
+      "version": "https://github.com/mob-sakai/UnmaskForUGUI.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "33356da2c43fa28397192baee70910c978e3169f"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
