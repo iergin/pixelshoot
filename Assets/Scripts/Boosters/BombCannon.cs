@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 using PixelShoot.Grid;
 
@@ -54,11 +55,22 @@ namespace PixelShoot.Boosters
         [Tooltip("Y = yaw only (face horizontally); None = full look-at.")]
         [SerializeField] private AxisConstraint aimAxis = AxisConstraint.Y;
 
+        [Header("First-use tutorial")]
+        [Tooltip("Shown the FIRST time this bomb cannon fires. Tap anywhere (via the catcher) to close it " +
+                 "— THEN the cannon process starts.")]
+        [SerializeField] private GameObject tutorial;
+        [Tooltip("Full-screen (transparent) button catching a tap anywhere to dismiss the tutorial + fire.")]
+        [SerializeField] private Button tutorialTapCatcher;
+        [Tooltip("Unique key for the 'seen' flag (e.g. 'BombCannon').")]
+        [SerializeField] private string tutorialKey = "BombCannon";
+
         private Tween aimTween;
         private Tween scaleTween;
         private Tween recoilTween;
         private bool firing;
         private bool warnedNoPrefab;
+
+        private string TutorialPrefsKey => "PixelShoot.CannonTutorialShown." + tutorialKey;
         public bool IsFiring => firing;
 
         private void Awake()
@@ -73,8 +85,37 @@ namespace PixelShoot.Boosters
         public void Fire(IList<Box> targets, GridController grid, Action<Box> onBombLanded, Action onDone = null)
         {
             if (firing) { onDone?.Invoke(); return; }
-            StartCoroutine(FireRoutine(targets, grid, onBombLanded, onDone));
+            firing = true;
+
+            // First time this bomb cannon is used → show its tutorial and wait for a tap, THEN fire.
+            if (tutorial != null && PlayerPrefs.GetInt(TutorialPrefsKey, 0) == 0)
+                ShowTutorialThenFire(targets, grid, onBombLanded, onDone);
+            else
+                StartCoroutine(FireRoutine(targets, grid, onBombLanded, onDone));
         }
+
+        private void ShowTutorialThenFire(IList<Box> targets, GridController grid, Action<Box> onBombLanded, Action onDone)
+        {
+            tutorial.SetActive(true);
+            if (tutorialTapCatcher == null)
+            {
+                MarkTutorialShown();
+                tutorial.SetActive(false);
+                StartCoroutine(FireRoutine(targets, grid, onBombLanded, onDone));
+                return;
+            }
+            tutorialTapCatcher.gameObject.SetActive(true);
+            tutorialTapCatcher.onClick.RemoveAllListeners();
+            tutorialTapCatcher.onClick.AddListener(() =>
+            {
+                MarkTutorialShown();
+                tutorial.SetActive(false);
+                tutorialTapCatcher.gameObject.SetActive(false);
+                StartCoroutine(FireRoutine(targets, grid, onBombLanded, onDone)); // tap → close → start
+            });
+        }
+
+        private void MarkTutorialShown() { PlayerPrefs.SetInt(TutorialPrefsKey, 1); PlayerPrefs.Save(); }
 
         private IEnumerator FireRoutine(IList<Box> targets, GridController grid, Action<Box> onBombLanded, Action onDone)
         {
