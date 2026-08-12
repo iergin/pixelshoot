@@ -67,6 +67,24 @@ namespace PixelShoot.UI
         [Tooltip("Full-screen (transparent) button over everything that catches a tap ANYWHERE to dismiss the tutorial.")]
         [SerializeField] private Button streakTutorialTapCatcher;
 
+        [Header("Paint powerup lock")]
+        [Tooltip("Level (1-based) the PAINT powerup selector unlocks at.")]
+        [SerializeField] private int paintUnlockLevel = 11;
+        [SerializeField] private LockedFeature paintLock;
+        [Tooltip("The paint PowerupSelectSlot — its '+' is disabled while locked.")]
+        [SerializeField] private PowerupSelectSlot paintSlot;
+        [Tooltip("Free paint powerups granted ONCE on first unlock (also auto-selected, as if activated).")]
+        [SerializeField, Min(0)] private int paintFreeOnUnlock = 3;
+
+        [Header("Bomb powerup lock")]
+        [Tooltip("Level (1-based) the BOMB powerup selector unlocks at.")]
+        [SerializeField] private int bombUnlockLevel = 15;
+        [SerializeField] private LockedFeature bombLock;
+        [Tooltip("The bomb PowerupSelectSlot — its '+' is disabled while locked.")]
+        [SerializeField] private PowerupSelectSlot bombSlot;
+        [Tooltip("Free bomb powerups granted ONCE on first unlock (also auto-selected, as if activated).")]
+        [SerializeField, Min(0)] private int bombFreeOnUnlock = 3;
+
         private const string StreakTutorialShownKey = "PixelShoot.StreakTutorialShown";
 
         private MainMenuController menu;
@@ -86,6 +104,34 @@ namespace PixelShoot.UI
             if (levelLabel != null) levelLabel.text = string.Format(levelFormat, PlayerProgress.DisplayLevel);
 
             ApplyStreakLock();
+
+            int lvl = PlayerProgress.DisplayLevel;
+            ApplyPowerupLock(paintLock, paintSlot, PowerupType.Paint, lvl, paintUnlockLevel, paintFreeOnUnlock, "Paint");
+            ApplyPowerupLock(bombLock,  bombSlot,  PowerupType.Bomb,  lvl, bombUnlockLevel,  bombFreeOnUnlock,  "Bomb");
+        }
+
+        // Lock overlay + tutorial (via LockedFeature) + the slot's '+' disable, and — the first time the
+        // feature unlocks — grant `freeOnUnlock` of that powerup and auto-select it (as if the player
+        // tapped the button to activate it).
+        private void ApplyPowerupLock(LockedFeature feature, PowerupSelectSlot slot, PowerupType type,
+            int currentLevel, int unlockLevel, int freeOnUnlock, string key)
+        {
+            feature?.Apply(currentLevel, unlockLevel);
+
+            bool unlocked = currentLevel >= unlockLevel;
+            if (unlocked && freeOnUnlock > 0)
+            {
+                string flag = "PixelShoot.PowerupFreeGranted." + key;
+                if (PlayerPrefs.GetInt(flag, 0) == 0)
+                {
+                    PlayerPrefs.SetInt(flag, 1);
+                    PlayerPrefs.Save();
+                    PlayerPowerups.Add(type, freeOnUnlock);   // free grant, once, on first unlock
+                    PlayerPowerups.SetSelected(type, true);   // pre-selected — as if the player activated it
+                }
+            }
+
+            if (slot != null) slot.SetLocked(!unlocked); // '+' off + button non-interactable while locked
         }
 
         // Streak feature is gated until streakUnlockLevel: below it, show the lock (with the unlock level)

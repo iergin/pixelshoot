@@ -55,8 +55,21 @@ namespace PixelShoot.UI
         private void OnPowerupChanged(PowerupType t, int _)   { if (t == type) Refresh(); }
         private void OnSelectionChanged(PowerupType t, bool _) { if (t == type) Refresh(); }
 
+        private bool locked;
+
+        /// <summary>Lock the slot: the '+' (buy) is hidden and the button is non-interactable, so the
+        /// player can't add/select this powerup until its feature unlocks.</summary>
+        public void SetLocked(bool value)
+        {
+            locked = value;
+            if (button != null) button.interactable = !value;
+            Refresh();
+        }
+
         private void OnClick()
         {
+            if (locked) return; // locked feature — ignore taps
+
             int owned = PlayerPowerups.Owned(type);
             if (owned > 0)
                 PlayerPowerups.SetSelected(type, !PlayerPowerups.IsSelected(type)); // toggle
@@ -77,7 +90,7 @@ namespace PixelShoot.UI
 
             if (countBadge != null) countBadge.SetActive(owned > 0);
             if (countLabel != null) countLabel.text = owned.ToString();
-            if (addBadge   != null) addBadge.SetActive(owned <= 0);
+            if (addBadge   != null) addBadge.SetActive(!locked && owned <= 0); // no '+' while locked
 
             if (backgroundImage != null)
             {
