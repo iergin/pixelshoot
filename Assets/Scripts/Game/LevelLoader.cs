@@ -78,13 +78,35 @@ namespace PixelShoot.Game
         }
 
         /// <summary>
-        /// Picks a level out of the playlist using PlayerProgress.LevelIndex. Once the player runs
-        /// past the last entry, play LOOPS from the playlist's configured Loop Start Level and repeats
-        /// (instead of a random pick).
+        /// Picks the level to play for PlayerProgress.LevelIndex.
+        /// <para>Primary path is <b>name-driven</b>: the order table (<see cref="DifficultyProvider"/>,
+        /// fed by the difficulty JSON) names which level plays at this index; we then find the
+        /// <see cref="LevelData"/> whose <see cref="LevelData.LevelName"/> matches it in the
+        /// <see cref="allLevels"/> pool.</para>
+        /// <para>If the table has no entry for this index, or no level in the pool carries that match id,
+        /// it falls back to the old <b>positional</b> playlist (looping from Loop Start Level, then a
+        /// random pick) so a missing/half-authored table never hard-fails.</para>
         /// </summary>
         private LevelData PickFromPlaylist()
         {
             if (allLevels == null || allLevels.Count == 0) return null;
+
+            // Name-driven order (difficulty JSON decides WHICH level; pool is searched by match id).
+            string wanted = DifficultyProvider.NameForLevelIndex(PlayerProgress.LevelIndex);
+            if (!string.IsNullOrEmpty(wanted))
+            {
+                var byName = allLevels.FindByName(wanted);
+                if (byName != null) return byName;
+                Debug.LogWarning($"[LevelLoader] Order table wants level '{wanted}' at index {PlayerProgress.LevelIndex}, " +
+                                 $"but no LevelData with that Match id exists in AllLevels — using positional order instead.");
+            }
+            else
+            {
+                Debug.LogWarning($"[LevelLoader] No order-table entry for index {PlayerProgress.LevelIndex} " +
+                                 "(is the name-based level-table JSON assigned to the DifficultyConfig?) — using positional order.");
+            }
+
+            // Fallback: positional playlist + looping, then a random pick.
             var chosen = allLevels.GetLooping(PlayerProgress.LevelIndex);
             if (chosen == null)
             {
@@ -238,7 +260,7 @@ namespace PixelShoot.Game
             // hooking up the full playlist asset.
             if (coinsConfig != null && coinsConfig.LevelWinReward > 0)
             {
-                // Difficulty (from the JSON table, by current DisplayLevel) multiplies the win reward
+                // Difficulty (from the order/JSON table, by current LevelIndex) multiplies the win reward
                 // — Normal x1, Hard x3, Super Hard x5. PlayerProgress hasn't advanced yet here, so
                 // DifficultyProvider.Current reflects the level just won.
                 int mult = Mathf.Max(1, DifficultyProvider.CurrentRewardMultiplier);

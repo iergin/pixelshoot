@@ -67,6 +67,9 @@ namespace PixelShoot.LevelEditor.EditorTools
         // The raw designer JSON of the last import — persisted onto the asset (SourceJson)
         // on Save and handed back on Load so it can be copied again.
         private string importedJson = "";
+        // The match id (the JSON "name") persisted onto the asset (LevelName). Used by the
+        // level-order table to locate this level. Set on import, editable, saved onto the asset.
+        private string matchName = "";
         // shotsPerShooter field removed — columns now come from JSON import (sortColumns).
         private Vector2 scroll;
         private string lastImportStatus = "";
@@ -237,6 +240,10 @@ namespace PixelShoot.LevelEditor.EditorTools
         {
             EditorGUILayout.LabelField("Asset", EditorStyles.boldLabel);
             levelName = EditorGUILayout.TextField("Level name", levelName);
+            matchName = EditorGUILayout.TextField(
+                new GUIContent("Match id (name)", "Stored on the asset as its match id (the source JSON's \"name\"). " +
+                    "The level-order table references this string to pick this level. Auto-filled on JSON import."),
+                matchName);
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -349,6 +356,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             currentPaletteIdx = 0;
             importBuffer = "";
             importedJson = "";
+            matchName = "";
             lastImportStatus = "";
 
             // 4) Scene preview: nuke whatever is currently parented under gridRoot /
@@ -545,6 +553,8 @@ namespace PixelShoot.LevelEditor.EditorTools
             // Remember the raw JSON so Save can stash it on the asset for later copying.
             if (isJson) importedJson = text;
             LevelJsonImporter.Result parsed = isJson ? LevelJsonImporter.Parse(text) : null;
+            // Pull the match id from the JSON "name" (only overwrite if present).
+            if (parsed != null && !string.IsNullOrEmpty(parsed.Name)) matchName = parsed.Name;
             string rleText = (parsed != null && !string.IsNullOrEmpty(parsed.RleArrayText)) ? parsed.RleArrayText : text;
             int gridFromJson = parsed != null ? parsed.GridSize : 0;
 
@@ -1769,6 +1779,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             // it shows in the Import box and can be copied again.
             importedJson = targetAsset.SourceJson ?? "";
             if (!string.IsNullOrEmpty(importedJson)) importBuffer = importedJson;
+            matchName = targetAsset.LevelName ?? "";
             int filled = 0;
             if (cells != null) foreach (var v in cells) if (v >= 0) filled++;
             Debug.Log($"[LevelWizard] LoadFromAsset done. palette={palette.Count}, columns={columns.Count}, " +
@@ -1841,6 +1852,8 @@ namespace PixelShoot.LevelEditor.EditorTools
             SetField(dest, "columns", CloneColumns(columns));
             SetField(dest, "conveyorSlotCapacity", conveyorSlotCapacity);
             SetField(dest, "reserveSlotCapacity", reserveSlotCapacity);
+            // Match id (the JSON "name") — fall back to the asset file name if it was never set.
+            SetField(dest, "levelName", !string.IsNullOrEmpty(matchName) ? matchName : levelName);
             // Preserve the original designer JSON on the asset. Only overwrite when we
             // actually have one, so manual edits + re-save don't wipe a previously stored
             // blob.

@@ -28,6 +28,17 @@ namespace PixelShoot.Data
             return levels[index];
         }
 
+        /// <summary>Finds the level whose <see cref="LevelData.LevelName"/> (match id) equals
+        /// <paramref name="levelName"/>, or null if none. Exact, case-sensitive match. Used by the
+        /// name-driven order table to pick which level to play.</summary>
+        public LevelData FindByName(string levelName)
+        {
+            if (string.IsNullOrEmpty(levelName) || levels == null) return null;
+            for (int i = 0; i < levels.Count; i++)
+                if (levels[i] != null && levels[i].LevelName == levelName) return levels[i];
+            return null;
+        }
+
         /// <summary>Level for a 0-based progress index. Within the list → that level; PAST the end →
         /// loops back from <see cref="LoopStartLevel"/> and continues, repeating.</summary>
         public LevelData GetLooping(int levelIndex)

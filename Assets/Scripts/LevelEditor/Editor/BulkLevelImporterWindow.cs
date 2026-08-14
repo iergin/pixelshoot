@@ -307,6 +307,9 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
             LevelEditorWizardWindow.SetField(asset, "conveyorSlotCapacity", conveyor);
             LevelEditorWizardWindow.SetField(asset, "reserveSlotCapacity", reserveCapacity);
+            // Match id: the JSON's "name" (falls back to the asset/file name if the JSON omits it).
+            string matchName = !string.IsNullOrEmpty(parsed.Name) ? parsed.Name : name;
+            LevelEditorWizardWindow.SetField(asset, "levelName", matchName);
             LevelEditorWizardWindow.SetField(asset, "sourceJson", json);
 
             EditorUtility.SetDirty(asset);

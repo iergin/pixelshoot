@@ -37,6 +37,8 @@ namespace PixelShoot.Data
         {
             public bool Ok;
             public string Error;
+            /// <summary>The JSON's top-level "name" (the level's match id). Empty if absent.</summary>
+            public string Name;
             public int GridSize;
             public List<string> PaletteHex = new List<string>();
             /// <summary>Raw text of the rle array — pass directly to RLECodec.TryDecode.</summary>
@@ -68,6 +70,11 @@ namespace PixelShoot.Data
         {
             var result = new Result();
             if (!LooksLikeJson(text)) { result.Error = "Not JSON."; return result; }
+
+            // name — the level's match id (a plain string). Stored on the LevelData so the
+            // level-order table can look this level up by name.
+            var mName = Regex.Match(text, "\"name\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
+            if (mName.Success) result.Name = mName.Groups[1].Value;
 
             // gridSize
             var mGrid = Regex.Match(text, "\"gridSize\"\\s*:\\s*(\\d+)");

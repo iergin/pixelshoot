@@ -18,13 +18,16 @@ namespace PixelShoot.Game
         [Tooltip("Optional. Streak reward tuning. If assigned, injected into PlayerStreak so you don't " +
                  "need a Resources/StreakConfig asset.")]
         [SerializeField] private StreakConfig streakConfig;
-        [Tooltip("Difficulty colours + reward multipliers + the level-table JSON (id → difficulty).")]
+        [Tooltip("Difficulty colours + reward multipliers + the level-table JSON (name → difficulty, in play order).")]
         [SerializeField] private DifficultyConfig difficultyConfig;
+        [Tooltip("Optional. Playlist pool — only its Loop Start Level is read here, so the order table wraps " +
+                 "back to the same level the positional playlist would once the index runs past the end.")]
+        [SerializeField] private AllLevelsData allLevels;
 
         private void Awake()
         {
             if (streakConfig != null) PlayerStreak.Configure(streakConfig);
-            DifficultyProvider.Configure(difficultyConfig);
+            DifficultyProvider.Configure(difficultyConfig, allLevels != null ? allLevels.LoopStartLevel : 1);
         }
 
         private void Start()

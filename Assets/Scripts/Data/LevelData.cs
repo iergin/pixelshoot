@@ -6,6 +6,11 @@ namespace PixelShoot.Data
     [CreateAssetMenu(fileName = "LevelData", menuName = "PixelShoot/Level Data")]
     public class LevelData : ScriptableObject
     {
+        [Header("Identity")]
+        [Tooltip("Match id (the source JSON's \"name\"). The level-order table references this string to " +
+                 "pick which level to load for a given slot — so it must be unique across all levels.")]
+        [SerializeField] private string levelName;
+
         [Header("Grid")]
         [SerializeField] private GridData grid = new GridData();
 
@@ -24,6 +29,8 @@ namespace PixelShoot.Data
         [Tooltip("Editor-only: the original designer JSON this level was imported from, kept so the Level Editor can hand it back for copying. Not used at runtime.")]
         [HideInInspector] [SerializeField] private string sourceJson;
 
+        /// <summary>Match id from the source JSON's "name" (used by the level-order table to locate this level).</summary>
+        public string LevelName => levelName;
         public GridData Grid => grid;
         public IReadOnlyList<ColumnData> Columns => columns;
         public int ConveyorSlotCapacity => conveyorSlotCapacity;
