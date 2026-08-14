@@ -185,6 +185,10 @@ namespace PixelShoot.UI
 
         private void Finish()
         {
+            // The attempt truly ends here (player declined to continue / confirmed quit) — fire the
+            // fail event now, not at the Fail() moment, so a revived-then-won attempt isn't mis-counted.
+            LevelAnalytics.FireFail(mode == Mode.Fail ? "fail" : "quit");
+
             PlayerStreak.Reset(); // declined to continue → the streak is lost (as warned)
 
             // Interstitial trigger point: only now, after ALL the X taps (not on fail, which would

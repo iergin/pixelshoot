@@ -29,6 +29,7 @@ namespace PixelShoot.Game
             int c = Count(id);
             if (c < n) return false;
             SetCount(id, c - n);
+            LevelAnalytics.RecordBooster(); // no-op unless a level is active; counts every booster path
             return true;
         }
 

@@ -98,6 +98,15 @@ namespace PixelShoot.Game
             if (conveyor != null) conveyor.OnCapacityChanged -= EvaluateEndgame;
         }
 
+        // Sample conveyor occupancy every frame while playing so analytics can report the peak
+        // slot usage and how often it crept into the near-overflow band. Cheap; no per-change event
+        // exists on the conveyor, and polling catches peaks from every boarding path.
+        private void Update()
+        {
+            if (state == GameState.Playing && conveyor != null)
+                LevelAnalytics.SampleOccupancy(conveyor.OccupiedCount, conveyor.Capacity);
+        }
+
         /// <summary>Called by the loader once every bus has spawned, so the count ramp-up
         /// during build can't trip the endgame. Also evaluates immediately (covers levels
         /// that already have ≤ threshold buses).</summary>
@@ -347,6 +356,7 @@ namespace PixelShoot.Game
 
         private void BoardConveyor(Shooter shooter, float boardingDuration, float landingProgress)
         {
+            LevelAnalytics.RecordMove(); // each bus boarded = one "move" for analytics
             conveyor.EvaluatePath(landingProgress, out Vector3 worldPos, out _, out _);
             shooter.OnPathEnded -= HandleRiderPathEnded;
             shooter.OnPathEnded += HandleRiderPathEnded;
@@ -446,6 +456,7 @@ namespace PixelShoot.Game
             // Resume normal play: unfreeze the conveyor so future boarders advance again.
             if (conveyor != null) conveyor.IsPaused = false;
             state = GameState.Playing;
+            LevelAnalytics.RecordRevive(); // successful Play-On = one revive/continue this attempt
             Debug.Log($"PlayOn paid {cost} coins. Balance now {PlayerWallet.Balance}.");
             return true;
         }

@@ -133,12 +133,67 @@ namespace PixelShoot.Game
             KeyManager.Instance?.OnLevelReady();
             ValidateBulletBudget();
 
+            // Fire level_start analytics NOW — grid is built (metrics available) and this is BEFORE
+            // NotifyLevelReady, whose OnLevelReady consumers (StreakGiftController) consume+clear the
+            // powerup selection, so power_up_* still reflect the player's choice.
+            FireLevelStartAnalytics();
+
             // All buses have spawned — arm the endgame watcher (fires now if this level
             // already has ≤ threshold buses).
             if (gameController != null) gameController.NotifyLevelReady();
 
             // First-time tutorials for any special items this level uses.
             if (specialItemTutorial != null) specialItemTutorial.CheckLevel(levelData);
+        }
+
+        /// <summary>Compute this level's static metrics and fire the <c>level_start</c> analytics event,
+        /// handing the tracker the grid + total pixel count it needs for later progress_pct.</summary>
+        private void FireLevelStartAnalytics()
+        {
+            if (levelData == null) return;
+
+            // ── Grid-derived: fillable pixels, distinct colours, bombs. ──
+            int pixelCount = 0, bombCount = 0;
+            var colors = new System.Collections.Generic.HashSet<ColorData>();
+            foreach (var c in levelData.Grid.Cells)
+            {
+                if (c == null || c.IsEmpty) continue;
+                pixelCount++;
+                if (c.IsBomb) bombCount++;
+                var gc = c.Color != null ? c.Color.GameplayColor : null;
+                if (gc != null) colors.Add(gc);
+            }
+
+            // ── Column-derived: shooters (excluding locks), lock items, distinct link groups. ──
+            int shooterCount = 0, lockCount = 0;
+            var linkGroups = new System.Collections.Generic.HashSet<int>();
+            foreach (var col in levelData.Columns)
+                foreach (var s in col.Shooters)
+                {
+                    if (s.IsLock) { lockCount++; continue; }
+                    shooterCount++;
+                    if (s.LinkGroupId > 0) linkGroups.Add(s.LinkGroupId);
+                }
+
+            string levelId = !string.IsNullOrEmpty(levelData.LevelName) ? levelData.LevelName : levelData.name;
+
+            var data = new PixelShoot.Analytics.AnalyticsEvents.LevelStartData
+            {
+                level_id       = levelId,
+                level_index    = PlayerProgress.DisplayLevel,
+                attempt_no     = PlayerAttempts.RegisterAttempt(levelId),
+                pixel_count    = pixelCount,
+                color_count    = colors.Count,
+                shooter_count  = shooterCount,
+                linked_groups  = linkGroups.Count,
+                lock_count     = lockCount,
+                bomb_count     = bombCount,
+                streak_count   = PlayerStreak.Current,
+                power_up_bomb  = PlayerPowerups.IsSelected(PowerupType.Bomb) ? 1 : 0,
+                power_up_shoot = PlayerPowerups.IsSelected(PowerupType.Paint) ? 1 : 0,
+                coin_amount    = PlayerWallet.Balance,
+            };
+            LevelAnalytics.BeginLevel(data, grid, pixelCount);
         }
 
         private KeyManager EnsureKeyManager()
@@ -258,18 +313,23 @@ namespace PixelShoot.Game
             // Coin reward fires for any real play session (whether using the playlist
             // or a single override level), so designers can test reward economy without
             // hooking up the full playlist asset.
+            int coinsEarned = 0;
             if (coinsConfig != null && coinsConfig.LevelWinReward > 0)
             {
                 // Difficulty (from the order/JSON table, by current LevelIndex) multiplies the win reward
                 // — Normal x1, Hard x3, Super Hard x5. PlayerProgress hasn't advanced yet here, so
                 // DifficultyProvider.Current reflects the level just won.
                 int mult = Mathf.Max(1, DifficultyProvider.CurrentRewardMultiplier);
-                int reward = coinsConfig.LevelWinReward * mult;
-                LastWinReward = reward; // exact amount paid this win (for the success panel to display)
-                PlayerWallet.Add(reward);
-                Debug.Log($"LevelLoader: paid +{reward} coins on level win (x{mult} for {DifficultyProvider.Current}). " +
+                coinsEarned = coinsConfig.LevelWinReward * mult;
+                LastWinReward = coinsEarned; // exact amount paid this win (for the success panel to display)
+                PlayerWallet.Add(coinsEarned);
+                Debug.Log($"LevelLoader: paid +{coinsEarned} coins on level win (x{mult} for {DifficultyProvider.Current}). " +
                           $"Balance now {PlayerWallet.Balance}.");
             }
+
+            // level_complete analytics — fire with the exact base win reward (excludes any later 2× ad
+            // bonus, which is added by the success panel). Clears this level's attempt counter.
+            LevelAnalytics.FireComplete(coinsEarned);
 
             // Bump player progress only when we're actually following the playlist;
             // explicit-override sessions (e.g. the level editor preview) shouldn't advance.
