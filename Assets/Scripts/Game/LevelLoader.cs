@@ -322,7 +322,7 @@ namespace PixelShoot.Game
                 int mult = Mathf.Max(1, DifficultyProvider.CurrentRewardMultiplier);
                 coinsEarned = coinsConfig.LevelWinReward * mult;
                 LastWinReward = coinsEarned; // exact amount paid this win (for the success panel to display)
-                PlayerWallet.Add(coinsEarned);
+                PlayerWallet.Add(coinsEarned, "level_win");
                 Debug.Log($"LevelLoader: paid +{coinsEarned} coins on level win (x{mult} for {DifficultyProvider.Current}). " +
                           $"Balance now {PlayerWallet.Balance}.");
             }

@@ -242,7 +242,7 @@ namespace PixelShoot.UI
                     doubleCoinsClaimed = true;
                     if (doubleCoinsButton != null) doubleCoinsButton.interactable = false;
                     int reward = LevelLoader.LastWinReward; // the actual paid amount (× difficulty)
-                    PlayerWallet.Add(reward); // grant the same again → total 2× (first was paid by LevelLoader)
+                    PlayerWallet.Add(reward, "level_win_double"); // grant the same again → total 2× (first was paid by LevelLoader)
                     if (rewardLabel != null) rewardLabel.text = string.Format(rewardFormat, reward * 2);
                     Interstitial?.NotifyRewardedWatched();
                     Debug.Log($"[LevelEndUI] 2× reward claimed (+{reward}).");

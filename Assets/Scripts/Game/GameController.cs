@@ -422,7 +422,7 @@ namespace PixelShoot.Game
             }
 
             int cost = ReviveCost;
-            if (cost > 0 && !PlayerWallet.TrySpend(cost))
+            if (cost > 0 && !PlayerWallet.TrySpend(cost, "revive"))
             {
                 Debug.Log($"PlayOn denied — need {cost} coins, have {PlayerWallet.Balance}.");
                 OnPlayOnDenied?.Invoke();

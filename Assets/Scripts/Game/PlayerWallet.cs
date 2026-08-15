@@ -32,10 +32,14 @@ namespace PixelShoot.Game
             SetBalance(Mathf.Max(0, initial));
         }
 
-        public static void Add(int amount)
+        /// <summary>Grant coins. <paramref name="source"/> tags the earn for the <c>coin</c> analytics
+        /// event (e.g. "level_win", "reward_bundle"). Fires the event with a POSITIVE amount.</summary>
+        public static void Add(int amount, string source = "unknown")
         {
             if (amount <= 0) return;
-            SetBalance(Balance + amount);
+            int start = Balance;
+            SetBalance(start + amount);
+            PixelShoot.Analytics.AnalyticsEvents.TrackCoin(source, amount, start, start + amount);
         }
 
         /// <summary>True iff the player can afford `amount`.</summary>
@@ -45,11 +49,13 @@ namespace PixelShoot.Game
         /// Attempt to spend `amount`. Returns true on success and deducts; returns
         /// false on insufficient funds and leaves the balance untouched.
         /// </summary>
-        public static bool TrySpend(int amount)
+        public static bool TrySpend(int amount, string source = "unknown")
         {
             amount = Mathf.Max(0, amount);
             if (Balance < amount) return false;
-            SetBalance(Balance - amount);
+            int start = Balance;
+            SetBalance(start - amount);
+            if (amount > 0) PixelShoot.Analytics.AnalyticsEvents.TrackCoin(source, -amount, start, start - amount); // spend = negative
             return true;
         }
 

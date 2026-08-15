@@ -129,6 +129,7 @@ namespace PixelShoot.Analytics
         public const string PowerupSelect  = "powerup_select";
         public const string BoosterUse     = "booster_use";
         public const string UiButtonClick  = "ui_button_click";
+        public const string Coin           = "coin";
 
         /// <summary>Shop opened. <paramref name="source"/> = where from ("menu", "out_of_lives",
         /// "revive_insufficient_coins", "powerup_slot", "booster_purchase", …).</summary>
@@ -184,6 +185,19 @@ namespace PixelShoot.Analytics
             AnalyticsManager.Track(UiButtonClick, new Dictionary<string, object>
             {
                 { "button_id", buttonId },
+            });
+
+        /// <summary>A coin transaction (every earn/spend). <paramref name="amount"/> is SIGNED:
+        /// positive = earned, negative = spent. <paramref name="source"/> = what caused it
+        /// ("level_win", "revive", "booster_purchase", …). <paramref name="startBalance"/> /
+        /// <paramref name="endBalance"/> are the wallet before/after (endBalance = startBalance + amount).</summary>
+        public static void TrackCoin(string source, int amount, int startBalance, int endBalance) =>
+            AnalyticsManager.Track(Coin, new Dictionary<string, object>
+            {
+                { "source", string.IsNullOrEmpty(source) ? "unknown" : source },
+                { "amount", amount },
+                { "start_balance", startBalance },
+                { "end_balance", endBalance },
             });
     }
 }

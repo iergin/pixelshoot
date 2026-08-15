@@ -94,7 +94,7 @@ namespace PixelShoot.Boosters
         private void OnBuyWithCoins()
         {
             if (current == null) return;
-            if (PlayerWallet.TrySpend(current.CoinCost))
+            if (PlayerWallet.TrySpend(current.CoinCost, "booster_purchase"))
             {
                 var bought = current;
                 PlayerBoosters.Add(bought.Id, bought.GrantAmount);

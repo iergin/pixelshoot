@@ -81,7 +81,7 @@ namespace PixelShoot.UI
         {
             if (PlayerLives.IsFull) { Close(); return; }
 
-            if (PlayerWallet.TrySpend(refillCost))
+            if (PlayerWallet.TrySpend(refillCost, "lives_refill"))
             {
                 PlayerLives.Refill();
                 Close();

@@ -47,7 +47,7 @@ namespace PixelShoot.Game
         /// </summary>
         public void Apply()
         {
-            if (Coins > 0) PlayerWallet.Add(Coins);
+            if (Coins > 0) PlayerWallet.Add(Coins, "reward_bundle");
 
             foreach (var line in Boosters)
                 if (line.booster != null && line.amount > 0)

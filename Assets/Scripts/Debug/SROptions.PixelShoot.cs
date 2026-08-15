@@ -96,7 +96,7 @@ public partial class SROptions
     [DisplayName("Add coins")]
     public void DebugAddCoins()
     {
-        PlayerWallet.Add(_addCoinAmount);
+        PlayerWallet.Add(_addCoinAmount, "debug");
         Debug.Log($"[SRDebug] +{_addCoinAmount} coins. Balance now {PlayerWallet.Balance}.");
         OnPropertyChanged(nameof(CoinBalance));
     }
