@@ -2541,6 +2541,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: shop_offer_card
 --- !u!1 &6332502039825598069
 GameObject:
   m_ObjectHideFlags: 0

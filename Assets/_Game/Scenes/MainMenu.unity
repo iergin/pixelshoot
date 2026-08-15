@@ -1458,6 +1458,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: menu_settings
 --- !u!1 &158003349
 GameObject:
   m_ObjectHideFlags: 0
@@ -2403,7 +2405,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6885500252208333267, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
   m_PrefabInstance: {fileID: 1453580295923846197}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1453580295923846200}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
@@ -2414,7 +2416,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7982638476769830386, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
   m_PrefabInstance: {fileID: 1453580295923846197}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1453580295923846200}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -3625,7 +3627,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2918528927127411585, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
   m_PrefabInstance: {fileID: 1453580295923846197}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1453580295923846198}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
@@ -3636,7 +3638,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4276251736236626334, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
   m_PrefabInstance: {fileID: 1453580295923846197}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1453580295923846198}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -5241,6 +5243,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: menu_no_ads
 --- !u!1 &819195169
 GameObject:
   m_ObjectHideFlags: 0
@@ -9693,7 +9697,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8867236913172601466, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
   m_PrefabInstance: {fileID: 1453580295923846197}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1453580295923846199}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
@@ -9704,7 +9708,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6262804130140925629, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
   m_PrefabInstance: {fileID: 1453580295923846197}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1453580295923846199}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -11618,77 +11622,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6192925148031648234, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1453580295923846203}
-    - targetCorrespondingSourceObject: {fileID: 5745187389682538889, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1453580295923846202}
-    - targetCorrespondingSourceObject: {fileID: 8277559009379910585, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1453580295923846201}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
---- !u!1 &1453580295923846198 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8277559009379910585, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
-  m_PrefabInstance: {fileID: 1453580295923846197}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1453580295923846199 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5745187389682538889, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
-  m_PrefabInstance: {fileID: 1453580295923846197}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1453580295923846200 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6192925148031648234, guid: 23c9710e0834d42cc9dee0ee0993e075, type: 3}
-  m_PrefabInstance: {fileID: 1453580295923846197}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1453580295923846201
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1453580295923846198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
-  clipId: button
-  overrideClip: {fileID: 0}
-  overrideVolume: 1
---- !u!114 &1453580295923846202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1453580295923846199}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
-  clipId: button
-  overrideClip: {fileID: 0}
-  overrideVolume: 1
---- !u!114 &1453580295923846203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1453580295923846200}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
-  clipId: button
-  overrideClip: {fileID: 0}
-  overrideVolume: 1
 --- !u!1 &1729335910986789946
 GameObject:
   m_ObjectHideFlags: 0
@@ -12165,6 +12100,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: menu_play
 --- !u!224 &8238866422632000168
 RectTransform:
   m_ObjectHideFlags: 0

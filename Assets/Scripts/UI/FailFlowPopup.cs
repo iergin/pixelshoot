@@ -180,6 +180,7 @@ namespace PixelShoot.UI
             if (gc != null && gc.PlayOn()) { Close(); return; } // revived → back to play
 
             // Couldn't afford the revive → open the shop ON TOP (nested), so they can buy and come back.
+            PixelShoot.Analytics.AnalyticsEvents.TrackShopOpen("revive_insufficient_coins");
             CreatePopup<ShopPopup>();
         }
 

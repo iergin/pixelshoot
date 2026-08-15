@@ -54,9 +54,15 @@ namespace PixelShoot.Shop
 
         private void OnDestroy() { if (Instance == this) Instance = null; }
 
-        /// <summary>Open the shop popup (queued top-level). Callable from anywhere.</summary>
-        public void OpenShop()
+        /// <summary>Open the shop popup (queued top-level). Callable from anywhere. No-arg overload is
+        /// wired to inspector buttons (menu shop button) → source "menu".</summary>
+        public void OpenShop() => OpenShop("menu");
+
+        /// <summary>Open the shop, tagging WHERE it was opened from for the <c>shop_open</c> analytics
+        /// event (e.g. "menu", "out_of_lives", "booster_purchase").</summary>
+        public void OpenShop(string source)
         {
+            PixelShoot.Analytics.AnalyticsEvents.TrackShopOpen(source);
             if (PopupService.Instance != null) PopupService.Instance.Create<ShopPopup>();
             else Debug.LogWarning("[ShopManager] OpenShop: no PopupService (is InitializeScene loaded?).");
         }
@@ -67,15 +73,21 @@ namespace PixelShoot.Shop
         public void BuyOffer(ShopOffer offer, System.Action<bool> onComplete = null)
         {
             if (offer == null) { onComplete?.Invoke(false); return; }
+
+            // payment_request — the player tapped Buy on this offer.
+            PixelShoot.Analytics.AnalyticsEvents.TrackPaymentRequest(offer.ProductId, offer.OfferId, GetLocalizedPrice(offer));
+
             if (!offer.IsAvailable)
             {
                 Debug.LogWarning($"[Shop] Offer '{offer.OfferId}' not available (already purchased / locked).");
+                PixelShoot.Analytics.AnalyticsEvents.TrackPaymentFail(offer.ProductId, offer.OfferId, "not_available");
                 onComplete?.Invoke(false);
                 return;
             }
             if (iap == null || !iap.IsReady)
             {
                 Debug.LogWarning("[Shop] IAP service not ready.");
+                PixelShoot.Analytics.AnalyticsEvents.TrackPaymentFail(offer.ProductId, offer.OfferId, "iap_not_ready");
                 ShowFail();
                 onComplete?.Invoke(false);
                 return;
@@ -92,13 +104,18 @@ namespace PixelShoot.Shop
 
                 if (success)
                 {
+                    PixelShoot.Analytics.AnalyticsEvents.TrackPaymentSuccess(offer.ProductId, offer.OfferId);
                     // Grant the reward NOW (OnPurchased → RewardFlow.Grant writes it to disk immediately,
                     // so it's saved even if the player never sees the claim). Then show the Success popup;
                     // once THAT closes, open the RewardClaimPopup (success → claim order).
                     offer.OnPurchased();
                     ShowSuccessThenClaim();
                 }
-                else ShowFail();
+                else
+                {
+                    PixelShoot.Analytics.AnalyticsEvents.TrackPaymentFail(offer.ProductId, offer.OfferId, "failed");
+                    ShowFail();
+                }
 
                 onComplete?.Invoke(success);
             });

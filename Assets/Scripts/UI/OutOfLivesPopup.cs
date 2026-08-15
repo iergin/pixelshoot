@@ -91,7 +91,7 @@ namespace PixelShoot.UI
                 Debug.Log($"[OutOfLives] Not enough coins for refill ({PlayerWallet.Balance}/{refillCost}) → opening shop.");
                 Close();
                 // Top-level Create → queues behind our close, so the shop opens once we're gone.
-                if (ShopManager.Instance != null) ShopManager.Instance.OpenShop();
+                if (ShopManager.Instance != null) ShopManager.Instance.OpenShop("out_of_lives");
             }
         }
 

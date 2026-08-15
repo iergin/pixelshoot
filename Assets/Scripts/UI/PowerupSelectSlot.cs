@@ -72,7 +72,11 @@ namespace PixelShoot.UI
 
             int owned = PlayerPowerups.Owned(type);
             if (owned > 0)
-                PlayerPowerups.SetSelected(type, !PlayerPowerups.IsSelected(type)); // toggle
+            {
+                bool nowSelected = !PlayerPowerups.IsSelected(type);
+                PlayerPowerups.SetSelected(type, nowSelected); // toggle
+                PixelShoot.Analytics.AnalyticsEvents.TrackPowerupSelect(type.ToString(), nowSelected);
+            }
             else
                 OpenShop(); // none owned → go buy
         }
@@ -80,6 +84,7 @@ namespace PixelShoot.UI
         /// <summary>Open the shop stacked over the PlayPopup (wire a general 'powerups' button here too).</summary>
         public void OpenShop()
         {
+            PixelShoot.Analytics.AnalyticsEvents.TrackShopOpen("powerup_slot");
             if (PopupService.Instance != null) PopupService.Instance.CreateOnTop<ShopPopup>();
         }
 

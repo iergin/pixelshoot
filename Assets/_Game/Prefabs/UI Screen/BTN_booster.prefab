@@ -212,6 +212,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: game_booster_plus_button
 --- !u!1 &5526324414091449798
 GameObject:
   m_ObjectHideFlags: 0
@@ -745,6 +747,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: game_booster_button
 --- !u!1001 &1880971050172897989
 PrefabInstance:
   m_ObjectHideFlags: 0

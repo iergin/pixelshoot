@@ -377,6 +377,7 @@ GameObject:
   - component: {fileID: 3940634030773087752}
   - component: {fileID: 6262804130140925629}
   - component: {fileID: 8867236913172601466}
+  - component: {fileID: 7500883787590339909}
   m_Layer: 5
   m_Name: BTN_Home
   m_TagString: Untagged
@@ -488,6 +489,23 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7500883787590339909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5745187389682538889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
+  trackClick: 1
+  buttonId: menu_home
 --- !u!1 &6192925148031648234
 GameObject:
   m_ObjectHideFlags: 0
@@ -500,6 +518,7 @@ GameObject:
   - component: {fileID: 3183266179144081927}
   - component: {fileID: 7982638476769830386}
   - component: {fileID: 6885500252208333267}
+  - component: {fileID: 1090473802073665844}
   m_Layer: 5
   m_Name: BTN_Shop
   m_TagString: Untagged
@@ -611,6 +630,23 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1090473802073665844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192925148031648234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
+  trackClick: 1
+  buttonId: menu_shop
 --- !u!1 &6206127310631808595
 GameObject:
   m_ObjectHideFlags: 0
@@ -910,6 +946,7 @@ GameObject:
   - component: {fileID: 7934570950455026956}
   - component: {fileID: 4276251736236626334}
   - component: {fileID: 2918528927127411585}
+  - component: {fileID: 2473045696687190362}
   m_Layer: 5
   m_Name: BTN_Leaderboard
   m_TagString: Untagged
@@ -1021,6 +1058,23 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2473045696687190362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8277559009379910585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42f0d589b93242a3a870d61a493bc11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.UI.ButtonClickSound
+  clipId: button
+  overrideClip: {fileID: 0}
+  overrideVolume: 1
+  trackClick: 1
+  buttonId: menu_leaderboard
 --- !u!1 &8432194007419177226
 GameObject:
   m_ObjectHideFlags: 0

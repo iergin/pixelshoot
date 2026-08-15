@@ -118,5 +118,72 @@ namespace PixelShoot.Analytics
                 });
             }
         }
+
+        // ─────────────────────────────────────────────────────────────────────
+        //  Shop / IAP + meta-interaction events (all discrete — never fired from Update loops).
+        // ─────────────────────────────────────────────────────────────────────
+        public const string ShopOpen       = "shop_open";
+        public const string PaymentRequest = "payment_request";
+        public const string PaymentSuccess = "payment_success";
+        public const string PaymentFail    = "payment_fail";
+        public const string PowerupSelect  = "powerup_select";
+        public const string BoosterUse     = "booster_use";
+        public const string UiButtonClick  = "ui_button_click";
+
+        /// <summary>Shop opened. <paramref name="source"/> = where from ("menu", "out_of_lives",
+        /// "revive_insufficient_coins", "powerup_slot", "booster_purchase", …).</summary>
+        public static void TrackShopOpen(string source) =>
+            AnalyticsManager.Track(ShopOpen, new Dictionary<string, object>
+            {
+                { "source", string.IsNullOrEmpty(source) ? "unknown" : source },
+            });
+
+        /// <summary>Player initiated a purchase (tapped Buy). <paramref name="price"/> is the localized
+        /// store price string.</summary>
+        public static void TrackPaymentRequest(string productId, string offerId, string price) =>
+            AnalyticsManager.Track(PaymentRequest, new Dictionary<string, object>
+            {
+                { "product_id", productId },
+                { "offer_id", offerId },
+                { "price", price },
+            });
+
+        public static void TrackPaymentSuccess(string productId, string offerId) =>
+            AnalyticsManager.Track(PaymentSuccess, new Dictionary<string, object>
+            {
+                { "product_id", productId },
+                { "offer_id", offerId },
+            });
+
+        /// <summary><paramref name="reason"/> = "not_available" | "iap_not_ready" | "failed".</summary>
+        public static void TrackPaymentFail(string productId, string offerId, string reason) =>
+            AnalyticsManager.Track(PaymentFail, new Dictionary<string, object>
+            {
+                { "product_id", productId },
+                { "offer_id", offerId },
+                { "reason", reason },
+            });
+
+        /// <summary>A powerup slot was toggled. <paramref name="powerupType"/> = "Bomb" | "Paint".</summary>
+        public static void TrackPowerupSelect(string powerupType, bool selected) =>
+            AnalyticsManager.Track(PowerupSelect, new Dictionary<string, object>
+            {
+                { "powerup_type", powerupType },
+                { "selected", selected ? 1 : 0 },
+            });
+
+        /// <summary>A booster was consumed (used) in a level.</summary>
+        public static void TrackBoosterUse(string boosterId) =>
+            AnalyticsManager.Track(BoosterUse, new Dictionary<string, object>
+            {
+                { "booster_id", boosterId },
+            });
+
+        /// <summary>A tracked UI button was clicked. <paramref name="buttonId"/> identifies the button.</summary>
+        public static void TrackUiButtonClick(string buttonId) =>
+            AnalyticsManager.Track(UiButtonClick, new Dictionary<string, object>
+            {
+                { "button_id", buttonId },
+            });
     }
 }

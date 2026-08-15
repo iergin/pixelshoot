@@ -978,6 +978,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: shop_coin_card
 --- !u!1 &8773380166717607255
 GameObject:
   m_ObjectHideFlags: 0

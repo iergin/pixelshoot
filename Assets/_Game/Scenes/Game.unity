@@ -331,6 +331,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: ingame_settings_button
 --- !u!1 &28793127
 GameObject:
   m_ObjectHideFlags: 0
@@ -937,6 +939,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: booster_use_panel_exit_button
 --- !u!1 &111183648
 GameObject:
   m_ObjectHideFlags: 0
@@ -2061,6 +2065,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: 
 --- !u!1 &286392734
 GameObject:
   m_ObjectHideFlags: 0
@@ -3029,6 +3035,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: booster_purchase_exit_button
 --- !u!1001 &368830493
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5869,6 +5877,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: booster_purchase_claim_button
 --- !u!1 &777249685
 GameObject:
   m_ObjectHideFlags: 0
@@ -6835,6 +6845,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: special_item_tuto_exit_button
 --- !u!1001 &889504652
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7338,6 +7350,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: booster_use_panel_exit_button
 --- !u!1 &952713676
 GameObject:
   m_ObjectHideFlags: 0
@@ -7780,6 +7794,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: booster_description_exit_button
 --- !u!1 &993336141
 GameObject:
   m_ObjectHideFlags: 0
@@ -9151,6 +9167,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: booster_use_panel_use_button
 --- !u!1 &1145876091
 GameObject:
   m_ObjectHideFlags: 0
@@ -9489,6 +9507,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: 
 --- !u!1001 &1184992459
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11332,6 +11352,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: special_item_tuto_exit_button
 --- !u!1 &1402156683
 GameObject:
   m_ObjectHideFlags: 0
@@ -15936,6 +15958,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: booster_purchase_with_ad_button
 --- !u!1 &1905714478
 GameObject:
   m_ObjectHideFlags: 0

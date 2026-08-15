@@ -427,6 +427,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: success_panel_x2_button
 --- !u!1 &2484035259837272809
 GameObject:
   m_ObjectHideFlags: 0
@@ -738,6 +740,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: success_panel_continue_button
 --- !u!1 &4615069346280470680
 GameObject:
   m_ObjectHideFlags: 0
@@ -1234,6 +1238,8 @@ MonoBehaviour:
   clipId: button
   overrideClip: {fileID: 0}
   overrideVolume: 1
+  trackClick: 1
+  buttonId: 
 --- !u!1 &5750002809774739594
 GameObject:
   m_ObjectHideFlags: 0

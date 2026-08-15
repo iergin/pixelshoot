@@ -110,7 +110,7 @@ namespace PixelShoot.Boosters
                 waitingForShop = true;
                 sawShopOpen = false;
                 if (panel != null) panel.SetActive(false); // NOT Close() — don't resume the conveyor
-                if (Shop != null) Shop.OpenShop();
+                if (Shop != null) Shop.OpenShop("booster_purchase");
                 else Debug.LogWarning("[BoosterPurchase] No ShopManager (is InitializeScene loaded?).");
             }
         }
