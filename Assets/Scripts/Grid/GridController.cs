@@ -431,6 +431,18 @@ namespace PixelShoot.Grid
         }
 
         /// <summary>
+        /// Outermost valid (colour-matched, unreserved) target in an EXPLICIT column/row index,
+        /// independent of any shooter world position. Used to cover columns the conveyor path can't
+        /// physically align with (e.g. those left of the bottom entry point). Null if empty / mismatched.
+        /// </summary>
+        public Box FindTargetInColumn(GridSide side, int parallelIndex, ColorData requiredColor)
+        {
+            if (boxes == null || parallelIndex < 0 || parallelIndex >= size) return null;
+            Box outer = FindOutermostAlive(side, parallelIndex);
+            return IsValidTarget(outer, requiredColor) ? outer : null;
+        }
+
+        /// <summary>
         /// Returns the column index (Bottom/Top) or row index (Left/Right) the
         /// shooter currently aligns with. Out-of-range = -1.
         /// </summary>

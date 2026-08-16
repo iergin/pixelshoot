@@ -655,7 +655,27 @@ namespace PixelShoot.Shooters
             }
             if (parallel == lastEngagedParallelIndex) return; // already handled this column on this pass
 
+            bool freshBottomPass = lastEngagedParallelIndex == int.MinValue; // first shootable frame since boarding / side change
             lastEngagedParallelIndex = parallel;
+
+            // The conveyor's bottom shoot edge STARTS at the entry point, so columns to the LEFT of it
+            // (lower x → lower index) are never physically aligned with as the bus sweeps right — those
+            // cells "behind the entry" (e.g. x=0,1) would never be hit. On the first bottom engagement
+            // (right after boarding), fire once at each lower-index column's frontier too. It's colour-
+            // matched + ammo-gated exactly like a normal pass, so across successive buses those columns
+            // get cleared like any other. (No conveyor points moved — pure targeting coverage.)
+            if (freshBottomPass && side == GridSide.Bottom && parallel > 0)
+            {
+                // Cover columns 0 → parallel (INCLUDING our own entry column), left-to-right, all through
+                // the launch queue so they depart one-by-one: the leftmost cell (x=0) fires FIRST and our
+                // own column LAST — clean sweep, no burst. Colour-matched + ammo-gated like a normal pass.
+                for (int c = 0; c <= parallel && shotsRemaining > 0; c++)
+                {
+                    var t = grid.FindTargetInColumn(GridSide.Bottom, c, color);
+                    if (t != null) FireAtStaggered(t);
+                }
+                return; // own + behind columns all handled via the staggered queue
+            }
 
             var target = grid.FindTarget(side, worldPos, color);
             if (target == null) return; // wrong color outer or no outer at all
@@ -676,13 +696,37 @@ namespace PixelShoot.Shooters
                 // Launch immediately (no stagger): the bus is aligned with the target at this
                 // exact frame, so the stickman leaves from the bus's real spawn point.
                 LaunchOne(target);
-                if (shotsRemaining <= 0) HandleShotsDepleted();
+                // Defer depletion while a staggered sweep is still queued — otherwise Expire would
+                // flush that queue and the spaced launches would all fire at once.
+                if (shotsRemaining <= 0 && launchQueue.Count == 0) HandleShotsDepleted();
             }
             else
             {
                 // No seat system → apply the hit instantly.
                 grid.NotifyBoxHit(target);
                 if (shotsRemaining <= 0) HandleShotsDepleted();
+            }
+        }
+
+        /// <summary>Like <see cref="FireAt"/> but STAGGERS the visual launch through the launch queue so
+        /// a multi-column sweep (the columns "behind" the conveyor entry) departs one-by-one at
+        /// <c>launchInterval</c> like normal conveyor firing, instead of all in the same frame. The hit is
+        /// still reserved + counted immediately (budget/targeting correctness); depletion is left to
+        /// <see cref="DrainLaunchQueue"/> when the queue empties.</summary>
+        private void FireAtStaggered(Box target)
+        {
+            target.ReserveHit();
+            shotsRemaining--;
+            RefreshShotLabel();
+
+            if (seats != null)
+            {
+                launchQueue.Enqueue(target); // DrainLaunchQueue spaces the departures
+            }
+            else
+            {
+                grid.NotifyBoxHit(target); // no seat visuals → nothing to stagger
+                if (shotsRemaining <= 0 && launchQueue.Count == 0) HandleShotsDepleted();
             }
         }
 
