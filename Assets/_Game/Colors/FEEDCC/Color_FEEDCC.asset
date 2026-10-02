@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd38df3eef70d4874af5f26ca5197b0a, type: 3}
+  m_Name: Color_FEEDCC
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Data.ColorData
+  colorId: FEEDCC
+  displayColor: {r: 0.99607843, g: 0.92941177, b: 0.8, a: 1}
+  boxHitMaterial: {fileID: 2100000, guid: 8e64be76d4c14424986b55d2f081d8f4, type: 2}
+  shooterMaterial: {fileID: 2100000, guid: 0a8b82d4a2c3f4d6aa48493be3f154a9, type: 2}
+  bulletMaterial: {fileID: 2100000, guid: b7ccc46f07ceb4196823da4b13ee193f, type: 2}
+  mainColor: {fileID: 0}

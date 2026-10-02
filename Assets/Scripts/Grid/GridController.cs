@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 using PixelShoot.Data;
 using PixelShoot.Shooters;
 
@@ -18,13 +19,18 @@ namespace PixelShoot.Grid
         [Tooltip("Seconds between the bomb being shot and its affected cells actually opening. " +
                  "The cells are reserved (untargetable) immediately so other shooters can't double-fire.")]
         [SerializeField, Min(0f)] private float bombOpenDelay = 0.5f;
+        [Header("Keys")]
+        [Tooltip("Prefab (with a KeyVisual component) spawned at the centroid of each key-group's cells.")]
+        [SerializeField] private PixelShoot.Game.KeyVisual keyVisualPrefab;
+        [Tooltip("Extra height above the grid plane for the floating key visual.")]
+        [SerializeField] private float keyVisualHeight = 0.6f;
         private Box[,] boxes;
         private int size;
         private int aliveCount;
         private Material lockedFallback;
         private Material unhitFallback;
+        private readonly List<GameObject> keyVisuals = new List<GameObject>();
 
-        private static readonly (int dx, int dz)[] Neighbors4 = { (1, 0), (-1, 0), (0, 1), (0, -1) };
 
         public event Action OnGridCleared;
         public int Size => size;
@@ -54,39 +60,154 @@ namespace PixelShoot.Grid
                 var pos = GetCellLocalPosition(cell.GridX, cell.GridZ);
                 var box = Instantiate(boxPrefab, gridRoot != null ? gridRoot : transform);
                 box.transform.localPosition = pos;
-                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked, unhit, cell.Tone, cell.IsBomb);
+                box.Initialize(cell.GridX, cell.GridZ, cell.Color, locked, unhit, cell.Tone, cell.IsBomb, cell.KeyId);
                 boxes[cell.GridX, cell.GridZ] = box;
                 aliveCount++;
             }
 
-            ComputeInitialFrontier();
+            // A key doesn't remove its cells — it COVERS them: the boxes stay in the grid
+            // (still count toward the win, still drive the frontier) but show nothing until
+            // the key is collected, at which point they're revealed. Hide them up front.
+            HideKeyCoveredBoxes();
+
+            // Keys must exist BEFORE the initial frontier is computed — a key cell that
+            // starts on the silhouette collects its key right away.
+            SpawnKeyVisuals(data);
+
+            // Reveal a key-group's boxes when its key is CONSUMED — i.e. its lock reached the top
+            // and opened (not merely when the key was banked). Until then the boxes stay hidden.
+            var km = PixelShoot.Game.KeyManager.Instance;
+            if (km != null)
+            {
+                km.OnKeyConsumed -= HandleKeyConsumed;
+                km.OnKeyConsumed += HandleKeyConsumed;
+                subscribedKeyManager = km;
+            }
+
+            RecomputeFrontier();
         }
 
-        // Any box adjacent to a grid edge OR to an empty cell starts on the frontier.
-        // Boxes fully surrounded by other boxes start locked.
-        private void ComputeInitialFrontier()
+        private PixelShoot.Game.KeyManager subscribedKeyManager;
+
+        /// <summary>Hide every box that carries a key id — the key visual stands in for them.</summary>
+        /// <summary>Light (or clear) the outline hint on every shootable / outermost box — used by the
+        /// idle hint. When <paramref name="on"/> is false all hints clear.</summary>
+        public void SetShootableHint(bool on)
+        {
+            if (boxes == null) return;
+            foreach (var b in boxes)
+            {
+                if (b == null) continue;
+                b.SetHintOutline(on && b.IsShootable);
+                // While the hint is up, hide the Hit outlines so the two outline systems don't clash;
+                // restore them when the hint clears.
+                b.SetHitOutlineVisible(!on);
+            }
+        }
+
+        private void HideKeyCoveredBoxes()
         {
             if (boxes == null) return;
             for (int x = 0; x < size; x++)
-            {
                 for (int z = 0; z < size; z++)
                 {
                     var b = boxes[x, z];
-                    if (b == null) continue;
-                    if (IsOnSilhouette(x, z)) b.SetState(BoxState.Frontier);
+                    if (b != null && b.KeyId > 0) b.SetKeyHidden(true);
                 }
+        }
+
+        /// <summary>Key consumed (its lock opened) → reveal all boxes it was covering.</summary>
+        private void HandleKeyConsumed(int keyId)
+        {
+            if (boxes == null) return;
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b != null && b.KeyId == keyId && b.IsHiddenByKey) b.SetKeyHidden(false);
+                }
+        }
+
+        /// <summary>Spawns one floating key per key-group at the exact geometric centre of its
+        /// cells (midpoint of their bounding box), so it sits dead-centre over the selection.</summary>
+        private void SpawnKeyVisuals(GridData data)
+        {
+            if (keyVisualPrefab == null) return;
+
+            // Per key id: track the min/max cell position so the key lands at their midpoint —
+            // the true centre of the selected boxes, not the mass-weighted centroid (which drifts
+            // toward denser clusters on irregular selections).
+            var min = new Dictionary<int, Vector3>();
+            var max = new Dictionary<int, Vector3>();
+            foreach (var cell in data.Cells)
+            {
+                if (cell.IsEmpty || cell.KeyId <= 0) continue;
+                Vector3 p = GetCellWorldPosition(cell.GridX, cell.GridZ);
+                if (min.ContainsKey(cell.KeyId))
+                {
+                    min[cell.KeyId] = Vector3.Min(min[cell.KeyId], p);
+                    max[cell.KeyId] = Vector3.Max(max[cell.KeyId], p);
+                }
+                else { min[cell.KeyId] = p; max[cell.KeyId] = p; }
+            }
+
+            foreach (var kv in min)
+            {
+                Vector3 center = (kv.Value + max[kv.Key]) * 0.5f; // midpoint of the group's bounding box
+                center.y += keyVisualHeight;
+                var vis = Instantiate(keyVisualPrefab, center, Quaternion.identity, gridRoot != null ? gridRoot : transform);
+                vis.Init(kv.Key);
+                keyVisuals.Add(vis.gameObject);
             }
         }
 
-        private bool IsOnSilhouette(int x, int z)
+        /// <summary>Set a box to Frontier and, if it carries a key, bank that key.</summary>
+        private void PromoteToFrontier(Box b)
         {
-            foreach (var n in Neighbors4)
+            if (b == null) return;
+            b.SetState(BoxState.Frontier);
+            if (b.KeyId > 0) PixelShoot.Game.KeyManager.Instance?.Collect(b.KeyId);
+        }
+
+        /// <summary>
+        /// Recompute which boxes are shootable, using the STRAIGHT-LANE (ray) model: a box is on
+        /// the frontier iff, in at least one of the 4 cardinal directions, every cell between it
+        /// and the grid edge is clear (empty or an already-hit box). If ALL four lanes are blocked
+        /// by another alive box, the box is buried and stays Locked — even if it has an empty
+        /// DIRECT neighbour (an interior pocket doesn't count; the projectile flies straight in).
+        ///
+        /// <para>Called at build and after every hit. Only promotes Locked→Frontier: clearing a
+        /// box never adds an obstacle, so a box that became shootable never becomes buried again.</para>
+        /// </summary>
+        private void RecomputeFrontier()
+        {
+            if (boxes == null) return;
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b == null || !b.IsAlive) continue;          // skip empty cells + hit boxes
+                    if (b.State == BoxState.Frontier) continue;     // already shootable
+                    if (HasClearLaneToEdge(x, z)) PromoteToFrontier(b);
+                }
+        }
+
+        // A box is shootable if any of the 4 cardinal rays reaches the grid edge without an alive box in it.
+        private bool HasClearLaneToEdge(int x, int z)
+        {
+            return LaneClear(x, z, 1, 0) || LaneClear(x, z, -1, 0)
+                || LaneClear(x, z, 0, 1) || LaneClear(x, z, 0, -1);
+        }
+
+        // Walk from (x,z) outward along (dx,dz); blocked if any cell on the way holds an ALIVE box.
+        private bool LaneClear(int x, int z, int dx, int dz)
+        {
+            for (int cx = x + dx, cz = z + dz; cx >= 0 && cx < size && cz >= 0 && cz < size; cx += dx, cz += dz)
             {
-                int nx = x + n.dx, nz = z + n.dz;
-                if (nx < 0 || nx >= size || nz < 0 || nz >= size) return true; // grid edge
-                if (boxes[nx, nz] == null) return true;                        // empty cell neighbor
+                var b = boxes[cx, cz];
+                if (b != null && b.IsAlive) return false; // an alive box (Locked or Frontier) blocks the lane
             }
-            return false;
+            return true; // reached the edge with a clear path
         }
 
         private Material GetLockedMaterial()
@@ -116,6 +237,11 @@ namespace PixelShoot.Grid
 
         public void Clear()
         {
+            if (subscribedKeyManager != null)
+            {
+                subscribedKeyManager.OnKeyConsumed -= HandleKeyConsumed;
+                subscribedKeyManager = null;
+            }
             if (boxes != null)
             {
                 foreach (var b in boxes)
@@ -123,6 +249,9 @@ namespace PixelShoot.Grid
             }
             boxes = null;
             aliveCount = 0;
+            foreach (var kv in keyVisuals)
+                if (kv != null) SafeDestroy(kv);
+            keyVisuals.Clear();
         }
 
         /// <summary>Destroy that works in both play mode (Destroy) and edit mode
@@ -147,6 +276,143 @@ namespace PixelShoot.Grid
             return gridRoot != null ? gridRoot.TransformPoint(local) : transform.TransformPoint(local);
         }
 
+        /// <summary>Grid-local → world (respects the grid root's transform).</summary>
+        public Vector3 GridLocalToWorld(Vector3 local) =>
+            gridRoot != null ? gridRoot.TransformPoint(local) : transform.TransformPoint(local);
+
+        /// <summary>World → grid-local (respects the grid root's transform).</summary>
+        public Vector3 WorldToGridLocal(Vector3 world) =>
+            gridRoot != null ? gridRoot.InverseTransformPoint(world) : transform.InverseTransformPoint(world);
+
+        // ── Booster helpers (FillColor) ──────────────────────────────────────
+        /// <summary>Box at a grid cell, or null if out of range / empty.</summary>
+        /// <summary>
+        /// Streak gift: convert up to <paramref name="count"/> random alive, non-bomb, non-hidden
+        /// cells into bombs, popping them in one after another for a "gift dropping in" feel. Call
+        /// this AFTER the level is visible so the player sees the bombs arrive.
+        /// </summary>
+        public void PlaceStreakBombs(int count)
+        {
+            if (boxes == null || count <= 0) return;
+
+            var candidates = new List<Box>();
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    // Skip linked-colour cells (would strand a linked pair) and reserved cells
+                    // (already promised to an in-flight stickman).
+                    if (b != null && b.IsAlive && !b.IsBomb && !b.IsHiddenByKey && !b.IsReserved
+                        && !(b.Color != null && ShooterColumn.IsColorLinked(b.Color.GameplayColor)))
+                        candidates.Add(b);
+                }
+
+            // Fisher–Yates shuffle, then take the first `count`.
+            for (int i = candidates.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                (candidates[i], candidates[j]) = (candidates[j], candidates[i]);
+            }
+
+            int n = Mathf.Min(count, candidates.Count);
+            for (int i = 0; i < n; i++)
+            {
+                var b = candidates[i];
+                DOVirtual.DelayedCall(i * 0.06f, () => { if (b != null) b.MakeBomb(); }); // staggered pops
+            }
+        }
+
+        /// <summary>Random boxes eligible to BECOME bombs — same filter as <see cref="PlaceStreakBombs"/>
+        /// (alive, not already a bomb, not key-hidden, not reserved, not a linked colour). Shuffled, up
+        /// to <paramref name="count"/>. Used by the BombCannon to lob bombs onto these cells.</summary>
+        public List<Box> CollectRandomBombTargets(int count)
+        {
+            var candidates = new List<Box>();
+            if (boxes == null || count <= 0) return candidates;
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b != null && b.IsAlive && !b.IsBomb && !b.IsHiddenByKey && !b.IsReserved
+                        && !(b.Color != null && ShooterColumn.IsColorLinked(b.Color.GameplayColor)))
+                        candidates.Add(b);
+                }
+            for (int i = candidates.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                (candidates[i], candidates[j]) = (candidates[j], candidates[i]);
+            }
+            if (candidates.Count > count) candidates.RemoveRange(count, candidates.Count - count);
+            return candidates;
+        }
+
+        /// <summary>Streak paint gift: up to <paramref name="count"/> random alive, non-bomb,
+        /// non-hidden, coloured boxes to paint (via stickman runners). Shuffled.</summary>
+        public List<Box> CollectRandomPaintTargets(int count)
+        {
+            var list = new List<Box>();
+            if (boxes == null || count <= 0) return list;
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    // IsReserved matters: a box already promised to an in-flight stickman has had
+                    // its shot spent. Painting it would spend a SECOND shot for one box → leftovers.
+                    if (b != null && b.IsAlive && !b.IsBomb && !b.IsHiddenByKey && !b.IsReserved && b.Color != null)
+                        list.Add(b);
+                }
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                (list[i], list[j]) = (list[j], list[i]);
+            }
+            if (list.Count > count) list.RemoveRange(count, list.Count - count);
+            return list;
+        }
+
+        public Box GetBox(int x, int z)
+        {
+            if (boxes == null || x < 0 || z < 0 || x >= size || z >= size) return null;
+            return boxes[x, z];
+        }
+
+        /// <summary>All still-alive boxes whose gameplay color matches (tone variants resolved).</summary>
+        public List<Box> CollectAliveBoxes(ColorData gameplayColor)
+        {
+            var result = new List<Box>();
+            if (boxes == null || gameplayColor == null) return result;
+            for (int x = 0; x < size; x++)
+                for (int z = 0; z < size; z++)
+                {
+                    var b = boxes[x, z];
+                    if (b != null && b.IsAlive && b.Color != null && b.Color.GameplayColor == gameplayColor)
+                        result.Add(b);
+                }
+            return result;
+        }
+
+        /// <summary>Intersect a ray with the grid plane. Returns the world point on the plane.</summary>
+        public bool RaycastGridPlane(Ray ray, out Vector3 world)
+        {
+            var root = gridRoot != null ? gridRoot : transform;
+            var plane = new Plane(root.up, root.position);
+            if (plane.Raycast(ray, out float enter)) { world = ray.GetPoint(enter); return true; }
+            world = default;
+            return false;
+        }
+
+        /// <summary>Map a camera ray to the box under it (via the grid plane). Null if off-grid.</summary>
+        public Box PickBox(Ray ray)
+        {
+            if (!RaycastGridPlane(ray, out Vector3 world)) return null;
+            var root = gridRoot != null ? gridRoot : transform;
+            Vector3 local = root.InverseTransformPoint(world);
+            float offset = (size - 1) * 0.5f * cellSize;
+            int x = Mathf.RoundToInt((local.x + offset) / cellSize);
+            int z = Mathf.RoundToInt((local.z + offset) / cellSize);
+            return GetBox(x, z);
+        }
+
         /// <summary>
         /// Find the outermost targetable box from the given side, at the line of fire
         /// closest to the shooter's world position.
@@ -161,6 +427,18 @@ namespace PixelShoot.Grid
             // Only return it if it matches the shooter's color and isn't already
             // reserved by another bullet. Shooters cannot shoot past mismatched
             // outer cells — those have to be cleared by a same-color shooter first.
+            return IsValidTarget(outer, requiredColor) ? outer : null;
+        }
+
+        /// <summary>
+        /// Outermost valid (colour-matched, unreserved) target in an EXPLICIT column/row index,
+        /// independent of any shooter world position. Used to cover columns the conveyor path can't
+        /// physically align with (e.g. those left of the bottom entry point). Null if empty / mismatched.
+        /// </summary>
+        public Box FindTargetInColumn(GridSide side, int parallelIndex, ColorData requiredColor)
+        {
+            if (boxes == null || parallelIndex < 0 || parallelIndex >= size) return null;
+            Box outer = FindOutermostAlive(side, parallelIndex);
             return IsValidTarget(outer, requiredColor) ? outer : null;
         }
 
@@ -225,29 +503,25 @@ namespace PixelShoot.Grid
             return true;
         }
 
-        public void NotifyBoxHit(Box b)
+        public void NotifyBoxHit(Box b, bool fromBomb = false)
         {
             if (b == null || !b.IsAlive) return;
             bool wasBomb = b.IsBomb;
+            bool wasStreakBomb = b.IsStreakBomb;
             int bombX = b.GridX, bombZ = b.GridZ;
             var bombParticle = b.ExplosionParticlePrefab;
             Vector3 bombWorldPos = b.transform.position;
 
-            b.TakeHit();
+            b.TakeHit(fromBomb);
             aliveCount--;
 
-            // Promote any locked 4-neighbors to frontier — wave-front expansion.
-            foreach (var n in Neighbors4)
-            {
-                int nx = b.GridX + n.dx, nz = b.GridZ + n.dz;
-                if (nx < 0 || nx >= size || nz < 0 || nz >= size) continue;
-                var nb = boxes[nx, nz];
-                if (nb != null && nb.State == BoxState.Locked) nb.SetState(BoxState.Frontier);
-            }
+            // Clearing this box may open straight lanes to boxes behind it — recompute which
+            // boxes are now shootable (ray model, see RecomputeFrontier).
+            RecomputeFrontier();
 
             // Bomb side effect — runs AFTER the bomb cell itself is processed so the
-            // bomb's neighbours are already promoted before we walk the 5x5.
-            if (wasBomb) TriggerBombExplosion(bombX, bombZ, bombParticle, bombWorldPos);
+            // bomb's neighbours are already opened before we walk the 5x5.
+            if (wasBomb) TriggerBombExplosion(bombX, bombZ, bombParticle, bombWorldPos, wasStreakBomb);
 
             if (aliveCount <= 0) OnGridCleared?.Invoke();
         }
@@ -259,7 +533,7 @@ namespace PixelShoot.Grid
         /// the hits to ripple outward ring by ring: ring 1 (the 3×3 shell) opens after
         /// one <see cref="bombOpenDelay"/>, ring 2 (the 5×5 shell) one delay later, etc.
         /// </summary>
-        private void TriggerBombExplosion(int cx, int cz, GameObject particlePrefab, Vector3 worldPos)
+        private void TriggerBombExplosion(int cx, int cz, GameObject particlePrefab, Vector3 worldPos, bool streakBomb = false)
         {
             // Particle FX immediately at the bomb's last-known position.
             if (particlePrefab != null)
@@ -283,7 +557,11 @@ namespace PixelShoot.Grid
                     if (x < 0 || x >= size || z < 0 || z >= size) continue;
                     var nb = boxes[x, z];
                     if (nb == null || !nb.IsAlive) continue;
+                    if (nb.IsHiddenByKey) continue;            // covered by a key — protected until its lock opens
                     if (nb.IsReserved) continue;               // someone else already promised this one
+                    // Streak bombs leave linked-colour cells alone — clearing them + paying back the
+                    // shot would strand the linked pair. Those cells stay for their linked buses.
+                    if (streakBomb && nb.Color != null && ShooterColumn.IsColorLinked(nb.Color.GameplayColor)) continue;
 
                     nb.ReserveHit();                           // lock immediately — guards against double-fire
                     int ring = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dz)); // 1..bombRadius
@@ -300,8 +578,15 @@ namespace PixelShoot.Grid
 
             // Pay back the shooters NOW so the rest of the world (HUD, validation, etc.)
             // sees the deduction even before the delayed visual hit.
+            int cellsToClear = 0; foreach (var r in ringsAffected) cellsToClear += r.Count;
+            int wanted = 0, got = 0;
             foreach (var kvp in consumeByColor)
-                ShooterColumn.ConsumeShotsForGameplayColor(kvp.Key, kvp.Value);
+            {
+                wanted += kvp.Value;
+                got += ShooterColumn.ConsumeShotsForGameplayColor(kvp.Key, kvp.Value); // ACTUAL consumed
+            }
+            Debug.Log($"[STREAKBAL] {(streakBomb ? "STREAK" : "authored")} bomb at ({cx},{cz}) → clearing {cellsToClear} neighbour cell(s); " +
+                      $"payback wanted {wanted}, actually consumed {got}. Any shortfall = boxes cleared for free → leftover shots.");
 
             StartCoroutine(BombHitSequence(ringsAffected));
         }
@@ -319,7 +604,8 @@ namespace PixelShoot.Grid
                     // NotifyBoxHit handles aliveCount, frontier promotion, and any chained
                     // bomb on the affected cells (chain explosion). The reservation already
                     // set on neighbour bombs prevents them from being double-processed.
-                    NotifyBoxHit(b);
+                    // fromBomb:true → these play the bomb-open clip.
+                    NotifyBoxHit(b, fromBomb: true);
                 }
             }
         }

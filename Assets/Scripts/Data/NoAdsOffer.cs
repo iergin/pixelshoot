@@ -1,6 +1,6 @@
 using UnityEngine;
-using PixelShoot.Ads;
 using PixelShoot.Game;
+using PixelShoot.UI;
 
 namespace PixelShoot.Data
 {
@@ -20,12 +20,12 @@ namespace PixelShoot.Data
 
         public override void OnPurchased()
         {
-            PlayerWallet.MarkNoAdsBought();
             PlayerWallet.MarkPurchased(OfferId);
             PlayerWallet.MarkAnyPurchaseMade();
-            // Hide the banner immediately; interstitials are gated through
-            // InterstitialController which already checks PlayerWallet.HasNoAds.
-            AdsManager.SuppressAdsAfterNoAdsPurchase();
+            // RewardBundle.Apply() sets the No-Ads flag AND suppresses the banner (interstitials are
+            // gated through InterstitialController, which already checks PlayerWallet.HasNoAds), then
+            // the claim popup flies a No-Ads icon to the Play button.
+            RewardFlow.Grant(new RewardBundle().AddNoAds());
             Debug.Log("[Shop] NoAds purchased — all future interstitial / banner ads suppressed.");
         }
     }

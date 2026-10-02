@@ -18,6 +18,10 @@ namespace PixelShoot.Conveyor
         [SerializeField] private float slotSpacing = 1.1f;
         [SerializeField] private float jumpDuration = 0.4f;
         [SerializeField] private float compactJumpDuration = 0.22f;
+        [Tooltip("Uniform scale multiplier (relative to spawn scale) applied to buses parked in play-on slots.")]
+        [SerializeField, Min(0.01f)] private float slotScale = 1f;
+        [Tooltip("World-space euler rotation the buses settle into while parked in play-on slots.")]
+        [SerializeField] private Vector3 slotRotation = Vector3.zero;
 
         private readonly List<Shooter> occupants = new List<Shooter>();
         private bool compactPending;
@@ -39,7 +43,7 @@ namespace PixelShoot.Conveyor
             int idx = occupants.Count;
             occupants.Add(shooter);
             var target = GetSlotPosition(idx);
-            shooter.JumpTo(target, jumpDuration, NotifyIncomingLanded, ShooterState.InReserve);
+            shooter.JumpTo(target, jumpDuration, NotifyIncomingLanded, ShooterState.InReserve, slotScale, Quaternion.Euler(slotRotation));
         }
 
         public bool Contains(Shooter shooter) => shooter != null && occupants.Contains(shooter);
@@ -78,7 +82,7 @@ namespace PixelShoot.Conveyor
                 if (s == null) continue;
                 var target = GetSlotPosition(i);
                 if (Vector3.Distance(s.transform.position, target) < 0.01f) continue;
-                s.JumpTo(target, compactJumpDuration, NotifyIncomingLanded, ShooterState.InReserve);
+                s.JumpTo(target, compactJumpDuration, NotifyIncomingLanded, ShooterState.InReserve, slotScale, Quaternion.Euler(slotRotation));
             }
         }
 

@@ -27,6 +27,7 @@ namespace PixelShoot.Shooters
             switch (Shooter.State)
             {
                 case ShooterState.InColumn:
+                    PixelShoot.Audio.AudioManager.Instance?.PlayShooterClick();
                     column?.TryLaunchShooter(Shooter);
                     break;
                 case ShooterState.InReserve:

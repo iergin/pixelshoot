@@ -20,6 +20,52 @@ namespace PixelShoot.Shooters
 
         public IReadOnlyList<Shooter> Shooters => shooters;
 
+        /// <summary>Find the column currently holding <paramref name="s"/>, or null.</summary>
+        public static ShooterColumn ColumnOf(Shooter s)
+        {
+            if (s == null) return null;
+            foreach (var c in all)
+                if (c != null && c.shooters.Contains(s)) return c;
+            return null;
+        }
+
+        public int IndexOf(Shooter s) => shooters.IndexOf(s);
+
+        /// <summary>Remove a specific shooter from this column (restacks + refreshes the new top).</summary>
+        public bool RemoveShooter(Shooter s)
+        {
+            if (s == null || !shooters.Remove(s)) return false;
+            RestackAnimated();
+            RefreshTop();
+            return true;
+        }
+
+        /// <summary>Auto-reveal the top bus when it's a surprise — mirrors HexaSort's reveal-on-surface.</summary>
+        public void RevealTopIfSurprise()
+        {
+            var top = TopShooter;
+            if (top != null && top.IsSurprise) top.RevealSurprise();
+        }
+
+        /// <summary>
+        /// Refresh the column's top bus: reveal it if it's a surprise, and try to unlock it
+        /// if it's locked (its key may already be collected). Called whenever the top changes
+        /// and whenever a key is collected.
+        /// </summary>
+        public void RefreshTop()
+        {
+            var top = TopShooter;
+            if (top == null) return;
+            // A lock barrier at the top opens (and drops out, restacking) if its key is collected.
+            if (top is Lock topLock)
+            {
+                Debug.Log($"[KEYLOCK] Column '{name}': en üstte LOCK var (key={topLock.KeyId}) → otomatik açma denemesi (RefreshTop).", this);
+                topLock.TryOpen();
+                return;
+            }
+            if (top.IsSurprise) top.RevealSurprise();
+        }
+
         [SerializeField] private float stackSpacing = 1.1f;
         [SerializeField] private float restackDuration = 0.25f;
 
@@ -38,14 +84,37 @@ namespace PixelShoot.Shooters
             shooter.transform.SetParent(transform, false);
             shooters.Add(shooter);
             LayoutImmediate();
+            ConfigureClick(shooter);
+        }
 
-            var click = shooter.GetComponent<ShooterClickHandler>();
-            if (click == null) click = shooter.gameObject.AddComponent<ShooterClickHandler>();
-            click.Configure(shooter, this, reserveClickHandler);
+        /// <summary>
+        /// Wire (or re-wire) a stack item's click handler. ShooterClickHandler is
+        /// [RequireComponent(Collider)], so AddComponent returns NULL on a prefab with no Collider
+        /// (a common mis-set on hand-made Lock prefabs) — guard it, or one un-collidered item
+        /// NullRefs its way out of the whole column build / shuffle.
+        /// </summary>
+        private void ConfigureClick(Shooter s)
+        {
+            if (s == null) return;
+            var click = s.GetComponent<ShooterClickHandler>();
+            if (click == null && s.GetComponent<Collider>() != null)
+                click = s.gameObject.AddComponent<ShooterClickHandler>();
+            if (click != null) click.Configure(s, this, reserveClickHandler);
+            else Debug.LogWarning($"[ShooterColumn] '{s.name}' has no Collider — it won't be tappable. " +
+                                  "Add a Collider to the prefab (locks need one to block/receive taps).", s);
         }
 
         // Top of column = last element (matches LevelData semantics: list order = bottom-to-top).
         public Shooter TopShooter => shooters.Count > 0 ? shooters[shooters.Count - 1] : null;
+
+        /// <summary>True if this column still holds a lock waiting on <paramref name="keyId"/>
+        /// (anywhere in the stack). Used to decide whether a collected key must wait for a lock.</summary>
+        public bool HasLockWithKey(int keyId)
+        {
+            foreach (var s in shooters)
+                if (s is Lock lk && lk.KeyId == keyId) return true;
+            return false;
+        }
 
         public bool TryLaunchShooter(Shooter shooter)
         {
@@ -53,20 +122,54 @@ namespace PixelShoot.Shooters
             if (shooter != TopShooter) return false;
             if (shooter.State != ShooterState.InColumn) return false;
 
+            // Lock barrier at the top: not boardable. Try to open it (key may have just been
+            // collected), else shake — the column is blocked until it opens.
+            if (shooter is Lock lk)
+            {
+                Debug.Log($"[KEYLOCK] Column '{name}': LOCK'a TIKLANDI (key={lk.KeyId}) → açma denemesi.", this);
+                if (!lk.TryOpen()) lk.PlayLockedFeedback();
+                return false;
+            }
+
+            // Linked: the GameController removes EVERY member from its column itself,
+            // so this column must not pop the tapped one here.
+            if (shooter.IsLinked)
+                return launchRequest != null && launchRequest(shooter);
+
             if (launchRequest != null && launchRequest(shooter))
             {
                 shooters.Remove(shooter);
                 RestackAnimated();
+                RefreshTop();
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Shuffle booster: replace this column's stack (bottom-to-top order). Reparents and
+        /// reconfigures any incoming shooter (keeping its world pose so it slides in), animates
+        /// everyone to place, and refreshes the new top (revealing a surprise that surfaced).
+        /// </summary>
+        public void ApplyShuffledStack(List<Shooter> newList)
+        {
+            shooters.Clear();
+            if (newList != null) shooters.AddRange(newList);
+            foreach (var s in shooters)
+            {
+                if (s == null) continue;
+                if (s.transform.parent != transform) s.transform.SetParent(transform, true); // keep world pose → slides in
+                ConfigureClick(s); // Collider-guarded (see ConfigureClick) — a lock without one used to NullRef here
+            }
+            RestackAnimated();
+            RefreshTop();
         }
 
         /// <summary>Drop a shooter from this column (used when a bomb pays back its shots in full).</summary>
         public void RemoveExpiredShooter(Shooter s)
         {
             if (s == null) return;
-            if (shooters.Remove(s)) RestackAnimated();
+            if (shooters.Remove(s)) { RestackAnimated(); RefreshTop(); }
         }
 
         /// <summary>
@@ -76,7 +179,43 @@ namespace PixelShoot.Shooters
         /// A shooter whose shots reach 0 is Expired and removed from the column.
         /// Returns how many shots were actually consumed (could be &lt; amount if no more matches).
         /// </summary>
-        public static int ConsumeShotsForGameplayColor(PixelShoot.Data.ColorData gameplayColor, int amount)
+        /// <summary>Total shots held by UNLINKED buses of each gameplay colour (linked buses
+        /// excluded). Used by the streak paint so it only spends colours it can safely deplete
+        /// without stranding a linked pair.</summary>
+        public static Dictionary<PixelShoot.Data.ColorData, int> UnlinkedShotsByColor()
+        {
+            var map = new Dictionary<PixelShoot.Data.ColorData, int>();
+            foreach (var s in Shooter.AliveBuses) // column + conveyor + reserve + play-on
+            {
+                if (s == null || s.Color == null || s.IsLinked) continue;
+                var gc = s.Color.GameplayColor;
+                if (gc == null) continue;
+                map.TryGetValue(gc, out int c);
+                map[gc] = c + s.ShotsRemaining;
+            }
+            return map;
+        }
+
+        /// <summary>Total shots remaining across every bus in every column (diagnostics).</summary>
+        public static int TotalShots()
+        {
+            int total = 0;
+            foreach (var s in Shooter.AliveBuses) // every bus, wherever it is (column/conveyor/reserve)
+                if (s != null) total += s.ShotsRemaining;
+            return total;
+        }
+
+        /// <summary>True if any bus of this gameplay colour is part of a link group. Streak bombs
+        /// avoid such colours so their over-clear + payback can't strand a linked pair.</summary>
+        public static bool IsColorLinked(PixelShoot.Data.ColorData gameplayColor)
+        {
+            if (gameplayColor == null) return false;
+            foreach (var s in Shooter.AliveBuses) // column + conveyor + reserve + play-on
+                if (s != null && s.IsLinked && s.Color != null && s.Color.GameplayColor == gameplayColor) return true;
+            return false;
+        }
+
+        public static int ConsumeShotsForGameplayColor(PixelShoot.Data.ColorData gameplayColor, int amount, bool unlinkedOnly = false)
         {
             if (gameplayColor == null || amount <= 0) return 0;
 
@@ -84,14 +223,17 @@ namespace PixelShoot.Shooters
             //   1) by within-column index ascending (back-of-queue first = "bottom-most")
             //   2) tiebreak: column instanceID for determinism
             var pool = new List<(ShooterColumn col, int idx, Shooter s)>();
+            var inColumn = new HashSet<Shooter>();
             foreach (var col in all)
             {
                 if (col == null) continue;
                 for (int i = 0; i < col.shooters.Count; i++)
                 {
                     var s = col.shooters[i];
-                    if (s == null || s.Color == null) continue;
-                    if (s.Color.GameplayColor != gameplayColor) continue;
+                    if (s == null) continue;
+                    inColumn.Add(s); // remember it so step 2 doesn't add it twice
+                    if (s.Color == null || s.Color.GameplayColor != gameplayColor) continue;
+                    if (unlinkedOnly && s.IsLinked) continue; // never drain a linked bus (streak paint)
                     pool.Add((col, i, s));
                 }
             }
@@ -102,14 +244,31 @@ namespace PixelShoot.Shooters
                 return a.col.GetInstanceID().CompareTo(b.col.GetInstanceID());
             });
 
+            var ordered = new List<Shooter>(pool.Count);
+            foreach (var e in pool) ordered.Add(e.s);
+
+            // Buses that already LEFT their column (riding the conveyor, parked in reserve or
+            // play-on) still hold shots for this colour. Without them the payback silently comes up
+            // short and those boxes get cleared for free → leftover shots at the end.
+            foreach (var s in Shooter.AliveBuses)
+            {
+                if (s == null || inColumn.Contains(s)) continue;
+                if (s.Color == null || s.Color.GameplayColor != gameplayColor) continue;
+                if (unlinkedOnly && s.IsLinked) continue;
+                ordered.Add(s);
+            }
+
             int consumed = 0;
-            foreach (var entry in pool)
+            foreach (var s in ordered)
             {
                 if (amount <= 0) break;
-                int took = entry.s.ConsumeShots(amount);
+                if (s == null) continue;
+                int took = s.ConsumeShots(amount);
                 amount   -= took;
                 consumed += took;
-                if (entry.s.ShotsRemaining <= 0) entry.col.RemoveExpiredShooter(entry.s);
+                // Depleted buses that actually Expire remove themselves from the column
+                // (Shooter.Expire). A linked bus with a still-alive member of ANOTHER colour
+                // stays BOUND (not expired), so we must NOT pull it out here — just its count drops.
             }
             return consumed;
         }

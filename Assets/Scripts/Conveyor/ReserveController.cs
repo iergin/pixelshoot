@@ -10,6 +10,10 @@ namespace PixelShoot.Conveyor
         [SerializeField] private float jumpDuration = 0.4f;
         [Tooltip("Duration of the left-shift hop when reserve slots compact after a free.")]
         [SerializeField] private float compactJumpDuration = 0.22f;
+        [Tooltip("Uniform scale multiplier (relative to spawn scale) applied to buses parked in reserve slots.")]
+        [SerializeField, Min(0.01f)] private float slotScale = 1f;
+        [Tooltip("World-space euler rotation the buses settle into while parked in reserve slots.")]
+        [SerializeField] private Vector3 slotRotation = Vector3.zero;
 
         private Shooter[] occupants;
         private int capacity;
@@ -50,6 +54,8 @@ namespace PixelShoot.Conveyor
         }
 
         public float JumpDuration => jumpDuration;
+        public float SlotScale => slotScale;
+        public Quaternion SlotRotation => Quaternion.Euler(slotRotation);
 
         public void Occupy(int index, Shooter shooter)
         {
@@ -112,7 +118,7 @@ namespace PixelShoot.Conveyor
                 if (Vector3.Distance(settled[i].transform.position, target) < 0.01f) continue;
                 // The shooter briefly enters Boarding while hopping; HasBoardingShooter
                 // will block any new compact until it lands, then the callback retries.
-                settled[i].JumpTo(target, compactJumpDuration, NotifyIncomingLanded, ShooterState.InReserve);
+                settled[i].JumpTo(target, compactJumpDuration, NotifyIncomingLanded, ShooterState.InReserve, slotScale, SlotRotation);
             }
         }
 

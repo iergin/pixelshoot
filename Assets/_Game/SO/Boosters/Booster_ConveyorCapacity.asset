@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b005ada7a0000111222233334444555a, type: 3}
+  m_Name: Booster_ConveyorCapacity
+  m_EditorClassIdentifier: 
+  id: conveyor_capacity
+  displayName: Extra Lane
+  description: Adds one extra slot to the conveyor for this level.
+  icon: {fileID: 21300000, guid: c2e0488b504ee4c6bbfeddd66fef12e3, type: 3}
+  type: 0
+  amount: 1
+  unlockLevel: 1
+  defaultFreeAmount: 3
+  hasTutorial: 1
+  tutorialStyle: 0
+  tutorialText: Tap the booster to add an extra conveyor lane!
+  coinCost: 500
+  coinPurchaseEnabled: 1
+  adPurchaseEnabled: 1
+  grantAmount: 3

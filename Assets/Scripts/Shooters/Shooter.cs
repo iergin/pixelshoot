@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using DG.Tweening;
 using PixelShoot.Data;
 using PixelShoot.Grid;
-using PixelShoot.Bullets;
 using PixelShoot.Conveyor;
 
 namespace PixelShoot.Shooters
@@ -17,12 +18,87 @@ namespace PixelShoot.Shooters
         Expired
     }
 
+    /// <summary>
+    /// The bus. Rides the conveyor; its passengers (Stickman) are the projectiles.
+    /// Firing launches the front-seat stickman in an arc toward the target box.
+    /// Seat shifting / refilling is delegated to <see cref="BusSeatController"/>.
+    /// </summary>
     public class Shooter : MonoBehaviour
     {
-        [SerializeField] private SkinnedMeshRenderer meshRenderer;
-        [SerializeField] private Bullet bulletPrefab;
-        [SerializeField] private Transform muzzle;
+        [Tooltip("Extra bus meshes (body panels etc.) that should also be tinted with the bus colour's ShooterMaterial. The main meshRenderer above is coloured too even if not listed here.")]
+        [SerializeField] private MeshRenderer[] colorRenderers;
+        [Tooltip("Seat manager that owns the visible stickmen. If null, hits are applied instantly with no projectile.")]
+        [SerializeField] private BusSeatController seats;
+        [Tooltip("Optional world-space label showing how many stickmen are left to spawn (add a Billboard so it faces the camera).")]
+        [SerializeField] private TMP_Text shotCountLabel;
         [SerializeField] private float jumpPower = 1.5f;
+        [Header("Conveyor facing")]
+        [Tooltip("How fast the bus turns to face its travel direction, in degrees per second. Higher = snappier cornering.")]
+        [SerializeField] private float turnSpeed = 540f;
+        [Tooltip("How far ahead along the path (world units) to sample when computing the travel direction.")]
+        [SerializeField] private float facingLookAhead = 0.15f;
+        [Tooltip("Uniform scale multiplier applied while riding the conveyor. The bus tweens to this during the boarding jump and back to its spawn scale when it hops off into reserve.")]
+        [SerializeField] private float conveyorScale = 1.2f;
+        [Tooltip("Uniform scale multiplier applied while the bus sits in a COLUMN (its resting/spawn state). 1 = the prefab scale.")]
+        [SerializeField] private float columnScale = 1f;
+        [Tooltip("On seating, the bus surges to this many times the normal conveyor speed, then decays back over Board Boost Duration. 1 = no surge.")]
+        [SerializeField, Min(1f)] private float boardBoostMultiplier = 2.5f;
+        [Tooltip("Seconds for the seating speed-surge to ease back to the stable conveyor speed.")]
+        [SerializeField, Min(0f)] private float boardBoostDuration = 0.25f;
+
+        [Header("Firing")]
+        [Tooltip("Minimum seconds between consecutive stickman launches. Targets are reserved instantly; only the visual departure is staggered.")]
+        [SerializeField, Min(0f)] private float launchInterval = 0.12f;
+
+        [Header("Engine idle wobble")]
+        [Tooltip("Child visual that pulses like a running engine. MUST be a child, not the bus root — the root's scale is owned by the conveyor/reserve transitions. If null, the mesh renderer's transform is used.")]
+        [SerializeField] private Transform wobbleTarget;
+        [Tooltip("Squash-and-stretch amplitude. 0.04 = Y stretches +4% while XZ squash -2%, looped. 0 disables the wobble.")]
+        [SerializeField, Min(0f)] private float wobbleAmount = 0.04f;
+        [Tooltip("Seconds for one half-cycle of the wobble (up OR down).")]
+        [SerializeField, Min(0.05f)] private float wobbleDuration = 0.18f;
+
+        [Header("Surprise")]
+        [Tooltip("Parent of the normal bus visuals — used only as the punch target on reveal now (no longer hidden while a surprise).")]
+        [SerializeField] private GameObject busVisualRoot;
+        [Tooltip("Optional '?' cover shown while the bus is a surprise. Hidden on reveal.")]
+        [SerializeField] private GameObject surpriseVisual;
+        [Tooltip("Material applied to the Color Renderers while the bus is a surprise (the mystery skin). Reverted to the real colour on reveal.")]
+        [SerializeField] private Material surpriseMaterial;
+        [Tooltip("Particle burst played when the surprise reveals.")]
+        [SerializeField] private ParticleSystem revealParticle;
+        [Tooltip("Seconds to ease the colour meshes from the surprise colour to the real bus colour on reveal (no hard pop).")]
+        [SerializeField] private float revealColorFadeDuration = 0.4f;
+        [Tooltip("How much the bus body grows at the peak of the reveal pop (0.25 = +25%).")]
+        [SerializeField] private float revealPunch = 0.25f;
+        [Tooltip("Seconds to grow to the peak, then to shrink back to normal.")]
+        [SerializeField] private float revealGrowUp = 0.12f;
+        [SerializeField] private float revealGrowDown = 0.18f;
+
+        [Header("Link")]
+        [Tooltip("Optional visual enabled only on linked buses (e.g. a tow hook / chain). Links are drawn with Obi rope (LinkRopeController).")]
+        [SerializeField] private GameObject linkedVisual;
+
+        [Header("Exhaust")]
+        [Tooltip("Exhaust smoke — emits ONLY while the bus is riding the conveyor.")]
+        [SerializeField] private ParticleSystem exhaustParticle;
+
+        [Header("Claw")]
+        [Tooltip("Renderers moved onto the outline layer while claw-highlighted (Free Outline draws them). Empty = all child renderers.")]
+        [SerializeField] private Renderer[] outlineRenderers;
+        [Tooltip("Layer the Free Outline feature filters. Buses stay on Default; claw switches these renderers to this layer to light the outline, then restores.")]
+        [SerializeField] private string outlineLayer = "Outline";
+
+        private Vector3 baseScale = Vector3.one;
+        private bool baseScaleCaptured;
+        private Tween facingTween;
+        private Tween scaleTween;
+        private readonly System.Collections.Generic.Queue<Box> launchQueue = new System.Collections.Generic.Queue<Box>();
+        private float nextLaunchTime;
+        private Tween wobbleTween;
+        private Renderer[] outlineRends;
+        private int[] outlineOrigLayers;
+        private int outlineLayerIdx = -2; // -2 = unresolved
 
         private ColorData color;
         private int shotsRemaining;
@@ -33,6 +109,7 @@ namespace PixelShoot.Shooters
 
         private float pathProgress;
         private float pathSpeed;
+        private float boostTimer; // seating speed-surge countdown
         private Tween boardingTween;
 
         // Engagement tracking: each column/row gets at most one shot per pass.
@@ -46,26 +123,348 @@ namespace PixelShoot.Shooters
         public event Action<Shooter> OnExpired;
         public event Action<Shooter> OnPathEnded;
 
+        // ── Alive-bus registry (drives the endgame "last N buses" mode) ──────
+        private static readonly HashSet<Shooter> aliveBuses = new HashSet<Shooter>();
+        public static int AliveCount => aliveBuses.Count;
+        /// <summary>Every live bus, wherever it is — in a column, riding the conveyor, parked in
+        /// reserve or play-on. Shot bookkeeping must use THIS, not just the column lists, or buses
+        /// that already left their column keep shots for boxes something else cleared.</summary>
+        public static IReadOnlyCollection<Shooter> AliveBuses => aliveBuses;
+        public static event Action AliveCountChanged;
+        public static void ClearAliveRegistry() => aliveBuses.Clear();
+        private void RegisterAlive()   { if (aliveBuses.Add(this))    AliveCountChanged?.Invoke(); }
+        private void UnregisterAlive() { if (aliveBuses.Remove(this)) AliveCountChanged?.Invoke(); }
+
+        // ── Surprise / Link / Lock state ─────────────────────────────────────
+        public bool IsSurprise { get; private set; }
+        public int LinkGroupId { get; private set; }
+        /// <summary>Shared list reference across all members of the same link group.</summary>
+        public List<Shooter> LinkGroup { get; private set; }
+        public bool IsLinkOwner { get; private set; }
+        public bool IsLinked => LinkGroup != null && LinkGroup.Count >= 2;
+
         public ColorData Color => color;
         public int ShotsRemaining => shotsRemaining;
         public ShooterState State => state;
         public float PathProgress => pathProgress;
 
-        public void Initialize(ColorData c, int shotCount)
+        public void Initialize(ColorData c, int shotCount, bool isSurprise = false, int linkGroupId = 0)
         {
             color = c;
             shotsRemaining = shotCount;
             state = ShooterState.InColumn;
+            RegisterAlive();
 
-            if (meshRenderer != null && c != null && c.ShooterMaterial != null)
+            // Capture the prefab scale as the base (so conveyor/reserve multipliers are
+            // relative to it), then apply the column scale for the resting/spawn state.
+            ApplyColumnScale();
+            IsSurprise = isSurprise;
+            LinkGroupId = linkGroupId;
+
+            if (c != null && c.ShooterMaterial != null)
             {
+                // Tint the main mesh + every extra bus mesh with the bus colour.
                 // Use sharedMaterials (not materials) so we don't clone-and-leak the
                 // material instance every time Initialize runs — especially important
                 // when the level editor rebuilds the scene preview in edit mode.
-                Material[] mats = meshRenderer.sharedMaterials;
-                mats[0] = c.ShooterMaterial;
-                meshRenderer.sharedMaterials = mats;
+                ApplyColorMaterial(null, c.ShooterMaterial);
+                if (colorRenderers != null)
+                    foreach (var r in colorRenderers)
+                        ApplyColorMaterial(r, c.ShooterMaterial);
             }
+
+            // Bind the bus colour; passengers are now spawned on demand (one per shot).
+            if (seats != null) seats.Initialize(shotCount, c);
+            RefreshShotLabel();
+
+            // Surprise: keep the bus fully visible but skin its colour meshes with the mystery
+            // material (and hide the count) until it surfaces — no longer hides the bus visual root.
+            ApplySurpriseSkin(isSurprise);
+            SetExhaust(false); // off until it boards the conveyor
+            if (surpriseVisual != null) surpriseVisual.SetActive(isSurprise);
+
+            StartEngineWobble();
+        }
+
+        // Update the world-space "shots left" label (no-op if none assigned).
+        private void RefreshShotLabel()
+        {
+            if (shotCountLabel != null) shotCountLabel.text = Mathf.Max(0, shotsRemaining).ToString();
+        }
+
+        // Swap element 0 of a renderer's shared materials to the bus colour (no leak).
+        private static void ApplyColorMaterial(Renderer r, Material mat)
+        {
+            if (r == null || mat == null) return;
+            Material[] mats = r.sharedMaterials;
+            if (mats.Length == 0) return;
+            mats[0] = mat;
+            r.sharedMaterials = mats;
+        }
+
+        // ── Exhaust ──────────────────────────────────────────────────────────
+        // Emit only while riding the conveyor. When turned off, already-spawned puffs are
+        // left to fade out (StopEmitting) rather than popping away.
+        private void SetExhaust(bool on)
+        {
+            if (exhaustParticle == null) return;
+            if (on)
+            {
+                if (!exhaustParticle.isEmitting) exhaustParticle.Play(true);
+            }
+            else
+            {
+                exhaustParticle.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            }
+        }
+
+        // ── Surprise ─────────────────────────────────────────────────────────
+        /// <summary>
+        /// While a surprise, the bus stays visible but its Color Renderers wear the mystery
+        /// <see cref="surpriseMaterial"/> and the shot count is hidden. On reveal we swap the
+        /// colour meshes back to the real bus colour and show the count again.
+        /// </summary>
+        private void ApplySurpriseSkin(bool on)
+        {
+            // Only PAINT the mystery skin when turning surprise ON. Turning it OFF is done by the
+            // reveal colour-fade (see RevealColorFade) so the real colour eases in without a pop.
+            if (on && surpriseMaterial != null && colorRenderers != null)
+                foreach (var r in colorRenderers)
+                    ApplyColorMaterial(r, surpriseMaterial);
+            // The count is part of the surprise — hidden while covered, shown on reveal.
+            if (shotCountLabel != null) shotCountLabel.gameObject.SetActive(!on);
+        }
+
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static Color ReadBaseColor(Material m, Color fallback)
+        {
+            if (m == null) return fallback;
+            return m.HasProperty(BaseColorId) ? m.GetColor(BaseColorId) : m.color;
+        }
+
+        /// <summary>
+        /// Reveal colour transition: apply the REAL bus material to every colour mesh, but start
+        /// its tint at the surprise colour and ease it to the real colour — so the player never
+        /// sees the material "pop" from mystery to colour. Driven per-renderer via a
+        /// MaterialPropertyBlock so no material instance is cloned/leaked.
+        /// </summary>
+        private void RevealColorFade()
+        {
+            if (color == null || color.ShooterMaterial == null || colorRenderers == null) return;
+            Material real = color.ShooterMaterial;
+            foreach (var r in colorRenderers) if (r != null) ApplyColorMaterial(r, real);
+
+            if (!Application.isPlaying) return; // edit-mode preview: real colour instantly, no tween
+
+            Color realColor = ReadBaseColor(real, UnityEngine.Color.white);
+            Color surpColor = ReadBaseColor(surpriseMaterial, realColor);
+            if (revealColorFadeDuration <= 0f || realColor == surpColor) return;
+
+            var mpb = new MaterialPropertyBlock();
+            void Tint(Color c)
+            {
+                foreach (var r in colorRenderers)
+                {
+                    if (r == null) continue;
+                    r.GetPropertyBlock(mpb);
+                    mpb.SetColor(BaseColorId, c);
+                    r.SetPropertyBlock(mpb);
+                }
+            }
+
+            Tint(surpColor); // start at the surprise colour…
+            DOVirtual.Float(0f, 1f, revealColorFadeDuration, v => Tint(UnityEngine.Color.Lerp(surpColor, realColor, v)))
+                .OnComplete(() =>
+                {
+                    // Clear the per-renderer override so the shared material's own colour takes over.
+                    var empty = new MaterialPropertyBlock();
+                    foreach (var r in colorRenderers) if (r != null) r.SetPropertyBlock(empty);
+                });
+        }
+
+        /// <summary>
+        /// Reveal a surprise bus: drop the "?" cover, show the real body + count, pop a
+        /// little punch. Idempotent — safe to call again. Called automatically when the
+        /// bus surfaces to the top of its column, and defensively at board time.
+        /// </summary>
+        public void RevealSurprise()
+        {
+            if (!IsSurprise) return;
+            IsSurprise = false;
+            if (surpriseVisual != null) surpriseVisual.SetActive(false);
+            if (shotCountLabel != null) shotCountLabel.gameObject.SetActive(true); // count is revealed too
+            RevealColorFade(); // real material, tint eased from surprise colour → real colour
+
+            if (!Application.isPlaying) return;
+
+            // Particle burst.
+            if (revealParticle != null) revealParticle.Play(true);
+
+            // Grow → shrink pop on the bus body. Only on busVisualRoot (a child) — never the root,
+            // whose scale is owned by the column/conveyor transitions.
+            var t = busVisualRoot != null ? busVisualRoot.transform : null;
+            if (t != null && revealPunch > 0f)
+            {
+                t.DOKill();
+                Vector3 baseScl = t.localScale;
+                DOTween.Sequence().SetTarget(t)
+                    .Append(t.DOScale(baseScl * (1f + revealPunch), revealGrowUp).SetEase(Ease.OutQuad))
+                    .Append(t.DOScale(baseScl, revealGrowDown).SetEase(Ease.OutBack));
+            }
+        }
+
+        // ── Link ─────────────────────────────────────────────────────────────
+        /// <summary>Assign the shared member list. Exactly one member is the owner (draws the line).</summary>
+        public void SetLinkGroup(List<Shooter> group, bool isOwner)
+        {
+            LinkGroup = group;
+            IsLinkOwner = isOwner;
+            if (linkedVisual != null) linkedVisual.SetActive(IsLinked);
+        }
+
+        /// <summary>Silently drop this bus's link state (no cascade) — used during dissolve.</summary>
+        public void ClearLinkState()
+        {
+            LinkGroup = null;
+            IsLinkOwner = false;
+            LinkGroupId = 0;
+            if (linkedVisual != null) linkedVisual.SetActive(false);
+        }
+
+        /// <summary>
+        /// Remove this bus from its group mid-life (e.g. it was consumed alone). If ≤1
+        /// member remains the whole link dissolves; otherwise ownership transfers if needed.
+        /// </summary>
+        public void BreakLink()
+        {
+            var group = LinkGroup;
+            if (group == null) { ClearLinkState(); return; }
+
+            bool wasOwner = IsLinkOwner;
+            group.Remove(this);
+            ClearLinkState();
+
+            if (group.Count <= 1)
+            {
+                foreach (var m in group.ToArray())
+                    if (m != null) m.ClearLinkState();
+                group.Clear();
+                return;
+            }
+            if (wasOwner)
+            {
+                var newOwner = group[0];
+                for (int i = 0; i < group.Count; i++)
+                    if (group[i] != null) group[i].SetLinkGroup(group, isOwner: group[i] == newOwner);
+            }
+        }
+
+        /// <summary>True when every still-alive member of this link group has 0 shots left.</summary>
+        private bool AllGroupSpent()
+        {
+            if (LinkGroup == null) return shotsRemaining <= 0;
+            foreach (var m in LinkGroup)
+                if (m != null && m.shotsRemaining > 0) return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Called when this bus runs out of shots. Unlinked → expire immediately. Linked →
+        /// stay bound and keep riding (it just stops firing) until EVERY member is spent,
+        /// then the whole group dissolves at once. Mirrors HexaSort's "link doesn't break
+        /// on single exhaustion".
+        /// </summary>
+        private void HandleShotsDepleted()
+        {
+            if (!IsLinked)
+            {
+                Expire();
+                return;
+            }
+            if (AllGroupSpent())
+            {
+                foreach (var m in LinkGroup.ToArray())
+                    if (m != null) m.ExpireForDissolve();
+            }
+            // else: keep riding bound & idle; firing stops naturally via the shotsRemaining<=0 check.
+        }
+
+        /// <summary>Expire as part of a coordinated link-group dissolve (clears link state first).</summary>
+        private void ExpireForDissolve()
+        {
+            ClearLinkState();
+            Expire();
+        }
+
+        // ── Column resting scale ─────────────────────────────────────────────
+        /// <summary>Capture the prefab scale once, then apply the resting column scale.
+        /// Shared by bus <see cref="Initialize"/> and the <see cref="Lock"/> subclass setup.</summary>
+        protected void ApplyColumnScale()
+        {
+            if (!baseScaleCaptured)
+            {
+                baseScale = transform.localScale;
+                baseScaleCaptured = true;
+            }
+            transform.localScale = baseScale * columnScale;
+        }
+
+        // ── Claw highlight ───────────────────────────────────────────────────
+        /// <summary>
+        /// Toggle the "grabbable by Claw" emphasis: shows the optional glow visual and pulses
+        /// the body (a CHILD transform — never the root, whose scale belongs to the conveyor/
+        /// reserve transitions). Safe to call after the bus has boarded (only touches the child).
+        /// </summary>
+        public void SetClawHighlight(bool on) => ApplyOutlineLayer(on);
+
+        // Claw highlight: move the bus meshes onto the outline layer (Free Outline draws them)
+        // while highlighted, and restore their original layers when off.
+        private void ApplyOutlineLayer(bool on)
+        {
+            if (outlineLayerIdx == -2) outlineLayerIdx = LayerMask.NameToLayer(outlineLayer);
+            if (outlineLayerIdx < 0) return; // layer doesn't exist — nothing to do
+
+            if (outlineRends == null)
+            {
+                outlineRends = (outlineRenderers != null && outlineRenderers.Length > 0)
+                    ? outlineRenderers
+                    : GetComponentsInChildren<Renderer>(true);
+                outlineOrigLayers = new int[outlineRends.Length];
+                for (int i = 0; i < outlineRends.Length; i++)
+                    if (outlineRends[i] != null) outlineOrigLayers[i] = outlineRends[i].gameObject.layer;
+            }
+
+            for (int i = 0; i < outlineRends.Length; i++)
+            {
+                if (outlineRends[i] == null) continue;
+                outlineRends[i].gameObject.layer = on ? outlineLayerIdx : outlineOrigLayers[i];
+            }
+        }
+
+        /// <summary>
+        /// Looping squash-and-stretch on a child visual so the bus looks like its
+        /// engine is running. Applied to a CHILD transform — the root's scale belongs
+        /// to the conveyor / reserve / expire transitions and must not be fought over.
+        /// </summary>
+        private void StartEngineWobble()
+        {
+            if (!Application.isPlaying) return;           // edit-mode previews stay still
+            if (wobbleTween != null && wobbleTween.IsActive()) return;
+            if (wobbleAmount <= 0f) return;
+
+            var t = wobbleTarget != null ? wobbleTarget
+                  : null;
+            if (t == null || t == transform) return;      // never wobble the root
+
+            Vector3 baseS = t.localScale;
+            Vector3 stretched = new Vector3(
+                baseS.x * (1f - wobbleAmount * 0.5f),
+                baseS.y * (1f + wobbleAmount),
+                baseS.z * (1f - wobbleAmount * 0.5f));
+
+            wobbleTween = t.DOScale(stretched, wobbleDuration)
+                .SetEase(Ease.InOutSine)
+                .SetLoops(-1, LoopType.Yoyo);
         }
 
         public void SetGridAndConveyor(GridController g, ConveyorController cv)
@@ -74,20 +473,65 @@ namespace PixelShoot.Shooters
             conveyor = cv;
         }
 
-        /// <summary>Animate jump from current position to a target world position, then call onDone.</summary>
-        public void JumpTo(Vector3 worldTarget, float duration, Action onDone, ShooterState endState)
+        /// <summary>
+        /// Animate jump from current position to a target world position, then call onDone.
+        /// <paramref name="scaleMultiplier"/> scales the bus relative to its spawn scale at the
+        /// destination (reserve / play-on slots pass their own configured value); ignored when
+        /// jumping ONTO the conveyor, which always uses <see cref="conveyorScale"/>.
+        /// <paramref name="landingRotation"/> is the world rotation the bus settles into at a
+        /// non-conveyor destination (defaults to identity); conveyor jumps always face the path.
+        /// </summary>
+        public void JumpTo(Vector3 worldTarget, float duration, Action onDone, ShooterState endState,
+            float scaleMultiplier = 1f, Quaternion? landingRotation = null, Ease? jumpEase = null)
         {
+            if (!baseScaleCaptured)
+            {
+                baseScale = transform.localScale;
+                baseScaleCaptured = true;
+            }
+
             state = ShooterState.Boarding;
+            SetExhaust(false); // in the air (to conveyor or reserve) → smoke off
+            // Stop ANY tween on the ROOT before reparenting — crucially a still-running
+            // restack DOLocalMove started by the column when a bus above just launched.
+            // Left alive, SetParent(null) turns its local target into a world target and it
+            // yanks the bus toward the column origin ("teleport") while the jump also runs.
+            // The engine wobble lives on a CHILD transform, so it's unaffected.
+            transform.DOKill();
             transform.SetParent(null, true);
             boardingTween?.Kill();
+            facingTween?.Kill();
+            scaleTween?.Kill();
+
+            float dur = Mathf.Max(0.05f, duration);
+
             // DOJump itself is a sequence of tweens internally — wrapping it in another
             // Sequence just to attach OnComplete doubled the tween count for every jump.
-            boardingTween = transform.DOJump(worldTarget, jumpPower, 1, Mathf.Max(0.05f, duration))
+            boardingTween = transform.DOJump(worldTarget, jumpPower, 1, dur)
                 .OnComplete(() =>
                 {
                     state = endState;
                     onDone?.Invoke();
                 });
+            if (jumpEase.HasValue) boardingTween.SetEase(jumpEase.Value);
+
+            if (endState == ShooterState.OnConveyor)
+            {
+                // Rotate IN THE AIR toward the path direction at the landing point so the
+                // bus touches down already facing its travel direction — no snap on entry.
+                // Boarding always lands at progress 0 (see ConveyorController.TryReserveSlot).
+                if (TryGetPathRotation(0f, out Quaternion landRot))
+                    facingTween = transform.DORotateQuaternion(landRot, dur).SetEase(Ease.InOutSine);
+                // Grow (or shrink) to the conveyor scale during the same flight.
+                scaleTween = transform.DOScale(baseScale * conveyorScale, dur).SetEase(Ease.InOutSine);
+            }
+            else
+            {
+                // Leaving the conveyor (reserve / play-on): scale to the destination's
+                // configured multiplier and settle into its configured rotation.
+                facingTween = transform.DORotateQuaternion(landingRotation ?? Quaternion.identity, dur).SetEase(Ease.InOutSine);
+                scaleTween = transform.DOScale(baseScale * Mathf.Max(0.01f, scaleMultiplier), dur).SetEase(Ease.InOutSine);
+            }
         }
 
         public void StartFollowingPath(float speed)
@@ -95,10 +539,36 @@ namespace PixelShoot.Shooters
             state = ShooterState.OnConveyor;
             pathProgress = 0f;
             pathSpeed = speed;
+            boostTimer = boardBoostDuration; // surge on seating, then decay to normal
+            SetExhaust(true); // riding the conveyor → smoke on
             // Reset engagement so the shooter can fire again at every column on this fresh lap.
             lastEngagedParallelIndex = int.MinValue;
             lastSide = default;
             pathEndFired = false;
+            SnapFacingToPath();
+        }
+
+        /// <summary>Instantly orient the bus along the path direction at its current progress —
+        /// safety net right after boarding (the in-air rotation tween should already have
+        /// us facing this way, so any correction here is invisible).</summary>
+        private void SnapFacingToPath()
+        {
+            if (TryGetPathRotation(pathProgress, out Quaternion rot))
+                transform.rotation = rot;
+        }
+
+        /// <summary>Yaw-only rotation facing the conveyor's travel direction at <paramref name="progress"/>.</summary>
+        private bool TryGetPathRotation(float progress, out Quaternion rotation)
+        {
+            rotation = Quaternion.identity;
+            if (conveyor == null) return false;
+            conveyor.EvaluatePath(progress, out Vector3 here, out _, out _);
+            conveyor.EvaluatePath(progress + facingLookAhead, out Vector3 ahead, out _, out _);
+            Vector3 dir = ahead - here;
+            dir.y = 0f;
+            if (dir.sqrMagnitude <= 0.0001f) return false;
+            rotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
+            return true;
         }
 
         public void SetPathProgress(float progress) => pathProgress = progress;
@@ -106,13 +576,42 @@ namespace PixelShoot.Shooters
 
         private void Update()
         {
+            // Launch pacing runs regardless of conveyor state so queued stickmen still
+            // depart while the bus is at path end / briefly paused.
+            DrainLaunchQueue();
+
             if (state != ShooterState.OnConveyor || conveyor == null) return;
             // Conveyor paused (e.g., level failed) → freeze in place.
             if (conveyor.IsPaused) return;
 
-            pathProgress += pathSpeed * Time.deltaTime;
+            // Seating speed-surge: start fast (boardBoostMultiplier) and ease back to 1.
+            float speedMul = 1f;
+            if (boostTimer > 0f && boardBoostDuration > 0f)
+            {
+                float t = boostTimer / boardBoostDuration; // 1 → 0
+                speedMul = Mathf.Lerp(1f, boardBoostMultiplier, t);
+                boostTimer -= Time.deltaTime;
+            }
+
+            pathProgress += pathSpeed * speedMul * conveyor.SpeedMultiplier * Time.deltaTime;
             float maxProgress = conveyor.MaxPathProgress;
-            if (pathProgress >= maxProgress)
+
+            // A linked bus keeps looping while ANY group member still has shots — it stays bound
+            // and rides (never drops to reserve) until the whole group is spent.
+            bool keepLooping = shotsRemaining > 0 || (IsLinked && !AllGroupSpent());
+            if (conveyor.LoopMode && keepLooping && maxProgress > 0f)
+            {
+                // Endgame loop: travel the polyline AND the closing bridge (last node → first
+                // node), then wrap — the belt is a continuous loop, no jump, no reserve.
+                float loopLen = conveyor.LoopPathLength;
+                if (pathProgress >= loopLen)
+                {
+                    pathProgress -= loopLen;              // carry overflow → seamless
+                    lastEngagedParallelIndex = int.MinValue; // fresh lap can fire again
+                    lastSide = default;
+                }
+            }
+            else if (pathProgress >= maxProgress)
             {
                 pathProgress = maxProgress;
                 if (pathEndFired) return; // already notified for this lap
@@ -126,6 +625,17 @@ namespace PixelShoot.Shooters
 
             conveyor.EvaluatePath(pathProgress, out Vector3 worldPos, out bool canShoot, out GridSide side);
             transform.position = worldPos;
+
+            // Face the travel direction: sample slightly ahead on the path and turn
+            // toward it at a capped angular speed so corners are smooth, not snappy.
+            conveyor.EvaluatePath(pathProgress + facingLookAhead, out Vector3 aheadPos, out _, out _);
+            Vector3 travelDir = aheadPos - worldPos;
+            travelDir.y = 0f; // keep the bus level — only yaw toward the path
+            if (travelDir.sqrMagnitude > 0.0001f)
+            {
+                var targetRot = Quaternion.LookRotation(travelDir.normalized, Vector3.up);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, turnSpeed * Time.deltaTime);
+            }
 
             // Reset engagement when entering a new side of the grid.
             if (side != lastSide)
@@ -145,7 +655,27 @@ namespace PixelShoot.Shooters
             }
             if (parallel == lastEngagedParallelIndex) return; // already handled this column on this pass
 
+            bool freshBottomPass = lastEngagedParallelIndex == int.MinValue; // first shootable frame since boarding / side change
             lastEngagedParallelIndex = parallel;
+
+            // The conveyor's bottom shoot edge STARTS at the entry point, so columns to the LEFT of it
+            // (lower x → lower index) are never physically aligned with as the bus sweeps right — those
+            // cells "behind the entry" (e.g. x=0,1) would never be hit. On the first bottom engagement
+            // (right after boarding), fire once at each lower-index column's frontier too. It's colour-
+            // matched + ammo-gated exactly like a normal pass, so across successive buses those columns
+            // get cleared like any other. (No conveyor points moved — pure targeting coverage.)
+            if (freshBottomPass && side == GridSide.Bottom && parallel > 0)
+            {
+                // Cover columns 0 → parallel (INCLUDING our own entry column), left-to-right, all through
+                // the launch queue so they depart one-by-one: the leftmost cell (x=0) fires FIRST and our
+                // own column LAST — clean sweep, no burst. Colour-matched + ammo-gated like a normal pass.
+                for (int c = 0; c <= parallel && shotsRemaining > 0; c++)
+                {
+                    var t = grid.FindTargetInColumn(GridSide.Bottom, c, color);
+                    if (t != null) FireAtStaggered(t);
+                }
+                return; // own + behind columns all handled via the staggered queue
+            }
 
             var target = grid.FindTarget(side, worldPos, color);
             if (target == null) return; // wrong color outer or no outer at all
@@ -155,29 +685,95 @@ namespace PixelShoot.Shooters
 
         private void FireAt(Box target)
         {
+            // Reserve + count the shot IMMEDIATELY — game logic never waits for the
+            // visual launch, so a delayed stickman can't cause double-targeting.
             target.ReserveHit();
             shotsRemaining--;
+            RefreshShotLabel();
 
-            if (bulletPrefab != null)
+            if (seats != null)
             {
-                var origin = muzzle != null ? muzzle.position : transform.position;
-                var bullet = Instantiate(bulletPrefab);
-                bullet.Fire(origin, target, grid, color);
+                // Launch immediately (no stagger): the bus is aligned with the target at this
+                // exact frame, so the stickman leaves from the bus's real spawn point.
+                LaunchOne(target);
+                // Defer depletion while a staggered sweep is still queued — otherwise Expire would
+                // flush that queue and the spaced launches would all fire at once.
+                if (shotsRemaining <= 0 && launchQueue.Count == 0) HandleShotsDepleted();
             }
             else
             {
+                // No seat system → apply the hit instantly.
                 grid.NotifyBoxHit(target);
+                if (shotsRemaining <= 0) HandleShotsDepleted();
             }
+        }
 
-            if (shotsRemaining <= 0) Expire();
+        /// <summary>Like <see cref="FireAt"/> but STAGGERS the visual launch through the launch queue so
+        /// a multi-column sweep (the columns "behind" the conveyor entry) departs one-by-one at
+        /// <c>launchInterval</c> like normal conveyor firing, instead of all in the same frame. The hit is
+        /// still reserved + counted immediately (budget/targeting correctness); depletion is left to
+        /// <see cref="DrainLaunchQueue"/> when the queue empties.</summary>
+        private void FireAtStaggered(Box target)
+        {
+            target.ReserveHit();
+            shotsRemaining--;
+            RefreshShotLabel();
+
+            if (seats != null)
+            {
+                launchQueue.Enqueue(target); // DrainLaunchQueue spaces the departures
+            }
+            else
+            {
+                grid.NotifyBoxHit(target); // no seat visuals → nothing to stagger
+                if (shotsRemaining <= 0 && launchQueue.Count == 0) HandleShotsDepleted();
+            }
+        }
+
+        /// <summary>
+        /// Pops at most one queued launch per call, spacing consecutive launches by
+        /// <see cref="launchInterval"/>. A stickman is spawned from the pool at ACTUAL
+        /// launch time and immediately flies at its target.
+        /// </summary>
+        private void DrainLaunchQueue()
+        {
+            if (launchQueue.Count == 0) return;
+            if (Time.time < nextLaunchTime) return;
+
+            LaunchOne(launchQueue.Dequeue());
+            nextLaunchTime = Time.time + launchInterval;
+
+            // The last queued passenger just left and there's nothing left to shoot.
+            if (launchQueue.Count == 0 && shotsRemaining <= 0) HandleShotsDepleted();
+        }
+
+        private void LaunchOne(Box target)
+        {
+            var stickman = seats != null ? seats.SpawnRunner() : null;
+            if (stickman != null) stickman.LaunchAt(target, grid);
+            else if (grid != null) grid.NotifyBoxHit(target); // bus visually empty — instant hit fallback
         }
 
         public void Expire()
         {
             if (state == ShooterState.Expired) return;
+            // If we were sitting in a column (e.g. depleted by a bomb / FillColor), leave it now.
+            // No-op for buses on the conveyor / in reserve. Linked buses that stay BOUND never
+            // reach here, so their column slot is preserved.
+            ShooterColumn.ColumnOf(this)?.RemoveExpiredShooter(this);
+            UnregisterAlive();
+            SetExhaust(false);
+            // Still linked when expiring outside a coordinated dissolve (e.g. path-end)?
+            // Detach cleanly so siblings don't hold a destroyed reference.
+            if (IsLinked) BreakLink();
+            // Flush any launches still waiting on the interval — their targets are
+            // already reserved and counted, the hits MUST happen.
+            while (launchQueue.Count > 0) LaunchOne(launchQueue.Dequeue());
             state = ShooterState.Expired;
             OnExpired?.Invoke(this);
 
+            // Kill the boarding-flight scale tween so it can't fight the shrink-out.
+            scaleTween?.Kill();
             transform.DOScale(Vector3.zero, 0.25f)
                 .SetEase(Ease.InBack)
                 .OnComplete(() => { if (this != null) Destroy(gameObject); });
@@ -194,13 +790,21 @@ namespace PixelShoot.Shooters
             if (amount <= 0 || shotsRemaining <= 0) return 0;
             int taken = Mathf.Min(amount, shotsRemaining);
             shotsRemaining -= taken;
-            if (shotsRemaining <= 0) Expire();
+            RefreshShotLabel();
+            // Mirror the deduction on the bus: stickmen leave from the back
+            // (hidden reserve drains first, then back seats despawn).
+            if (seats != null) seats.ConsumeFromBack(taken);
+            if (shotsRemaining <= 0) HandleShotsDepleted();
             return taken;
         }
 
         private void OnDestroy()
         {
+            UnregisterAlive();
             boardingTween?.Kill();
+            facingTween?.Kill();
+            scaleTween?.Kill();
+            wobbleTween?.Kill();
         }
     }
 }

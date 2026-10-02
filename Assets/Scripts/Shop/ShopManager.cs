@@ -1,18 +1,19 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using PixelShoot.Data;
+using PixelShoot.UI;
 
 namespace PixelShoot.Shop
 {
     /// <summary>
-    /// Holds the list of available offers, talks to <see cref="IIAPService"/>,
-    /// and routes successful purchases to <see cref="ShopOffer.OnPurchased"/>.
+    /// Holds the list of available offers, talks to <see cref="IIAPService"/>, and routes successful
+    /// purchases to <see cref="ShopOffer.OnPurchased"/>. This is the persistent catalog/IAP manager;
+    /// the shop UI itself is a <see cref="ShopPopup"/> opened through <see cref="PopupService"/>.
     ///
-    /// <para>Also owns the shop panel + open / close buttons so the UI flow
-    /// can be wired entirely from the inspector — no extra glue script
-    /// needed.</para>
+    /// <para>Lives in the persistent <b>InitializeScene</b> so the shop can be opened AND purchases
+    /// made from BOTH the MainMenu and the Game scene (e.g. when a booster runs out mid-level). Reach
+    /// it from anywhere via <see cref="Instance"/>.OpenShop() — a serialized cross-scene button ref
+    /// would not survive, so opener buttons in each scene call OpenShop() themselves.</para>
     /// </summary>
     [DefaultExecutionOrder(-900)]
     public class ShopManager : MonoBehaviour
@@ -22,31 +23,22 @@ namespace PixelShoot.Shop
         [Header("Catalog")]
         [SerializeField] private List<ShopOffer> offers = new List<ShopOffer>();
 
-        [Header("UI")]
-        [Tooltip("Root panel containing the shop UI. Activated by OpenShop(), deactivated by CloseShop().")]
-        [SerializeField] private GameObject shopPanel;
-        [Tooltip("Button that opens the shop. Wired automatically in Awake.")]
-        [SerializeField] private Button openShopButton;
-        [Tooltip("Optional close (X) button inside the panel. Wired automatically in Awake if set.")]
-        [SerializeField] private Button closeShopButton;
-        [Tooltip("If true, the shop panel starts hidden and only shows after pressing the open button.")]
-        [SerializeField] private bool startHidden = true;
-
         private IIAPService iap;
 
         public IReadOnlyList<ShopOffer> Offers => offers;
-        public bool IsOpen => shopPanel != null && shopPanel.activeSelf;
+
+        /// <summary>True while the shop popup is on screen.</summary>
+        public bool IsOpen => PopupService.Instance != null && PopupService.Instance.IsOpen<ShopPopup>();
 
         private void Awake()
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogWarning($"[ShopManager] Duplicate instance on '{name}' — destroying. This kills any wired listeners on this instance.");
+                Debug.LogWarning($"[ShopManager] Duplicate instance on '{name}' — destroying.");
                 Destroy(gameObject);
                 return;
             }
             Instance = this;
-            DontDestroyOnLoad(gameObject);
 
 #if PIXELSHOOT_IAP
             iap = new UnityIAPService();
@@ -58,147 +50,21 @@ namespace PixelShoot.Shop
                 if (o != null && !string.IsNullOrEmpty(o.ProductId))
                     products.Add(new ProductRegistration(o.ProductId, o.ProductType));
             iap.Initialize(products);
-
-            // ── Wire UI ──
-            Debug.Log($"[ShopManager] Awake on '{name}'. " +
-                      $"shopPanel={NameOf(shopPanel)}, " +
-                      $"openShopButton={NameOf(openShopButton)}, " +
-                      $"closeShopButton={NameOf(closeShopButton)}, " +
-                      $"startHidden={startHidden}.");
-
-            if (openShopButton != null)
-            {
-                // Keep persistent (inspector-added) listeners alive — RemoveAllListeners
-                // only nukes non-persistent ones added by code. The lambda below proves
-                // whether the click reaches us at all.
-                openShopButton.onClick.RemoveAllListeners();
-                int btnInstanceId = openShopButton.GetInstanceID();
-                openShopButton.onClick.AddListener(() =>
-                {
-                    Debug.Log($"[ShopManager] CLICK RECEIVED on button instId={btnInstanceId} " +
-                              $"name='{(openShopButton != null ? openShopButton.name : "<null>")}'. " +
-                              $"Calling OpenShop on instance {GetInstanceID()}.");
-                    OpenShop();
-                });
-                Debug.Log($"[ShopManager] Wired OpenShop onto '{openShopButton.name}' " +
-                          $"(instId={btnInstanceId}, persistentListenerCount={openShopButton.onClick.GetPersistentEventCount()}).");
-            }
-            else
-            {
-                Debug.LogWarning("[ShopManager] openShopButton is NULL — clicking will do nothing.");
-            }
-            if (closeShopButton != null)
-            {
-                closeShopButton.onClick.RemoveAllListeners();
-                int closeInstanceId = closeShopButton.GetInstanceID();
-                closeShopButton.onClick.AddListener(() =>
-                {
-                    Debug.Log($"[ShopManager] CLOSE CLICK on button instId={closeInstanceId} " +
-                              $"name='{(closeShopButton != null ? closeShopButton.name : "<null>")}'.");
-                    CloseShop();
-                });
-                Debug.Log($"[ShopManager] Wired CloseShop onto '{closeShopButton.name}' " +
-                          $"(instId={closeInstanceId}, persistentListenerCount={closeShopButton.onClick.GetPersistentEventCount()}).");
-            }
-            else
-            {
-                Debug.LogWarning("[ShopManager] closeShopButton is NULL — close click will do nothing.");
-            }
-            if (shopPanel != null && startHidden) shopPanel.SetActive(false);
-
-            // Defer one frame so any auto-created EventSystem / Canvas finishes initialising.
-            DiagnoseClickPlumbing();
         }
 
-        /// <summary>
-        /// Walks the openShopButton's parent chain and reports anything that would
-        /// silently block clicks: missing EventSystem, missing GraphicRaycaster on
-        /// the Canvas, disabled interactable, raycast target off, etc.
-        /// </summary>
-        private void DiagnoseClickPlumbing()
+        private void OnDestroy() { if (Instance == this) Instance = null; }
+
+        /// <summary>Open the shop popup (queued top-level). Callable from anywhere. No-arg overload is
+        /// wired to inspector buttons (menu shop button) → source "menu".</summary>
+        public void OpenShop() => OpenShop("menu");
+
+        /// <summary>Open the shop, tagging WHERE it was opened from for the <c>shop_open</c> analytics
+        /// event (e.g. "menu", "out_of_lives", "booster_purchase").</summary>
+        public void OpenShop(string source)
         {
-            if (openShopButton == null) return;
-
-            // 1) EventSystem.
-#if UNITY_2023_1_OR_NEWER
-            var es = Object.FindFirstObjectByType<EventSystem>(FindObjectsInactive.Include);
-#else
-            var es = Object.FindObjectOfType<EventSystem>();
-#endif
-            if (es == null)
-                Debug.LogError("[ShopManager] No EventSystem in the scene — UI clicks will never fire. Add one via GameObject ▶ UI ▶ Event System.");
-            else if (!es.isActiveAndEnabled)
-                Debug.LogError($"[ShopManager] EventSystem '{es.name}' is disabled — UI clicks will never fire.");
-            else
-                Debug.Log($"[ShopManager] EventSystem '{es.name}' OK.");
-
-            // 2) Button.interactable
-            if (!openShopButton.interactable)
-                Debug.LogWarning($"[ShopManager] Button '{openShopButton.name}' has interactable=false.");
-
-            // 3) targetGraphic + raycastTarget
-            var tg = openShopButton.targetGraphic;
-            if (tg == null)
-                Debug.LogWarning($"[ShopManager] Button '{openShopButton.name}' has no targetGraphic — clicks need a graphic with raycastTarget=true.");
-            else if (!tg.raycastTarget)
-                Debug.LogWarning($"[ShopManager] Button '{openShopButton.name}'.targetGraphic '{tg.name}' has raycastTarget=false.");
-
-            // 4) Canvas + GraphicRaycaster on the parent chain.
-            Canvas canvas = openShopButton.GetComponentInParent<Canvas>();
-            if (canvas == null)
-            {
-                Debug.LogError($"[ShopManager] Button '{openShopButton.name}' is not under any Canvas — Unity UI requires it.");
-            }
-            else
-            {
-                var raycaster = canvas.rootCanvas.GetComponent<GraphicRaycaster>();
-                if (raycaster == null)
-                    Debug.LogError($"[ShopManager] Canvas '{canvas.rootCanvas.name}' has NO GraphicRaycaster — clicks ignored. Add one to the root canvas.");
-                else if (!raycaster.enabled)
-                    Debug.LogError($"[ShopManager] GraphicRaycaster on '{canvas.rootCanvas.name}' is disabled.");
-                else
-                    Debug.Log($"[ShopManager] Canvas '{canvas.rootCanvas.name}' + GraphicRaycaster OK.");
-            }
-
-            // 5) CanvasGroup blocking raycasts on any parent.
-            var blocker = openShopButton.GetComponentInParent<CanvasGroup>();
-            while (blocker != null)
-            {
-                if (!blocker.blocksRaycasts || !blocker.interactable)
-                {
-                    Debug.LogError($"[ShopManager] CanvasGroup on '{blocker.name}' is blocking clicks " +
-                                   $"(blocksRaycasts={blocker.blocksRaycasts}, interactable={blocker.interactable}).");
-                    break;
-                }
-                var parent = blocker.transform.parent;
-                blocker = parent != null ? parent.GetComponentInParent<CanvasGroup>() : null;
-            }
-        }
-
-        public void OpenShop()
-        {
-            Debug.Log($"[ShopManager] OpenShop() called. shopPanel={NameOf(shopPanel)}, " +
-                      $"currentActive={(shopPanel != null ? shopPanel.activeSelf.ToString() : "n/a")}.");
-            if (shopPanel == null)
-            {
-                Debug.LogWarning("[ShopManager] OpenShop: shopPanel reference is missing — nothing to show.");
-                return;
-            }
-            shopPanel.SetActive(true);
-        }
-
-        public void CloseShop()
-        {
-            Debug.Log($"[ShopManager] CloseShop() called. shopPanel={NameOf(shopPanel)}.");
-            if (shopPanel != null) shopPanel.SetActive(false);
-        }
-
-        private static string NameOf(Object o) => o == null ? "<null>" : o.name;
-
-        public void ToggleShop()
-        {
-            if (shopPanel == null) return;
-            shopPanel.SetActive(!shopPanel.activeSelf);
+            PixelShoot.Analytics.AnalyticsEvents.TrackShopOpen(source);
+            if (PopupService.Instance != null) PopupService.Instance.Create<ShopPopup>();
+            else Debug.LogWarning("[ShopManager] OpenShop: no PopupService (is InitializeScene loaded?).");
         }
 
         public string GetLocalizedPrice(ShopOffer offer)
@@ -207,23 +73,68 @@ namespace PixelShoot.Shop
         public void BuyOffer(ShopOffer offer, System.Action<bool> onComplete = null)
         {
             if (offer == null) { onComplete?.Invoke(false); return; }
+
+            // payment_request — the player tapped Buy on this offer.
+            PixelShoot.Analytics.AnalyticsEvents.TrackPaymentRequest(offer.ProductId, offer.OfferId, GetLocalizedPrice(offer));
+
             if (!offer.IsAvailable)
             {
                 Debug.LogWarning($"[Shop] Offer '{offer.OfferId}' not available (already purchased / locked).");
+                PixelShoot.Analytics.AnalyticsEvents.TrackPaymentFail(offer.ProductId, offer.OfferId, "not_available");
                 onComplete?.Invoke(false);
                 return;
             }
             if (iap == null || !iap.IsReady)
             {
                 Debug.LogWarning("[Shop] IAP service not ready.");
+                PixelShoot.Analytics.AnalyticsEvents.TrackPaymentFail(offer.ProductId, offer.OfferId, "iap_not_ready");
+                ShowFail();
                 onComplete?.Invoke(false);
                 return;
             }
+
+            // Store round-trip can take a moment → show a waiting popup over the shop until it returns.
+            var waiting = PopupService.Instance != null
+                ? PopupService.Instance.CreateOnTop<PurchaseWaitingPopup>()
+                : null;
+
             iap.Purchase(offer.ProductId, success =>
             {
-                if (success) offer.OnPurchased();
+                if (waiting != null) waiting.Close(); // dismiss the waiting popup (no user close button)
+
+                if (success)
+                {
+                    PixelShoot.Analytics.AnalyticsEvents.TrackPaymentSuccess(offer.ProductId, offer.OfferId);
+                    // Grant the reward NOW (OnPurchased → RewardFlow.Grant writes it to disk immediately,
+                    // so it's saved even if the player never sees the claim). Then show the Success popup;
+                    // once THAT closes, open the RewardClaimPopup (success → claim order).
+                    offer.OnPurchased();
+                    ShowSuccessThenClaim();
+                }
+                else
+                {
+                    PixelShoot.Analytics.AnalyticsEvents.TrackPaymentFail(offer.ProductId, offer.OfferId, "failed");
+                    ShowFail();
+                }
+
                 onComplete?.Invoke(success);
             });
+        }
+
+        // Stack the Success popup over the shop; when it closes, open the reward claim (fly).
+        private static void ShowSuccessThenClaim()
+        {
+            if (PopupService.Instance == null) { RewardFlow.ShowClaim(); return; }
+            var success = PopupService.Instance.CreateOnTop<PurchaseSuccessPopup>();
+            if (success != null) success.Closed += RewardFlow.ShowClaim;
+            else RewardFlow.ShowClaim();
+        }
+
+        // Stack the fail / cancel popup over the shop.
+        private static void ShowFail()
+        {
+            if (PopupService.Instance == null) return;
+            PopupService.Instance.CreateOnTop<PurchaseFailPopup>();
         }
     }
 }

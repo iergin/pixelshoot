@@ -15,6 +15,8 @@ namespace PixelShoot.Data
         [SerializeField] private Tone tone;
         [Tooltip("True if this cell is a bomb — when a same-color shooter clears it, the bomb opens a 5×5 area around it after a configurable delay.")]
         [SerializeField] private bool isBomb;
+        [Tooltip("Key group id (0 = none). Cells sharing the same id form one key; the key is collected when ANY of them becomes shootable (Frontier). Buses with a matching lockKeyId unlock once it's collected.")]
+        [SerializeField] private int keyId;
 
         public int GridX => gridX;
         public int GridZ => gridZ;
@@ -22,5 +24,6 @@ namespace PixelShoot.Data
         public ColorData Color => color;
         public Tone Tone => tone;
         public bool IsBomb => isBomb;
+        public int KeyId => keyId;
     }
 }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Coins_1000
   m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Data.RepeatableCoinOffer
   offerId: coins_1000
-  productId: coins_1000
-  displayName: 1000 Coins
+  productId: small_coin
+  displayName: x1000
   grantedCoins: 1000
   productType: 0

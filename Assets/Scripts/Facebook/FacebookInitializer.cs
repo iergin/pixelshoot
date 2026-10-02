@@ -21,19 +21,13 @@ namespace PixelShoot.FacebookIntegration
         private static FacebookInitializer instance;
         public static bool IsInitialized { get; private set; }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void AutoBootstrap()
-        {
-            if (instance != null) return;
-            var go = new GameObject("[FacebookInitializer]");
-            instance = go.AddComponent<FacebookInitializer>();
-        }
+        // (Auto-bootstrap removed — place a FacebookInitializer in the InitializeScene instead.)
 
         private void Awake()
         {
             if (instance != null && instance != this) { Destroy(gameObject); return; }
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            // Persistence comes from the never-unloaded InitializeScene (no DontDestroyOnLoad).
             Init();
         }
 

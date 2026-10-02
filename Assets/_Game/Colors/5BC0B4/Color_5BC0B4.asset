@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd38df3eef70d4874af5f26ca5197b0a, type: 3}
+  m_Name: Color_5BC0B4
+  m_EditorClassIdentifier: Assembly-CSharp::PixelShoot.Data.ColorData
+  colorId: 5BC0B4
+  displayColor: {r: 0.35686275, g: 0.7529412, b: 0.7058824, a: 1}
+  boxHitMaterial: {fileID: 2100000, guid: ffe148dc2361e4afe93a3655d5671e1b, type: 2}
+  shooterMaterial: {fileID: 2100000, guid: 9ce4f1f4032c141d0ba236c36c8d8536, type: 2}
+  bulletMaterial: {fileID: 2100000, guid: e8fef09d9ad464f0ebddccfd1f4cfcc5, type: 2}
+  mainColor: {fileID: 0}

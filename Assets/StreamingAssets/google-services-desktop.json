@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "264082137126",
+    "project_id": "pixel-painting-e0ce0",
+    "storage_bucket": "pixel-painting-e0ce0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:264082137126:android:da5b0b5aadaa48795c06e7",
+        "android_client_info": {
+          "package_name": "com.erengokgur.pixelpainting"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHiXsJjHvUuNd8QqgCQHk-9lkPWi-uwDY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

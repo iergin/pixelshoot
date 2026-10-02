@@ -14,14 +14,23 @@ namespace PixelShoot.Shooters
         [SerializeField] private LayerMask clickMask = ~0;
         [SerializeField] private float rayDistance = 200f;
 
+        // Modal suspend, independent of the `enabled` flag (which MainMenuController toggles
+        // on level start). A booster tutorial / claw mode pushes a suspend so world bus taps
+        // are ignored even after gameplay input is otherwise enabled.
+        private static int suspendCount;
+        public static bool Suspended => suspendCount > 0;
+        public static void PushSuspend() => suspendCount++;
+        public static void PopSuspend() => suspendCount = Mathf.Max(0, suspendCount - 1);
+
         private void Awake()
         {
             if (cam == null) cam = Camera.main;
+            suspendCount = 0; // fresh scene — clear any stale suspend
         }
 
         private void Update()
         {
-            if (cam == null) return;
+            if (cam == null || Suspended) return;
 
             if (TryReadPress(out Vector2 screen))
                 HandlePress(screen);

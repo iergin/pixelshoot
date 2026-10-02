@@ -23,7 +23,13 @@ namespace PixelShoot.Data
         [Tooltip("Levels (win OR lose) between consecutive interstitials. 1 = every level; 3 = every third level.")]
         [SerializeField, Min(1)] private int levelsBetweenAds = 3;
 
+        [Tooltip("Minimum seconds that must pass AFTER an interstitial CLOSES before another may show. " +
+                 "The timer starts when the ad closes (not when it opens), so time spent watching the ad " +
+                 "doesn't count. 0 = no time cooldown (level cadence only).")]
+        [SerializeField, Min(0f)] private float cooldownSeconds = 30f;
+
         public int StartLevel => startLevel;
         public int LevelsBetweenAds => levelsBetweenAds;
+        public float CooldownSeconds => cooldownSeconds;
     }
 }

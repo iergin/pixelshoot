@@ -1,0 +1,40 @@
+using UnityEngine;
+using PixelShoot.Data;
+
+namespace PixelShoot.Game
+{
+    /// <summary>
+    /// One-time app initialisation, run ONCE from the persistent InitializeScene (which never
+    /// unloads). Seeds the wallet, stamps first-launch, and bumps the per-launch session counter —
+    /// things that must happen once per app start, NOT every time the Game scene (re)loads.
+    ///
+    /// <para>In single-scene fallback (no InitializeScene / no <see cref="SceneFlow"/>), LevelLoader
+    /// does the same init itself, so this component is only needed in the two-scene setup.</para>
+    /// </summary>
+    public class AppBootstrap : MonoBehaviour
+    {
+        [Tooltip("Coins config used to seed the starting balance on a fresh save.")]
+        [SerializeField] private CoinsConfig coinsConfig;
+        [Tooltip("Optional. Streak reward tuning. If assigned, injected into PlayerStreak so you don't " +
+                 "need a Resources/StreakConfig asset.")]
+        [SerializeField] private StreakConfig streakConfig;
+        [Tooltip("Difficulty colours + reward multipliers + the level-table JSON (name → difficulty, in play order).")]
+        [SerializeField] private DifficultyConfig difficultyConfig;
+        [Tooltip("Optional. Playlist pool — only its Loop Start Level is read here, so the order table wraps " +
+                 "back to the same level the positional playlist would once the index runs past the end.")]
+        [SerializeField] private AllLevelsData allLevels;
+
+        private void Awake()
+        {
+            if (streakConfig != null) PlayerStreak.Configure(streakConfig);
+            DifficultyProvider.Configure(difficultyConfig, allLevels != null ? allLevels.LoopStartLevel : 1);
+        }
+
+        private void Start()
+        {
+            if (coinsConfig != null) PlayerWallet.EnsureInitialized(coinsConfig.InitialBalance);
+            PlayerWallet.StampFirstLaunchIfMissing();
+            PlayerWallet.BeginSession(); // one session per app launch
+        }
+    }
+}

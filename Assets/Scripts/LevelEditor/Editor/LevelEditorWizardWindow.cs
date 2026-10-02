@@ -28,9 +28,19 @@ namespace PixelShoot.LevelEditor.EditorTools
 
         // ─── Persisted editing state ──────────────────────────────────
         [SerializeField] private LevelData targetAsset;
+        // Throwaway in-memory clone used to feed the scene preview without ever mutating
+        // the real bound asset. Never saved to disk; destroyed when the window closes.
+        [System.NonSerialized] private LevelData previewAsset;
         [SerializeField] private int gridSize = 30;
         [SerializeField] private Vector3 gridRootPosition = Vector3.zero;
         [SerializeField] private Vector3 gridRootScale = Vector3.one;
+        // Auto-fit: on import, scale + centre the grid to fit inside the "GridArea" plane.
+        [SerializeField] private bool autoFitOnImport = true;
+        [SerializeField] private string gridAreaName = "GridArea";
+        [Tooltip("1 = grid touches the GridArea edges; <1 leaves a margin.")]
+        [SerializeField] private float autoFitFill = 1f;
+        // Fallback target span (world units) used only when no GridArea object is found.
+        [SerializeField] private float autoFitWorldSize = 6f;
         [SerializeField] private int conveyorSlotCapacity = 5;
         [SerializeField] private int reserveSlotCapacity = 5;
         [SerializeField] private List<ColorData> palette = new List<ColorData>();
@@ -38,10 +48,14 @@ namespace PixelShoot.LevelEditor.EditorTools
         [SerializeField] private int[] cells; // -1 = empty; else palette index
         [SerializeField] private byte[] tones; // Tone enum per cell. Parallel to cells[]. 0=Normal,1=Dark,2=Light.
         [SerializeField] private bool[] bombs;  // True at cells flagged as bombs. Parallel to cells[].
+        [SerializeField] private int[] keys;    // Key group id per cell (0 = none). Parallel to cells[].
         [SerializeField] private int currentPaletteIdx = 0;
+        [SerializeField] private int currentKeyId = 1;
+        [System.NonSerialized] private GUIStyle keyLabelStyle; // lazy — draws key ids on the grid canvas
         [SerializeField] private bool eraseMode = false;
         [SerializeField] private bool paintMode = false;
         [SerializeField] private bool bombMode  = false;
+        [SerializeField] private bool keyMode   = false;
         [SerializeField] private bool initialPreview = false;
         // True while "Show Final state" is active. Persists across auto-refreshes so the
         // visual doesn't snap back to Locked/Frontier the moment something else triggers a Build.
@@ -50,6 +64,12 @@ namespace PixelShoot.LevelEditor.EditorTools
         // ─── Transient UI state ───────────────────────────────────────
         private string levelName = "Level_01";
         private string importBuffer = "";
+        // The raw designer JSON of the last import — persisted onto the asset (SourceJson)
+        // on Save and handed back on Load so it can be copied again.
+        private string importedJson = "";
+        // The match id (the JSON "name") persisted onto the asset (LevelName). Used by the
+        // level-order table to locate this level. Set on import, editable, saved onto the asset.
+        private string matchName = "";
         // shotsPerShooter field removed — columns now come from JSON import (sortColumns).
         private Vector2 scroll;
         private string lastImportStatus = "";
@@ -120,6 +140,16 @@ namespace PixelShoot.LevelEditor.EditorTools
                     for (int i = 0; i < min; i++) bombs[i] = old[i];
                 }
             }
+            if (keys == null || keys.Length != cells.Length)
+            {
+                var old = keys;
+                keys = new int[cells.Length];
+                if (old != null)
+                {
+                    int min = Mathf.Min(old.Length, keys.Length);
+                    for (int i = 0; i < min; i++) keys[i] = old[i];
+                }
+            }
         }
 
         private Tone GetTone(int idx) => (Tone)(tones != null && idx >= 0 && idx < tones.Length ? tones[idx] : (byte)0);
@@ -130,6 +160,7 @@ namespace PixelShoot.LevelEditor.EditorTools
             tones[idx] = (byte)t;
         }
         private bool GetBomb(int idx) => bombs != null && idx >= 0 && idx < bombs.Length && bombs[idx];
+        private int GetKey(int idx) => keys != null && idx >= 0 && idx < keys.Length ? keys[idx] : 0;
 
         // ─── OnGUI ────────────────────────────────────────────────────
         private void OnGUI()
@@ -172,11 +203,16 @@ namespace PixelShoot.LevelEditor.EditorTools
             pendingPreviewRefresh = false;
             lastAutoRefreshTime = now;
             if (targetAsset == null) return;
-            // Do NOT persist on auto-refresh. Disk writes happen only when the user
-            // explicitly presses Save — that's the contract the wizard advertises.
-            // The asset's in-memory state still gets the latest data (so the scene
-            // build matches the wizard), and SetDirty makes Unity flag it for save.
+            // Auto-refresh only rebuilds the scene from a throwaway preview clone. The
+            // real bound asset is NEVER touched here — its contents change only when the
+            // user explicitly presses Save (which also asks for confirmation).
             RefreshScenePreview(persistToDisk: false);
+        }
+
+        private void OnDisable()
+        {
+            // Drop the throwaway preview clone so it doesn't leak between window sessions.
+            if (previewAsset != null) { DestroyImmediate(previewAsset); previewAsset = null; }
         }
 
         private void EnsureStyles()
@@ -204,6 +240,10 @@ namespace PixelShoot.LevelEditor.EditorTools
         {
             EditorGUILayout.LabelField("Asset", EditorStyles.boldLabel);
             levelName = EditorGUILayout.TextField("Level name", levelName);
+            matchName = EditorGUILayout.TextField(
+                new GUIContent("Match id (name)", "Stored on the asset as its match id (the source JSON's \"name\"). " +
+                    "The level-order table references this string to pick this level. Auto-filled on JSON import."),
+                matchName);
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -239,11 +279,23 @@ namespace PixelShoot.LevelEditor.EditorTools
 
             if (onDisk != null)
             {
-                // Asset with this name exists → overwrite.
+                // Asset with this name exists → confirm overwrite before touching it.
+                bool overwrite = EditorUtility.DisplayDialog(
+                    "Üzerine yaz?",
+                    $"'{levelName}.asset' zaten mevcut.\n\nİçeriği şu anki wizard durumuyla üzerine yazılsın mı? Bu işlem geri alınamaz.",
+                    "Üzerine yaz", "İptal");
+                if (!overwrite) { SetStatus("Save iptal edildi — asset değişmedi.", MessageType.Info); return; }
                 targetAsset = onDisk;
             }
             else
             {
+                // New asset → confirm creation.
+                bool create = EditorUtility.DisplayDialog(
+                    "Yeni level kaydedilsin mi?",
+                    $"'{levelName}.asset' adında yeni bir level oluşturulup\n{LevelsDir} altına kaydedilecek. Emin misiniz?",
+                    "Kaydet", "İptal");
+                if (!create) { SetStatus("Save iptal edildi — hiçbir asset oluşturulmadı.", MessageType.Info); return; }
+
                 // Create new asset with the requested name (no GenerateUniqueAssetPath —
                 // we *want* the exact filename, and we already proved nothing's there).
                 var asset = ScriptableObject.CreateInstance<LevelData>();
@@ -254,6 +306,22 @@ namespace PixelShoot.LevelEditor.EditorTools
             SaveToAsset();
             EditorUtility.SetDirty(targetAsset);
             AssetDatabase.SaveAssets();
+
+            // Drop a sidecar .json next to the asset so the source is always an openable
+            // file (easy to grab when the blob is huge). Only when we actually have one.
+            string jsonMsg = "";
+            if (!string.IsNullOrEmpty(importedJson))
+            {
+                try
+                {
+                    string jsonPath = $"{LevelsDir}/{levelName}.json";
+                    File.WriteAllText(jsonPath, importedJson);
+                    AssetDatabase.ImportAsset(jsonPath);
+                    jsonMsg = $" (+ {levelName}.json)";
+                }
+                catch (System.Exception ex) { Debug.LogWarning($"[LevelWizard] Sidecar JSON write failed: {ex.Message}"); }
+            }
+            SetStatus($"Kaydedildi → '{levelName}.asset'{jsonMsg}.", MessageType.Info);
             // Refresh the in-scene preview so the saved data shows up immediately.
             if (HasLoaderInScene()) RefreshScenePreview(persistToDisk: false);
         }
@@ -282,10 +350,13 @@ namespace PixelShoot.LevelEditor.EditorTools
             for (int i = 0; i < cells.Length; i++) cells[i] = -1;
             tones = new byte[CellCount]; // all Normal
             bombs = new bool[CellCount];
+            keys = new int[CellCount];
             columns?.Clear();
             palette?.Clear();
             currentPaletteIdx = 0;
             importBuffer = "";
+            importedJson = "";
+            matchName = "";
             lastImportStatus = "";
 
             // 4) Scene preview: nuke whatever is currently parented under gridRoot /
@@ -366,6 +437,12 @@ namespace PixelShoot.LevelEditor.EditorTools
             }
             string path = $"{LevelsDir}/{levelName}.asset";
             Debug.Log($"[LevelWizard] SmartLoad looking up '{path}'");
+            // Force a reimport so Load ALWAYS reflects what's on DISK. AssetDatabase caches the
+            // loaded ScriptableObject, and Unity carries live objects across domain reloads, so
+            // an asset left dirty in memory by an earlier (unsaved) edit would otherwise come
+            // back with phantom locks/changes. Reimport discards that unsaved in-memory state.
+            if (System.IO.File.Exists(path))
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             var onDisk = AssetDatabase.LoadAssetAtPath<LevelData>(path);
             if (onDisk == null)
             {
@@ -390,11 +467,76 @@ namespace PixelShoot.LevelEditor.EditorTools
             using (new EditorGUI.DisabledScope(gated))
             {
                 EditorGUILayout.LabelField("Paste the level designer JSON (gridSize / palette / rle / sortColumns):", EditorStyles.miniLabel);
+                // File-based import/export — the easy path when the JSON is too long to paste.
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("📂 Load JSON from file…", GUILayout.Height(24))) LoadJsonFromFile();
+                    using (new EditorGUI.DisabledScope(string.IsNullOrEmpty(importBuffer)))
+                        if (GUILayout.Button("💾 Save JSON to file…", GUILayout.Height(24))) SaveJsonToFile();
+                }
                 importBuffer = EditorGUILayout.TextArea(importBuffer, GUILayout.MinHeight(140));
-                if (GUILayout.Button("Import all (auto-detect)", GUILayout.Height(28))) ImportAll();
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Import all (auto-detect)", GUILayout.Height(28))) ImportAll();
+                    using (new EditorGUI.DisabledScope(string.IsNullOrEmpty(importBuffer)))
+                    {
+                        if (GUILayout.Button("Copy JSON to clipboard", GUILayout.Height(28), GUILayout.Width(200)))
+                        {
+                            EditorGUIUtility.systemCopyBuffer = importBuffer;
+                            SetStatus("JSON panoya kopyalandı.", MessageType.Info);
+                        }
+                    }
+                }
+            }
+            // Tell the user whether the loaded level carries its original designer JSON.
+            if (targetAsset != null)
+            {
+                if (!string.IsNullOrEmpty(importedJson))
+                    EditorGUILayout.HelpBox("Bu level'ın oluşturulduğu JSON yukarıda — seçip ya da 'Copy JSON' ile kopyalayabilirsin.", MessageType.Info);
+                else
+                    EditorGUILayout.HelpBox("Bu asset'te saklı bir kaynak JSON yok (bu özellikten önce oluşturulmuş olabilir). Yeni bir JSON import edip Save'lersen bir dahaki Load'da geri verilir.", MessageType.None);
             }
             if (!string.IsNullOrEmpty(lastImportStatus))
                 EditorGUILayout.HelpBox(lastImportStatus, MessageType.Info);
+        }
+
+        // Pick a .json file on disk, drop it into the buffer, and import immediately —
+        // avoids pasting a huge blob into the text area.
+        private void LoadJsonFromFile()
+        {
+            string start = System.IO.Directory.Exists(LevelsDir) ? LevelsDir : Application.dataPath;
+            string path = EditorUtility.OpenFilePanel("Import level JSON", start, "json");
+            if (string.IsNullOrEmpty(path)) return;
+            try
+            {
+                importBuffer = File.ReadAllText(path);
+                ImportAll();
+                SetStatus($"JSON dosyadan yüklendi: {System.IO.Path.GetFileName(path)}", MessageType.Info);
+            }
+            catch (System.Exception ex)
+            {
+                EditorUtility.DisplayDialog("Load JSON", $"Dosya okunamadı:\n{ex.Message}", "OK");
+            }
+        }
+
+        // Write the current JSON buffer out to a .json file you choose.
+        private void SaveJsonToFile()
+        {
+            if (string.IsNullOrEmpty(importBuffer)) return;
+            string defaultName = (string.IsNullOrWhiteSpace(levelName) ? "level" : levelName) + ".json";
+            string start = System.IO.Directory.Exists(LevelsDir) ? LevelsDir : Application.dataPath;
+            string path = EditorUtility.SaveFilePanel("Export level JSON", start, defaultName, "json");
+            if (string.IsNullOrEmpty(path)) return;
+            try
+            {
+                File.WriteAllText(path, importBuffer);
+                AssetDatabase.Refresh();
+                SetStatus($"JSON dosyaya yazıldı: {System.IO.Path.GetFileName(path)}", MessageType.Info);
+            }
+            catch (System.Exception ex)
+            {
+                EditorUtility.DisplayDialog("Save JSON", $"Dosya yazılamadı:\n{ex.Message}", "OK");
+            }
         }
 
         private void ImportAll()
@@ -408,7 +550,11 @@ namespace PixelShoot.LevelEditor.EditorTools
 
             // ── NEW: structured JSON path (palette + rle + sortColumns in one blob) ──
             bool isJson = LevelJsonImporter.LooksLikeJson(text);
+            // Remember the raw JSON so Save can stash it on the asset for later copying.
+            if (isJson) importedJson = text;
             LevelJsonImporter.Result parsed = isJson ? LevelJsonImporter.Parse(text) : null;
+            // Pull the match id from the JSON "name" (only overwrite if present).
+            if (parsed != null && !string.IsNullOrEmpty(parsed.Name)) matchName = parsed.Name;
             string rleText = (parsed != null && !string.IsNullOrEmpty(parsed.RleArrayText)) ? parsed.RleArrayText : text;
             int gridFromJson = parsed != null ? parsed.GridSize : 0;
 
@@ -425,6 +571,9 @@ namespace PixelShoot.LevelEditor.EditorTools
                 var newPalette = new List<ColorData>(paletteHex.Count);
                 foreach (var hex in paletteHex)
                 {
+                    // Preserve null slots (unused palette indices) so later colours keep
+                    // their exact colorIndex used by the RLE / sortColumns.
+                    if (string.IsNullOrEmpty(hex)) { newPalette.Add(null); continue; }
                     Color col = ColorUtility.TryParseHtmlString("#" + hex, out var pc) ? pc : Color.magenta;
                     newPalette.Add(GetOrCreateColorData(hex, col));
                 }
@@ -453,8 +602,32 @@ namespace PixelShoot.LevelEditor.EditorTools
                 // New cells → tones must be re-randomized. Default to Normal until the user clicks Recalculate.
                 tones = new byte[cells.Length];
                 bombs = new bool[cells.Length];
+                keys = new int[cells.Length];
                 foreach (var v in decoded) if (v >= 0) filledCells++;
+
+                // Bombs & keys now come straight from the JSON as [x, y] image coordinates.
+                // Map each to the flat grid index (image row y → z = gridSize-1-y, per RLECodec).
+                if (parsed != null)
+                {
+                    foreach (var (bx, by) in parsed.Bombs)
+                    {
+                        int idx = CoordToFlat(bx, by);
+                        if (idx >= 0) bombs[idx] = true;
+                    }
+                    // Each KEY GROUP gets one id (groupIndex+1); ALL its pixels share it. A lock's
+                    // "lock": N references that id. (Grouped keys = 6-ish pixels hidden until unlocked.)
+                    for (int g = 0; g < parsed.KeyGroups.Count; g++)
+                        foreach (var (kx, ky) in parsed.KeyGroups[g])
+                        {
+                            int idx = CoordToFlat(kx, ky);
+                            if (idx >= 0) keys[idx] = g + 1;
+                        }
+                }
             }
+
+            // Auto-fit AFTER cells are decoded so it measures the filled pixels, not the
+            // empty grid. Fine-tune with the scale slider / position later.
+            if (autoFitOnImport && gridSize > 0) ApplyAutoFit();
 
             // Columns straight from JSON (replaces the old auto-generate path).
             if (parsed != null && parsed.Columns != null && parsed.Columns.Count > 0)
@@ -465,13 +638,30 @@ namespace PixelShoot.LevelEditor.EditorTools
                     var shooters = new List<ShooterData>();
                     foreach (var sh in col)
                     {
-                        if (sh.ColorIndex < 0 || sh.ColorIndex >= palette.Count) continue;
                         var sd = new ShooterData();
+                        if (sh.IsLock)
+                        {
+                            // A lock barrier stack item — no colour / shots.
+                            SetField(sd, "isLock", true);
+                            SetField(sd, "keyId", sh.KeyId);
+                            shooters.Add(sd);
+                            continue;
+                        }
+                        if (sh.ColorIndex < 0 || sh.ColorIndex >= palette.Count) continue;
                         SetField(sd, "color", palette[sh.ColorIndex]);
                         SetField(sd, "shotCount", sh.Count);
+                        SetField(sd, "isSurprise", sh.IsSurprise);
+                        SetField(sd, "linkGroupId", sh.LinkGroupId);
                         shooters.Add(sd);
                         shooterCount++;
                     }
+                    // JSON sortColumns are listed TOP-to-bottom (first entry = the clickable top
+                    // bus), but ColumnData stores bottom-to-top (index 0 = bottom, last = top).
+                    // Reverse so a surprise/lock authored near the top actually lands near the top
+                    // — otherwise a surprise placed last in the JSON would sit on top and auto-
+                    // reveal at spawn (via RefreshTop).
+                    shooters.Reverse();
+
                     var cd = new ColumnData();
                     SetField(cd, "shooters", shooters);
                     newColumns.Add(cd);
@@ -485,6 +675,8 @@ namespace PixelShoot.LevelEditor.EditorTools
             if (detectedGrid > 0) parts.Add($"{detectedGrid}×{detectedGrid} grid");
             if (filledCells > 0) parts.Add($"{filledCells} filled cells");
             if (columnsCount > 0) parts.Add($"{columnsCount} columns / {shooterCount} shooters");
+            if (parsed != null && parsed.Bombs.Count > 0) parts.Add($"{parsed.Bombs.Count} bombs");
+            if (parsed != null && parsed.KeyGroups.Count > 0) parts.Add($"{parsed.KeyGroups.Count} keys ({parsed.Keys.Count} cells)");
             lastImportStatus = parts.Count == 0
                 ? "Nothing detected in the pasted text — paste the JSON export from the level designer tool."
                 : "Imported: " + string.Join(", ", parts) + ". (Press Save to persist to disk.)";
@@ -494,7 +686,154 @@ namespace PixelShoot.LevelEditor.EditorTools
             Repaint();
         }
 
+        /// <summary>Map an [x, y] image coordinate (y = row from the top) to the flat cells[]
+        /// index, matching RLECodec's orientation (image row y → z = gridSize-1-y). Returns -1
+        /// if out of range.</summary>
+        private int CoordToFlat(int x, int y)
+        {
+            if (x < 0 || x >= gridSize || y < 0 || y >= gridSize) return -1;
+            int z = gridSize - 1 - y;
+            return z * gridSize + x;
+        }
+
         // ─── Grid & painting ─────────────────────────────────────────
+        // The GridController's cellSize governs how many world units one cell spans before
+        // rootScale. Read it from the scene loader/grid if present; default to 1.
+        private float SceneCellSize()
+        {
+#if UNITY_2023_1_OR_NEWER
+            var gc = Object.FindFirstObjectByType<GridController>(FindObjectsInactive.Include);
+#else
+            var gc = Object.FindObjectOfType<GridController>();
+#endif
+            return gc != null && gc.CellSize > 0.0001f ? gc.CellSize : 1f;
+        }
+
+        /// <summary>
+        /// Scale + centre the grid so it fits inside the scene's "GridArea" object.
+        /// The grid is square (gridSize × cellSize per side); we fit it to the SMALLER of
+        /// the area's world width/depth so it stays fully inside, then centre the root on
+        /// the area. Falls back to <see cref="autoFitWorldSize"/> if no GridArea is found.
+        /// </summary>
+        private void ApplyAutoFit()
+        {
+            if (gridSize <= 0) return;
+            float cell = SceneCellSize();
+
+            // Bounding box of the filled cells; fall back to the full grid if empty.
+            if (!GetContentBounds(out int minX, out int maxX, out int minZ, out int maxZ))
+            { minX = minZ = 0; maxX = maxZ = gridSize - 1; }
+
+            float contentW = (maxX - minX + 1) * cell;   // local width  of the filled pixels
+            float contentH = (maxZ - minZ + 1) * cell;   // local height of the filled pixels
+            if (contentW < 1e-4f || contentH < 1e-4f) return;
+
+            // Content centroid in gridRoot-local space (the grid is centred on the root).
+            float half = (gridSize - 1) * 0.5f;
+            Vector3 contentCenterLocal = new Vector3(
+                ((minX + maxX) * 0.5f - half) * cell, 0f,
+                ((minZ + maxZ) * 0.5f - half) * cell);
+
+            // Parent scale so world-span math holds even if gridRoot is nested/scaled.
+            Transform gridRoot = SceneGridRoot();
+            Transform parent = gridRoot != null ? gridRoot.parent : null;
+            Vector3 pl = parent != null ? parent.lossyScale : Vector3.one;
+            float pSx = Mathf.Abs(pl.x) < 1e-4f ? 1f : Mathf.Abs(pl.x);
+            float pSz = Mathf.Abs(pl.z) < 1e-4f ? 1f : Mathf.Abs(pl.z);
+
+            var area = FindGridArea();
+            float s;
+            if (area != null && TryGetWorldExtents(area, out Vector3 areaSize, out Vector3 areaCenter))
+            {
+                float fill = Mathf.Clamp01(autoFitFill);
+                // Fit the filled content inside the area — whichever axis binds sets the scale.
+                float sByX = areaSize.x / (pSx * contentW);
+                float sByZ = areaSize.z / (pSz * contentH);
+                s = Mathf.Max(0.001f, Mathf.Min(sByX, sByZ) * fill);
+                gridRootScale = Vector3.one * s;
+
+                // Position so the CONTENT centre lands on the area centre (X/Z); keep Y.
+                Vector3 areaCenterLocal = parent != null ? parent.InverseTransformPoint(areaCenter) : areaCenter;
+                gridRootPosition = new Vector3(
+                    areaCenterLocal.x - s * contentCenterLocal.x,
+                    gridRootPosition.y,
+                    areaCenterLocal.z - s * contentCenterLocal.z);
+
+                pendingPreviewRefresh = true;
+                SetStatus($"Auto-fit → '{area.name}': content {maxX - minX + 1}×{maxZ - minZ + 1} cells, scale {s:0.###}, centred.", MessageType.Info);
+            }
+            else
+            {
+                // No GridArea → fit content to the fixed world-size number, centre on origin.
+                s = Mathf.Max(0.001f, autoFitWorldSize / (Mathf.Max(pSx, pSz) * Mathf.Max(contentW, contentH)));
+                gridRootScale = Vector3.one * s;
+                gridRootPosition = new Vector3(-s * contentCenterLocal.x, gridRootPosition.y, -s * contentCenterLocal.z);
+                pendingPreviewRefresh = true;
+                SetStatus($"Auto-fit: no '{gridAreaName}' found — used {autoFitWorldSize} units. Scale {s:0.###}.", MessageType.Warning);
+            }
+        }
+
+        // Bounding box (inclusive) of filled cells. Returns false if the grid is empty.
+        private bool GetContentBounds(out int minX, out int maxX, out int minZ, out int maxZ)
+        {
+            minX = minZ = int.MaxValue; maxX = maxZ = int.MinValue;
+            if (cells == null) return false;
+            for (int z = 0; z < gridSize; z++)
+            {
+                for (int x = 0; x < gridSize; x++)
+                {
+                    if (cells[z * gridSize + x] < 0) continue;
+                    if (x < minX) minX = x; if (x > maxX) maxX = x;
+                    if (z < minZ) minZ = z; if (z > maxZ) maxZ = z;
+                }
+            }
+            return maxX >= minX && maxZ >= minZ;
+        }
+
+        private Transform SceneGridRoot()
+        {
+#if UNITY_2023_1_OR_NEWER
+            var gc = Object.FindFirstObjectByType<GridController>(FindObjectsInactive.Include);
+#else
+            var gc = Object.FindObjectOfType<GridController>();
+#endif
+            return gc != null ? gc.GridRoot : null;
+        }
+
+        // Find the GridArea object by name (searches inactive too).
+        private GameObject FindGridArea()
+        {
+            if (string.IsNullOrEmpty(gridAreaName)) return null;
+            var go = GameObject.Find(gridAreaName);
+            if (go != null) return go;
+#if UNITY_2023_1_OR_NEWER
+            foreach (var t in Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+#else
+            foreach (var t in Object.FindObjectsOfType<Transform>(true))
+#endif
+                if (t.name == gridAreaName) return t.gameObject;
+            return null;
+        }
+
+        // World-space size + centre of the area: prefer the Renderer bounds (works for any
+        // plane/quad/mesh), else fall back to a MeshFilter's bounds scaled by the transform.
+        private static bool TryGetWorldExtents(GameObject go, out Vector3 size, out Vector3 center)
+        {
+            var rend = go.GetComponent<Renderer>();
+            if (rend != null) { size = rend.bounds.size; center = rend.bounds.center; return true; }
+            var mf = go.GetComponent<MeshFilter>();
+            if (mf != null && mf.sharedMesh != null)
+            {
+                Vector3 ls = mf.sharedMesh.bounds.size;
+                Vector3 sc = go.transform.lossyScale;
+                size = new Vector3(Mathf.Abs(ls.x * sc.x), Mathf.Abs(ls.y * sc.y), Mathf.Abs(ls.z * sc.z));
+                center = go.transform.TransformPoint(mf.sharedMesh.bounds.center);
+                return true;
+            }
+            size = center = Vector3.zero;
+            return false;
+        }
+
         private void DrawStep_Grid()
         {
             EditorGUILayout.LabelField("Grid", EditorStyles.boldLabel);
@@ -510,6 +849,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                         for (int i = 0; i < cells.Length; i++) cells[i] = -1;
                         tones = new byte[CellCount];
                         bombs = new bool[CellCount];
+                        keys = new int[CellCount];
                         pendingPreviewRefresh = true;
                     }
                 }
@@ -517,40 +857,73 @@ namespace PixelShoot.LevelEditor.EditorTools
             gridRootPosition = EditorGUILayout.Vector3Field("Grid root position", gridRootPosition);
             // Uniform scale slider — every axis tracks the same value so the grid scales evenly.
             float currentUniform = gridRootScale.x > 0.0001f ? gridRootScale.x : 1f;
-            float newUniform = EditorGUILayout.Slider("Grid root scale", currentUniform, 0.05f, 5f);
+            float newUniform = EditorGUILayout.Slider("Grid root scale", currentUniform, 0.01f, 10f);
             if (!Mathf.Approximately(newUniform, currentUniform))
                 gridRootScale = Vector3.one * newUniform;
 
+            // Auto-fit: scale + centre the grid to fit inside the scene's GridArea plane.
+            // The scale slider / position above are then just fine-tuning.
             using (new EditorGUILayout.HorizontalScope())
             {
-                // Paint, Erase and Bomb are mutually exclusive — toggling one off-by-default
+                gridAreaName = EditorGUILayout.TextField(
+                    new GUIContent("Fit target (scene object)", "Name of the scene object (e.g. a plane) the grid is scaled + centred to fit inside."),
+                    gridAreaName, GUILayout.Width(320));
+                autoFitFill = EditorGUILayout.Slider(new GUIContent("Fill", "1 = touch the edges; <1 leaves a margin."), autoFitFill, 0.5f, 1f);
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button($"Fit grid to '{gridAreaName}'", GUILayout.Width(220))) ApplyAutoFit();
+                autoFitOnImport = GUILayout.Toggle(autoFitOnImport, "auto on import", GUILayout.Width(120));
+                EditorGUILayout.LabelField(new GUIContent("(fallback units)", "Used only if no such object exists in the scene."), GUILayout.Width(100));
+                autoFitWorldSize = EditorGUILayout.FloatField(autoFitWorldSize, GUILayout.Width(60));
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                // Paint, Erase, Bomb and Key are mutually exclusive — toggling one off-by-default
                 // disables clicks entirely, so accidental drags over the grid do nothing.
-                bool newPaint = GUILayout.Toggle(paintMode, "Paint", "Button", GUILayout.Width(70));
+                bool newPaint = GUILayout.Toggle(paintMode, "Paint", "Button", GUILayout.Width(64));
                 if (newPaint != paintMode)
                 {
                     paintMode = newPaint;
-                    if (paintMode) { eraseMode = false; bombMode = false; }
+                    if (paintMode) { eraseMode = false; bombMode = false; keyMode = false; }
                 }
-                bool newErase = GUILayout.Toggle(eraseMode, "Erase", "Button", GUILayout.Width(70));
+                bool newErase = GUILayout.Toggle(eraseMode, "Erase", "Button", GUILayout.Width(64));
                 if (newErase != eraseMode)
                 {
                     eraseMode = newErase;
-                    if (eraseMode) { paintMode = false; bombMode = false; }
+                    if (eraseMode) { paintMode = false; bombMode = false; keyMode = false; }
                 }
-                bool newBomb = GUILayout.Toggle(bombMode, "Bomb", "Button", GUILayout.Width(70));
+                bool newBomb = GUILayout.Toggle(bombMode, "Bomb", "Button", GUILayout.Width(64));
                 if (newBomb != bombMode)
                 {
                     bombMode = newBomb;
-                    if (bombMode) { paintMode = false; eraseMode = false; }
+                    if (bombMode) { paintMode = false; eraseMode = false; keyMode = false; }
                 }
-                bool newPrev = GUILayout.Toggle(initialPreview, "Initial preview", "Button", GUILayout.Width(140));
+                bool newKey = GUILayout.Toggle(keyMode, "Key", "Button", GUILayout.Width(50));
+                if (newKey != keyMode)
+                {
+                    keyMode = newKey;
+                    if (keyMode) { paintMode = false; eraseMode = false; bombMode = false; }
+                }
+                bool newPrev = GUILayout.Toggle(initialPreview, "Init", "Button", GUILayout.Width(50));
                 if (newPrev != initialPreview) initialPreview = newPrev;
                 string statusLabel;
                 if (eraseMode) statusLabel = "Click cells to clear them.";
                 else if (paintMode) statusLabel = $"Painting palette idx {currentPaletteIdx}.";
                 else if (bombMode) statusLabel = "Click cells to toggle bomb flag.";
+                else if (keyMode) statusLabel = $"Click filled cells to assign key id {currentKeyId} (click again to clear).";
                 else statusLabel = "No tool active — clicks do nothing.";
                 EditorGUILayout.LabelField(statusLabel);
+            }
+            if (keyMode)
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField("Key id to paint", GUILayout.Width(100));
+                    currentKeyId = Mathf.Max(1, EditorGUILayout.IntField(currentKeyId, GUILayout.Width(50)));
+                    EditorGUILayout.LabelField("(matches a lock barrier's key id)", EditorStyles.miniLabel);
+                }
             }
 
             if (palette != null && palette.Count > 0)
@@ -603,6 +976,28 @@ namespace PixelShoot.LevelEditor.EditorTools
                         EditorGUI.DrawRect(new Rect(rect.x + pad, rect.y + pad, dotSize, dotSize),
                             new Color(0f, 0f, 0f, 0.85f));
                     }
+                    // Key marker: a yellow border + the key id drawn in the cell so the designer
+                    // can read which group each cell belongs to (and match it to a lock's key id).
+                    int cellKey = GetKey(flat);
+                    if (cellKey > 0)
+                    {
+                        Color keyCol = new Color(1f, 0.85f, 0.1f, 1f);
+                        float th = Mathf.Max(1f, cellPx * 0.18f);
+                        EditorGUI.DrawRect(new Rect(rect.x, rect.y, rect.width, th), keyCol);
+                        EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - th, rect.width, th), keyCol);
+                        EditorGUI.DrawRect(new Rect(rect.x, rect.y, th, rect.height), keyCol);
+                        EditorGUI.DrawRect(new Rect(rect.xMax - th, rect.y, th, rect.height), keyCol);
+                        if (cellPx >= 12f) // only when the cell is big enough to read
+                        {
+                            if (keyLabelStyle == null)
+                                keyLabelStyle = new GUIStyle(EditorStyles.miniBoldLabel)
+                                {
+                                    alignment = TextAnchor.MiddleCenter,
+                                    normal = { textColor = Color.black }
+                                };
+                            GUI.Label(rect, cellKey.ToString(), keyLabelStyle);
+                        }
+                    }
                 }
             }
 
@@ -615,10 +1010,10 @@ namespace PixelShoot.LevelEditor.EditorTools
                 EditorGUI.DrawRect(new Rect(gridRect.x, gridRect.y + v, totalSize, 1), lineCol);
             }
 
-            // Painting (LMB down/drag). Requires Paint, Erase or Bomb to be active and
+            // Painting (LMB down/drag). Requires Paint, Erase, Bomb or Key to be active and
             // not be in Initial preview mode (which is read-only).
             var e = Event.current;
-            bool toolActive = paintMode || eraseMode || bombMode;
+            bool toolActive = paintMode || eraseMode || bombMode || keyMode;
             bool isPaintEvent = e.isMouse
                                 && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag)
                                 && e.button == 0
@@ -644,17 +1039,30 @@ namespace PixelShoot.LevelEditor.EditorTools
                             Repaint();
                         }
                     }
+                    else if (keyMode)
+                    {
+                        // Key tool: assign currentKeyId; clicking a cell that already has it clears it.
+                        if (cells[idx] >= 0 && e.type == EventType.MouseDown)
+                        {
+                            EnsureTonesArray();
+                            keys[idx] = keys[idx] == currentKeyId ? 0 : currentKeyId;
+                            pendingPreviewRefresh = true;
+                            e.Use();
+                            Repaint();
+                        }
+                    }
                     else
                     {
                         int newColor = eraseMode ? -1 : currentPaletteIdx;
                         if (cells[idx] != newColor)
                         {
                             cells[idx] = newColor;
-                            // Erased cells lose their bomb flag too.
+                            // Erased cells lose their bomb + key flags too.
                             if (newColor < 0)
                             {
                                 EnsureTonesArray();
                                 if (bombs != null) bombs[idx] = false;
+                                if (keys != null) keys[idx] = 0;
                             }
                             pendingPreviewRefresh = true;
                             e.Use();
@@ -673,16 +1081,20 @@ namespace PixelShoot.LevelEditor.EditorTools
             return new Rect(px, py, cellPx, cellPx);
         }
 
+        // Matches the runtime GridController.RecomputeFrontier: a cell is shootable iff at least
+        // one of the 4 cardinal rays reaches the grid edge with no filled cell in the way (a
+        // straight lane). An interior empty pocket doesn't make a buried cell shootable.
         private bool IsCellOnSilhouette(int x, int z)
         {
-            (int dx, int dz)[] n4 = { (1, 0), (-1, 0), (0, 1), (0, -1) };
-            foreach (var n in n4)
-            {
-                int nx = x + n.dx, nz = z + n.dz;
-                if (nx < 0 || nx >= gridSize || nz < 0 || nz >= gridSize) return true;
-                if (cells[nz * gridSize + nx] < 0) return true;
-            }
-            return false;
+            return CellLaneClear(x, z, 1, 0) || CellLaneClear(x, z, -1, 0)
+                || CellLaneClear(x, z, 0, 1) || CellLaneClear(x, z, 0, -1);
+        }
+
+        private bool CellLaneClear(int x, int z, int dx, int dz)
+        {
+            for (int cx = x + dx, cz = z + dz; cx >= 0 && cx < gridSize && cz >= 0 && cz < gridSize; cx += dx, cz += dz)
+                if (cells[cz * gridSize + cx] >= 0) return false; // a filled cell blocks the lane
+            return true;
         }
 
         /// <summary>
@@ -695,11 +1107,14 @@ namespace PixelShoot.LevelEditor.EditorTools
             int filledPixels = 0;
             if (cells != null) foreach (var v in cells) if (v >= 0) filledPixels++;
 
+            // Locks are barriers, not buses: they don't shoot, so they must NOT count toward the
+            // bullet budget (otherwise every lock's placeholder shotCount reads as a phantom shot).
             int totalShots = 0;
             if (columns != null)
                 foreach (var col in columns)
                     if (col != null && col.Shooters != null)
-                        foreach (var s in col.Shooters) totalShots += s.ShotCount;
+                        foreach (var s in col.Shooters)
+                            if (!s.IsLock) totalShots += s.ShotCount;
 
             if (filledPixels == 0 && totalShots == 0)
             {
@@ -743,10 +1158,221 @@ namespace PixelShoot.LevelEditor.EditorTools
             DrawBulletBudgetValidation();
             if (columns != null && columns.Count > 0)
             {
-                int sh = 0, shots = 0;
+                int buses = 0, locks = 0, shots = 0;
                 foreach (var col in columns)
-                    foreach (var s in col.Shooters) { sh++; shots += s.ShotCount; }
-                EditorGUILayout.HelpBox($"Columns: {columns.Count}, shooters: {sh}, total shots: {shots}", MessageType.None);
+                    foreach (var s in col.Shooters)
+                        if (s.IsLock) locks++;
+                        else { buses++; shots += s.ShotCount; }
+                EditorGUILayout.HelpBox(
+                    $"Columns: {columns.Count}, buses: {buses}, locks: {locks}, total bus shots: {shots}",
+                    MessageType.None);
+            }
+
+            DrawLockKeyValidation();
+            DrawShooterDetailEditor();
+        }
+
+        /// <summary>
+        /// Always-visible integrity check for the lock ↔ key pairing (NOT behind the per-shooter
+        /// foldout). A lock opens only when a key with the SAME id is collected, and a key is only
+        /// consumed (flies + reveals its boxes) when its lock opens — so the ids must match up:
+        ///   • lock with keyId ≤ 0        → can never open (misconfigured)
+        ///   • lock keyId with no key cell → key never collected → lock never opens
+        ///   • key cell with no lock       → key never consumed → its hidden boxes never reveal
+        /// </summary>
+        private void DrawLockKeyValidation()
+        {
+            if (columns == null) return;
+
+            int zeroKeyLocks = 0;
+            var lockIds = new HashSet<int>();
+            foreach (var col in columns)
+                if (col?.Shooters != null)
+                    foreach (var s in col.Shooters)
+                        if (s.IsLock)
+                        {
+                            if (s.KeyId <= 0) zeroKeyLocks++;
+                            else lockIds.Add(s.KeyId);
+                        }
+
+            var keyIds = new HashSet<int>();
+            if (keys != null) foreach (var k in keys) if (k > 0) keyIds.Add(k);
+
+            if (zeroKeyLocks == 0 && lockIds.Count == 0 && keyIds.Count == 0)
+                return; // this level uses no locks/keys — nothing to check
+
+            if (zeroKeyLocks > 0)
+                EditorGUILayout.HelpBox(
+                    $"🔒 {zeroKeyLocks} lock(s) have key id ≤ 0 — a lock needs a POSITIVE key id or it can never open. " +
+                    "Set each lock's key id in the per-shooter editor to match its key cells.",
+                    MessageType.Error);
+
+            var orphanLocks = new List<int>();
+            foreach (var id in lockIds) if (!keyIds.Contains(id)) orphanLocks.Add(id);
+            if (orphanLocks.Count > 0)
+                EditorGUILayout.HelpBox(
+                    $"🔒 Lock(s) waiting on key id(s) {string.Join(", ", orphanLocks)} but NO key cells are painted with those ids. " +
+                    "Paint matching key cells (Key tool) or those locks can never open.",
+                    MessageType.Error);
+
+            var orphanKeys = new List<int>();
+            foreach (var id in keyIds) if (!lockIds.Contains(id)) orphanKeys.Add(id);
+            if (orphanKeys.Count > 0)
+                EditorGUILayout.HelpBox(
+                    $"🔑 Key cells with id(s) {string.Join(", ", orphanKeys)} have NO lock waiting on them — " +
+                    "the key is never collected, so its hidden boxes never reveal. Add a lock with that key id, " +
+                    "or fix the ids so lock and key match.",
+                    MessageType.Error);
+
+            if (zeroKeyLocks == 0 && orphanLocks.Count == 0 && orphanKeys.Count == 0)
+                EditorGUILayout.HelpBox(
+                    $"✓ Lock/Key OK — key id(s) {string.Join(", ", lockIds)} matched on both locks and key cells.",
+                    MessageType.Info);
+        }
+
+        [SerializeField] private bool showShooterEditor;
+
+        /// <summary>
+        /// Per-shooter editor for the imported columns: tweak count, flip the surprise
+        /// flag, and set link group ids by hand — without re-exporting JSON. Edits write
+        /// straight onto the ShooterData objects via reflection (same path as import).
+        /// </summary>
+        private void DrawShooterDetailEditor()
+        {
+            if (columns == null || columns.Count == 0) return;
+
+            showShooterEditor = EditorGUILayout.Foldout(showShooterEditor, "Per-shooter editor (surprise / link / count)", true);
+            if (!showShooterEditor) return;
+
+            EditorGUILayout.HelpBox(
+                "Rows are shown top-to-bottom — the FIRST row in each column is the TOP (clickable) bus. " +
+                "Surprise = spawns hidden until it surfaces. Link group id > 0 ties buses together (≥2 per id); 0 = unlinked.",
+                MessageType.None);
+
+            // Link-group integrity summary.
+            var linkCounts = new Dictionary<int, int>();
+            foreach (var col in columns)
+                foreach (var s in col.Shooters)
+                    if (s.LinkGroupId > 0)
+                        linkCounts[s.LinkGroupId] = linkCounts.TryGetValue(s.LinkGroupId, out var n) ? n + 1 : 1;
+            if (linkCounts.Count > 0)
+            {
+                var bad = new List<int>();
+                foreach (var kv in linkCounts) if (kv.Value < 2) bad.Add(kv.Key);
+                if (bad.Count > 0)
+                    EditorGUILayout.HelpBox($"Link group(s) with a single member (need ≥2): {string.Join(", ", bad)}.", MessageType.Warning);
+            }
+
+            // (Lock/Key integrity is validated in DrawLockKeyValidation, shown always — not behind
+            // this foldout — so a broken lock↔key pairing can't hide.)
+
+            // Deferred structural edits — applied AFTER the draw loop so we never mutate a
+            // List while enumerating it. Only one button can fire per GUI frame.
+            int pendingCol = -1, pendingInsertAt = -1, pendingRemoveAt = -1;
+
+            for (int ci = 0; ci < columns.Count; ci++)
+            {
+                var col = columns[ci];
+                if (col == null || col.Shooters == null) continue;
+                EditorGUILayout.Space(4);
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField($"Column {ci}  ({col.Shooters.Count} buses, top→bottom)", EditorStyles.miniBoldLabel);
+                    // Insert a lock at the very top of this column.
+                    if (GUILayout.Button("+ Lock (top)", GUILayout.Width(90)))
+                    {
+                        pendingCol = ci;
+                        pendingInsertAt = col.Shooters.Count; // append = topmost
+                    }
+                }
+
+                // Draw TOP (last data index) FIRST so the list reads top-to-bottom like the
+                // real column. The underlying data order (index 0 = bottom) is unchanged.
+                for (int si = col.Shooters.Count - 1; si >= 0; si--)
+                {
+                    var sd = col.Shooters[si];
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        bool isLock = sd.IsLock;
+
+                        // Swatch: lock badge or bus colour.
+                        var prev = GUI.color;
+                        GUI.color = isLock ? new Color(0.85f, 0.72f, 0.2f) : (sd.Color != null ? sd.Color.DisplayColor : Color.magenta);
+                        GUILayout.Box(new GUIContent(isLock ? "L" : ""), GUILayout.Width(18), GUILayout.Height(18));
+                        GUI.color = prev;
+
+                        bool isTop = si == col.Shooters.Count - 1;
+                        EditorGUILayout.LabelField(isTop ? $"[{si}] TOP" : $"[{si}]", GUILayout.Width(64));
+
+                        // Lock toggle — turns this stack item into a barrier (no colour/shots).
+                        bool newIsLock = GUILayout.Toggle(isLock, "Lock", "Button", GUILayout.Width(50));
+                        if (newIsLock != isLock) SetField(sd, "isLock", newIsLock);
+
+                        if (newIsLock)
+                        {
+                            EditorGUILayout.LabelField("key", GUILayout.Width(28));
+                            // Clamp to ≥1: a lock must wait on a real key (id 0 would open instantly).
+                            // This also auto-heals any existing keyId-0 lock the moment its row draws.
+                            int newKey = Mathf.Max(1, EditorGUILayout.IntField(sd.KeyId, GUILayout.Width(40)));
+                            if (newKey != sd.KeyId) SetField(sd, "keyId", newKey);
+                        }
+                        else
+                        {
+                            // Count.
+                            EditorGUILayout.LabelField("shots", GUILayout.Width(36));
+                            int newCount = Mathf.Max(1, EditorGUILayout.IntField(sd.ShotCount, GUILayout.Width(48)));
+                            if (newCount != sd.ShotCount) SetField(sd, "shotCount", newCount);
+
+                            // Surprise.
+                            bool newSurprise = GUILayout.Toggle(sd.IsSurprise, "Surprise", "Button", GUILayout.Width(80));
+                            if (newSurprise != sd.IsSurprise) SetField(sd, "isSurprise", newSurprise);
+
+                            // Link group id.
+                            EditorGUILayout.LabelField("link", GUILayout.Width(30));
+                            int newLink = Mathf.Max(0, EditorGUILayout.IntField(sd.LinkGroupId, GUILayout.Width(40)));
+                            if (newLink != sd.LinkGroupId) SetField(sd, "linkGroupId", newLink);
+                        }
+
+                        GUILayout.FlexibleSpace();
+
+                        // Insert a NEW lock item into the gap above / below this row (data
+                        // index si is bottom-relative; "above" in the column = higher index).
+                        if (GUILayout.Button(new GUIContent("+L↑", "Insert a lock ABOVE this item"), GUILayout.Width(34)))
+                        {
+                            pendingCol = ci;
+                            pendingInsertAt = si + 1;
+                        }
+                        if (GUILayout.Button(new GUIContent("+L↓", "Insert a lock BELOW this item"), GUILayout.Width(34)))
+                        {
+                            pendingCol = ci;
+                            pendingInsertAt = si;
+                        }
+                        if (GUILayout.Button(new GUIContent("✕", "Remove this item"), GUILayout.Width(24)))
+                        {
+                            pendingCol = ci;
+                            pendingRemoveAt = si;
+                        }
+                    }
+                }
+            }
+
+            // Apply the one deferred structural edit, then rebuild the preview.
+            if (pendingCol >= 0 && pendingCol < columns.Count &&
+                columns[pendingCol].Shooters is List<ShooterData> backing)
+            {
+                if (pendingRemoveAt >= 0 && pendingRemoveAt < backing.Count)
+                {
+                    backing.RemoveAt(pendingRemoveAt);
+                    pendingPreviewRefresh = true;
+                }
+                else if (pendingInsertAt >= 0 && pendingInsertAt <= backing.Count)
+                {
+                    var lockSd = new ShooterData();
+                    SetField(lockSd, "isLock", true);
+                    SetField(lockSd, "keyId", 1); // a lock needs a real (>0) key id; default 1, edit per-row
+                    backing.Insert(pendingInsertAt, lockSd);
+                    pendingPreviewRefresh = true;
+                }
             }
         }
 
@@ -963,11 +1589,17 @@ namespace PixelShoot.LevelEditor.EditorTools
             Debug.Log($"[LevelWizard] RefreshScenePreview(persistToDisk={persistToDisk}) targetAsset={(targetAsset != null ? targetAsset.name : "<null>")}");
             if (targetAsset == null) { Debug.LogWarning("[LevelWizard] RefreshScenePreview aborted: no targetAsset."); return false; }
 
-            // Flush wizard state into the bound asset before rebuilding from it.
-            Debug.Log("[LevelWizard] RefreshScenePreview → SaveToAsset()");
-            SaveToAsset();
-            EditorUtility.SetDirty(targetAsset);
-            if (persistToDisk) AssetDatabase.SaveAssets();
+            // IMPORTANT: never mutate the real bound asset here. Build the scene from a
+            // THROWAWAY clone of the wizard state so the ScriptableObject's contents only
+            // ever change when the user explicitly presses Save.
+            if (previewAsset == null)
+            {
+                previewAsset = ScriptableObject.CreateInstance<LevelData>();
+                previewAsset.hideFlags = HideFlags.HideAndDontSave;
+            }
+            WriteInto(previewAsset);
+            // persistToDisk is intentionally ignored now — the preview never writes the
+            // real asset to disk; only SmartSave does.
 
 #if UNITY_2023_1_OR_NEWER
             var loader = Object.FindFirstObjectByType<LevelLoader>(FindObjectsInactive.Include);
@@ -983,9 +1615,10 @@ namespace PixelShoot.LevelEditor.EditorTools
                 return false;
             }
 
-            // Bind the asset on the loader (private field).
-            SetField(loader, "levelData", targetAsset);
-            Debug.Log("[LevelWizard] RefreshScenePreview: bound levelData on loader.");
+            // Bind the PREVIEW clone on the loader for the build (restored to the real
+            // asset before we return, so the scene never holds the temp reference).
+            SetField(loader, "levelData", previewAsset);
+            Debug.Log("[LevelWizard] RefreshScenePreview: bound preview clone on loader.");
 
             // SpawnColumns appends children to columnsRoot; calling Build twice would
             // duplicate them. Clear it ourselves before letting Build run.
@@ -1009,6 +1642,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 SetStatus($"Build threw: {ex.GetType().Name} — {ex.Message}\nSee console for stack.",
                           MessageType.Error);
                 Debug.LogException(ex);
+                SetField(loader, "levelData", targetAsset); // restore real ref
                 return false;
             }
 
@@ -1020,7 +1654,7 @@ namespace PixelShoot.LevelEditor.EditorTools
                 boxesSpawned = boxes.Length;
             }
             int dataCells = 0;
-            foreach (var c in targetAsset.Grid.Cells) if (!c.IsEmpty) dataCells++;
+            foreach (var c in previewAsset.Grid.Cells) if (!c.IsEmpty) dataCells++;
             int colsSpawned = 0;
             if (columnsRootField != null && columnsRootField.GetValue(loader) is Transform colsRoot && colsRoot != null)
                 colsSpawned = colsRoot.childCount;
@@ -1054,6 +1688,10 @@ namespace PixelShoot.LevelEditor.EditorTools
                     $"Built {boxesSpawned} boxes, {colsSpawned} columns from {targetAsset.name}.",
                     MessageType.Info);
             }
+
+            // Restore the loader's reference to the real asset — the temp clone was only
+            // needed to feed Build() without dirtying the bound ScriptableObject.
+            SetField(loader, "levelData", targetAsset);
 
             SceneView.RepaintAll();
             return true;
@@ -1117,6 +1755,8 @@ namespace PixelShoot.LevelEditor.EditorTools
             EnsureCellsArray();
             for (int i = 0; i < cells.Length; i++) cells[i] = -1;
             for (int i = 0; i < tones.Length; i++) tones[i] = 0; // reset to Normal
+            if (bombs != null) for (int i = 0; i < bombs.Length; i++) bombs[i] = false;
+            if (keys != null) for (int i = 0; i < keys.Length; i++) keys[i] = 0;
             foreach (var bc in targetAsset.Grid.Cells)
             {
                 if (bc.IsEmpty) continue;
@@ -1127,10 +1767,19 @@ namespace PixelShoot.LevelEditor.EditorTools
                 cells[flat] = idx;
                 tones[flat] = (byte)bc.Tone;
                 if (bombs != null && flat < bombs.Length) bombs[flat] = bc.IsBomb;
+                if (keys != null && flat < keys.Length) keys[flat] = bc.KeyId;
             }
-            columns = new List<ColumnData>(targetAsset.Columns);
+            // DEEP copy — the wizard must edit its own ColumnData/ShooterData instances, never
+            // the asset's. A shallow copy shares those objects, so unsaved edits (adding a lock,
+            // changing shots) mutate the bound asset in memory and survive a reload-without-save.
+            columns = CloneColumns(targetAsset.Columns);
             conveyorSlotCapacity = targetAsset.ConveyorSlotCapacity;
             reserveSlotCapacity = targetAsset.ReserveSlotCapacity;
+            // Hand back the original designer JSON (if the level was imported from one) so
+            // it shows in the Import box and can be copied again.
+            importedJson = targetAsset.SourceJson ?? "";
+            if (!string.IsNullOrEmpty(importedJson)) importBuffer = importedJson;
+            matchName = targetAsset.LevelName ?? "";
             int filled = 0;
             if (cells != null) foreach (var v in cells) if (v >= 0) filled++;
             Debug.Log($"[LevelWizard] LoadFromAsset done. palette={palette.Count}, columns={columns.Count}, " +
@@ -1139,14 +1788,38 @@ namespace PixelShoot.LevelEditor.EditorTools
             Repaint();
         }
 
-        private void SaveToAsset()
+        // Persist the wizard state into the REAL bound asset (only from SmartSave).
+        private void SaveToAsset() => WriteInto(targetAsset);
+
+        /// <summary>
+        /// Deep-clones a list of ColumnData (and their nested ShooterData) via JsonUtility so
+        /// the wizard's working copy is fully independent of the source. UnityEngine.Object
+        /// fields (e.g. ShooterData.color → a ColorData asset) are kept as the SAME reference,
+        /// which is what we want — only the plain data containers are duplicated.
+        /// </summary>
+        private static List<ColumnData> CloneColumns(IEnumerable<ColumnData> src)
         {
-            if (targetAsset == null) return;
+            var list = new List<ColumnData>();
+            if (src == null) return list;
+            foreach (var c in src)
+                list.Add(c == null ? new ColumnData()
+                                   : JsonUtility.FromJson<ColumnData>(JsonUtility.ToJson(c)));
+            return list;
+        }
+
+        /// <summary>
+        /// Serialize the current wizard state into <paramref name="dest"/>. Used for both
+        /// the real bound asset (on Save) and a throwaway preview clone (on auto-refresh),
+        /// so the scene preview never has to mutate the real ScriptableObject.
+        /// </summary>
+        private void WriteInto(LevelData dest)
+        {
+            if (dest == null) return;
             EnsureCellsArray();
             // Never write a zero scale — that would make the runtime grid invisible.
             if (gridRootScale.sqrMagnitude < 0.0001f) gridRootScale = Vector3.one;
 
-            var grid = targetAsset.Grid;
+            var grid = dest.Grid;
             SetField(grid, "size", gridSize);
             SetField(grid, "rootPosition", gridRootPosition);
             SetField(grid, "rootScale", gridRootScale);
@@ -1167,14 +1840,24 @@ namespace PixelShoot.LevelEditor.EditorTools
                     int flat = z * gridSize + x;
                     SetField(bc, "tone", (Tone)tones[flat]);
                     SetField(bc, "isBomb", bombs != null && flat < bombs.Length && bombs[flat]);
+                    SetField(bc, "keyId", keys != null && flat < keys.Length ? keys[flat] : 0);
                     boxCells.Add(bc);
                 }
             }
             SetField(grid, "cells", boxCells);
 
-            SetField(targetAsset, "columns", new List<ColumnData>(columns));
-            SetField(targetAsset, "conveyorSlotCapacity", conveyorSlotCapacity);
-            SetField(targetAsset, "reserveSlotCapacity", reserveSlotCapacity);
+            // DEEP copy on the way out too, so the destination asset owns independent objects
+            // and later wizard edits don't leak back into it (matters for the real asset on Save;
+            // harmless for the throwaway preview clone).
+            SetField(dest, "columns", CloneColumns(columns));
+            SetField(dest, "conveyorSlotCapacity", conveyorSlotCapacity);
+            SetField(dest, "reserveSlotCapacity", reserveSlotCapacity);
+            // Match id (the JSON "name") — fall back to the asset file name if it was never set.
+            SetField(dest, "levelName", !string.IsNullOrEmpty(matchName) ? matchName : levelName);
+            // Preserve the original designer JSON on the asset. Only overwrite when we
+            // actually have one, so manual edits + re-save don't wipe a previously stored
+            // blob.
+            if (!string.IsNullOrEmpty(importedJson)) SetField(dest, "sourceJson", importedJson);
         }
 
         // GenerateColumnsFromGrid removed — columns now come from JSON's sortColumns field.
@@ -1206,13 +1889,22 @@ namespace PixelShoot.LevelEditor.EditorTools
         }
 
         // ─── ColorData / Material factories ───────────────────────────
-        private static ColorData GetOrCreateColorData(string hex, Color baseColor)
+        // internal so the Bulk Level Importer reuses the exact same colour-asset creation.
+        internal static ColorData GetOrCreateColorData(string hex, Color baseColor)
         {
             string colorDir = $"{ColorsDir}/{hex}";
             EnsureDir(colorDir);
             string path = $"{colorDir}/Color_{hex}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<ColorData>(path);
-            if (existing != null) return existing;
+            if (existing != null)
+            {
+                // Self-heal: an older/partial run may have left a ColorData whose material references
+                // point to .mat files that don't exist (missing → resolves to null). That makes boxes
+                // render in the grey 'unhit' material in the normal preview while 'Show final state'
+                // (which falls back to DisplayColor) looks right. Recreate any missing materials.
+                RepairColorMaterials(existing, hex, baseColor);
+                return existing;
+            }
 
             // Hit material is the only per-color box material now; the shared "unhit"
             // material lives on GridController and is the same for every color.
@@ -1228,6 +1920,47 @@ namespace PixelShoot.LevelEditor.EditorTools
             SetField(cd, "bulletMaterial", bulletMat);
             AssetDatabase.CreateAsset(cd, path);
             return cd;
+        }
+
+        /// <summary>Recreate any of a ColorData's three materials whose reference is missing (the .mat
+        /// was deleted / never created → resolves to null). Returns true if anything was fixed.</summary>
+        internal static bool RepairColorMaterials(ColorData cd, string hex, Color baseColor)
+        {
+            if (cd == null || string.IsNullOrEmpty(hex)) return false;
+            bool changed = false;
+            if (cd.BoxHitMaterial == null)  { SetField(cd, "boxHitMaterial",  CreateMaterial(MatBoxesDir,    hex, "Hit",     baseColor)); changed = true; }
+            if (cd.ShooterMaterial == null) { SetField(cd, "shooterMaterial", CreateMaterial(MatShootersDir, hex, "Shooter", baseColor)); changed = true; }
+            if (cd.BulletMaterial == null)  { SetField(cd, "bulletMaterial",  CreateMaterial(MatBulletsDir,  hex, "Bullet",  baseColor)); changed = true; }
+            if (changed) EditorUtility.SetDirty(cd);
+            return changed;
+        }
+
+        /// <summary>Scan every ColorData asset and rebuild missing materials. Fixes levels that show the
+        /// grey 'unhit' colour in the preview (materials lost from a partial import).</summary>
+        [MenuItem("PixelShoot/Repair Missing Color Materials")]
+        private static void RepairAllColorMaterials()
+        {
+            var guids = AssetDatabase.FindAssets("t:ColorData");
+            int scanned = 0, repaired = 0;
+            try
+            {
+                for (int i = 0; i < guids.Length; i++)
+                {
+                    string p = AssetDatabase.GUIDToAssetPath(guids[i]);
+                    var cd = AssetDatabase.LoadAssetAtPath<ColorData>(p);
+                    if (cd == null || string.IsNullOrEmpty(cd.ColorId)) continue;
+                    scanned++;
+                    EditorUtility.DisplayProgressBar("Repair Color Materials", cd.name, (float)i / Mathf.Max(1, guids.Length));
+                    if (RepairColorMaterials(cd, cd.ColorId, cd.DisplayColor)) repaired++;
+                }
+            }
+            finally { EditorUtility.ClearProgressBar(); }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[Repair] Scanned {scanned} ColorData — repaired {repaired} with missing materials.");
+            EditorUtility.DisplayDialog("Repair Color Materials",
+                $"Scanned {scanned} colours.\nRepaired {repaired} that had missing materials.", "OK");
         }
 
         private static Material CreateMaterial(string baseDir, string hex, string name, Color color)
@@ -1254,7 +1987,8 @@ namespace PixelShoot.LevelEditor.EditorTools
             AssetDatabase.CreateFolder(parent, name);
         }
 
-        private static void SetField(object target, string fieldName, object value)
+        // internal so the Bulk Level Importer writes the same private serialized fields.
+        internal static void SetField(object target, string fieldName, object value)
         {
             var t = target.GetType();
             while (t != null)

@@ -1,5 +1,6 @@
 using UnityEngine;
 using PixelShoot.Game;
+using PixelShoot.UI;
 
 namespace PixelShoot.Data
 {
@@ -32,7 +33,7 @@ namespace PixelShoot.Data
         {
             PlayerWallet.MarkPurchased(OfferId);
             PlayerWallet.MarkAnyPurchaseMade();
-            if (GrantedCoins > 0) PlayerWallet.Add(GrantedCoins);
+            RewardFlow.Grant(new RewardBundle().AddCoins(GrantedCoins));
             Debug.Log($"[Shop] Starter offer '{OfferId}' purchased. +{GrantedCoins} coins.");
         }
     }

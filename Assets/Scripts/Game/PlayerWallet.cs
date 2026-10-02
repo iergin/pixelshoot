@@ -32,10 +32,14 @@ namespace PixelShoot.Game
             SetBalance(Mathf.Max(0, initial));
         }
 
-        public static void Add(int amount)
+        /// <summary>Grant coins. <paramref name="source"/> tags the earn for the <c>coin</c> analytics
+        /// event (e.g. "level_win", "reward_bundle"). Fires the event with a POSITIVE amount.</summary>
+        public static void Add(int amount, string source = "unknown")
         {
             if (amount <= 0) return;
-            SetBalance(Balance + amount);
+            int start = Balance;
+            SetBalance(start + amount);
+            PixelShoot.Analytics.AnalyticsEvents.TrackCoin(source, amount, start, start + amount);
         }
 
         /// <summary>True iff the player can afford `amount`.</summary>
@@ -45,11 +49,13 @@ namespace PixelShoot.Game
         /// Attempt to spend `amount`. Returns true on success and deducts; returns
         /// false on insufficient funds and leaves the balance untouched.
         /// </summary>
-        public static bool TrySpend(int amount)
+        public static bool TrySpend(int amount, string source = "unknown")
         {
             amount = Mathf.Max(0, amount);
             if (Balance < amount) return false;
-            SetBalance(Balance - amount);
+            int start = Balance;
+            SetBalance(start - amount);
+            if (amount > 0) PixelShoot.Analytics.AnalyticsEvents.TrackCoin(source, -amount, start, start - amount); // spend = negative
             return true;
         }
 
@@ -143,11 +149,16 @@ namespace PixelShoot.Game
             PlayerPrefs.Save();
         }
 
+        /// <summary>Fired after No-Ads is bought (the flag flips to owned). UI listens to hide the
+        /// "No Ads" button and close the promo popup.</summary>
+        public static event Action OnNoAdsChanged;
+
         public static bool HasNoAds => PlayerPrefs.GetInt(NoAdsKey, 0) == 1;
         public static void MarkNoAdsBought()
         {
             PlayerPrefs.SetInt(NoAdsKey, 1);
             PlayerPrefs.Save();
+            OnNoAdsChanged?.Invoke();
         }
 
         // ── Sound mute (Settings) ────────────────────────────────────────────
@@ -160,6 +171,69 @@ namespace PixelShoot.Game
                 PlayerPrefs.SetInt(MutedKey, value ? 1 : 0);
                 PlayerPrefs.Save();
                 AudioListener.volume = value ? 0f : 1f;
+            }
+        }
+
+        // ── Settings toggles (independent, all default ON) ────────────────────
+        private const string MusicKey        = "PixelShoot.MusicEnabled";
+        private const string SfxKey          = "PixelShoot.SfxEnabled";
+        private const string VibrationKey    = "PixelShoot.VibrationEnabled";
+        private const string NotificationsKey = "PixelShoot.NotificationsEnabled";
+
+        /// <summary>Fired after the music flag changes. Payload = new enabled state.</summary>
+        public static event Action<bool> OnMusicEnabledChanged;
+        /// <summary>Fired after the effects (sound) flag changes. Payload = new enabled state.</summary>
+        public static event Action<bool> OnSfxEnabledChanged;
+        /// <summary>Fired after the vibration/haptics flag changes. Payload = new enabled state.</summary>
+        public static event Action<bool> OnVibrationEnabledChanged;
+        /// <summary>Fired after the notifications flag changes. Payload = new enabled state.</summary>
+        public static event Action<bool> OnNotificationsEnabledChanged;
+
+        public static bool MusicEnabled
+        {
+            get => PlayerPrefs.GetInt(MusicKey, 1) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(MusicKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                OnMusicEnabledChanged?.Invoke(value);
+            }
+        }
+
+        public static bool SfxEnabled
+        {
+            get => PlayerPrefs.GetInt(SfxKey, 1) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(SfxKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                OnSfxEnabledChanged?.Invoke(value);
+            }
+        }
+
+        /// <summary>Vibration / haptics toggle. Persisted; wire real haptics off
+        /// <see cref="OnVibrationEnabledChanged"/> when the feature lands.</summary>
+        public static bool VibrationEnabled
+        {
+            get => PlayerPrefs.GetInt(VibrationKey, 1) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(VibrationKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                OnVibrationEnabledChanged?.Invoke(value);
+            }
+        }
+
+        /// <summary>Notifications toggle. Persisted; wire real push-notification opt-in off
+        /// <see cref="OnNotificationsEnabledChanged"/> when the feature lands.</summary>
+        public static bool NotificationsEnabled
+        {
+            get => PlayerPrefs.GetInt(NotificationsKey, 1) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(NotificationsKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+                OnNotificationsEnabledChanged?.Invoke(value);
             }
         }
 

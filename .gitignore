@@ -87,3 +87,9 @@ mono_crash.*
 redshift.sql
 fbg.log
 ServerData
+
+# Firebase desktop/editor-only native libs (macOS .bundle 106MB + Linux .so 77MB).
+# NOT used in Android/iOS device builds — only for running Firebase inside the Unity Editor.
+# Over GitHub's 100MB limit; re-imported automatically when you import the Firebase SDK.
+/[Aa]ssets/Firebase/Plugins/x86_64/
+/[Aa]ssets/Firebase/Plugins/x86_64.meta

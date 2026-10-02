@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -18,23 +19,36 @@ namespace PixelShoot.UI
         [Header("Success panel")]
         [SerializeField] private GameObject successPanel;
         [SerializeField] private Button nextLevelButton;
+        [Tooltip("After completing THIS level, every following level's Next Level returns to the MENU " +
+                 "instead of loading the next level directly (levels up to & including this one go " +
+                 "straight through). e.g. 3 → levels 1-3 direct, level 4+ always via the menu. 0 = never.")]
+        [SerializeField, Min(0)] private int menuAfterLevel = 3;
+        [Tooltip("Optional. Shows the coins earned this level, e.g. '+20'. {0} = amount. Updates to the doubled value if the 2× ad is watched.")]
+        [SerializeField] private TMP_Text rewardLabel;
+        [SerializeField] private string rewardFormat = "+{0}";
         [Tooltip("Optional 'Watch ad for 2× coins' button on the success panel.")]
         [SerializeField] private Button doubleCoinsButton;
         [Tooltip("Optional. Shows the would-be reward, e.g. 'Get 40 coins'. {0} = doubled reward.")]
         [SerializeField] private TMP_Text doubleCoinsLabel;
         [SerializeField] private string doubleCoinsFormat = "Get {0}";
 
+        [Header("Success sequence (win → confetti → camera → panel)")]
+        [Tooltip("Confetti burst played the instant the level is won.")]
+        [SerializeField] private ParticleSystem confetti;
+        [Tooltip("Seconds to let the confetti play before blending to the success camera.")]
+        [SerializeField] private float confettiLeadTime = 0.4f;
+        [Tooltip("Cinemachine success vcam GameObject — activated to blend the camera. Give it a higher Priority than the gameplay vcam.")]
+        [SerializeField] private GameObject successCamera;
+        [Tooltip("Seconds to wait for the camera blend to finish before showing the success panel (match the CinemachineBrain blend time).")]
+        [SerializeField] private float cameraTransitionDuration = 1f;
+
         [Header("Ads")]
+        [Tooltip("Optional same-scene reference; in the two-scene setup it lives in InitializeScene, " +
+                 "so we fall back to InterstitialController.Instance.")]
         [SerializeField] private InterstitialController interstitial;
+        private InterstitialController Interstitial => interstitial != null ? interstitial : InterstitialController.Instance;
         [SerializeField] private CoinsConfig coinsConfig;
-        [Header("Fail panel")]
-        [SerializeField] private GameObject failPanel;
-        [SerializeField] private Button restartButton;
-        [SerializeField] private Button playOnButton;
-        [Tooltip("Optional. If set, shows the revive cost as 'Play On (N)' so the player knows the price.")]
-        [SerializeField] private TMP_Text playOnCostLabel;
-        [Tooltip("Format for the revive-cost label. {0} = cost in coins.")]
-        [SerializeField] private string playOnCostFormat = "Play On ({0})";
+  
 
         public void Bind(GameController gc)
         {
@@ -87,12 +101,7 @@ namespace PixelShoot.UI
 
         private void UpdatePlayOnButton()
         {
-            if (gameController == null) return;
-            int cost = gameController.ReviveCost;
-            bool canAfford = gameController.CanAffordRevive;
 
-            if (playOnButton != null) playOnButton.interactable = canAfford;
-            if (playOnCostLabel != null) playOnCostLabel.text = string.Format(playOnCostFormat, cost);
         }
 
         private void HookButtons()
@@ -101,16 +110,6 @@ namespace PixelShoot.UI
             {
                 nextLevelButton.onClick.RemoveAllListeners();
                 nextLevelButton.onClick.AddListener(OnNextLevel);
-            }
-            if (restartButton != null)
-            {
-                restartButton.onClick.RemoveAllListeners();
-                restartButton.onClick.AddListener(OnRestart);
-            }
-            if (playOnButton != null)
-            {
-                playOnButton.onClick.RemoveAllListeners();
-                playOnButton.onClick.AddListener(OnPlayOn);
             }
             if (doubleCoinsButton != null)
             {
@@ -123,54 +122,106 @@ namespace PixelShoot.UI
 
         private void HandleWon()
         {
-            if (failPanel != null) failPanel.SetActive(false);
+            StopAllCoroutines();
+            StartCoroutine(SuccessSequence());
+        }
+
+        /// <summary>Win celebration: confetti burst → blend to the success camera → then
+        /// (once the blend finishes) show the success panel.</summary>
+        private IEnumerator SuccessSequence()
+        {
+            // 1) Confetti.
+            if (confetti != null)
+            {
+                if (!confetti.gameObject.activeSelf) confetti.gameObject.SetActive(true);
+                confetti.Play(true);
+            }
+            if (confettiLeadTime > 0f) yield return new WaitForSecondsRealtime(confettiLeadTime);
+
+            // 2) Switch to the success Cinemachine camera (higher priority → brain blends).
+            if (successCamera != null) successCamera.SetActive(true);
+            if (cameraTransitionDuration > 0f) yield return new WaitForSecondsRealtime(cameraTransitionDuration);
+
+            // 3) Camera settled → reveal the success panel.
+            ShowSuccessPanel();
+        }
+
+        private void ShowSuccessPanel()
+        {
             if (successPanel != null) successPanel.SetActive(true);
+
+            // "You earned" text — the actual reward paid (base × difficulty multiplier).
+            int reward = LevelLoader.LastWinReward;
+            if (rewardLabel != null) rewardLabel.text = string.Format(rewardFormat, reward);
 
             // Set up the 2× button. Re-enabled each win in case the previous win consumed it.
             doubleCoinsClaimed = false;
             if (doubleCoinsButton != null) doubleCoinsButton.interactable = true;
-            if (doubleCoinsLabel != null && coinsConfig != null)
-                doubleCoinsLabel.text = string.Format(doubleCoinsFormat, coinsConfig.LevelWinReward * 2);
+            if (doubleCoinsLabel != null)
+                doubleCoinsLabel.text = string.Format(doubleCoinsFormat, reward * 2);
 
-            // Fire the interstitial gate. The InterstitialController decides whether to
-            // actually show one based on level / cadence; it counts this call as one
-            // completed level whether or not an ad pops.
-            if (interstitial != null) interstitial.NotifyLevelEnded();
+            // NOTE: the interstitial no longer fires here — it would cover the success panel. It's now
+            // triggered when the player presses Next Level (OnNextLevel), like the fail flow.
         }
 
         private void HandleFailed()
         {
             if (successPanel != null) successPanel.SetActive(false);
-            if (failPanel != null) failPanel.SetActive(true);
-            UpdatePlayOnButton();
-            // Interstitial counter ticks for losses too — the player saw a level result.
-            if (interstitial != null) interstitial.NotifyLevelEnded();
+            // NOTE: the interstitial no longer fires here — it would cover the fail popup. It's now
+            // triggered at the END of the fail chain (FailFlowPopup.Finish, after all X taps).
+            if (PopupService.Instance != null)
+                PopupService.Instance.Create<FailFlowPopup>(p => p.SetMode(FailFlowPopup.Mode.Fail));
         }
-
         public void HideAll()
         {
             if (successPanel != null) successPanel.SetActive(false);
-            if (failPanel != null) failPanel.SetActive(false);
         }
 
         private void OnNextLevel()
         {
+            // Interstitial fires now (after Next Level, not over the success panel). The reload runs
+            // in the callback — ONLY after the ad closes — so the level never rebuilds under the ad
+            // (which left buses unclickable).
+            if (Interstitial != null) Interstitial.NotifyLevelEnded(ProceedToNext);
+            else ProceedToNext();
+        }
+
+        private void ProceedToNext()
+        {
+            // Once past menuAfterLevel, EVERY level returns to the menu instead of loading the next
+            // one directly. PlayerProgress already advanced on the win, so LevelIndex == the 1-based
+            // number of the level just completed.
+            int completed = PlayerProgress.LevelIndex;
+            if (menuAfterLevel > 0 && completed > menuAfterLevel)
+            {
+                if (SceneFlow.Instance != null) { SceneFlow.Instance.LoadMainMenu(); return; }
+            }
             if (gameController != null) gameController.ReloadScene();
         }
 
         private void OnRestart()
         {
-            if (gameController != null) gameController.ReloadScene();
-        }
-
-        private void OnPlayOn()
-        {
             if (gameController == null) return;
-            // PlayOn now spends coins and returns false if the player can't afford it.
-            // Only hide the fail panel when it actually succeeded.
-            if (gameController.PlayOn() && failPanel != null) failPanel.SetActive(false);
-        }
 
+            // Restarting = abandoning this (failed) attempt → the streak is broken.
+            PlayerStreak.Reset();
+
+            // A restart is a fresh attempt, so it costs a life.
+            if (PlayerLives.TryConsumeForLevelStart())
+            {
+                // Has a life → replay the level directly. Two-scene: this reloads just the Game
+                // scene (SceneFlow.ReloadGame) — the menu is never involved, so no auto-start flag.
+                gameController.ReloadScene();
+            }
+            else
+            {
+                // No lives → go home and surface the out-of-lives popup there.
+                MainMenuController.PendingOutOfLives = true;
+                if (SceneFlow.Instance != null) SceneFlow.Instance.LoadMainMenu();
+                else gameController.ReloadScene();
+            }
+        }
+        
         /// <summary>
         /// "Watch ad for 2× coins" handler. On rewarded success, grants ONE additional
         /// reward on top of the one LevelLoader already paid out, so total = 2×.
@@ -190,9 +241,11 @@ namespace PixelShoot.UI
                 {
                     doubleCoinsClaimed = true;
                     if (doubleCoinsButton != null) doubleCoinsButton.interactable = false;
-                    PlayerWallet.Add(coinsConfig.LevelWinReward); // first reward already paid by LevelLoader
-                    if (interstitial != null) interstitial.NotifyRewardedWatched();
-                    Debug.Log($"[LevelEndUI] 2× reward claimed (+{coinsConfig.LevelWinReward}).");
+                    int reward = LevelLoader.LastWinReward; // the actual paid amount (× difficulty)
+                    PlayerWallet.Add(reward, "level_win_double"); // grant the same again → total 2× (first was paid by LevelLoader)
+                    if (rewardLabel != null) rewardLabel.text = string.Format(rewardFormat, reward * 2);
+                    Interstitial?.NotifyRewardedWatched();
+                    Debug.Log($"[LevelEndUI] 2× reward claimed (+{reward}).");
                 },
                 onClosed: null);
         }

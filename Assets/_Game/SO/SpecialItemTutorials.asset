@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5907117a0ab0c0d0e0f00112233457e2, type: 3}
+  m_Name: SpecialItemTutorials
+  m_EditorClassIdentifier:
+  entries:
+  - item: 0
+    title: Surprise Bus
+    description: This bus is hidden! Its color and count reveal when it reaches the
+      front of its column.
+    icon: {fileID: 0}
+  - item: 1
+    title: Linked Buses
+    description: Chained buses board together and only leave once all of them are
+      empty.
+    icon: {fileID: 0}
+  - item: 2
+    title: Locked Bus
+    description: This bus is locked. Clear the matching key box to unlock it.
+    icon: {fileID: 0}
+  - item: 3
+    title: Bomb
+    description: Clear this box to blow up everything around it!
+    icon: {fileID: 0}

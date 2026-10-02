@@ -1,5 +1,6 @@
 using UnityEngine;
 using PixelShoot.Game;
+using PixelShoot.UI;
 
 namespace PixelShoot.Data
 {
@@ -17,7 +18,7 @@ namespace PixelShoot.Data
         public override void OnPurchased()
         {
             PlayerWallet.MarkAnyPurchaseMade();
-            if (GrantedCoins > 0) PlayerWallet.Add(GrantedCoins);
+            RewardFlow.Grant(new RewardBundle().AddCoins(GrantedCoins));
             Debug.Log($"[Shop] Coin pack '{OfferId}' purchased. +{GrantedCoins} coins.");
         }
     }

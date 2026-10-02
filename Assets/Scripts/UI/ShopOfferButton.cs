@@ -35,6 +35,14 @@ namespace PixelShoot.UI
         [SerializeField] private TMP_Text priceLabel;
         [Tooltip("Shown over the button when the offer has already been purchased.")]
         [SerializeField] private GameObject ownedOverlay;
+        [Tooltip("Object disabled when this offer is hidden (locked / bought-and-Hide-When-Purchased). " +
+                 "Assign the WHOLE CARD root so the entire card disappears, not just the button. If empty, " +
+                 "this GameObject is used. NOTE: for the shop to close the gap, the card must sit under a " +
+                 "LayoutGroup (see below).")]
+        [SerializeField] private GameObject hideTarget;
+
+        // What actually gets shown/hidden — the assigned card root, or this object as a fallback.
+        private GameObject HideRoot => hideTarget != null ? hideTarget : gameObject;
 
         private float retryCooldown;
         private bool lastPriceKnown;
@@ -42,6 +50,7 @@ namespace PixelShoot.UI
         private void OnEnable()
         {
             PlayerWallet.OnBalanceChanged += OnBalance;
+            PlayerWallet.OnNoAdsChanged += Refresh; // hide the No-Ads row the instant it's bought elsewhere
             if (buyButton != null)
             {
                 buyButton.onClick.RemoveAllListeners();
@@ -55,6 +64,7 @@ namespace PixelShoot.UI
         private void OnDisable()
         {
             PlayerWallet.OnBalanceChanged -= OnBalance;
+            PlayerWallet.OnNoAdsChanged -= Refresh;
         }
 
         private void Update()
@@ -76,14 +86,20 @@ namespace PixelShoot.UI
             bool isPurchased = PlayerWallet.HasPurchased(offer.OfferId);
             bool isAvailable = offer.IsAvailable;
 
-            // Locked: not bought AND not currently available (e.g. Starter Pack before
-            // the NoAds prerequisite is met). Hide the whole row so it doesn't show as OWNED.
-            if (!isPurchased && !isAvailable)
+            // Hide the whole row when:
+            //  (a) locked — not bought AND not available yet (e.g. Starter Pack before NoAds), or
+            //  (b) bought AND the offer is flagged Hide-When-Purchased (one-time bundle / No-Ads) —
+            //      so it disappears from the shop instead of lingering as an OWNED row, or
+            //  (c) the offer is flagged Hide-When-No-Ads-Owned and No-Ads is now owned (a No-Ads
+            //      bundle is pointless once No-Ads is already owned — even if bought elsewhere).
+            if ((!isPurchased && !isAvailable)
+                || (isPurchased && offer.HideWhenPurchased)
+                || (offer.HideWhenNoAdsOwned && PlayerWallet.HasNoAds))
             {
-                gameObject.SetActive(false);
+                HideRoot.SetActive(false);
                 return;
             }
-            if (!gameObject.activeSelf) gameObject.SetActive(true);
+            if (!HideRoot.activeSelf) HideRoot.SetActive(true);
 
             if (titleLabel != null) titleLabel.text = offer.DisplayName;
 
